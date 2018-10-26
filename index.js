@@ -8,15 +8,15 @@ app.get('/', function(req, res){
 });
 io.on('connection', function(socket){
     redis.lrange("messages", 0, -1, function(err, result) {
-result.reverse();
-result.forEach(function(value){
-    io.emit('loadMessages', value);
-});
-   }); 
-  socket.on('message', function(msg){
-  redis.lpush('messages',  msg);
-    io.emit('message', msg);
-  });
+        result.reverse();
+        result.forEach(function(value){
+            io.to(socket.id).emit('loadMessages', value);
+        });
+    }); 
+    socket.on('message', function(msg){
+        redis.lpush('messages',  msg);
+        io.emit('message', msg);
+    });
 });
 http.listen(8080, function(){
   console.log('listening on *:8080');
