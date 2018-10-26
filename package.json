@@ -1,12 +1,10 @@
 {
-    "name": "Chat App",
-    "version": "1.0.0",
-    "description": "My First Node Project",
-    "main": "index.html",
-    "dependencies": {
-        "express": "^4.16.3",
-        "express-ip": "^1.0.3",
-        "request-ip": "^2.1.1",
-        "socket.io": "^2.1.1"
-    }
+  "name": "Social-Network",
+  "version": "0.0.1",
+  "description": "Stuff",
+  "dependencies": {
+    "express": "^4.16.4",
+    "redis": "^2.8.0",
+    "socket.io": "^2.1.1"
+  }
 }
