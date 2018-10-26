@@ -11,7 +11,7 @@ io.on('connection', function(socket){
         result.reverse();
         result.forEach(function(value){
             io.sockets.connected[socket.id].emit('loadMessages', value);
-            io.sockets.connected[socket.id].emit('loadMessages', socket.id);
+            io.emit('message', 'TEST: '+socket.id);
         });
     }); 
     socket.on('message', function(msg){
