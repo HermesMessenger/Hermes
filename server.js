@@ -2,7 +2,7 @@ var express = require('express');
 var requestIp = require('request-ip');
 
 var app = express();
-var server = app.listen(1300,"10.0.0.12");
+var server = app.listen(1310,"10.0.0.12");
 
 app.use(express.static('public'));
 app.use(requestIp.mw())
