@@ -10,7 +10,7 @@ io.on('connection', function(socket){
     redis.lrange("messages", 0, -1, function(err, result) {
         result.reverse();
         result.forEach(function(value){
-            socket.emit('loadMessages', value);
+            io.sockets.connected[socket.id].emit('loadMessages', value);
         });
     }); 
     socket.on('message', function(msg){
