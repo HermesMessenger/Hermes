@@ -1,53 +1,52 @@
-var app = require('express')();
-var http = require('http').Server(app);
-//var io = require('socket.io')(http);
-var redis = require("redis").createClient();
+function httpGetAsync(theUrl, callback){
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            callback(xmlHttp.responseText);
+    }
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+    xmlHttp.send(null);
+}
 
-const NULLCHAR = String.fromCharCode(0x0);
-const NAMESEPCHAR = String.fromCharCode(0x1);
+function getRandomRGBPart(){
+    return Math.floor(Math.random() * 201);
+}
 
-app.get('/', function(req, res){
-  res.sendFile(__dirname + '/index.html');
-});
 
-app.get('/loadmessages/', function(req, res){
-    redis.lrange("messages", 0, -1, function(err, result) {
-        result.reverse();
-        data = ''
-        i = 0;
-        result.forEach(function(value){
-            if(i!=0){
-                data += NULLCHAR;
+$(function () {
+    const NULLCHAR = String.fromCharCode(0x0);
+    const NAMESEPCHAR = String.fromCharCode(0x1);
+    $('form').submit(function(){
+        httpGetAsync('/sendmessage/'+encodeURI($('#user').val())+'/'+encodeURI($('#m').val()), function(res){});
+        $('#m').val('');
+        return false;
+    });
+    var loaded_messages = 0;
+    var user_colors = {};
+    window.setInterval(function(){
+        httpGetAsync('/loadmessages',function(res){
+            let messages = res.split(NULLCHAR);
+            for (let i=0;i<messages.length;i++){
+                if(loaded_messages<=i){
+                    let message_pair = messages[i].split(NAMESEPCHAR);
+                    console.log(message_pair);
+                    if(!Object.keys(user_colors).includes(message_pair[0])){
+                        user_colors[message_pair[0]] = 'rgb('+getRandomRGBPart()+','+getRandomRGBPart()+','+getRandomRGBPart()+')';
+                    }
+                    let color = user_colors[message_pair[0]];
+                    let new_message = $('<li>');
+                    new_message.append($('<b>').text(message_pair[0]+': ').css("color", color));
+                    new_message.append(message_pair[1]);
+                    console.log(new_message);
+                    
+                    $('#messages').append(new_message);
+                    $('html, body').animate({ scrollTop: $("form").offset().top }, 1);
+                    loaded_messages++;
+                }
+                
             }
-            data += value;
-            i++;
             
         });
-        console.log('DATA: ' + data.split(NULLCHAR));
-        res.send(data);
-    }); 
-});
+    }, 500);
 
-app.get('/sendmessage/:username/:message', function(req, res){
-    console.log(req.params.username+':',req.params.message);
-    redis.lpush('messages', req.params.username+NAMESEPCHAR+req.params.message);
-    res.sendStatus(200);
-});
-
-/*
-io.on('connection', function(socket){
-    redis.lrange("messages", 0, -1, function(err, result) {
-        result.reverse();
-        result.forEach(function(value){
-            io.sockets.connected[socket.id].emit('loadMessages', value);
-            io.sockets.connected[socket.id].emit('loadMessages', 'TEST: '+socket.id);
-        });
-    }); 
-    socket.on('message', function(msg){
-        redis.lpush('messages',  msg);
-        io.emit('message', msg);
-    });
-});*/
-http.listen(8080, function(){
-  console.log('listening on *:8080');
 });
