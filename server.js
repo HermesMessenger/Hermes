@@ -37,21 +37,6 @@ app.get('/sendmessage/:username/:message', function(req, res){
     redis.lpush('messages', req.params.username+NAMESEPCHAR+req.params.message);
     res.sendStatus(200);
 });
-
-/*
-io.on('connection', function(socket){
-    redis.lrange("messages", 0, -1, function(err, result) {
-        result.reverse();
-        result.forEach(function(value){
-            io.sockets.connected[socket.id].emit('loadMessages', value);
-            io.sockets.connected[socket.id].emit('loadMessages', 'TEST: '+socket.id);
-        });
-    }); 
-    socket.on('message', function(msg){
-        redis.lpush('messages',  msg);
-        io.emit('message', msg);
-    });
-});*/
 http.listen(8080, function(){
   console.log('listening on *:8080');
 });
