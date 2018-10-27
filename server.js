@@ -1,6 +1,4 @@
 var app = require('express')();
-var http = require('http').Server(app);
-//var io = require('socket.io')(http);
 var redis = require("redis").createClient();
 
 const NULLCHAR = String.fromCharCode(0x0);
@@ -37,6 +35,6 @@ app.get('/sendmessage/:username/:message', function(req, res){
     redis.lpush('messages', req.params.username+NAMESEPCHAR+req.params.message);
     res.sendStatus(200);
 });
-http.listen(8080, function(){
+app.listen(8080, function(){
   console.log('listening on *:8080');
 });

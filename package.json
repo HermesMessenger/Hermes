@@ -4,7 +4,6 @@
   "description": "Stuff",
   "dependencies": {
     "express": "^4.16.4",
-    "http": "0.0.0",
     "redis": "^2.8.0"
   }
 }
