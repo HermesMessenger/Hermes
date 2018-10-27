@@ -4,6 +4,7 @@ var http = require('http').Server(app);
 var redis = require("redis").createClient();
 
 const NULLCHAR = String.fromCharCode(0x0);
+const NAMESEPCHAR = String.fromCharCode(0x1);
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
@@ -27,9 +28,9 @@ app.get('/loadmessages/', function(req, res){
     }); 
 });
 
-app.get('/sendmessage/:message', function(req, res){
-    console.log(req.params.message);
-    redis.lpush('messages', req.params.message);
+app.get('/sendmessage/:username/:message', function(req, res){
+    console.log(req.params.username+':',req.params.message);
+    redis.lpush('messages', req.params.username+NAMESEPCHAR+req.params.message);
     res.sendStatus(200);
 });
 

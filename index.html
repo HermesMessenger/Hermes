@@ -6,9 +6,10 @@
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body { font: 13px Helvetica, Arial; }
       form { background: #000; padding: 3px; position: relative; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form input { border: 0; padding: 10px; width: 80%; margin-right: .5%; }
+      #user {width: 9%;}
       form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; height: 90%;}
+      #messages { list-style-type: none; margin: 0; padding: 0; height: 80%;}
       #messages li { padding: 5px 10px; }
       #messages li:nth-child(odd) { background: #eee; }
     </style>
@@ -16,9 +17,8 @@
   <body>
     <ul id="messages"></ul>
     <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
+        <input id="user" autocomplete="off"/><input id="m" autocomplete="off" /><button>Send</button>
     </form>
-<!--script src="/socket.io/socket.io.js"></script-->
 <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 <script>
     function httpGetAsync(theUrl, callback){
@@ -32,10 +32,11 @@
     }
     $(function () {
         const NULLCHAR = String.fromCharCode(0x0);
+        const NAMESEPCHAR = String.fromCharCode(0x1);
         $('form').submit(function(){
-        httpGetAsync('/sendmessage/'+encodeURI($('#m').val()), function(res){});
-        $('#m').val('');
-        return false;
+            httpGetAsync('/sendmessage/'+encodeURI($('#user').val())+'/'+encodeURI($('#m').val()), function(res){});
+            $('#m').val('');
+            return false;
         });
         loaded_messages = 0;
         window.setInterval(function(){
@@ -43,7 +44,14 @@
                 let messages = res.split(NULLCHAR);
                 for (let i=0;i<messages.length;i++){
                     if(loaded_messages<=i){
-                        $('#messages').append($('<li>').text(messages[i]));
+                        let message_pair = messages[i].split(NAMESEPCHAR);
+                        console.log(message_pair);
+                        let new_message = $('<li>');
+                        new_message.append($('<b>').text(message_pair[0]+': '));
+                        new_message.append(message_pair[1]);
+                        console.log(new_message);
+                        
+                        $('#messages').append(new_message);
                         $('html, body').animate({ scrollTop: $("form").offset().top }, 1);
                         loaded_messages++;
                     }
@@ -52,23 +60,6 @@
                 
             });
         }, 500);
-
-        /*var socket = io();
-        $('form').submit(function(){
-        socket.emit('message', $('#m').val());
-        $('#m').val('');
-        return false;
-        });
-        socket.on('message', function(msg){
-        $('#messages').append($('<li>').text(msg));
-        });
-        socket.on('loadMessages', function(msg){
-        $('#messages').append($('<li>').text(msg));
-        });
-        socket.on('loadMessagesID', function(msg){
-            console.log(msg);
-            
-        });*/
 
   });
 </script>
