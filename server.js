@@ -5,11 +5,15 @@ const NULLCHAR = String.fromCharCode(0x0);
 const NAMESEPCHAR = String.fromCharCode(0x1);
 
 app.get('/', function(req, res){
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(__dirname + '/web_client/index.html');
 });
 
 app.get('/index.js', function(req, res){
-    res.sendFile(__dirname + '/index.js');
+    res.sendFile(__dirname + '/web_client/index.js');
+});
+
+app.get('/jquery.js', function(req, res){
+    res.sendFile(__dirname + '/web_client/lib/jquery-1.11.1.min.js');
 });
 
 app.get('/loadmessages/', function(req, res){
