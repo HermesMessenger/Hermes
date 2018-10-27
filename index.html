@@ -44,11 +44,12 @@
                 for (let i=0;i<messages.length;i++){
                     if(loaded_messages<=i){
                         $('#messages').append($('<li>').text(messages[i]));
-                        
+                        $('html, body').animate({ scrollTop: $("form").offset().top }, 1);
                         loaded_messages++;
                     }
-                    console.log(messages[i], i, loaded_messages);
+                    
                 }
+                
             });
         }, 500);
 
