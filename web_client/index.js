@@ -34,8 +34,13 @@ $(function () {
     $('#user').append($('<b>').text(getCookie('hermes_username')+':'));
     const NULLCHAR = String.fromCharCode(0x0);
     const NAMESEPCHAR = String.fromCharCode(0x1);
-    $('form').submit(function(){
-        httpGetAsync('/sendmessage/'+encodeURI(getCookie('hermes_usernam'))+'/'+encodeURI($('#m').val()), function(res){});
+    $('form').submit(function(){        
+        httpGetAsync('/sendmessage/'+encodeURI(getCookie('hermes_username'))+'/'+encodeURI($('#m').val()), function(res){});
+        $('#m').val('');
+        return false;
+    });
+    $('#send').click(function(event) {
+        httpGetAsync('/sendmessage/'+encodeURI(getCookie('hermes_username'))+'/'+encodeURI($('#m').val()), function(res){});
         $('#m').val('');
         return false;
     });

@@ -12,20 +12,17 @@ app.use(cookieParser()); // for parsing cookies
 
 
 app.post('/', function(req, res){
-    //console.log(req.body);
+    console.log('COOKIES:', req.cookies);
     
-    res.cookie('hermes_usernam', req.body.username);
+    res.cookie('hermes_username', req.body.username);
     res.sendFile(__dirname + '/web_client/index.html');
 });
 
 app.get('/', function(req, res){
-    console.log(req.cookies, res.cookies);
-    
     if(req.cookies && req.cookies.username){
-        res.cookie(req.cookies.username);
         res.sendFile(__dirname + '/web_client/index.html');
     }else{
-            res.redirect('/getusername');
+        res.redirect('/getusername');
     }
 });
 
@@ -42,9 +39,7 @@ app.get('/getusername', function(req, res){
 });
 
 app.get('/logout', function(req, res){
-    res.clearCookie('hermes_usernam');
-    console.log(req.cookies);
-    console.log(res.cookies);
+    res.clearCookie('hermes_username');
     res.redirect('/');
 });
 
@@ -67,7 +62,7 @@ app.get('/loadmessages/', function(req, res){
 });
 
 app.get('/sendmessage/:username/:message', function(req, res){
-    console.log(req.params.username+':',req.params.message);
+    console.log('CHAT:',req.params.username+':',req.params.message);
     redis.lpush('messages', req.params.username+NAMESEPCHAR+req.params.message);
     res.sendStatus(200);
 });
