@@ -1,11 +1,32 @@
 var app = require('express')();
 var redis = require("redis").createClient();
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
 
 const NULLCHAR = String.fromCharCode(0x0);
 const NAMESEPCHAR = String.fromCharCode(0x1);
 
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(cookieParser()); // for parsing cookies
+
+
+app.post('/', function(req, res){
+    //console.log(req.body);
+    
+    res.cookie('hermes_usernam', req.body.username);
+    res.sendFile(__dirname + '/web_client/index.html');
+});
+
 app.get('/', function(req, res){
-  res.sendFile(__dirname + '/web_client/index.html');
+    console.log(req.cookies, res.cookies);
+    
+    if(req.cookies && req.cookies.username){
+        res.cookie(req.cookies.username);
+        res.sendFile(__dirname + '/web_client/index.html');
+    }else{
+            res.redirect('/getusername');
+    }
 });
 
 app.get('/index.js', function(req, res){
@@ -14,6 +35,17 @@ app.get('/index.js', function(req, res){
 
 app.get('/jquery.js', function(req, res){
     res.sendFile(__dirname + '/web_client/lib/jquery-1.11.1.min.js');
+});
+
+app.get('/getusername', function(req, res){
+    res.sendFile(__dirname + '/web_client/username.html');
+});
+
+app.get('/logout', function(req, res){
+    res.clearCookie('hermes_usernam');
+    console.log(req.cookies);
+    console.log(res.cookies);
+    res.redirect('/');
 });
 
 app.get('/loadmessages/', function(req, res){
@@ -29,7 +61,7 @@ app.get('/loadmessages/', function(req, res){
             i++;
             
         });
-        console.log('DATA: ' + data.split(NULLCHAR));
+        //console.log('DATA: ' + data.split(NULLCHAR));
         res.send(data);
     }); 
 });
