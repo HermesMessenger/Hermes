@@ -1,5 +1,5 @@
-var app = require('express')();
-var redis = require("redis").createClient();
+const app = require('express')();
+const redis = require("redis").createClient();
 const bodyParser = require('body-parser'); // Peticiones POST
 const cookieParser = require('cookie-parser'); // Cookies
 const favicon = require('express-favicon'); // Favicon
@@ -44,6 +44,13 @@ app.get('/jquery.js', function(req, res){
 app.get('/getusername', function(req, res){
     res.sendFile(__dirname + '/web_client/username.html');
 });
+
+app.get('/clearDB', function(req, res){
+    redis.del("messages");
+    res.redirect('/');
+    console.log('Cleared database');
+});
+
 
 app.get('/logout', function(req, res){
     res.clearCookie('hermes_username');
