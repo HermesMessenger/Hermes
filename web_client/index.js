@@ -35,12 +35,12 @@ $(function () {
     const NULLCHAR = String.fromCharCode(0x0);
     const NAMESEPCHAR = String.fromCharCode(0x1);
     $('form').submit(function(){        
-        httpGetAsync('/sendmessage/'+encodeURI(getCookie('hermes_username'))+'/'+encodeURI($('#m').val()), function(res){});
+        httpGetAsync('/sendmessage/'+encodeURIComponent(getCookie('hermes_username'))+'/'+encodeURIComponent($('#m').val()), function(res){});
         $('#m').val('');
         return false;
     });
     $('#send').click(function(event) {
-        httpGetAsync('/sendmessage/'+encodeURI(getCookie('hermes_username'))+'/'+encodeURI($('#m').val()), function(res){});
+        httpGetAsync('/sendmessage/'+encodeURIComponent(getCookie('hermes_username'))+'/'+encodeURIComponent($('#m').val()), function(res){});
         $('#m').val('');
         return false;
     });
@@ -60,8 +60,8 @@ $(function () {
                     }
                     let color = user_colors[message_pair[0]];
                     let new_message = $('<li>');
-                    new_message.append($('<b>').text(message_pair[0]+': ').css("color", color));
-                    new_message.append(message_pair[1]);
+                    new_message.append($('<b>').text(decodeURIComponent(message_pair[0])+': ').css("color", color));
+                    new_message.append(decodeURIComponent(message_pair[1]));
                     //console.log(new_message);
                     
                     $('#messages').append(new_message);

@@ -1,7 +1,7 @@
 var app = require('express')();
 var redis = require("redis").createClient();
-var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser'); // Peticiones POST
+var cookieParser = require('cookie-parser'); // Cookies
 
 const NULLCHAR = String.fromCharCode(0x0);
 const NAMESEPCHAR = String.fromCharCode(0x1);
