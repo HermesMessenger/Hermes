@@ -50,25 +50,25 @@ $(function () {
     window.sessionStorage.clear();
     window.setInterval(function(){
         httpGetAsync('/loadmessages',function(res){
-            let messages = res.split(NULLCHAR);
-            for (let i=0;i<messages.length;i++){
-                if(loaded_messages<=i){
-                    let message_pair = messages[i].split(NAMESEPCHAR);
-                    //console.log(message_pair);
-                    if(!Object.keys(user_colors).includes(message_pair[0])){
-                        user_colors[message_pair[0]] = 'rgb('+getRandomRGBPart()+','+getRandomRGBPart()+','+getRandomRGBPart()+')';
+            if(res !== ''){
+                let messages = res.split(NULLCHAR);
+                for (let i=0;i<messages.length;i++){
+                    if(loaded_messages<=i){
+                        let message_pair = messages[i].split(NAMESEPCHAR);
+                        if(!Object.keys(user_colors).includes(message_pair[0])){
+                            user_colors[message_pair[0]] = 'rgb('+getRandomRGBPart()+','+getRandomRGBPart()+','+getRandomRGBPart()+')';
+                        }
+                        let color = user_colors[message_pair[0]];
+                        let new_message = $('<li>');
+                        new_message.append($('<b>').text(decodeURIComponent(message_pair[0])+': ').css("color", color));
+                        new_message.append(decodeURIComponent(message_pair[1]));
+                        
+                        $('#messages').append(new_message);
+                        $('html, body').animate({ scrollTop: $("form").offset().top }, 1);
+                        loaded_messages++;
                     }
-                    let color = user_colors[message_pair[0]];
-                    let new_message = $('<li>');
-                    new_message.append($('<b>').text(decodeURIComponent(message_pair[0])+': ').css("color", color));
-                    new_message.append(decodeURIComponent(message_pair[1]));
-                    //console.log(new_message);
                     
-                    $('#messages').append(new_message);
-                    $('html, body').animate({ scrollTop: $("form").offset().top }, 1);
-                    loaded_messages++;
                 }
-                
             }
             
         });

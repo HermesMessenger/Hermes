@@ -1,11 +1,12 @@
 {
-  "name": "social-network",
+  "name": "hermes",
   "version": "0.0.1",
-  "description": "Stuff",
+  "description": "A messenger",
   "dependencies": {
     "body-parser": "^1.18.3",
     "cookie-parser": "^1.4.3",
     "express": "^4.16.4",
+    "express-favicon": "^2.0.1",
     "redis": "^2.8.0"
   }
 }

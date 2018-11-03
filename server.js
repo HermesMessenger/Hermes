@@ -1,7 +1,9 @@
 var app = require('express')();
 var redis = require("redis").createClient();
-var bodyParser = require('body-parser'); // Peticiones POST
-var cookieParser = require('cookie-parser'); // Cookies
+const bodyParser = require('body-parser'); // Peticiones POST
+const cookieParser = require('cookie-parser'); // Cookies
+const favicon = require('express-favicon'); // Favicon
+const path = require('path');
 
 const NULLCHAR = String.fromCharCode(0x0);
 const NAMESEPCHAR = String.fromCharCode(0x1);
@@ -9,6 +11,7 @@ const NAMESEPCHAR = String.fromCharCode(0x1);
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(cookieParser()); // for parsing cookies
+app.use(favicon(path.join(__dirname, 'logos/HermesSquare.png')));
 
 
 app.post('/', function(req, res){
@@ -33,6 +36,10 @@ app.get('/index.js', function(req, res){
 app.get('/jquery.js', function(req, res){
     res.sendFile(__dirname + '/web_client/lib/jquery-1.11.1.min.js');
 });
+
+/*app.get('/favicon.ico', function(req, res){
+    res.sendFile(__dirname + '/web_client/favicon.ico');
+});*/
 
 app.get('/getusername', function(req, res){
     res.sendFile(__dirname + '/web_client/username.html');
