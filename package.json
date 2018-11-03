@@ -8,5 +8,10 @@
     "express": "^4.16.4",
     "express-favicon": "^2.0.1",
     "redis": "^2.8.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HermesMessenger/Hermes.git"
+  },
+  "main": "server.js"
 }
