@@ -1,5 +1,5 @@
 const app = require('express')();
-const redis = require("redis").createClient();
+const db = require('./db')();
 const bodyParser = require('body-parser'); // Peticiones POST
 const cookieParser = require('cookie-parser'); // Cookies
 const favicon = require('express-favicon'); // Favicon
@@ -46,7 +46,7 @@ app.get('/getusername', function(req, res){
 });
 
 app.get('/clearDB', function(req, res){
-    redis.del("messages");
+    db.clear();
     res.redirect('/');
     console.log('Cleared database');
 });
@@ -58,8 +58,7 @@ app.get('/logout', function(req, res){
 });
 
 app.get('/loadmessages/', function(req, res){
-    redis.lrange("messages", 0, -1, function(err, result) {
-        result.reverse();
+    db.getMessages(function(err, result) {
         data = ''
         i = 0;
         result.forEach(function(value){
@@ -68,16 +67,14 @@ app.get('/loadmessages/', function(req, res){
             }
             data += value;
             i++;
-            
         });
-        //console.log('DATA: ' + data.split(NULLCHAR));
         res.send(data);
     }); 
 });
 
 app.get('/sendmessage/:username/:message', function(req, res){
     console.log('CHAT:',req.params.username+':',req.params.message);
-    redis.lpush('messages', req.params.username+NAMESEPCHAR+req.params.message);
+    db.addMessage(req.params.username, req.params.message);
     res.sendStatus(200);
 });
 app.listen(8080, function(){
