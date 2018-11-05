@@ -73,7 +73,7 @@ app.post('/register', function(req, res){
 
     if (password1 == password2) {
         console.log('New user: ',username);
-        redis.lpush('users', username+PASSWORDSEPCHAR+password1);
+        db.redis.lpush('users', username+PASSWORDSEPCHAR+password1);
         res.sendFile(__dirname + '/web_client/LoginPages/Success.html');
     }
 
@@ -86,7 +86,7 @@ app.post('/login', function(req, res){
     var username=req.body.username;
     var password=req.body.password;
 
-    redis.lrange("users", 0, -1, function(err, result) {
+    db.redis.lrange("users", 0, -1, function(err, result) {
         result.reverse();
         data = ''
         i = 0;
@@ -108,8 +108,7 @@ app.post('/login', function(req, res){
 
 
 app.get('/loadmessages', function(req, res){
-    redis.lrange("messages", 0, -1, function(err, result) {
-        result.reverse();
+    db.getMessages(function(err, result) {
         data = ''
         i = 0;
         result.forEach(function(value){
