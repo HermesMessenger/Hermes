@@ -1,23 +1,23 @@
 const NULLCHAR = String.fromCharCode(0x0);
-const NAMESEPCHAR = String.fromCharCode(0x1);
+const SEPCHAR = String.fromCharCode(0x1);
 
 module.exports = class {
     constructor(){
         this.redis = require('redis').createClient();
     }
 
-    addMessage(user, message) {
-        this.redis.lpush('messages', user+NAMESEPCHAR+message);
+    add(db, user, message) {
+        this.redis.lpush(db, user+SEPCHAR+message);
     }
 
-    getMessages(callback){
-        this.redis.lrange('messages', 0, -1, function(err, result){
+    get(db, callback){
+        this.redis.lrange(db, 0, -1, function(err, result){
             result.reverse();
             callback(err, result);
         });
     }
 
-    clear(){
-        this.redis.del('messages');
+    clear(db){
+        this.redis.del(db);
     }
 }

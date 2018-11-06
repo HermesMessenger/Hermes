@@ -33,7 +33,7 @@ function getCookie(cname) { // From W3Schools
 $(function () {
     $('#user').append($('<b>').text(getCookie('hermes_username')+':'));
     const NULLCHAR = String.fromCharCode(0x0);
-    const NAMESEPCHAR = String.fromCharCode(0x1);
+    const SEPCHAR = String.fromCharCode(0x1);
     $('form').submit(function(){        
         httpGetAsync('/sendmessage/'+encodeURIComponent(getCookie('hermes_username'))+'/'+encodeURIComponent($('#m').val()), function(res){});
         $('#m').val('');
@@ -54,7 +54,7 @@ $(function () {
                 let messages = res.split(NULLCHAR);
                 for (let i=0;i<messages.length;i++){
                     if(loaded_messages<=i){
-                        let message_pair = messages[i].split(NAMESEPCHAR);
+                        let message_pair = messages[i].split(SEPCHAR);
                         if(!Object.keys(user_colors).includes(message_pair[0])){
                             user_colors[message_pair[0]] = 'rgb('+getRandomRGBPart()+','+getRandomRGBPart()+','+getRandomRGBPart()+')';
                         }
