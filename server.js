@@ -7,6 +7,8 @@ const favicon = require('express-favicon'); // Favicon
 const path = require('path');
 
 let db = new DB();
+console.log('------------------------------------------');
+
 let bcrypt = new BCRYPT(db);
 
 const NULLCHAR = String.fromCharCode(0x0);
@@ -20,14 +22,13 @@ app.use(favicon(path.join(__dirname, 'logos/HermesSquare.png')));
 app.post('/', function(req, res){
     console.log('COOKIES:', req.cookies);
     res.cookie('hermes_username', req.body.username);
-    res.sendFile(__dirname + '/web_client/index.html');
+    res.redirect('/chat');
 });
 
 app.get('/', function(req, res){
     if (req.cookies.username) {
-        res.sendFile(__dirname + '/web_client/index.html');
-    }
-    else {
+        res.redirect('/chat');
+    }else {
         res.redirect('/getusername');
     }
 });
@@ -61,7 +62,8 @@ app.get('/getusername', function(req, res){
 });
 
 app.get('/clearDB', function(req, res){
-    db.clear();
+    db.clear('messages');
+    db.clear('users');
     res.redirect('/');
     console.log('Cleared database');
 });
@@ -79,7 +81,7 @@ app.post('/register', function(req, res){
 
     if (password1 == password2) {
         console.log('New user: ',username);
-        bcrypt.save(username, password1)
+        bcrypt.save(username, password1);
         res.cookie('hermes_username', username);
         res.redirect('/chat');
     }
@@ -92,27 +94,42 @@ app.post('/register', function(req, res){
 app.post('/login', function(req, res){
     var username=req.body.username;
     var password=req.body.password;
-    db.get("users", function(err, result) {
-        result.reverse();
-        data = ''
-        i = 0;
-        result.forEach(function(value){
-            data += value;
-            i++;
+    var redirected = false;
+    var verifying = false;
+    db.getFromList("users", async function(err, result) {
+        var i = 0;
+        for(value of result){
             login=value.split(SEPCHAR);
+            
             if (login[0] == username) {
-                if (bcrypt.verify(password, login[1])) {
+                let same = await bcrypt.verify(password, login[1]);
+                
+                if(same){
                     console.log(username,'logged in.')
                     res.cookie('hermes_username', username);
                     res.redirect('/chat');
+                    redirected = true;
+                }else{
+                    console.log(username+': INCORRECT PASSWORD');
+                    
+                    i++;
                 }
-            };
-        });
+            }else{
+                i++;
+            }
+        }
+        if(!redirected){
+            console.log(username, 'not found');
+            
+            res.redirect('/');
+        }
+        
     });
+    
 });
 
 app.get('/loadmessages', function(req, res){
-    db.get('messages', function(err, result) {
+    db.getFromList('messages', function(err, result) {
         data = ''
         i = 0;
         result.forEach(function(value){
@@ -128,7 +145,7 @@ app.get('/loadmessages', function(req, res){
 
 app.get('/sendmessage/:username/:message', function(req, res){
     console.log('CHAT:',req.params.username+':',req.params.message);
-    db.add('messages', req.params.username, req.params.message);
+    db.addToList('messages', req.params.username, req.params.message);
     res.sendStatus(200);
 });
 
