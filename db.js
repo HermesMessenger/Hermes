@@ -7,7 +7,7 @@ module.exports = class {
     }
 
     addMessage(user, message) {
-        redis.lpush('messages', user+NAMESEPCHAR+message);
+        this.redis.lpush('messages', user+NAMESEPCHAR+message);
     }
 
     getMessages(callback){

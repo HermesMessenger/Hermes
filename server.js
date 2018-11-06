@@ -1,5 +1,6 @@
 const app = require('express')();
-const db = require('./db')();
+const DB = require('./db');
+let db = new DB();
 const bodyParser = require('body-parser'); // Peticiones POST
 const cookieParser = require('cookie-parser'); // Cookies
 const favicon = require('express-favicon'); // Favicon
