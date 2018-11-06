@@ -7,7 +7,7 @@ const favicon = require('express-favicon'); // Favicon
 const path = require('path');
 
 let db = new DB();
-let bcrypt = new BCRYPT();
+let bcrypt = new BCRYPT(db);
 
 const NULLCHAR = String.fromCharCode(0x0);
 const SEPCHAR = String.fromCharCode(0x1);

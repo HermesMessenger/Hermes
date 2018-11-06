@@ -1,9 +1,10 @@
-const DB = require('./db');
-let db = new DB();
+//const DB = require('./db');
+//let db = new DB();
 
 module.exports = class {
-    constructor(){
+    constructor(db){
         this.bcrypt = require('bcrypt');
+        this.db = db;
     }
 
 
@@ -15,7 +16,7 @@ module.exports = class {
 }
     save(username, password) {
         this.bcrypt.hash(password, 3, function(err, hash) {
-            db.add('users', username, hash);
+            this.db.add('users', username, hash);
         });
     }
 
