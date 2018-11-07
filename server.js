@@ -80,10 +80,24 @@ app.post('/register', function(req, res){
     var password2=req.body.password2;
 
     if (password1 == password2) {
-        console.log('New user: ',username);
-        bcrypt.save(username, password1);
-        res.cookie('hermes_username', username);
-        res.redirect('/chat');
+        db.getFromList("users", async function(err, result) {
+            var i = 0;
+            for (value of result) {
+                login = value.split(SEPCHAR);
+                
+                if (login[0] == username) {
+                    var exists = true;
+                    res.sendFile(__dirname + '/web_client/LoginPages/UserExists.html');
+                } else i++;
+            }
+
+            if (!exists) { // User doesn't exist
+                console.log('New user: ',username);
+                bcrypt.save(username, password1);
+                res.cookie('hermes_username', username);
+                res.redirect('/chat');
+            }
+        });
     }
 
     else {
@@ -108,23 +122,18 @@ app.post('/login', function(req, res){
             if (login[0] == username) {
                 let same = await bcrypt.verify(password, login[1]);
                 
-                if(same){
+                if (same){
                     console.log(username,'logged in.')
                     res.cookie('hermes_username', username);
                     res.redirect('/chat');
                     redirected = true;
-                }else{
-                    //console.log(username+': INCORRECT PASSWORD');
+                } else {
                     res.sendFile(__dirname + '/web_client/LoginPages/IncorrectPassword.html');
                     redirected = true;
-                    i++;
                 }
-            }else{
-                i++;
-            }
+            } else i++;
         }
-        if(!redirected){
-            //console.log(username, 'not found');
+        if (!redirected) {
             res.sendFile(__dirname + '/web_client/LoginPages/UserNotFound.html');
         }
         
