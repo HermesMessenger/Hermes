@@ -29,7 +29,7 @@ app.get('/', function(req, res){
     if (req.cookies.username) {
         res.redirect('/chat');
     }else {
-        res.redirect('/getusername');
+        res.redirect('/login');
     }
 });
 
@@ -57,10 +57,6 @@ app.get('/css/style.css', function(req, res){
     res.sendFile(__dirname + '/web_client/favicon.ico');
 });*/
 
-app.get('/getusername', function(req, res){
-    res.sendFile(__dirname + '/web_client/LoginPages/Regular.html');
-});
-
 app.get('/clearDB', function(req, res){
     db.clear('messages');
     db.clear('users');
@@ -72,6 +68,10 @@ app.get('/clearDB', function(req, res){
 app.get('/logout', function(req, res){
     res.clearCookie('hermes_username');
     res.redirect('/');
+});
+
+app.get('/register', function(req, res){
+    res.redirect('/login');
 });
 
 app.post('/register', function(req, res){
@@ -89,6 +89,10 @@ app.post('/register', function(req, res){
     else {
         res.sendFile(__dirname + '/web_client/LoginPages/FailSignup.html');
     };
+});
+
+app.get('/login', function(req, res){
+    res.sendFile(__dirname + '/web_client/LoginPages/Regular.html');
 });
 
 app.post('/login', function(req, res){
@@ -110,8 +114,9 @@ app.post('/login', function(req, res){
                     res.redirect('/chat');
                     redirected = true;
                 }else{
-                    console.log(username+': INCORRECT PASSWORD');
-                    
+                    //console.log(username+': INCORRECT PASSWORD');
+                    res.sendFile(__dirname + '/web_client/LoginPages/IncorrectPassword.html');
+                    redirected = true;
                     i++;
                 }
             }else{
@@ -119,9 +124,8 @@ app.post('/login', function(req, res){
             }
         }
         if(!redirected){
-            console.log(username, 'not found');
-            
-            res.redirect('/');
+            //console.log(username, 'not found');
+            res.sendFile(__dirname + '/web_client/LoginPages/UserNotFound.html');
         }
         
     });

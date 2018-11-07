@@ -1,14 +1,10 @@
-//const DB = require('./db');
-//let db = new DB();
 const SEPCHAR = String.fromCharCode(0x1);
 
 module.exports = class {
     constructor(db){
         this.bcrypt = require('bcrypt');
-        
         this.db = db;
     }
-
 
     async verify(password, hash, callback) {
         return await this.bcrypt.compare(password, hash);
