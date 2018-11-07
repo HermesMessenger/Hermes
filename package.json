@@ -1,7 +1,8 @@
 {
   "name": "hermes",
-  "version": "0.0.1",
-  "description": "A messenger",
+  "version": "1.0.0",
+  "description": "A decentralized messaging app",
+  "main": "server.js",
   "dependencies": {
     "bcrypt": "^3.0.2",
     "body-parser": "^1.18.3",
@@ -10,9 +11,19 @@
     "express-favicon": "^2.0.1",
     "redis": "^2.8.0"
   },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node server.js",
+    "start": "node server.js"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/HermesMessenger/Hermes.git"
+    "url": "git+https://github.com/HermesMessenger/Hermes.git"
   },
-  "main": "server.js"
+  "author": "CoderDojo Majadahonda",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HermesMessenger/Hermes/issues"
+  },
+  "homepage": "https://github.com/HermesMessenger/Hermes#readme"
 }
