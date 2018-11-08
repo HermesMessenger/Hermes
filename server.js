@@ -162,6 +162,10 @@ app.get('/sendmessage/:username/:message', function(req, res){
     res.sendStatus(200);
 });
 
+app.get('*', function(req, res){
+  res.redirect('/');
+});
+
 app.listen(8080, function(){
   console.log('listening on *:8080');
 });
