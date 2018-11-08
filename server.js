@@ -6,6 +6,11 @@ const cookieParser = require('cookie-parser'); // Cookies
 const favicon = require('express-favicon'); // Favicon
 const path = require('path');
 
+const web_client_path = __dirname + '/web_client/';
+const html_path = web_client_path+'html/';
+const js_path = web_client_path+'js/';
+const css_path = web_client_path+'css/';
+
 let db = new DB();
 console.log('------------------------------------------');
 
@@ -34,23 +39,23 @@ app.get('/', function(req, res){
 });
 
 app.get('/chat', function(req, res){
-    res.sendFile(__dirname + '/web_client/index.html');
+    res.sendFile(html_path + 'index.html');
 });
 
 app.get('/js/index.js', function(req, res){
-    res.sendFile(__dirname + '/web_client/js/index.js');
+    res.sendFile(js_path + 'index.js');
 });
 
 app.get('/js/jquery.js', function(req, res){
-    res.sendFile(__dirname + '/web_client/js/jquery.js');
+    res.sendFile(js_path + 'jquery.js');
 });
 
 app.get('/js/login.js', function(req, res){
-    res.sendFile(__dirname + '/web_client/js/login.js');
+    res.sendFile(js_path + 'login.js');
 });
 
 app.get('/css/style.css', function(req, res){
-    res.sendFile(__dirname + '/web_client/css/style.css');
+    res.sendFile(css_path + 'style.css');
 });
 
 /*app.get('/favicon.ico', function(req, res){
@@ -87,7 +92,7 @@ app.post('/register', function(req, res){
                 
                 if (login[0] == username) {
                     var exists = true;
-                    res.sendFile(__dirname + '/web_client/LoginPages/UserExists.html');
+                    res.sendFile(html_path + 'LoginPages/UserExists.html');
                 } else i++;
             }
 
@@ -101,12 +106,12 @@ app.post('/register', function(req, res){
     }
 
     else {
-        res.sendFile(__dirname + '/web_client/LoginPages/FailSignup.html');
+        res.sendFile(html_path + 'LoginPages/FailSignup.html');
     };
 });
 
 app.get('/login', function(req, res){
-    res.sendFile(__dirname + '/web_client/LoginPages/Regular.html');
+    res.sendFile(html_path + 'LoginPages/Regular.html');
 });
 
 app.post('/login', function(req, res){
@@ -128,13 +133,13 @@ app.post('/login', function(req, res){
                     res.redirect('/chat');
                     redirected = true;
                 } else {
-                    res.sendFile(__dirname + '/web_client/LoginPages/IncorrectPassword.html');
+                    res.sendFile(html_path + 'LoginPages/IncorrectPassword.html');
                     redirected = true;
                 }
             } else i++;
         }
         if (!redirected) {
-            res.sendFile(__dirname + '/web_client/LoginPages/UserNotFound.html');
+            res.sendFile(html_path + 'LoginPages/UserNotFound.html');
         }
         
     });

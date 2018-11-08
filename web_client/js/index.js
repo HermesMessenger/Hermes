@@ -1,3 +1,6 @@
+var notifications_supported = true;
+var notifications_allowed = false;
+
 function httpGetAsync(theUrl, callback){
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() { 
@@ -29,6 +32,12 @@ function getCookie(cname) { // From W3Schools
     return "";
 }
 
+function sendNotifiaction(user, message){
+    if(notifications_allowed && notifications_supported){
+        new Notification(user, {body: message, icon: '/favicon.png' /* TODO: be the user's profile image */});
+    }
+}
+
 
 $(function () {
     $('#user').append($('<b>').text(getCookie('hermes_username')+':'));
@@ -46,25 +55,44 @@ $(function () {
     });
     var loaded_messages = 0;
     var user_colors = {};
+
+    if (!("Notification" in window)) {
+        alert("This browser does not support desktop notification");
+        notifications_supported = false;
+    }
+
+    if(notifications_supported){
+        Notification.requestPermission(function(){
+            notifications_allowed = (Notification.permission == 'granted');
+            console.log('Notifications_Allowed:', notifications_allowed);
+        });
+    }
+    
     
     window.sessionStorage.clear();
     window.setInterval(function(){
         httpGetAsync('/loadmessages',function(res){
             if(res !== ''){
                 let messages = res.split(NULLCHAR);
+                let first_load = (loaded_messages == 0);
                 for (let i=0;i<messages.length;i++){
                     if(loaded_messages<=i){
                         let message_pair = messages[i].split(NAMESEPCHAR);
-                        if(!Object.keys(user_colors).includes(message_pair[0])){
-                            user_colors[message_pair[0]] = 'rgb('+getRandomRGBPart()+','+getRandomRGBPart()+','+getRandomRGBPart()+')';
+                        let username = decodeURIComponent(message_pair[0]);
+                        let message = decodeURIComponent(message_pair[1]);
+                        if(!Object.keys(user_colors).includes(username)){
+                            user_colors[username] = 'rgb('+getRandomRGBPart()+','+getRandomRGBPart()+','+getRandomRGBPart()+')';
                         }
-                        let color = user_colors[message_pair[0]];
+                        let color = user_colors[username];
                         let new_message = $('<li>');
-                        new_message.append($('<b>').text(decodeURIComponent(message_pair[0])+': ').css("color", color));
-                        new_message.append(decodeURIComponent(message_pair[1]));
+                        new_message.append($('<b>').text(username+': ').css("color", color));
+                        new_message.append(message);
+                        if (username != getCookie('hermes_username') && !first_load){
+                            sendNotifiaction(username,message);
+                        }
                         
                         $('#messages').append(new_message);
-                        $('html, body').animate({ scrollTop: $("form").offset().top }, 1);
+                        $('html, body').animate({ scrollTop: $("#space").offset().top }, 0);
                         loaded_messages++;
                     }
                     
