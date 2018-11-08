@@ -12,7 +12,7 @@ module.exports = class {
     save(username, password) {
         let db = this.db;
         this.bcrypt.hash(password, 3, function(err, hash) {
-            db.addToList('users', username+SEPCHAR+hash);
+            db.addToList('users', username, hash);
         });
     }
 
