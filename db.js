@@ -4,11 +4,11 @@ const SEPCHAR = String.fromCharCode(0x1);
 module.exports = class {
     constructor(){
         this.redis = require('redis').createClient();
-        
+
     }
 
-    addToList(listname, user, message) {
-        this.redis.lpush(listname, user+SEPCHAR+message);
+    addToList(listname, user, message, time) {
+        this.redis.lpush(listname, user+SEPCHAR+message+SEPCHAR+time);
     }
 
     getFromList(listname, callback){

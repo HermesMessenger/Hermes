@@ -17,9 +17,48 @@
       #messages li { padding: 5px 10px; }
       #messages li:nth-child(odd) { background: #eee; }
       #space {height: 41px;}
+      .time {position: absolute; right: 2%; color: #ddd;} /* Color Par */
+      #messages li:nth-child(odd) .time { color: #ccc; } /* Color Impar */
+      #messages li.date {background: #ccf; text-align: center;}
+
+      #rightclick {
+        display: none;
+        z-index: 1000;
+        position: absolute;
+        overflow: hidden;
+        border: 1px solid #CCC;
+        white-space: nowrap;
+        font-family: sans-serif;
+        background: #FFF;
+        color: #333;
+        padding: 5px  0;
+        border-radius: 5px;
+    }
+
+    #rightclick li {
+        padding: 8px 12px;
+        cursor: pointer;
+    }
+
+    #rightclick li:hover {
+        background-color: #DEF;
+    }
+
+    .quote {
+      border: 2px  #888 solid;
+      background: #bbb;
+      color: #777;
+    }
+    .quote:before {
+      content:"";
+      border: 2px  #368 solid;
+    }
     </style>
   </head>
   <body>
+        <ul id="rightclick">
+          <li id="quote">Quote</li>
+        </ul>
         <ul id="messages"></ul>
         <div id="space"></div>
         <form action="">
