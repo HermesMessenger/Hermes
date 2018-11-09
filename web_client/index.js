@@ -38,12 +38,6 @@ function getCookie(cname) { // From W3Schools
     return "";
 }
 
-function sendNotifiaction(user, message){
-    if(notifications_allowed && notifications_supported){
-        new Notification(user, {body: message, icon: '/favicon.png' /* TODO: be the user's profile image */});
-    }
-}
-
 
 $(function () {
     $("#rightclick").hide();
@@ -106,23 +100,13 @@ $(function () {
         alert("This browser does not support desktop notification");
         notifications_supported = false;
     }
-<<<<<<< HEAD
      if(notifications_supported){
-=======
-
-    if(notifications_supported){
->>>>>>> e41d054dc622c3c21ccf31f7042d105ab51a9497
         Notification.requestPermission(function(){
             notifications_allowed = (Notification.permission == 'granted');
             console.log('Notifications_Allowed:', notifications_allowed);
         });
     }
-<<<<<<< HEAD
 
-=======
-    
-    
->>>>>>> e41d054dc622c3c21ccf31f7042d105ab51a9497
     window.sessionStorage.clear();
     window.setInterval(function(){
       $("#messages").find("li:not(.date)").each(function(){
@@ -140,14 +124,10 @@ $(function () {
             if(res !== ''){
                 let messages = res.split(NULLCHAR);
                 let first_load = (loaded_messages == 0);
-<<<<<<< HEAD
                 let prev_pair=[];
-=======
->>>>>>> e41d054dc622c3c21ccf31f7042d105ab51a9497
                 for (let i=0;i<messages.length;i++){
                   let message_pair = messages[i].split(SEPCHAR);
                     if(loaded_messages<=i){
-<<<<<<< HEAD
                         let username = decodeURIComponent(message_pair[0]);
                         let message = decodeURIComponent(message_pair[1]);
                         let time = message_pair[2];
@@ -160,30 +140,22 @@ $(function () {
                         }
                         if(!Object.keys(user_colors).includes(username)){
                           user_colors[username] = 'rgb('+getRandomRGBPart()+','+getRandomRGBPart()+','+getRandomRGBPart()+')';
-=======
-                        let message_pair = messages[i].split(NAMESEPCHAR);
-                        let username = decodeURIComponent(message_pair[0]);
-                        let message = decodeURIComponent(message_pair[1]);
-                        if(!Object.keys(user_colors).includes(username)){
-                            user_colors[username] = 'rgb('+getRandomRGBPart()+','+getRandomRGBPart()+','+getRandomRGBPart()+')';
->>>>>>> e41d054dc622c3c21ccf31f7042d105ab51a9497
                         }
                         let color = user_colors[username];
                         let new_message = $('<li>');
                         new_message.append($('<b>').text(username+': ').css("color", color));
-<<<<<<< HEAD
                         let match=message.match(/\"(\w+:) ((\w|[ ])+) (\d{2}:\d{2})\"/g);
                         if(message.match(/\"(\w+:) ((\w|[ ])+) (\d{2}:\d{2})\"/g)){
                           let quote_span = $("<span>").text(match[0]).attr("class","quote "+username.toLowerCase());
                           let cssRuleExists=false;
-                          for(var r=0;r<document.styleSheets[document.styleSheets.length-1].rules;r++){
-                            if(document.styleSheets[document.styleSheets.length-1].rules[r].selectorText.includes(username)){
+                          for(var r=0;r<document.styleSheets[2].rules;r++){
+                            if(document.styleSheets[2].rules[r].selectorText.includes(username)){
                               cssRuleExists=true;
                               break
                             }
                           }
                           if(!cssRuleExists){
-                            document.styleSheets[document.styleSheets.length-1].addRule(".quote."+username.toLowerCase()+":before","border: 2px  "+user_colors[username]+" solid;");
+                            document.styleSheets[2].addRule(".quote."+username.toLowerCase()+":before","border: 2px  "+user_colors[username]+" solid;");
                           }
                           new_message.append(quote_span);
                           new_message.append($("<span>").html("<br>"+message.substr(match[0].length))); //Span is there to get the text for the quoting system
@@ -199,15 +171,6 @@ $(function () {
 
                         $('#messages').append(new_message);
                         $('html, body').animate({ scrollTop: $("#space").offset().top },0)
-=======
-                        new_message.append(message);
-                        if (username != getCookie('hermes_username') && !first_load){
-                            sendNotifiaction("New message from"+username,username+": "+message);
-                        }
-                        
-                        $('#messages').append(new_message);
-                        $('html, body').animate({ scrollTop: $("#space").offset().top }, 0);
->>>>>>> e41d054dc622c3c21ccf31f7042d105ab51a9497
                         loaded_messages++;
                     }
                     prev_pair=message_pair;

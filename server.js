@@ -133,7 +133,11 @@ app.post('/login', function(req, res){
                     res.redirect('/chat');
                     redirected = true;
                 } else {
+<<<<<<< HEAD
                     res.sendFile(html_path + 'LoginPages/IncorrectPassword.html')
+=======
+                    res.sendFile(html_path + 'LoginPages/IncorrectPassword.html');
+>>>>>>> e41d054dc622c3c21ccf31f7042d105ab51a9497
                     redirected = true;
                 }
             } else i++;
