@@ -106,23 +106,12 @@ $(function () {
         alert("This browser does not support desktop notification");
         notifications_supported = false;
     }
-<<<<<<< HEAD
      if(notifications_supported){
-=======
-
-    if(notifications_supported){
->>>>>>> e41d054dc622c3c21ccf31f7042d105ab51a9497
         Notification.requestPermission(function(){
             notifications_allowed = (Notification.permission == 'granted');
             console.log('Notifications_Allowed:', notifications_allowed);
         });
     }
-<<<<<<< HEAD
-
-=======
-    
-    
->>>>>>> e41d054dc622c3c21ccf31f7042d105ab51a9497
     window.sessionStorage.clear();
     window.setInterval(function(){
       $("#messages").find("li:not(.date)").each(function(){
@@ -140,14 +129,10 @@ $(function () {
             if(res !== ''){
                 let messages = res.split(NULLCHAR);
                 let first_load = (loaded_messages == 0);
-<<<<<<< HEAD
                 let prev_pair=[];
-=======
->>>>>>> e41d054dc622c3c21ccf31f7042d105ab51a9497
                 for (let i=0;i<messages.length;i++){
                   let message_pair = messages[i].split(SEPCHAR);
                     if(loaded_messages<=i){
-<<<<<<< HEAD
                         let username = decodeURIComponent(message_pair[0]);
                         let message = decodeURIComponent(message_pair[1]);
                         let time = message_pair[2];
@@ -158,20 +143,15 @@ $(function () {
                           date_message.append(decodeURIComponent(time).split("$")[0]);
                           $("#messages").append(date_message);
                         }
-                        if(!Object.keys(user_colors).includes(username)){
-                          user_colors[username] = 'rgb('+getRandomRGBPart()+','+getRandomRGBPart()+','+getRandomRGBPart()+')';
-=======
                         let message_pair = messages[i].split(NAMESEPCHAR);
                         let username = decodeURIComponent(message_pair[0]);
                         let message = decodeURIComponent(message_pair[1]);
                         if(!Object.keys(user_colors).includes(username)){
                             user_colors[username] = 'rgb('+getRandomRGBPart()+','+getRandomRGBPart()+','+getRandomRGBPart()+')';
->>>>>>> e41d054dc622c3c21ccf31f7042d105ab51a9497
                         }
                         let color = user_colors[username];
                         let new_message = $('<li>');
                         new_message.append($('<b>').text(username+': ').css("color", color));
-<<<<<<< HEAD
                         let match=message.match(/\"(\w+:) ((\w|[ ])+) (\d{2}:\d{2})\"/g);
                         if(message.match(/\"(\w+:) ((\w|[ ])+) (\d{2}:\d{2})\"/g)){
                           let quote_span = $("<span>").text(match[0]).attr("class","quote "+username.toLowerCase());
@@ -199,15 +179,6 @@ $(function () {
 
                         $('#messages').append(new_message);
                         $('html, body').animate({ scrollTop: $("#space").offset().top },0)
-=======
-                        new_message.append(message);
-                        if (username != getCookie('hermes_username') && !first_load){
-                            sendNotifiaction("New message from"+username,username+": "+message);
-                        }
-                        
-                        $('#messages').append(new_message);
-                        $('html, body').animate({ scrollTop: $("#space").offset().top }, 0);
->>>>>>> e41d054dc622c3c21ccf31f7042d105ab51a9497
                         loaded_messages++;
                     }
                     prev_pair=message_pair;
