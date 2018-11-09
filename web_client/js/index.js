@@ -88,7 +88,7 @@ $(function () {
                         new_message.append($('<b>').text(username+': ').css("color", color));
                         new_message.append(message);
                         if (username != getCookie('hermes_username') && !first_load){
-                            sendNotifiaction(username,message);
+                            sendNotifiaction("New message from"+username,username+": "+message);
                         }
                         
                         $('#messages').append(new_message);
