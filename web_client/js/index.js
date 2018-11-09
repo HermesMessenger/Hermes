@@ -143,9 +143,9 @@ $(function () {
                           date_message.append(decodeURIComponent(time).split("$")[0]);
                           $("#messages").append(date_message);
                         }
-                        let message_pair = messages[i].split(NAMESEPCHAR);
+                        /*let message_pair = messages[i].split(NAMESEPCHAR);
                         let username = decodeURIComponent(message_pair[0]);
-                        let message = decodeURIComponent(message_pair[1]);
+                        let message = decodeURIComponent(message_pair[1]);*/
                         if(!Object.keys(user_colors).includes(username)){
                             user_colors[username] = 'rgb('+getRandomRGBPart()+','+getRandomRGBPart()+','+getRandomRGBPart()+')';
                         }
