@@ -54,6 +54,10 @@ app.get('/js/login.js', function(req, res){
     res.sendFile(js_path + 'login.js');
 });
 
+app.get('/css/index.css', function(req, res){
+    res.sendFile(css_path + 'index.css');
+});
+
 app.get('/css/style.css', function(req, res){
     res.sendFile(css_path + 'style.css');
 });
@@ -166,18 +170,32 @@ app.get('/loadmessages', function(req, res){
 });
 
 
-function getNow(){
-  d=new Date();
-  year=d.getFullYear();
-  month=d.getMonth()+1; // getMonth goes from 0 to 11
-  day=d.getDate();
-  hours=d.getHours()<10 ? "0"+d.getHours() : d.getHours();
-  mins=d.getMinutes()<10 ? "0"+d.getMinutes() : d.getMinutes();
-  return day+"/"+month+"/"+year+"$"+hours+":"+mins;
+function getNow() {
+
+    var date = new Date();
+
+    var hour = date.getHours();
+    hour = (hour < 10 ? "0" : "") + hour;
+
+    var min  = date.getMinutes();
+    min = (min < 10 ? "0" : "") + min;
+
+    var sec  = date.getSeconds();
+    sec = (sec < 10 ? "0" : "") + sec;
+
+    var year = date.getFullYear();
+
+    var month = date.getMonth() + 1;
+    month = (month < 10 ? "0" : "") + month;
+
+    var day  = date.getDate();
+    day = (day < 10 ? "0" : "") + day;
+
+    return day + "/" + month + "/" + year + "$" + hour + ":" + min + ":" + sec;
+
 }
 
 app.get('/sendmessage/:username/:message', function(req, res){
-    console.log('CHAT:',req.params.username+':',req.params.message," "+getNow());
     db.addToList('messages', req.params.username, req.params.message, getNow());
     res.sendStatus(200);
 });
