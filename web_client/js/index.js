@@ -153,7 +153,8 @@ $(function () {
                                 document.styleSheets[document.styleSheets.length - 1].addRule(".quote." + match[1] + ":before", "border: 2px  " + user_colors[match[1]] + " solid;");
                             }
                             new_message.append(quote_span);
-                            new_message.append($("<span>").html("<br>" + message.substr(match[0].length))); //Span is there to get the text for the quoting system
+                            if(message.substr(match[0].length).length>1)
+                                new_message.append($("<span>").html("<br>"+message.substr(match[0].length))); //Span is there to get the text for the quoting system
                         }
                         else {
                             new_message.append($("<span>").text(message)); // Span is there to get the text for the quoting system
