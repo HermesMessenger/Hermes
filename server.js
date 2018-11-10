@@ -62,13 +62,17 @@ app.get('/css/style.css', function(req, res){
     res.sendFile(__dirname + '/web_client/favicon.ico');
 });*/
 
-app.get('/clearDB', function(req, res){
+app.get('/clearMessages', function(req, res){
     db.clear('messages');
-    db.clear('users');
     res.redirect('/');
-    console.log('Cleared database');
+    console.log('Cleared messages');
 });
 
+app.get('/clearUsers', function(req, res){
+    db.clear('users');
+    res.redirect('/');
+    console.log('Cleared users.');
+});
 
 app.get('/logout', function(req, res){
     res.clearCookie('hermes_username');
