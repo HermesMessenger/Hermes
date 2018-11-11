@@ -52,6 +52,7 @@ $(function () {
     let line_length = 150;
     $('form').submit(function () {
         msg = encodeURIComponent($('#m').val()).split("");
+        msg = msg.join("");	
         // httpGetAsync('/sendmessage/'+encodeURIComponent(getCookie('hermes_username'))+'/'+encodeURIComponent($('#m').val()), function(res){});
         httpGetAsync('/sendmessage/' + encodeURIComponent(getCookie('hermes_username')) + '/' + msg, function (res) {});
         $('#m').val('');
@@ -59,6 +60,7 @@ $(function () {
     });
     $('#send').click(function (event) {
         msg = encodeURIComponent($('#m').val()).split("");
+        msg = msg.join("");	
         // httpGetAsync('/sendmessage/'+encodeURIComponent(getCookie('hermes_username'))+'/'+encodeURIComponent($('#m').val()), function(res){});
         httpGetAsync('/sendmessage/' + encodeURIComponent(getCookie('hermes_username')) + '/' + msg, function (res) {});
         $('#m').val('');
