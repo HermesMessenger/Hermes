@@ -139,7 +139,7 @@ $(function () {
                         let new_message = $('<li>');
                         new_message.append($('<b>').text(username + ': ').css("color", color));
 
-                        complete = false;
+                        completeString = false;
 
                         let match2 = message.match(/([^ ]+)(:\/\/)(.+)(\.)([^ ]+)/);
                         if (message.match(/([^ ]+)(:\/\/)(.+)(\.)([^ ]+)/g)) {
@@ -149,7 +149,7 @@ $(function () {
                             new_message.append(message.substring(0,start)).text
                             new_message.append(link_span)
                             new_message.append(message.substring(end))
-                            complete = true;
+                            completeString = true;
                         }
 
                         let match = message.match(/\".*\"/);
@@ -169,9 +169,9 @@ $(function () {
                             new_message.append(quote_span);
                             if(message.substr(match[0].length).length>1)
                                 new_message.append($("<span>").text(message.substr(match[0].length)));
-                            complete = true;
+                            completeString = true;
                         }
-                        if (!complete) {
+                        if (!completeString) {
                             new_message.append($("<span>").text(message)); // Span is there to get the text for the quoting system
                         }
 
