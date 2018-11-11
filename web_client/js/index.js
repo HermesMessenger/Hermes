@@ -138,10 +138,24 @@ $(function () {
                         let color = user_colors[username];
                         let new_message = $('<li>');
                         new_message.append($('<b>').text(username + ': ').css("color", color));
+
+                        complete = false;
+
+                        let match2 = message.match(/([^ ]+)(:\/\/)(.+)(\.)([^ ]+)/);
+                        if (message.match(/([^ ]+)(:\/\/)(.+)(\.)([^ ]+)/g)) {
+                            start = message.search(match2[0]);
+                            end = start + (match2[0].length)
+                            let link_span = ("<a target=\'_blank\' href = \'") + match2[0] + "\'> " + match2[0] + "</a>";
+                            new_message.append(message.substring(0,start)).text
+                            new_message.append(link_span)
+                            new_message.append(message.substring(end))
+                            complete = true;
+                        }
+
                         let match = message.match(/\".*\"/);
                         if (message.match(/\".*\"/g)) {
-                            let quote_span = $("<span>").html("&nbsp;" + match[0].substring(1, match[0].length - 1)).attr("class", "quote " + match[1]);
-                            console.log(quote_span)
+                            let quote_span = $("<span>").text(match[0].substring(1, match[0].length - 1)).attr("class", "quote " + match[1]);
+                            //console.log(quote_span)
                             let cssRuleExists = false;
                             for (var r = 0; r < document.styleSheets[document.styleSheets.length - 1].rules; r++) {
                                 if (document.styleSheets[document.styleSheets.length - 1].rules[r].selectorText.includes(match[1])) {
@@ -154,9 +168,10 @@ $(function () {
                             }
                             new_message.append(quote_span);
                             if(message.substr(match[0].length).length>1)
-                                new_message.append($("<span>").html("<br>"+message.substr(match[0].length))); //Span is there to get the text for the quoting system
+                                new_message.append($("<span>").text(message.substr(match[0].length)));
+                            complete = true;
                         }
-                        else {
+                        if (!complete) {
                             new_message.append($("<span>").text(message)); // Span is there to get the text for the quoting system
                         }
 
