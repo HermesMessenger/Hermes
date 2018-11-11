@@ -166,9 +166,11 @@ $(function () {
                             if (!cssRuleExists) {
                                 document.styleSheets[document.styleSheets.length - 1].addRule(".quote." + match[1] + ":before", "border: 2px  " + user_colors[match[1]] + " solid;");
                             }
+                            start = message.search(match[0]);
+                            end = start + (match[0].length)
+                            new_message.append($("<span>").text(message.substring(0,start)));
                             new_message.append(quote_span);
-                            if(message.substr(match[0].length).length>1)
-                                new_message.append($("<span>").text(message.substr(match[0].length)));
+                            new_message.append($("<span>").text(message.substring(end)));
                             completeString = true;
                         }
                         if (!completeString) {
