@@ -146,8 +146,8 @@ $(function () {
                             completeString = true;
                         }
 
-                        let match = message.match(/\".*\"/);
-                        if (message.match(/\".*\"/g)) {
+                        let match = message.match(/\"(.+): ((.)+)\"/);
+                        if (message.match(/\"(.+): ((.)+)\"/g)) {
                             let quote_span = $("<span>").text(match[0].substring(1, match[0].length - 1)).attr("class", "quote " + match[1]);
                             //console.log(quote_span)
                             let cssRuleExists = false;
