@@ -1,6 +1,7 @@
 const app = require('express')();
-const DB = require('./db');
-const BCRYPT = require('./bcrypt');
+const DB = require('./server/db');
+const BCRYPT = require('./server/bcrypt');
+const utils = require('./server/utils');
 const bodyParser = require('body-parser'); // Peticiones POST
 const cookieParser = require('cookie-parser'); // Cookies
 const favicon = require('express-favicon'); // Favicon
@@ -22,7 +23,7 @@ const SEPCHAR = String.fromCharCode(0x1);
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(cookieParser()); // for parsing cookies
-app.use(favicon(path.join(__dirname, 'logos/HermesSquare.png')));
+app.use(favicon(path.join(__dirname, '/logos/HermesSquare.png')));
 
 app.post('/', function(req, res){
     console.log('COOKIES:', req.cookies);
@@ -154,7 +155,19 @@ app.post('/login', function(req, res){
 
 });
 
-app.get('/loadmessages', function(req, res){
+/*
+---------------------------------------------------------------------------------
+                                _    ____ ___
+                               / \  |  _ \_ _|
+                              / _ \ | |_) | |
+                             / ___ \|  __/| |
+                            /_/   \_\_|  |___|
+
+---------------------------------------------------------------------------------
+*/
+
+
+app.get('/api/loadmessages', function(req, res){
     db.getFromList('messages', function(err, result) {
         data = ''
         i = 0;
@@ -169,35 +182,13 @@ app.get('/loadmessages', function(req, res){
     });
 });
 
-
-function getNow() {
-
-    var date = new Date();
-
-    var hour = date.getHours();
-    hour = (hour < 10 ? "0" : "") + hour;
-
-    var min  = date.getMinutes();
-    min = (min < 10 ? "0" : "") + min;
-
-    var sec  = date.getSeconds();
-    sec = (sec < 10 ? "0" : "") + sec;
-
-    var year = date.getFullYear();
-
-    var month = date.getMonth() + 1;
-    month = (month < 10 ? "0" : "") + month;
-
-    var day  = date.getDate();
-    day = (day < 10 ? "0" : "") + day;
-
-    return day + "/" + month + "/" + year + "$" + hour + ":" + min + ":" + sec;
-
-}
-
-app.get('/sendmessage/:username/:message', function(req, res){
-    db.addToList('messages', req.params.username, req.params.message, getNow());
+app.get('/api/sendmessage/:username/:message', function(req, res){
+    db.addToMessages(req.params.username, req.params.message, utils.getNow());
     res.sendStatus(200);
+});
+
+app.get('/api/*', function(req, res){
+    res.sendStatus(404);
 });
 
 app.get('*', function(req, res){

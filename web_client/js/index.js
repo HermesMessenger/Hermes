@@ -54,7 +54,7 @@ $(function () {
         msg = encodeURIComponent($('#m').val()).split("");
         msg = msg.join("");	
         // httpGetAsync('/sendmessage/'+encodeURIComponent(getCookie('hermes_username'))+'/'+encodeURIComponent($('#m').val()), function(res){});
-        httpGetAsync('/sendmessage/' + encodeURIComponent(getCookie('hermes_username')) + '/' + msg, function (res) {});
+        httpGetAsync('/api/sendmessage/' + encodeURIComponent(getCookie('hermes_username')) + '/' + msg, function (res) {});
         $('#m').val('');
         return false;
     });
@@ -62,7 +62,7 @@ $(function () {
         msg = encodeURIComponent($('#m').val()).split("");
         msg = msg.join("");	
         // httpGetAsync('/sendmessage/'+encodeURIComponent(getCookie('hermes_username'))+'/'+encodeURIComponent($('#m').val()), function(res){});
-        httpGetAsync('/sendmessage/' + encodeURIComponent(getCookie('hermes_username')) + '/' + msg, function (res) {});
+        httpGetAsync('/api/sendmessage/' + encodeURIComponent(getCookie('hermes_username')) + '/' + msg, function (res) {});
         $('#m').val('');
         return false;
     });
@@ -105,7 +105,7 @@ $(function () {
                 })
             });
         })
-        httpGetAsync('/loadmessages', function (res) {
+        httpGetAsync('/api/loadmessages', function (res) {
             if (res !== '') {
                 let messages = res.split(NULLCHAR);
                 let first_load = (loaded_messages == 0);
@@ -175,7 +175,7 @@ $(function () {
                             sendNotifiaction("New message from " + username, username + ": " + message);
                         }
 
-                        new_message.append("<span class='time'>" + decodeURIComponent(time.split("$")[1]) + "</span>");
+                        new_message.append("<span class='time'>" + decodeURIComponent(time).split("$")[1] + "</span>");
 
                         $('#messages').append(new_message);
                         $('html, body').animate({

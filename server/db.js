@@ -7,8 +7,16 @@ module.exports = class {
 
     }
 
-    addToList(listname, user, message, time) {
-        this.redis.lpush(listname, user+SEPCHAR+message+SEPCHAR+time);
+    addToMessages(user, message, time){
+        this.addToList('messages', user+SEPCHAR+message+SEPCHAR+time);
+    }
+
+    addToUsers(user, hash){
+        this.addToList('users', user+SEPCHAR+hash);
+    }
+
+    addToList(listname, element) {
+        this.redis.lpush(listname, element);
     }
 
     getFromList(listname, callback){
