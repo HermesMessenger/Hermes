@@ -148,11 +148,11 @@ $(function () {
 
                         let match = message.match(/\"(.+): ((.)+)\"/);
                         if (message.match(/\"(.+): ((.)+)\"/g)) {
-                            let quote_span = $("<span>").text(match[0].substring(1, match[0].length - 1)).attr("class", "quote " + match[1].replace(/[ ]/g,""));
+                            let quote_span = $("<span>").text(match[0].substring(1, match[0].length - 1)).attr("class", "quote " + match[1].replace(/[ ]/g,"space"));
                             //console.log(quote_span)
                             let cssRuleExists = false;
                             for (var r = 0; r < document.styleSheets[document.styleSheets.length - 1].rules; r++) {
-                                if (document.styleSheets[document.styleSheets.length - 1].rules[r].selectorText.includes(match[1].replace(/[ ]/g,""))) {
+                                if (document.styleSheets[document.styleSheets.length - 1].rules[r].selectorText.includes(match[1].replace(/[ ]/g,"space"))) {
                                     cssRuleExists = true;
                                     break
                                 }
