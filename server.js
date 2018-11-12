@@ -187,7 +187,27 @@ app.get('/api/sendmessage/:username/:message', function(req, res){
     res.sendStatus(200);
 });
 
+app.post('/api/getusername', function(req, res){
+    db.getLoggedInUserFromUUID(req.body.uuid, function(user, status){
+        if(status){
+            res.send(user);
+        }else{
+            res.sendStatus(418);
+        }
+    });
+});
+
+app.get('/api/getusername', function(req, res){
+    res.sendStatus(405);
+});
+
+app.get('/api/teapot', function(req, res){
+    console.log('I\'m a teapot!');
+    res.sendStatus(418);
+});
+
 app.get('/api/*', function(req, res){
+    console.log('Tried to access a not implemented part of the API: ' + req.url);
     res.sendStatus(404);
 });
 
