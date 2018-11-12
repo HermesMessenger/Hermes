@@ -158,7 +158,7 @@ $(function () {
                                 }
                             }
                             if (!cssRuleExists) {
-                                document.styleSheets[document.styleSheets.length - 1].addRule(".quote." + match[1] + ":before", "border: 2px  " + user_colors[match[1]] + " solid;");
+                                document.styleSheets[document.styleSheets.length - 1].addRule(".quote." + match[1].replace(/[ ]/g,"space") + ":before", "border: 2px  " + user_colors[match[1]] + " solid;");
                             }
                             start = message.search(match[0]);
                             end = start + (match[0].length)
