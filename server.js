@@ -8,7 +8,9 @@ const favicon = require('express-favicon'); // Favicon
 const path = require('path');
 
 const web_client_path = __dirname + '/web_client/';
+
 const html_path = web_client_path+'html/';
+
 const js_path = web_client_path+'js/';
 const css_path = web_client_path+'css/';
 
@@ -43,29 +45,13 @@ app.get('/chat', function(req, res){
     res.sendFile(html_path + 'index.html');
 });
 
-app.get('/js/index.js', function(req, res){
-    res.sendFile(js_path + 'index.js');
+app.get('/js/:file', function(req, res){
+    res.sendFile(js_path + req.params.file);
 });
 
-app.get('/js/jquery.js', function(req, res){
-    res.sendFile(js_path + 'jquery.js');
+app.get('/css/:file', function(req, res){
+    res.sendFile(css_path + req.params.file);
 });
-
-app.get('/js/login.js', function(req, res){
-    res.sendFile(js_path + 'login.js');
-});
-
-app.get('/css/index.css', function(req, res){
-    res.sendFile(css_path + 'index.css');
-});
-
-app.get('/css/style.css', function(req, res){
-    res.sendFile(css_path + 'style.css');
-});
-
-/*app.get('/favicon.ico', function(req, res){
-    res.sendFile(__dirname + '/web_client/favicon.ico');
-});*/
 
 app.get('/clearMessages', function(req, res){
     db.clear('messages');
@@ -77,6 +63,12 @@ app.get('/clearUsers', function(req, res){
     db.clear('users');
     res.redirect('/');
     console.log('Cleared users.');
+});
+
+app.get('/clearLoggedInUsers', function(req, res){
+    db.clear('logged_in_users');
+    res.redirect('/');
+    console.log('Cleared logged in users.');
 });
 
 app.get('/logout', function(req, res){
