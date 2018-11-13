@@ -9,6 +9,7 @@
     "cookie-parser": "^1.4.3",
     "express": "^4.16.4",
     "express-favicon": "^2.0.1",
+    "file-exists": "^5.0.1",
     "redis": "^2.8.0",
     "uuid": "^3.3.2"
   },
