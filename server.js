@@ -29,12 +29,13 @@ app.use(favicon(path.join(__dirname, '/logos/HermesSquare.png')));
 
 app.post('/', function(req, res){
     console.log('COOKIES:', req.cookies);
-    res.cookie('hermes_username', req.body.username);
+    //res.cookie('hermes_username', req.body.username);
+    res.cookie('hermes_uuid', req.body.uuid);
     res.redirect('/chat');
 });
 
 app.get('/', function(req, res){
-    if (req.cookies.username) {
+    if (req.cookies.uuid) {
         res.redirect('/chat');
     }else {
         res.redirect('/login');
@@ -73,10 +74,17 @@ app.get('/clearLoggedInUsers', function(req, res){
 
 app.post('/logout', function(req, res){
     if(req.body.uuid){
-        res.clearCookie('hermes_username'); // TODO: remove; kept for legacy purposes
-        res.clearCookie('hermes_uuid');
-        db.logoutUUID(req.body.uuid);
-        res.redirect('/');
+        db.getLoggedInUserFromUUID(req.body.uuid, function(user, ok){
+            if(ok){
+                console.log(user + ' logged out');
+                res.clearCookie('hermes_username'); // TODO: remove; kept for legacy purposes
+                res.clearCookie('hermes_uuid');
+                db.logoutUUID(req.body.uuid);
+                res.redirect('/');
+            }else{
+                res.redirect('/chat');
+            }
+        });
     }else{
         res.redirect('/chat');
     }
@@ -262,9 +270,10 @@ app.get('/api/login', function(req,res){
 
 app.post('/api/logout', function(req,res){
     user_uuid = req.body.uuid;
-    db.isValidUUID(user_uuid, function(ok){
+    db.getLoggedInUserFromUUID(user_uuid, function(user, ok){
         if(ok){
             db.logoutUUID(user_uuid);
+            console.log(user + ' logged out');
             res.sendStatus(200); // Success
         }else{
             res.sendStatus(401); // Unauthorized

@@ -22,7 +22,7 @@ module.exports = class {
     }
 
     logInUser(user){
-        user_uuid = uuid();
+        let user_uuid = uuid();
         this.addToList('logged_in_users', user+SEPCHAR+user_uuid);
         return user_uuid;
     }
@@ -51,9 +51,9 @@ module.exports = class {
     getLoggedInUserFromUUID(user_uuid, callback){
         this.getFromList('logged_in_users', function(err, res){
             var user;
-            for(element of res){
+            for(let element of res){
                 if(element){
-                    data = element.split(SEPCHAR);
+                    let data = element.split(SEPCHAR);
                     if(data[1] == user_uuid){
                         user = data[0];
                         break;
@@ -70,17 +70,19 @@ module.exports = class {
     }
 
     logoutUser(user){
+        let this_db = this;
         this.getLoggedInUserIDX_UUID(user, function(user_uuid, ok){
             if(ok){
-                this.removeFromList('logged_in_users', user+SEPCHAR+user_uuid);
+                this_db.removeFromList('logged_in_users', user+SEPCHAR+user_uuid);
             }
         });
     }
 
     logoutUUID(user_uuid){
+        let this_db = this;
         this.getLoggedInUserFromUUID(user_uuid, function(user, ok){
             if(ok){
-                this.removeFromList('logged_in_users', user+SEPCHAR+user_uuid);
+                this_db.removeFromList('logged_in_users', user+SEPCHAR+user_uuid);
             }
         });
     }
