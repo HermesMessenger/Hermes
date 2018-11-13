@@ -5,6 +5,7 @@ const utils = require('./server/utils');
 const bodyParser = require('body-parser'); // Peticiones POST
 const cookieParser = require('cookie-parser'); // Cookies
 const favicon = require('express-favicon'); // Favicon
+const fileExists = require('file-exists');
 const path = require('path');
 
 const web_client_path = __dirname + '/web_client/';
@@ -47,11 +48,23 @@ app.get('/chat', function(req, res){
 });
 
 app.get('/js/:file', function(req, res){
-    res.sendFile(js_path + req.params.file);
+    fileExists(js_path + req.params.file, function (err, exists) {
+        if (exists) {
+            res.sendFile(js_path + req.params.file);
+        } else {
+            res.sendStatus(404)
+        }
+    });
 });
 
 app.get('/css/:file', function(req, res){
-    res.sendFile(css_path + req.params.file);
+    fileExists(css_path + req.params.file, function (err, exists) {
+        if (exists) {
+            res.sendFile(css_path + req.params.file);
+        } else {
+            res.sendStatus(404)
+        }
+    });
 });
 
 app.get('/clearMessages', function(req, res){
