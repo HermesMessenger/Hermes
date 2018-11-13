@@ -71,9 +71,19 @@ app.get('/clearLoggedInUsers', function(req, res){
     console.log('Cleared logged in users.');
 });
 
+app.post('/logout', function(req, res){
+    if(req.body.uuid){
+        res.clearCookie('hermes_username'); // TODO: remove; kept for legacy purposes
+        res.clearCookie('hermes_uuid');
+        db.logoutUUID(req.body.uuid);
+        res.redirect('/');
+    }else{
+        res.redirect('/chat');
+    }
+});
+
 app.get('/logout', function(req, res){
-    res.clearCookie('hermes_username');
-    res.redirect('/');
+    res.redirect('/chat');
 });
 
 app.get('/register', function(req, res){
@@ -119,9 +129,7 @@ app.post('/login', function(req, res){
     var username=req.body.username;
     var password=req.body.password;
     var redirected = false;
-    var verifying = false;
     db.getFromList("users", async function(err, result) {
-        var i = 0;
         for(value of result){
             login=value.split(SEPCHAR);
 
@@ -130,14 +138,16 @@ app.post('/login', function(req, res){
 
                 if (same){
                     console.log(username,'logged in.')
-                    res.cookie('hermes_username', username);
+                    let user_uuid = db.logInUser(username);
+                    res.cookie('hermes_username', username); // TODO: remove; kept for legacy purposes
+                    res.cookie('hermes_uuid', user_uuid);
                     res.redirect('/chat');
                     redirected = true;
                 } else {
                     res.sendFile(html_path + 'LoginPages/IncorrectPassword.html')
                     redirected = true;
                 }
-            } else i++;
+            }
         }
         if (!redirected) {
             res.sendFile(html_path + 'LoginPages/UserNotFound.html');
@@ -158,25 +168,44 @@ app.post('/login', function(req, res){
 ---------------------------------------------------------------------------------
 */
 
-
-app.get('/api/loadmessages', function(req, res){
-    db.getFromList('messages', function(err, result) {
-        data = ''
-        i = 0;
-        result.forEach(function(value){
-            if(i!=0){
-                data += NULLCHAR;
-            }
-            data += value;
-            i++;
-        });
-        res.send(data);
+app.post('/api/loadmessages', function(req, res){
+    db.isValidUUID(req.body.uuid, function(ok){
+        if(ok){
+            db.getFromList('messages', function(err, result) {
+                data = ''
+                i = 0;
+                result.forEach(function(value){
+                    if(i!=0){
+                        data += NULLCHAR;
+                    }
+                    data += value;
+                    i++;
+                });
+                res.send(data);
+            });
+        }else{
+            res.sendStatus(401); // Unauthorized
+        }
     });
 });
 
-app.get('/api/sendmessage/:username/:message', function(req, res){
-    db.addToMessages(req.params.username, req.params.message, utils.getNow());
-    res.sendStatus(200);
+app.get('/api/loadmessages', function(req,res){
+    res.sendStatus(401);
+});
+
+app.post('/api/sendmessage/:message', function(req, res){
+    db.getLoggedInUserFromUUID(req.body.uuid, function(username, ok){
+        if(ok){
+            db.addToMessages(username, req.params.message, utils.getNow());
+            res.sendStatus(200); // Success
+        }else{
+            res.sendStatus(401); // Unauthorized
+        }
+    });
+})
+
+app.get('/api/sendmessage/:message', function(req,res){
+    res.sendStatus(401);
 });
 
 app.post('/api/getusername', function(req, res){
@@ -184,23 +213,77 @@ app.post('/api/getusername', function(req, res){
         if(status){
             res.send(user);
         }else{
-            res.sendStatus(418);
+            res.sendStatus(401); // Unauthorized
         }
     });
 });
 
 app.get('/api/getusername', function(req, res){
-    res.sendStatus(405);
+    res.sendStatus(405); // Bad method (GET instead of POST)
+});
+
+app.post('/api/login', function(req,res){
+    username = req.body.username;
+    password = req.body.password;
+    if(username && password){
+        var redirected = false;
+    db.getFromList("users", async function(err, result) {
+        for(value of result){
+            login=value.split(SEPCHAR);
+
+            if (login[0] == username) {
+                let same = await bcrypt.verify(password, login[1]);
+
+                if (same){
+                    console.log(username,'logged in.')
+                    let user_uuid = db.logInUser(username);
+                    res.cookie('hermes_username', username); // TODO: remove; kept for legacy purposes
+                    res.cookie('hermes_uuid', user_uuid);
+                    res.redirect('/chat');
+                    redirected = true;
+                } else {
+                    res.sendStatus(419).send('Login error');
+                    redirected = true;
+                }
+            }
+        }
+        if (!redirected) {
+            res.sendStatus(419).send('Login error');
+        }
+    });
+    }else{
+        res.sendStatus(400); // Bad request: either username and/or pasword are not present
+    }
+});
+
+app.get('/api/login', function(req,res){
+    res.sendStatus(405); // Bad Method
+});
+
+app.post('/api/logout', function(req,res){
+    user_uuid = req.body.uuid;
+    db.isValidUUID(user_uuid, function(ok){
+        if(ok){
+            db.logoutUUID(user_uuid);
+            res.sendStatus(200); // Success
+        }else{
+            res.sendStatus(401); // Unauthorized
+        }
+    });
+});
+
+app.get('/api/logout', function(req,res){
+    res.sendStatus(405); // Bad Method
 });
 
 app.get('/api/teapot', function(req, res){
     console.log('I\'m a teapot!');
-    res.sendStatus(418);
+    res.sendStatus(418); // I'm a teapot
 });
 
 app.get('/api/*', function(req, res){
     console.log('Tried to access a not implemented part of the API: ' + req.url);
-    res.sendStatus(404);
+    res.sendStatus(404); // Not found
 });
 
 app.get('*', function(req, res){

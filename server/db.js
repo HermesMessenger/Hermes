@@ -15,14 +15,16 @@ module.exports = class {
         this.addToList('users', user+SEPCHAR+hash);
     }
 
+    
+
+    addToList(listname, element) {
+        this.redis.lpush(listname, element);
+    }
+
     logInUser(user){
         user_uuid = uuid();
         this.addToList('logged_in_users', user+SEPCHAR+user_uuid);
         return user_uuid;
-    }
-
-    addToList(listname, element) {
-        this.redis.lpush(listname, element);
     }
 
     getLoggedInUserUUID(user, callback){
@@ -46,14 +48,6 @@ module.exports = class {
         });
     }
 
-    logoutUser(user){
-        this.getLoggedInUserIDX_UUID(user, function(user_uuid, ok){
-            if(ok){
-                this.removeFromList('logged_in_users', user+SEPCHAR+user_uuid);
-            }
-        });
-    }
-
     getLoggedInUserFromUUID(user_uuid, callback){
         this.getFromList('logged_in_users', function(err, res){
             var user;
@@ -72,6 +66,28 @@ module.exports = class {
                 callback(user, false);
             }
             
+        });
+    }
+
+    logoutUser(user){
+        this.getLoggedInUserIDX_UUID(user, function(user_uuid, ok){
+            if(ok){
+                this.removeFromList('logged_in_users', user+SEPCHAR+user_uuid);
+            }
+        });
+    }
+
+    logoutUUID(user_uuid){
+        this.getLoggedInUserFromUUID(user_uuid, function(user, ok){
+            if(ok){
+                this.removeFromList('logged_in_users', user+SEPCHAR+user_uuid);
+            }
+        });
+    }
+
+    isValidUUID(user_uuid, callback){
+        this.getLoggedInUserFromUUID(user_uuid,function(user, ok){
+            callback(ok);
         });
     }
 
