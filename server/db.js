@@ -5,7 +5,6 @@ const uuid = require('uuid/v4');
 module.exports = class {
     constructor(){
         this.redis = require('redis').createClient();
-
     }
 
     addToMessages(user, message, time){
