@@ -43,11 +43,21 @@ $(function () {
         $("#quote").click(function () {
             $("li").each(function () {
                 if (($("#rightclick").position().top > $(this).position().top && $("#rightclick").position().top < $(this).position().top + $(this).height()) && ($("#rightclick").position().left > $(this).position().left && $("#rightclick").position().left < $(this).position().left + $(this).width())) {
-                $("#m").val("\""+
-                $(this).find("b").text()+
-                $(this).find("b").next().text()+"\" "+
-                $("#m").val()
+                  if($(this).find(".quote").length>=1){ //Testeo si hay quote en el mensaje
+                    $("#m").val("\""+
+                    $(this).find("b").text()+
+                    $(this).find("b").next().text()+
+                    // No ponemos el quote
+                    $(this).find("b").next().next().next().text()+"\" "+
+                    $("#m").val()
                     );
+                  }else{
+                    $("#m").val("\""+
+                    $(this).find("b").text()+
+                    $(this).find("b").next().text()+"\" "+
+                    $("#m").val()
+                    );
+                  }
                 }
             })
         });
