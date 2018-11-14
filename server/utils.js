@@ -1,4 +1,4 @@
-module.exports.getNow = function(){
+module.exports.getNowStr = function(){
     var date = new Date();
 
     var hour = date.getHours();
@@ -19,4 +19,8 @@ module.exports.getNow = function(){
     day = (day < 10 ? "0" : "") + day;
 
     return day + "/" + month + "/" + year + "$" + hour + ":" + min + ":" + sec;
+}
+
+module.exports.getCurrentTimeStamp = function(){
+    return Math.floor(new Date() / 1000); // Gets the UNIX timestamp in milliseconds, divides it to seconds & floors it
 }

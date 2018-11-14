@@ -15,6 +15,8 @@ const html_path = web_client_path + 'html/';
 const js_path = web_client_path + 'js/';
 const css_path = web_client_path + 'css/';
 
+const SESSION_TIMEOUT = 60 * 60 * 24 * 7 // A week in seconds
+
 let db = new DB();
 console.log('------------------------------------------');
 
@@ -87,7 +89,7 @@ app.get('/clearLoggedInUsers', function (req, res) {
 
 app.post('/logout', function (req, res) {
     if (req.body.uuid) {
-        db.getLoggedInUserFromUUID(req.body.uuid, function (user, ok) {
+        db.getLoggedInUserTimeFromUUID(req.body.uuid, function (user, time, ok) {
             if (ok) {
                 console.log(user + ' logged out');
                 res.clearCookie('hermes_username'); // TODO: remove; kept for legacy purposes
@@ -222,9 +224,9 @@ app.get('/api/loadmessages', function (req, res) {
 });
 
 app.post('/api/sendmessage/:message', function (req, res) {
-    db.getLoggedInUserFromUUID(req.body.uuid, function (username, ok) {
+    db.getLoggedInUserTimeFromUUID(req.body.uuid, function (username, time, ok) {
         if (ok) {
-            db.addToMessages(username, req.params.message, utils.getNow());
+            db.addToMessages(username, req.params.message, utils.getNowStr());
             res.sendStatus(200); // Success
         } else {
             res.sendStatus(401); // Unauthorized
@@ -237,7 +239,7 @@ app.get('/api/sendmessage/:message', function (req, res) {
 });
 
 app.post('/api/getusername', function (req, res) {
-    db.getLoggedInUserFromUUID(req.body.uuid, function (user, status) {
+    db.getLoggedInUserTimeFromUUID(req.body.uuid, function (user, time, status) {
         if (status) {
             res.send(user);
         } else {
@@ -291,7 +293,7 @@ app.get('/api/login', function (req, res) {
 app.post('/api/logout', function (req, res) {
     user_uuid = req.body.uuid;
     // If the uuid is not valid, logoutUUID will error out
-    db.getLoggedInUserFromUUID(user_uuid, function (user, ok) {
+    db.getLoggedInUserTimeFromUUID(user_uuid, function (user, time, ok) {
         if (ok) {
             db.logoutUUID(user_uuid);
             console.log(user + ' logged out');
@@ -323,3 +325,9 @@ app.get('*', function (req, res) {
 app.listen(8080, function () {
     console.log('listening on *:8080');
 });
+
+const login_cleanup_interval = setInterval(function(){
+    db.checkExpriation(SESSION_TIMEOUT, function(removed_sessions){
+        console.log('Cleaned up ' + removed_sessions + ' session(s) from the db');
+    });
+},1000*60*60);
