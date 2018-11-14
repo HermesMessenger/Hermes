@@ -95,11 +95,17 @@ app.post('/logout', function(req, res){
                 db.logoutUUID(req.body.uuid);
                 res.redirect('/');
             }else{
-                res.redirect('/chat');
+                console.log(user + ' tried to log out with invalid uuid; removing cookies & redirecting');
+                res.clearCookie('hermes_username'); // TODO: remove; kept for legacy purposes
+                res.clearCookie('hermes_uuid');
+                // If the uuid is invalid logoutUUID will error out
+                res.redirect('/');
             }
         });
     }else{
-        res.redirect('/chat');
+        // no uuid cookie
+        res.clearCookie('hermes_username'); // TODO: remove; kept for legacy purposes
+        res.redirect('/');
     }
 });
 
@@ -132,6 +138,7 @@ app.post('/register', function(req, res){
                 console.log('New user: ',username);
                 bcrypt.save(username, password1);
                 res.cookie('hermes_username', username);
+                res.cookie('hermes_uuid', db.logInUser(username)); // KEPT FOR LEGACY PURPOSES
                 res.redirect('/chat');
             }
         });
@@ -283,6 +290,7 @@ app.get('/api/login', function(req,res){
 
 app.post('/api/logout', function(req,res){
     user_uuid = req.body.uuid;
+    // If the uuid is not valid, logoutUUID will error out
     db.getLoggedInUserFromUUID(user_uuid, function(user, ok){
         if(ok){
             db.logoutUUID(user_uuid);

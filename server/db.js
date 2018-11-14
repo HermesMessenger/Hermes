@@ -27,6 +27,8 @@ module.exports = class {
         return user_uuid;
     }
 
+    /*
+    NOT USED
     getLoggedInUserUUID(user, callback){
         this.getFromList('logged_in_users', function(err, res){
             var user_uuid;
@@ -46,7 +48,7 @@ module.exports = class {
             }
             
         });
-    }
+    }*/
 
     getLoggedInUserFromUUID(user_uuid, callback){
         this.getFromList('logged_in_users', function(err, res){
@@ -69,6 +71,8 @@ module.exports = class {
         });
     }
 
+    /*
+    NOT USED
     logoutUser(user){
         let this_db = this;
         this.getLoggedInUserIDX_UUID(user, function(user_uuid, ok){
@@ -77,6 +81,7 @@ module.exports = class {
             }
         });
     }
+    */
 
     logoutUUID(user_uuid){
         let this_db = this;
