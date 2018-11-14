@@ -3,10 +3,12 @@ var notifications_allowed = false;
 
 function sendNotifiaction(user, message) {
     if (notifications_allowed && notifications_supported) {
-        new Notification(user, {
-            body: message,
-            icon: '/favicon.png' /* TODO: be the user's profile image */
-        });
+        if (!(ifvisible.now())){
+            new Notification(user, {
+                body: message,
+                icon: '/favicon.png' /* TODO: be the user's profile image */
+            });
+        };
     }
 }
 
