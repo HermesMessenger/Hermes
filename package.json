@@ -1,6 +1,6 @@
 {
   "name": "hermes",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "description": "A decentralized messaging app",
   "main": "server.js",
   "dependencies": {

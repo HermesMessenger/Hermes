@@ -21,6 +21,36 @@ module.exports = class {
         this.addToList('users', user + SEPCHAR + hash);
     }
 
+    updateUserPassword(user, new_hash, callback=function(ok){}) {
+        let this_db = this;
+        this.getFromList('users', function (err, res) {
+            var idx = 0;
+            var ok = false;
+            for (let element of res) {
+                if (element) {
+                    data = element.split(SEPCHAR);
+                    if(data[0] == user){
+                        var new_data = data;
+                        new_data[1] = new_hash;
+                        var r = '';
+                        for(var i = 0;i<new_data.length;i++){
+                            if(i!=0){
+                                r = r+SEPCHAR+new_data[i]
+                            }else{
+                                r = new_data[0]
+                            }
+                        }
+                        this_db.redis.lset('users', idx, r);
+                        ok = true;
+                        break;
+                    }
+                    idx++;
+                }
+            }
+            callback(ok);
+        });
+    }
+
     logInUser(user) {
         let user_uuid = uuid();
         this.addToList('logged_in_users', user + SEPCHAR + user_uuid + SEPCHAR + getCurrentTimeStamp());
