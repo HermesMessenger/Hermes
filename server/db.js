@@ -50,7 +50,7 @@ module.exports = class {
         });
     }
 
-    getLoggedInUserTimeFromUUID(user_uuid, callback) {
+    getLoggedInUserTimeFromUUID(user_uuid, callback, update_time=true) {
         let this_db = this;
         this.getFromList('logged_in_users', function (err, res) {
             var user;
@@ -61,7 +61,13 @@ module.exports = class {
                     let data = element.split(SEPCHAR);
                     if (data[1] == user_uuid) {
                         user = data[0];
-                        time = this_db.updateLoginExpiration(i, user, user_uuid); // Update current timestamp
+                        if(update_time){
+                            time = this_db.updateLoginExpiration(i, user, user_uuid); // Update current timestamp
+                            
+                        }else{
+                            time = data[2];
+                        }
+                        
                         break;
                     }
                     i++;
@@ -85,10 +91,10 @@ module.exports = class {
         });
     }
 
-    isValidUUID(user_uuid, callback) {
+    isValidUUID(user_uuid, callback, update_time=true) {
         this.getLoggedInUserTimeFromUUID(user_uuid, function (user, time, ok) {
             callback(ok);
-        });
+        }, update_time);
     }
 
     getFromList(listname, callback) {
