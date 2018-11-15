@@ -229,6 +229,7 @@ app.post('/api/sendmessage/:message', function (req, res) {
             db.addToMessages(username, req.params.message, utils.getNowStr());
             res.sendStatus(200); // Success
         } else {
+            
             res.sendStatus(401); // Unauthorized
         }
     });

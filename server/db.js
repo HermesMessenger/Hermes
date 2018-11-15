@@ -27,9 +27,9 @@ module.exports = class {
         return user_uuid;
     }
 
-    updateLoginExpirationWithIDX(idx) {
-        let timestamp = getCurrentTimeStamp();
-        this.redis.lset('logged_in_users', idx, timestamp);
+    updateLoginExpiration(idx, username, user_uuid) {
+        let timestamp = getCurrentTimeStamp(); // TODO: put more than timestamp
+        this.redis.lset('logged_in_users', idx, username+SEPCHAR+user_uuid+SEPCHAR+timestamp);
         return timestamp;
     }
 
@@ -61,7 +61,7 @@ module.exports = class {
                     let data = element.split(SEPCHAR);
                     if (data[1] == user_uuid) {
                         user = data[0];
-                        time = this_db.updateLoginExpirationWithIDX(i); // Update current timestamp
+                        time = this_db.updateLoginExpiration(i, user, user_uuid); // Update current timestamp
                         break;
                     }
                     i++;
