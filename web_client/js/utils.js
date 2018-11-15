@@ -35,6 +35,21 @@ function httpGetAsync(theUrl, callback) {
 }
 
 /**
+ * A function that makes a GET request to a url
+ *  @param {String} theUrl: the url to make the GET request to
+ *  @param {Function} callback: the function to be called with the responseText data & the status
+ */
+function httpGetStatusAsync(theUrl, callback) {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function () {
+        if (xmlHttp.readyState == 4)
+            callback(xmlHttp.responseText, xmlHttp.status);
+    }
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous
+    xmlHttp.send(null);
+}
+
+/**
  * A function that makes a POST request to a url with some json data
  *  @param {String} theUrl: the url to make the POST request to
  *  @param {JSON} jsonData: the data of the header, in json format
@@ -45,6 +60,23 @@ function httpPostAsync(theUrl, jsonData, callback) {
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
             callback(xmlHttp.responseText);
+    }
+    xmlHttp.open("POST", theUrl, true); // true for asynchronous
+    xmlHttp.setRequestHeader('Content-Type', 'application/json');
+    xmlHttp.send(JSON.stringify(jsonData));
+}
+
+/**
+ * A function that makes a POST request to a url with some json data
+ *  @param {String} theUrl: the url to make the POST request to
+ *  @param {JSON} jsonData: the data of the header, in json format
+ *  @param {Function} callback: thse function to be called with the responseText data & the status
+ */
+function httpPostStatusAsync(theUrl, jsonData, callback) {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function () {
+        if (xmlHttp.readyState == 4)
+            callback(xmlHttp.responseText, xmlHttp.status);
     }
     xmlHttp.open("POST", theUrl, true); // true for asynchronous
     xmlHttp.setRequestHeader('Content-Type', 'application/json');

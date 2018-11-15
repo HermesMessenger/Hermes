@@ -21,28 +21,32 @@ module.exports = class {
         this.addToList('users', user + SEPCHAR + hash);
     }
 
-    updateUserPassword(user, new_hash, callback=function(ok){}) {
+    updateUserPassword(user, old_password, new_hash, bcrypt, callback=function(ok){}) {
         let this_db = this;
-        this.getFromList('users', function (err, res) {
+        this.getFromList('users', async function (err, res) {
             var idx = 0;
             var ok = false;
             for (let element of res) {
                 if (element) {
                     data = element.split(SEPCHAR);
                     if(data[0] == user){
-                        var new_data = data;
-                        new_data[1] = new_hash;
-                        var r = '';
-                        for(var i = 0;i<new_data.length;i++){
-                            if(i!=0){
-                                r = r+SEPCHAR+new_data[i]
-                            }else{
-                                r = new_data[0]
+                        let correct = await bcrypt.verify(old_password, data[1]);
+                        if(correct){
+                            var new_data = data;
+                            new_data[1] = new_hash;
+                            var r = '';
+                            for(var i = 0;i<new_data.length;i++){
+                                if(i!=0){
+                                    r = r+SEPCHAR+new_data[i]
+                                }else{
+                                    r = new_data[0]
+                                }
                             }
+                            this_db.redis.lset('users', idx, r);
+                            ok = true;
+                            break;
                         }
-                        this_db.redis.lset('users', idx, r);
-                        ok = true;
-                        break;
+                        
                     }
                     idx++;
                 }

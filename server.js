@@ -309,6 +309,32 @@ app.get('/api/logout', function (req, res) {
     res.sendStatus(405); // Bad Method
 });
 
+app.post('/api/updatePassword', function(req, res){
+    let old_password = req.body.old_password;
+    let new_password = req.body.new_password;
+    let new_password_repeat = req.body.new_password_repeat;
+    let uuid = req.body.uuid;
+    db.getLoggedInUserTimeFromUUID(uuid,function(user, time, ok){
+        if(ok){
+            if(new_password == new_password_repeat){
+                bcrypt.update(user,old_password, new_password, function(ok){
+                    if(ok){
+                        res.sendStatus(200); // Success
+                    }else{
+                        res.sendStatus(500); // Server error
+                    }
+                });
+            }else{
+                res.sendStatus(401); // Unauthorized
+            }
+        }else{
+            res.sendStatus(401); // Unauthorized
+        }
+        
+    });
+    
+});
+
 app.get('/api/teapot', function (req, res) {
     console.log('I\'m a teapot!');
     res.sendStatus(418); // I'm a teapot
