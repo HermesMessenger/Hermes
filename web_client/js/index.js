@@ -121,7 +121,7 @@ $(function () {
                             if (message.match(/([^ ]+)(:\/\/)(.+)(\.)([^ ]+)/g)) {
                                 start = message.search(match2[0]);
                                 end = start + (match2[0].length)
-                                let link_span = $('<a>').attr('target','_blank').attr('href', match2[0]).text(match2[0]);//("<a target=\'_blank\' href = \'") + match2[0] + "\'> " + match2[0] + "</a>";
+                                let link_span = $('<a>').attr('target','_blank').attr('href', match2[0]).text(match2[0]);
                                 new_message.append($("<span>").text(message.substring(0,start)));
                                 new_message.append(link_span);
                                 new_message.append($("<span>").text(message.substring(end)));
