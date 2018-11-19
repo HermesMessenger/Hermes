@@ -6,6 +6,7 @@
   "dependencies": {
     "bcrypt": "^3.0.2",
     "body-parser": "^1.18.3",
+    "cassandra-driver": "^3.5.0",
     "cookie-parser": "^1.4.3",
     "express": "^4.16.4",
     "express-favicon": "^2.0.1",

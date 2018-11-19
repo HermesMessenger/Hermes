@@ -7,11 +7,12 @@ CREATE TABLE Hermes.Users (
     PRIMARY KEY(UUID, Username)
 );
 
-/* This could be replicated so that there are channels, each with its own table */
 CREATE TABLE Hermes.Messages (
-    Username TEXT,
-    Message TEXT,
-    TimeSent TIMESTAMP PRIMARY KEY
+    channel TEXT,
+    timesent TIMESTAMP,
+    message TEXT,
+    username TEXT,
+    PRIMARY KEY(channel, timesent)
 );
 
 CREATE TABLE Hermes.Sessions (
