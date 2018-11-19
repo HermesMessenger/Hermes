@@ -1,6 +1,11 @@
 const cassandra = require('cassandra-driver');
+const TimeUUID = cassandra.types.TimeUuid;
 const SESSION_TIMEOUT = 60 * 60 * 24 * 7 // A week in seconds
-const USER_NOT_EXISTANT_ERROR = 0;
+
+let USER_NOT_FOUND_ERROR = new Error('User not found');
+USER_NOT_FOUND_ERROR.code = 10000;
+let USER_NOT_LOGGED_IN_ERROR = new Error('User not found or not logged in');
+USER_NOT_LOGGED_IN_ERROR.code = 10001;
 
 module.exports = class {
     constructor(){
@@ -24,12 +29,26 @@ module.exports = class {
         const query = 'INSERT INTO Users (UUID, Username, PasswordHash) values(now(),?,?);';
         let data = [user, passwordHash];
         return new Promise((resolve, reject) => {
-            this.client.execute(query, data, {prepare: true}).then(result => {
-                resolve();
-            }).catch(err => {
-                reject(err);
-            });
+            this.client.execute(query, data, {prepare: true}).then(result => resolve()).catch(err => reject(err));
         });
+    }
+
+    updateUserPasswordHash(user,passwordHash){
+        const query = 'SELECT UUID from Users where Username = ? ALLOW FILTERING;';
+        let data = [user];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, {prepare: true}).then(result => {
+                let hashRow = result.first();
+                if(hashRow.uuid){
+                    const newquery = 'UPDATE Users SET passwordHash=? WHERE UUID=? AND Username=?;';
+                    let newdata = [passwordHash, hashRow.uuid, user];
+                    this.client.execute(newquery, newdata, {prepare: true}).then(result => resolve()).catch(err => reject(err));
+                }else{
+                    reject(USER_NOT_FOUND_ERROR);
+                }
+            }).catch(err => reject(err));
+        });
+        
     }
 
     getPasswordHash(user){
@@ -41,11 +60,9 @@ module.exports = class {
                 if(hashRow.passwordhash){
                     resolve(hashRow.passwordhash);
                 }else{
-                    reject('User not existant');
+                    reject(USER_NOT_FOUND_ERROR);
                 }
-            }).catch(err => {
-                reject(err);
-            });
+            }).catch(err => reject(err));
         });
     }
 
@@ -56,9 +73,7 @@ module.exports = class {
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, {prepare: true}).then(result => {
                 resolve();
-            }).catch(err => {
-                reject(err);
-            });
+            }).catch(err => reject(err));
         });
     }
 
@@ -68,15 +83,12 @@ module.exports = class {
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, {prepare: true}).then(result => {
                 let userRow = result.first();
-
                 if(userRow.username){
                     resolve(userRow.username);
                 }else{
-                    reject('User not existant or not logged in');
+                    reject(USER_NOT_LOGGED_IN_ERROR);
                 }
-            }).catch(err => {
-                reject(err);
-            });
+            }).catch(err => reject(err));
         });
     }
 
