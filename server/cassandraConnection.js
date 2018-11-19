@@ -1,5 +1,4 @@
 const cassandra = require('cassandra-driver');
-const TimeUUID = cassandra.types.TimeUuid;
 const SESSION_TIMEOUT = 60 * 60 * 24 * 7 // A week in seconds
 
 let USER_NOT_FOUND_ERROR = new Error('User not found');
@@ -93,7 +92,7 @@ module.exports = class {
     }
 
     updateLoggedInUser(uuid){
-        // TODO: update the TTL
+        
         const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) USING TTL ?';
         return new Promise((resolve, reject) => {
             this.getUserForUUID(uuid).then(user => {
@@ -103,6 +102,32 @@ module.exports = class {
                 }).catch(err => reject(err));
             }).catch(err => reject(err));
             
+        });
+    }
+
+    checkLoggedInUser(uuid){
+        const query = 'SELECT COUNT (*) AS count FROM sessions WHERE UUID=?;';
+        let data = [uuid];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, {prepare: true}).then(result => {
+                resolve(result.first()>0);
+            }).catch(err => reject(err));
+        });
+    }
+
+    logoutUser(uuid){
+        const query = 'DELETE * FROM Sessions WHERE UUID=?;';
+        let data = [uuid];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, {prepare: true}).then(result => resolve()).catch(err => reject(err));
+        });
+    }
+
+    clear(table){
+        const query = 'DELETE * FROM ?;';
+        let data = [table];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, {prepare: true}).then(result => resolve()).catch(err => reject(err));
         });
     }
 }
