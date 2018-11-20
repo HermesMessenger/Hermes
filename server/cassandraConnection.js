@@ -5,6 +5,8 @@ let USER_NOT_FOUND_ERROR = new Error('User not found');
 USER_NOT_FOUND_ERROR.code = 10000;
 let USER_NOT_LOGGED_IN_ERROR = new Error('User not found or not logged in');
 USER_NOT_LOGGED_IN_ERROR.code = 10001;
+let FIELD_REQUIRED_ERROR = new Error('Fields required where left blank');
+FIELD_REQUIRED_ERROR.code = 10001;
 
 module.exports = class {
     constructor(){
@@ -165,12 +167,54 @@ module.exports = class {
     }
 
     saveSetting(uuid, username, color, notifications=true){
-        const query = 'INSERT INTO Settigns (UUID, Username, Color, Notifications) values(?,?,?,?);';
+        const query = 'INSERT INTO Settings (UUID, Username, Color, Notifications) values(?,?,?,?);';
         return new Promise((resolve, reject) => {
             let data = [uuid, username, color, notifications];
             this.client.execute(query, data, {prepare: true}).then(result => {
                 resolve();
             }).catch(err => reject(err));
         });
+    }
+
+    getSettingUUID(uuid){
+        return this.getSetting(uuid);
+    }
+
+    getSettingUsername(username){
+        return this.getSetting(undefined, username);
+    }
+
+    getSetting(uuid=undefined, username=undefined){
+        if(uuid){
+            const query = 'SELECT color,notifications FROM Settings WHERE uuid=?;';
+            return new Promise((resolve, reject) => {
+                let data = [uuid];
+                this.client.execute(query, data, {prepare: true}).then(result => {
+                    let userRow = result.first();
+                    if(userRow.color && userRow.notifications){
+                        resolve(userRow.color, userRow.notifications);
+                    }else{
+                        reject(USER_NOT_FOUND_ERROR);
+                    }
+                }).catch(err => reject(err));
+            });
+        }else if(username){
+            const query = 'SELECT color,notifications FROM Settings WHERE username=? ALLOW FILTERING;';
+            return new Promise((resolve, reject) => {
+                let data = [uuid];
+                this.client.execute(query, data, {prepare: true}).then(result => {
+                    let userRow = result.first();
+                    if(userRow.color && userRow.notifications){
+                        resolve(userRow.color, userRow.notifications);
+                    }else{
+                        reject(USER_NOT_FOUND_ERROR);
+                    }
+                }).catch(err => reject(err));
+            });
+        }else{
+            return new Promise((resolve, reject) => {
+                reject(FIELD_REQUIRED_ERROR);
+            });
+        }
     }
 }
