@@ -92,7 +92,6 @@ module.exports = class {
     }
 
     updateLoggedInUser(uuid){
-        
         const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) USING TTL ?';
         return new Promise((resolve, reject) => {
             this.getUserForUUID(uuid).then(user => {
@@ -128,6 +127,50 @@ module.exports = class {
         let data = [table];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, {prepare: true}).then(result => resolve()).catch(err => reject(err));
+        });
+    }
+
+    saveSettingWithUsername(username){
+        const query = 'SELECT UUID FROM Settings WHERE Username=? allow filtering;';
+        let data = [username];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, {prepare: true}).then(result => {
+                let uuidRow = result.first();
+                if(uuidRow.uuid){
+                    this.saveSetting(uuidRow.uuid, username, color, notifications).then(()=>{
+                        resolve();
+                    }).catch(err => reject(err));
+                }else{
+                    reject(USER_NOT_LOGGED_IN_ERROR);
+                }
+            }).catch(err => reject(err));
+        });
+    }
+
+    saveSettingWithUUID(uuid, color, notifications=true){
+        const query = 'SELECT Username FROM Settings WHERE UUID=?;';
+        let data = [uuid];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, {prepare: true}).then(result => {
+                let userRow = result.first();
+                if(userRow.username){
+                    this.saveSetting(uuid, userRow.username, color, notifications).then(()=>{
+                        resolve();
+                    }).catch(err => reject(err));
+                }else{
+                    reject(USER_NOT_LOGGED_IN_ERROR);
+                }
+            }).catch(err => reject(err));
+        });
+    }
+
+    saveSetting(uuid, username, color, notifications=true){
+        const query = 'INSERT INTO Settigns (UUID, Username, Color, Notifications) values(?,?,?,?);';
+        return new Promise((resolve, reject) => {
+            let data = [uuid, username, color, notifications];
+            this.client.execute(query, data, {prepare: true}).then(result => {
+                resolve();
+            }).catch(err => reject(err));
         });
     }
 }
