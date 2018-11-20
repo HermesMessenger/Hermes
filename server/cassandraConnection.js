@@ -125,7 +125,7 @@ module.exports = class {
     }
 
     clear(table){
-        const query = 'DELETE * FROM ?;';
+        const query = 'TRUNCATE ?;';
         let data = [table];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, {prepare: true}).then(result => resolve()).catch(err => reject(err));
