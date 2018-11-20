@@ -1,4 +1,5 @@
 const cassandra = require('cassandra-driver');
+const uuidv1 = require('uuid/v1');
 const SESSION_TIMEOUT = 60 * 60 * 24 * 7 // A week in seconds
 
 let USER_NOT_FOUND_ERROR = new Error('User not found');
@@ -7,6 +8,14 @@ let USER_NOT_LOGGED_IN_ERROR = new Error('User not found or not logged in');
 USER_NOT_LOGGED_IN_ERROR.code = 10001;
 let FIELD_REQUIRED_ERROR = new Error('Fields required where left blank');
 FIELD_REQUIRED_ERROR.code = 10001;
+
+function escapeCQL(str=''){
+    // Takes the string until the ';'
+    
+    str = str.substring(0,str.indexOf(';'));  // TODO replace more cases
+    str = str.replace('?', '');
+    return str;
+}
 
 module.exports = class {
     constructor(){
@@ -53,7 +62,7 @@ module.exports = class {
     }
 
     getPasswordHash(user){
-        const query = 'SELECT PasswordHash from Users where Username = ?;';
+        const query = 'SELECT PasswordHash from Users where Username = ? ALLOW FILTERING;';
         let data = [user];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, {prepare: true}).then(result => {
@@ -69,11 +78,12 @@ module.exports = class {
 
     loginUser(user){
         // TODO: check if user is already logged in, to update it
-        const query = 'INSERT INTO Sessions (UUID, Username) values(now(),?) USING TTL ?;';
-        let data = [user, SESSION_TIMEOUT];
+        const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) USING TTL ?;';
+        let user_uuid = uuidv1();
+        let data = [user_uuid, user, SESSION_TIMEOUT];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, {prepare: true}).then(result => {
-                resolve();
+                resolve(user_uuid);
             }).catch(err => reject(err));
         });
     }
@@ -125,15 +135,15 @@ module.exports = class {
     }
 
     clear(table){
-        const query = 'TRUNCATE ?;';
-        let data = [table];
+        
+        const query = 'TRUNCATE '+escapeCQL(table)+';';
         return new Promise((resolve, reject) => {
-            this.client.execute(query, data, {prepare: true}).then(result => resolve()).catch(err => reject(err));
+            this.client.execute(query).then(result => resolve()).catch(err => reject(err));
         });
     }
 
-    saveSettingWithUsername(username){
-        const query = 'SELECT UUID FROM Settings WHERE Username=? allow filtering;';
+    saveSettingWithUsername(username, color, notifications=true){
+        const query = 'SELECT UUID FROM Users WHERE Username=? allow filtering;';
         let data = [username];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, {prepare: true}).then(result => {
@@ -150,7 +160,7 @@ module.exports = class {
     }
 
     saveSettingWithUUID(uuid, color, notifications=true){
-        const query = 'SELECT Username FROM Settings WHERE UUID=?;';
+        const query = 'SELECT Username FROM Users WHERE UUID=?;';
         let data = [uuid];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, {prepare: true}).then(result => {
@@ -201,7 +211,7 @@ module.exports = class {
         }else if(username){
             const query = 'SELECT color,notifications FROM Settings WHERE username=? ALLOW FILTERING;';
             return new Promise((resolve, reject) => {
-                let data = [uuid];
+                let data = [username];
                 this.client.execute(query, data, {prepare: true}).then(result => {
                     let userRow = result.first();
                     if(userRow.color && userRow.notifications){
