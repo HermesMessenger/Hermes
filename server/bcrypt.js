@@ -10,18 +10,26 @@ module.exports = class {
         return await this.bcrypt.compare(password, hash);
     }
 
+    verifyPromise(password, hash) {
+        return this.bcrypt.compare(password, hash);
+    }
+
     save(username, password) {
-        let db = this.db;
-        this.bcrypt.hash(password, 3, function(err, hash) {
-            db.addToUsers(username, hash);
+        let t = this;
+        return new Promise((resolve, reject)=>{
+            t.bcrypt.hash(password, 3).then(hash=>{
+                t.db.registerUser(username, hash).then(() => resolve()).catch(err => reject(err));
+            }).catch(err => reject(err));
         });
     }
 
-    update(username, old_password, new_password, callback=function(ok){}) {
-        let db = this.db;
-        this.bcrypt.hash(new_password, 3, function(err, hash) {
-            db.updateUserPassword(username, old_password, hash, this, callback);
+    update(username, new_password) {
+        let t = this;
+        return new Promise((resolve, reject)=>{
+            t.bcrypt.hash(new_password, 3)
+            .then(hash => {
+                t.db.updateUserPasswordHash(username, hash, this).then(()=> resolve()).catch(err => reject(err));
+            }).catch(err => reject(err));
         });
     }
-
 };

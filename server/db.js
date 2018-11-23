@@ -1,147 +1,230 @@
-const NULLCHAR = String.fromCharCode(0x0);
-const SEPCHAR = String.fromCharCode(0x1);
-const uuid = require('uuid/v4');
+const cassandra = require('cassandra-driver');
+const uuidv1 = require('uuid/v1');
+const SESSION_TIMEOUT = 60 * 60 * 24 * 7 // A week in seconds
 
-const getCurrentTimeStamp = require('./utils').getCurrentTimeStamp;
+let USER_NOT_FOUND_ERROR = new Error('User not found');
+USER_NOT_FOUND_ERROR.code = 10000;
+let USER_NOT_LOGGED_IN_ERROR = new Error('User not found or not logged in');
+USER_NOT_LOGGED_IN_ERROR.code = 10001;
+let FIELD_REQUIRED_ERROR = new Error('Fields required where left blank');
+FIELD_REQUIRED_ERROR.code = 10001;
+
+function escapeCQL(str=''){
+    // Takes the string until the ';'
+    
+    str = str.substring(0,str.indexOf(';'));  // TODO replace more cases
+    str = str.replace('?', '');
+    return str;
+}
 
 module.exports = class {
-    constructor() {
-        this.redis = require('redis').createClient();
+    constructor(){
+        this.client = new cassandra.Client({contactPoints: ['127.0.0.1:9042'], keyspace: 'hermes'})
     }
 
-    addToList(listname, element) {
-        this.redis.rpush(listname, element);
+    // TODO: Make multiple channels (for now 'general' is always used)
+    addMessage(user, message){
+        const query = 'INSERT INTO Messages (Channel, Username, Message, TimeSent) values(?,?,?,toTimestamp(now()));';
+        let data = ['general', user, message];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, {prepare: true}).then(result => {
+                resolve();
+            }).catch(err => {
+                reject(err);
+            });
+        });
     }
 
-    addToMessages(user, message, time) {
-        this.addToList('messages', user + SEPCHAR + message + SEPCHAR + time);
+    registerUser(user, passwordHash){
+        const query = 'INSERT INTO Users (UUID, Username, PasswordHash) values(now(),?,?);';
+        let data = [user, passwordHash];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, {prepare: true}).then(result => resolve()).catch(err => reject(err));
+        });
     }
 
-    addToUsers(user, hash) {
-        this.addToList('users', user + SEPCHAR + hash);
-    }
-
-    updateUserPassword(user, old_password, new_hash, bcrypt, callback=function(ok){}) {
-        let this_db = this;
-        this.getFromList('users', async function (err, res) {
-            var idx = 0;
-            var ok = false;
-            for (let element of res) {
-                if (element) {
-                    data = element.split(SEPCHAR);
-                    if(data[0] == user){
-                        let correct = await bcrypt.verify(old_password, data[1]);
-                        if(correct){
-                            var new_data = data;
-                            new_data[1] = new_hash;
-                            var r = '';
-                            for(var i = 0;i<new_data.length;i++){
-                                if(i!=0){
-                                    r = r+SEPCHAR+new_data[i]
-                                }else{
-                                    r = new_data[0]
-                                }
-                            }
-                            this_db.redis.lset('users', idx, r);
-                            ok = true;
-                            break;
-                        }
-                        
-                    }
-                    idx++;
+    updateUserPasswordHash(user,passwordHash){
+        const query = 'SELECT UUID from Users where Username = ? ALLOW FILTERING;';
+        let data = [user];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, {prepare: true}).then(result => {
+                let hashRow = result.first();
+                if(hashRow.uuid){
+                    const newquery = 'UPDATE Users SET passwordHash=? WHERE UUID=? AND Username=?;';
+                    let newdata = [passwordHash, hashRow.uuid, user];
+                    this.client.execute(newquery, newdata, {prepare: true}).then(result => resolve()).catch(err => reject(err));
+                }else{
+                    reject(USER_NOT_FOUND_ERROR);
                 }
-            }
-            callback(ok);
+            }).catch(err => reject(err));
         });
+        
     }
 
-    logInUser(user) {
-        let user_uuid = uuid();
-        this.addToList('logged_in_users', user + SEPCHAR + user_uuid + SEPCHAR + getCurrentTimeStamp());
-        return user_uuid;
-    }
-
-    updateLoginExpiration(idx, username, user_uuid) {
-        let timestamp = getCurrentTimeStamp(); // TODO: put more than timestamp
-        this.redis.lset('logged_in_users', idx, username+SEPCHAR+user_uuid+SEPCHAR+timestamp);
-        return timestamp;
-    }
-
-    checkExpriation(max_time, callback=function(removed_users){}) {
-        let this_db = this;
-        this.getFromList('logged_in_users', function (err, res) {
-            var i = 0;
-            for (let element of res) {
-                if (element) {
-                    if((getCurrentTimeStamp() - parseInt(element.split(SEPCHAR)[2])) >= max_time){
-                        // Session has expired
-                        this_db.removeFromList('logged_in_users', element); // delete session
-                        i++;
-                    }
+    getPasswordHash(user){
+        const query = 'SELECT PasswordHash from Users where Username = ? ALLOW FILTERING;';
+        let data = [user];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, {prepare: true}).then(result => {
+                let hashRow = result.first();
+                if(hashRow.passwordhash){
+                    resolve(hashRow.passwordhash);
+                }else{
+                    reject(USER_NOT_FOUND_ERROR);
                 }
-            }
-            callback(i);
+            }).catch(err => reject(err));
         });
     }
 
-    getLoggedInUserTimeFromUUID(user_uuid, callback, update_time=true) {
-        let this_db = this;
-        this.getFromList('logged_in_users', function (err, res) {
-            var user;
-            var time;
-            var i = 0;
-            for (let element of res) {
-                if (element) {
-                    let data = element.split(SEPCHAR);
-                    if (data[1] == user_uuid) {
-                        user = data[0];
-                        if(update_time){
-                            time = this_db.updateLoginExpiration(i, user, user_uuid); // Update current timestamp
-                            
-                        }else{
-                            time = data[2];
-                        }
-                        
-                        break;
-                    }
-                    i++;
+    loginUser(user){
+        // TODO: check if user is already logged in, to update it
+        const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) USING TTL ?;';
+        let user_uuid = uuidv1();
+        let data = [user_uuid, user, SESSION_TIMEOUT];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, {prepare: true}).then(result => {
+                resolve(user_uuid);
+            }).catch(err => reject(err));
+        });
+    }
+
+    getUserForUUID(uuid){
+        const query = 'SELECT Username FROM Sessions WHERE UUID=?';
+        let data = [uuid];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, {prepare: true}).then(result => {
+                let userRow = result.first();
+                if(userRow.username){
+                    resolve(userRow.username);
+                }else{
+                    reject(USER_NOT_LOGGED_IN_ERROR);
                 }
-            }
-            if (user && time) {
-                callback(user, time, true);
-            } else {
-                callback(user, time, false);
-            }
-
+            }).catch(err => reject(err));
         });
     }
 
-    logoutUUID(user_uuid) {
-        let this_db = this;
-        this.getLoggedInUserTimeFromUUID(user_uuid, function (user, time, ok) {
-            if (ok) {
-                this_db.removeFromList('logged_in_users', user + SEPCHAR + user_uuid + SEPCHAR + time);
-            }
+    updateLoggedInUser(uuid){
+        const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) USING TTL ?';
+        return new Promise((resolve, reject) => {
+            this.getUserForUUID(uuid).then(user => {
+                let data = [uuid, user, SESSION_TIMEOUT];
+                this.client.execute(query, data, {prepare: true}).then(result => {
+                    resolve();
+                }).catch(err => reject(err));
+            }).catch(err => reject(err));
+            
         });
     }
 
-    isValidUUID(user_uuid, callback, update_time=true) {
-        this.getLoggedInUserTimeFromUUID(user_uuid, function (user, time, ok) {
-            callback(ok);
-        }, update_time);
-    }
-
-    getFromList(listname, callback) {
-        this.redis.lrange(listname, 0, -1, function (err, result) {
-            callback(err, result);
+    checkLoggedInUser(uuid){
+        const query = 'SELECT COUNT (*) AS count FROM sessions WHERE UUID=?;';
+        let data = [uuid];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, {prepare: true}).then(result => {
+                resolve(result.first()>0);
+            }).catch(err => reject(err));
         });
     }
 
-    removeFromList(listname, element) {
-        this.redis.lrem(listname, 0, element);
+    logoutUser(uuid){
+        const query = 'DELETE * FROM Sessions WHERE UUID=?;';
+        let data = [uuid];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, {prepare: true}).then(result => resolve()).catch(err => reject(err));
+        });
     }
 
-    clear(element) {
-        this.redis.del(element);
+    clear(table){
+        
+        const query = 'TRUNCATE '+escapeCQL(table)+';';
+        return new Promise((resolve, reject) => {
+            this.client.execute(query).then(result => resolve()).catch(err => reject(err));
+        });
+    }
+
+    saveSettingWithUsername(username, color, notifications=true){
+        const query = 'SELECT UUID FROM Users WHERE Username=? allow filtering;';
+        let data = [username];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, {prepare: true}).then(result => {
+                let uuidRow = result.first();
+                if(uuidRow.uuid){
+                    this.saveSetting(uuidRow.uuid, username, color, notifications).then(()=>{
+                        resolve();
+                    }).catch(err => reject(err));
+                }else{
+                    reject(USER_NOT_LOGGED_IN_ERROR);
+                }
+            }).catch(err => reject(err));
+        });
+    }
+
+    saveSettingWithUUID(uuid, color, notifications=true){
+        const query = 'SELECT Username FROM Users WHERE UUID=?;';
+        let data = [uuid];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, {prepare: true}).then(result => {
+                let userRow = result.first();
+                if(userRow.username){
+                    this.saveSetting(uuid, userRow.username, color, notifications).then(()=>{
+                        resolve();
+                    }).catch(err => reject(err));
+                }else{
+                    reject(USER_NOT_LOGGED_IN_ERROR);
+                }
+            }).catch(err => reject(err));
+        });
+    }
+
+    saveSetting(uuid, username, color, notifications=true){
+        const query = 'INSERT INTO Settings (UUID, Username, Color, Notifications) values(?,?,?,?);';
+        return new Promise((resolve, reject) => {
+            let data = [uuid, username, color, notifications];
+            this.client.execute(query, data, {prepare: true}).then(result => {
+                resolve();
+            }).catch(err => reject(err));
+        });
+    }
+
+    getSettingUUID(uuid){
+        return this.getSetting(uuid);
+    }
+
+    getSettingUsername(username){
+        return this.getSetting(undefined, username);
+    }
+
+    getSetting(uuid=undefined, username=undefined){
+        if(uuid){
+            const query = 'SELECT color,notifications FROM Settings WHERE uuid=?;';
+            return new Promise((resolve, reject) => {
+                let data = [uuid];
+                this.client.execute(query, data, {prepare: true}).then(result => {
+                    let userRow = result.first();
+                    if(userRow.color && userRow.notifications){
+                        resolve(userRow.color, userRow.notifications);
+                    }else{
+                        reject(USER_NOT_FOUND_ERROR);
+                    }
+                }).catch(err => reject(err));
+            });
+        }else if(username){
+            const query = 'SELECT color,notifications FROM Settings WHERE username=? ALLOW FILTERING;';
+            return new Promise((resolve, reject) => {
+                let data = [username];
+                this.client.execute(query, data, {prepare: true}).then(result => {
+                    let userRow = result.first();
+                    if(userRow.color && userRow.notifications){
+                        resolve(userRow.color, userRow.notifications);
+                    }else{
+                        reject(USER_NOT_FOUND_ERROR);
+                    }
+                }).catch(err => reject(err));
+            });
+        }else{
+            return new Promise((resolve, reject) => {
+                reject(FIELD_REQUIRED_ERROR);
+            });
+        }
     }
 }
