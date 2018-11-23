@@ -12,7 +12,7 @@ FIELD_REQUIRED_ERROR.code = 10001;
 function escapeCQL(str=''){
     // Takes the string until the ';'
     
-    str = str.substring(0,str.indexOf(';'));  // TODO replace more cases
+    str = str.substring(0,str.indexOf(';'));  // FIXME replace more cases
     str = str.replace('?', '');
     return str;
 }
@@ -77,7 +77,7 @@ module.exports = class {
     }
 
     loginUser(user){
-        // TODO: check if user is already logged in, to update it
+        // FIXME: check if user is already logged in, to update it
         const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) USING TTL ?;';
         let user_uuid = uuidv1();
         let data = [user_uuid, user, SESSION_TIMEOUT];

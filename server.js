@@ -54,7 +54,7 @@ app.get('/js/:file', function (req, res) {
         if (exists) {
             res.sendFile(js_path + req.params.file);
         } else {
-            res.sendStatus(404)
+            res.sendStatus(404);
         }
     });
 });
@@ -77,36 +77,24 @@ app.get('/clearMessages', function (req, res) {
 
 app.get('/clearUsers', function (req, res) {
     db.clear('users');
+    db.clear('settings');
     res.redirect('/');
     console.log('Cleared users.');
 });
 
-app.get('/clearLoggedInUsers', function (req, res) {
-    db.clear('logged_in_users');
+app.get('/clearSessions', function (req, res) {
+    db.clear('sessions');
     res.redirect('/');
     console.log('Cleared logged in users.');
 });
 
 app.post('/logout', function (req, res) {
     if (req.body.uuid) {
-        db.getLoggedInUserTimeFromUUID(req.body.uuid, function (user, time, ok) {
-            if (ok) {
-                console.log(user + ' logged out');
-                res.clearCookie('hermes_username'); // TODO: remove; kept for legacy purposes
-                res.clearCookie('hermes_uuid');
-                db.logoutUUID(req.body.uuid);
-                res.redirect('/');
-            } else {
-                console.log(user + ' tried to log out with invalid uuid; removing cookies & redirecting');
-                res.clearCookie('hermes_username'); // TODO: remove; kept for legacy purposes
-                res.clearCookie('hermes_uuid');
-                // If the uuid is invalid logoutUUID will error out
-                res.redirect('/');
-            }
-        });
+        res.clearCookie('hermes_uuid');
+        db.logoutUser(req.body.uuid);
+        res.redirect('/');
     } else {
         // no uuid cookie
-        res.clearCookie('hermes_username'); // TODO: remove; kept for legacy purposes
         res.redirect('/');
     }
 });
@@ -124,7 +112,7 @@ app.post('/register', function (req, res) {
     var password1 = req.body.password1;
     var password2 = req.body.password2;
 
-    if (password1 == password2) {
+    if (password1 == password2) {//FIXME: Update
         db.getFromList("users", async function (err, result) {
             var i = 0;
             for (value of result) {
@@ -155,7 +143,7 @@ app.get('/login', function (req, res) {
     res.sendFile(html_path + 'LoginPages/Regular.html');
 });
 
-app.post('/login', function (req, res) {
+app.post('/login', function (req, res) { // FIXME: update
     var username = req.body.username;
     var password = req.body.password;
     var redirected = false;
@@ -169,7 +157,7 @@ app.post('/login', function (req, res) {
                 if (same) {
                     console.log(username, 'logged in.')
                     let user_uuid = db.logInUser(username);
-                    res.cookie('hermes_username', username); // TODO: remove; kept for legacy purposes
+                    res.cookie('hermes_username', username); // FIXME: remove; kept for legacy purposes
                     res.cookie('hermes_uuid', user_uuid);
                     res.redirect('/chat');
                     redirected = true;
@@ -189,16 +177,16 @@ app.post('/login', function (req, res) {
 
 /*
 ---------------------------------------------------------------------------------
-                                _    ____ ___
-                               / \  |  _ \_ _|
-                              / _ \ | |_) | |
-                             / ___ \|  __/| |
-                            /_/   \_\_|  |___|
+                            _      ____    ___
+                           / \    |  _ \  |_ _|
+                          / _ \   | |_) |  | |
+                         / ___ \  |  __/   | |
+                        /_/   \_\ |_|     |___|
 
 ---------------------------------------------------------------------------------
 */
 
-app.post('/api/loadmessages', function (req, res) {
+app.post('/api/loadmessages', function (req, res) { // FIXME: update
     db.isValidUUID(req.body.uuid, function (ok) {
         if (ok) {
             db.getFromList('messages', function (err, result) {
@@ -223,7 +211,7 @@ app.get('/api/loadmessages', function (req, res) {
     res.sendStatus(401);
 });
 
-app.post('/api/sendmessage/:message', function (req, res) {
+app.post('/api/sendmessage/:message', function (req, res) { // FIXME: update
     db.getLoggedInUserTimeFromUUID(req.body.uuid, function (username, time, ok) {
         if (ok) {
             db.addToMessages(username, req.params.message, utils.getNowStr());
@@ -239,7 +227,7 @@ app.get('/api/sendmessage/:message', function (req, res) {
     res.sendStatus(401);
 });
 
-app.post('/api/getusername', function (req, res) {
+app.post('/api/getusername', function (req, res) { // FIXME: update
     db.getLoggedInUserTimeFromUUID(req.body.uuid, function (user, time, status) {
         if (status) {
             res.send(user);
@@ -253,7 +241,7 @@ app.get('/api/getusername', function (req, res) {
     res.sendStatus(405); // Bad method (GET instead of POST)
 });
 
-app.post('/api/login', function (req, res) {
+app.post('/api/login', function (req, res) { // FIXME: update
     username = req.body.username;
     password = req.body.password;
     if (username && password) {
@@ -268,7 +256,7 @@ app.post('/api/login', function (req, res) {
                     if (same) {
                         console.log(username, 'logged in.')
                         let user_uuid = db.logInUser(username);
-                        res.cookie('hermes_username', username); // TODO: remove; kept for legacy purposes
+                        res.cookie('hermes_username', username); // FIXME: remove; kept for legacy purposes
                         res.cookie('hermes_uuid', user_uuid);
                         res.redirect('/chat');
                         redirected = true;
@@ -291,7 +279,7 @@ app.get('/api/login', function (req, res) {
     res.sendStatus(405); // Bad Method
 });
 
-app.post('/api/logout', function (req, res) {
+app.post('/api/logout', function (req, res) { // FIXME: update
     user_uuid = req.body.uuid;
     // If the uuid is not valid, logoutUUID will error out
     db.getLoggedInUserTimeFromUUID(user_uuid, function (user, time, ok) {
@@ -309,7 +297,7 @@ app.get('/api/logout', function (req, res) {
     res.sendStatus(405); // Bad Method
 });
 
-app.post('/api/updatePassword', function(req, res){
+app.post('/api/updatePassword', function(req, res){ // FIXME: update
     let old_password = req.body.old_password;
     let new_password = req.body.new_password;
     let new_password_repeat = req.body.new_password_repeat;
@@ -354,7 +342,7 @@ app.listen(8080, function () {
 });
 
 const login_cleanup_interval = setInterval(function(){
-    db.checkExpriation(SESSION_TIMEOUT, function(removed_sessions){
+    db.checkExpriation(SESSION_TIMEOUT, function(removed_sessions){ // FIXME: update
         console.log('Cleaned up ' + removed_sessions + ' session(s) from the db');
     });
 },1000*60*60);
