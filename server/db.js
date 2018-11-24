@@ -44,7 +44,7 @@ module.exports = class {
         });
     }
 
-    updateUserPasswordHash(user,passwordHash){
+    updatePasswordHash(user,passwordHash){
         const query = 'SELECT UUID from Users where Username = ? ALLOW FILTERING;';
         let data = [user];
         return new Promise((resolve, reject) => {

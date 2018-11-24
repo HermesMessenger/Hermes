@@ -1,7 +1,7 @@
-const SEPCHAR = String.fromCharCode(0x1);
+const SaltRounds = 3;
 
-module.exports = class {
-    constructor(db){
+module.exports = class {
+    constructor(db) {
         this.bcrypt = require('bcrypt');
         this.db = db;
     }
@@ -16,8 +16,8 @@ module.exports = class {
 
     save(username, password) {
         let t = this;
-        return new Promise((resolve, reject)=>{
-            t.bcrypt.hash(password, 3).then(hash=>{
+        return new Promise((resolve, reject) => {
+            t.bcrypt.hash(password, SaltRounds).then(hash => {
                 t.db.registerUser(username, hash).then(() => resolve()).catch(err => reject(err));
             }).catch(err => reject(err));
         });
@@ -25,11 +25,10 @@ module.exports = class {
 
     update(username, new_password) {
         let t = this;
-        return new Promise((resolve, reject)=>{
-            t.bcrypt.hash(new_password, 3)
-            .then(hash => {
-                t.db.updateUserPasswordHash(username, hash, this).then(()=> resolve()).catch(err => reject(err));
-            }).catch(err => reject(err));
+        return new Promise((resolve, reject) => {
+            t.bcrypt.hash(new_password, SaltRounds).then(hash => {
+                    t.db.updatePasswordHash(username, hash).then(() => resolve()).catch(err => reject(err));
+                }).catch(err => reject(err));
         });
     }
 };
