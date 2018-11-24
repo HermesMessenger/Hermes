@@ -30,3 +30,8 @@ CREATE TABLE Hermes.Settings (
     PRIMARY KEY(UUID, Username)
 );
 
+CREATE TABLE Hermes.TOKENS (
+    UUID UUID PRIMARY KEY
+);
+
+INSERT INTO Hermes.TOKENS UUID values(uuid());

@@ -69,23 +69,29 @@ app.get('/css/:file', function (req, res) {
     });
 });
 
-app.get('/clearMessages', function (req, res) {
-    db.clear('messages');
-    res.redirect('/');
-    console.log('Cleared messages');
+app.get('/clearMessages/:token', function (req, res) {
+    db.checkToken(req.params.token).then(() => {
+        db.clear('messages');
+        res.redirect('/');
+        console.log('Cleared messages');
+    }).catch(err => res.sendStatus(403));
 });
 
-app.get('/clearUsers', function (req, res) {
-    db.clear('users');
-    db.clear('settings');
-    res.redirect('/');
-    console.log('Cleared users.');
+app.get('/clearUsers/:token', function (req, res) {
+    db.checkToken(req.params.token).then(() => {
+        db.clear('users');
+        db.clear('settings');
+        res.redirect('/');
+        console.log('Cleared users.');
+    }).catch(err => res.sendStatus(403));
 });
 
-app.get('/clearSessions', function (req, res) {
-    db.clear('sessions');
-    res.redirect('/');
-    console.log('Cleared logged in users.');
+app.get('/clearSessions/:token', function (req, res) {
+    db.checkToken(req.params.token).then(() => {
+        db.clear('sessions');
+        res.redirect('/');
+        console.log('Cleared logged in users.');
+    }).catch(err => res.sendStatus(403));
 });
 
 app.post('/logout', function (req, res) {

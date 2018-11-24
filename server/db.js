@@ -7,13 +7,14 @@ USER_NOT_FOUND_ERROR.code = 10000;
 let USER_NOT_LOGGED_IN_ERROR = new Error('User not found or not logged in');
 USER_NOT_LOGGED_IN_ERROR.code = 10001;
 let FIELD_REQUIRED_ERROR = new Error('Fields required where left blank');
-FIELD_REQUIRED_ERROR.code = 10001;
+FIELD_REQUIRED_ERROR.code = 10002;
+let TOKEN_INVALID_ERROR = new Error('Token was invalid');
+TOKEN_INVALID_ERROR.code = 10003;
 
 function escapeCQL(str=''){
     // Takes the string until the ';'
-    
-    str = str.substring(0,str.indexOf(';'));  // FIXME replace more cases
-    str = str.replace('?', '');
+    let idx = str.indexOf(';');
+    str = str.substring(0,idx<0?str.length:idx);  // FIXME replace more cases
     return str;
 }
 
@@ -36,7 +37,7 @@ module.exports = class {
     }
 
     registerUser(user, passwordHash){
-        const query = 'INSERT INTO Users (UUID, Username, PasswordHash) values(now(),?,?);';
+        const query = 'INSERT INTO Users (UUID, Username, PasswordHash) values(now(),?,?) IF NOT EXISTS;';
         let data = [user, passwordHash];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, {prepare: true}).then(result => resolve()).catch(err => reject(err));
@@ -78,7 +79,7 @@ module.exports = class {
 
     loginUser(user){
         // FIXME: check if user is already logged in, to update it
-        const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) USING TTL ?;';
+        const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) IF NOT EXISTS USING TTL ?;';
         let user_uuid = uuidv1();
         let data = [user_uuid, user, SESSION_TIMEOUT];
         return new Promise((resolve, reject) => {
@@ -121,7 +122,7 @@ module.exports = class {
         let data = [uuid];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, {prepare: true}).then(result => {
-                resolve(result.first()>0);
+                resolve(result.first().count.low>0);
             }).catch(err => reject(err));
         });
     }
@@ -135,7 +136,6 @@ module.exports = class {
     }
 
     clear(table){
-        
         const query = 'TRUNCATE '+escapeCQL(table)+';';
         return new Promise((resolve, reject) => {
             this.client.execute(query).then(result => resolve()).catch(err => reject(err));
@@ -226,5 +226,20 @@ module.exports = class {
                 reject(FIELD_REQUIRED_ERROR);
             });
         }
+    }
+
+    checkToken(token){
+        const query = 'SELECT COUNT (*) AS count FROM tokens WHERE UUID=?;';
+        let data = [token];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, {prepare: true}).then(result => {
+                if(result.first().count.low>0){
+                    resolve();
+                }else{
+                    reject(TOKEN_INVALID_ERROR);
+                }
+                
+            }).catch(err => reject(err));
+        });
     }
 }
