@@ -37,15 +37,8 @@ app.use(favicon(path.join(__dirname, '/logos/HermesSquare.png')));
 
 require('./server/api')(app, db, bcrypt, utils); // API Abstraction
 
-app.post('/', function (req, res) {
-    console.log('COOKIES:', req.cookies);
-    //res.cookie('hermes_username', req.body.username);
-    res.cookie('hermes_uuid', req.body.uuid);
-    res.redirect('/chat');
-});
-
 app.get('/', function (req, res) {
-    if (req.cookies.uuid) {
+    if (req.cookies.hermes_uuid) {
         res.redirect('/chat');
     } else {
         res.redirect('/login');
@@ -53,7 +46,9 @@ app.get('/', function (req, res) {
 });
 
 app.get('/chat', function (req, res) {
-    res.sendFile(html_path + 'index.html');
+    db.checkLoggedInUser(req.cookies.hermes_uuid).then(() => {
+        res.sendFile(html_path + 'chat.html');
+    }).catch(err => res.redirect('/login'));
 });
 
 app.get('/js/:file', function (req, res) {
@@ -74,31 +69,6 @@ app.get('/css/:file', function (req, res) {
             res.sendStatus(404)
         }
     });
-});
-
-app.get('/clearMessages/:token', function (req, res) {
-    db.checkToken(req.params.token).then(() => {
-        db.clear('messages');
-        res.redirect('/');
-        console.log('Cleared messages');
-    }).catch(err => res.sendStatus(403));
-});
-
-app.get('/clearUsers/:token', function (req, res) {
-    db.checkToken(req.params.token).then(() => {
-        db.clear('users');
-        db.clear('settings');
-        res.redirect('/');
-        console.log('Cleared users.');
-    }).catch(err => res.sendStatus(403));
-});
-
-app.get('/clearSessions/:token', function (req, res) {
-    db.checkToken(req.params.token).then(() => {
-        db.clear('sessions');
-        res.redirect('/');
-        console.log('Cleared logged in users.');
-    }).catch(err => res.sendStatus(403));
 });
 
 app.post('/logout', function (req, res) {
@@ -131,7 +101,6 @@ app.post('/register', function (req, res) {
                 console.log('New user: ', username);
                 bcrypt.save(username, password1);
                 db.loginUser(username).then(result => {
-                    console.log(result);
                     res.cookie('hermes_uuid', result);
                     res.redirect('/chat');
                 }).catch(err => {
@@ -161,18 +130,19 @@ app.post('/login', function (req, res) {
                 db.loginUser(username).then(user_uuid => {
                     res.cookie('hermes_uuid', user_uuid);
                     res.redirect('/chat');
-                }).catch(err => console.error('ERROR: ', err));
+                }).catch(err => res.sendFile(html_path + 'LoginPages/IncorrectPassword.html'));
             } else {
                 res.sendFile(html_path + 'LoginPages/IncorrectPassword.html')
             }
         });
-    }).catch(err => {
-        if(err == USER_NOT_FOUND_ERROR){
-            res.sendFile(html_path + 'LoginPages/UserNotFound.html');
-        }else{
-            console.error('ERROR: ', err);
-        }
-    });
+    }).catch(err => res.sendFile(html_path + 'LoginPages/UserNotFound.html'));
+});
+
+app.get('/setCookie/:uuid', function (req, res) {
+    db.checkLoggedInUser(req.params.uuid).then(() => {
+        res.cookie('hermes_uuid', req.params.uuid);
+        res.redirect('/chat');
+    }).catch(err => res.redirect('/login'));
 });
 
 app.get('*', function (req, res) {

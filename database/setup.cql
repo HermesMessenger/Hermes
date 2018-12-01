@@ -34,4 +34,4 @@ CREATE TABLE Hermes.TOKENS (
     UUID UUID PRIMARY KEY
 );
 
-INSERT INTO Hermes.TOKENS UUID values(uuid());
+INSERT INTO Hermes.TOKENS (UUID) values(uuid());
