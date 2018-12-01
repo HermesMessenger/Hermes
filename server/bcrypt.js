@@ -27,8 +27,8 @@ module.exports = class {
         let t = this;
         return new Promise((resolve, reject) => {
             t.bcrypt.hash(new_password, SaltRounds).then(hash => {
-                    t.db.updatePasswordHash(username, hash).then(() => resolve()).catch(err => reject(err));
-                }).catch(err => reject(err));
+                t.db.updatePasswordHash(username, hash).then(() => resolve()).catch(err => reject(err));
+            }).catch(err => reject(err));
         });
     }
 };

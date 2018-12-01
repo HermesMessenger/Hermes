@@ -1,2 +1,4 @@
 node_modules
-dump.rdb
+rest_test
+rest_test/
+rest_test/*

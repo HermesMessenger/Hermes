@@ -71,33 +71,30 @@ module.exports = function(app, db, bcrypt, utils){
         res.sendStatus(405); // Bad method (GET instead of POST)
     });
 
-    app.post('/api/login', function (req, res) { // FIXME: update
+    app.post('/api/login', function (req, res) {
         username = req.body.username;
         password = req.body.password;
         if (username && password) {
-            var redirected = false;
-            db.getFromList("users", async function (err, result) {
-                for (value of result) {
-                    login = value.split(SEPCHAR);
-
-                    if (login[0] == username) {
-                        let same = await bcrypt.verify(password, login[1]);
-
-                        if (same) {
-                            console.log(username, 'logged in.')
-                            let user_uuid = db.logInUser(username);
-                            res.cookie('hermes_username', username); // FIXME: remove; kept for legacy purposes
-                            res.cookie('hermes_uuid', user_uuid);
-                            res.redirect('/chat');
-                            redirected = true;
-                        } else {
-                            res.sendStatus(419).send('Login error');
-                            redirected = true;
-                        }
+            db.getPasswordHash(username).then(hash => {
+                bcrypt.verifyPromise(password, hash).then(same => {
+                    if (same) {
+                        console.log(username, 'logged in through the API.')
+                        db.loginUser(username).then(user_uuid => {
+                            res.status(200).send(user_uuid);
+                        }).catch(err => {
+                            console.error('ERROR: ', err);
+                            res.sendStatus(500); // Server error
+                        });
+                    } else {
+                        res.sendStatus(400); // Bad request: either username and/or pasword are not present
                     }
-                }
-                if (!redirected) {
-                    res.sendStatus(419).send('Login error');
+                });
+            }).catch(err => {
+                if(err == USER_NOT_FOUND_ERROR){
+                    res.sendStatus(400); // Bad request: either username and/or pasword are not present
+                }else{
+                    console.error('ERROR: ', err);
+                    res.sendStatus(500); // Server error
                 }
             });
         } else {
@@ -117,28 +114,55 @@ module.exports = function(app, db, bcrypt, utils){
         res.sendStatus(405); // Bad Method
     });
 
-    app.post('/api/updatePassword', function(req, res){ // FIXME: update
+    app.post('/api/updatePassword', function(req, res){
         let old_password = req.body.old_password;
         let new_password = req.body.new_password;
         let new_password_repeat = req.body.new_password_repeat;
         let uuid = req.body.uuid;
-        db.getLoggedInUserTimeFromUUID(uuid,function(user, time, ok){
-            if(ok){
-                if(new_password == new_password_repeat){
-                    bcrypt.update(user,old_password, new_password, function(ok){
+        db.getUserForUUID(uuid).then(user => {
+            if(new_password == new_password_repeat){
+                db.getPasswordHash(user).then(hash => {
+                    bcrypt.verifyPromise(old_password, hash).then(ok => {
                         if(ok){
-                            res.sendStatus(200); // Success
+                            bcrypt.update(user, new_password).then(()=>{
+                                res.sendStatus(200); // Success
+                            }).catch(err => {
+                                if(err == USER_NOT_FOUND_ERROR){
+                                    res.sendStatus(401); // Unauthorized
+                                }else{
+                                    console.error('ERROR:', err);
+                                    res.sendStatus(500);
+                                }
+                            });
                         }else{
-                            res.sendStatus(500); // Server error
+                            res.sendStatus(401); // Unauthorized
+                        }
+                    }).catch(err => {
+                        if(err == USER_NOT_FOUND_ERROR){
+                            res.sendStatus(401); // Unauthorized
+                        }else{
+                            console.error('ERROR:', err);
+                            res.sendStatus(500);
                         }
                     });
-                }else{
-                    res.sendStatus(401); // Unauthorized
-                }
+                }).catch(err => {
+                    if(err == USER_NOT_FOUND_ERROR){
+                        res.sendStatus(401); // Unauthorized
+                    }else{
+                        console.error('ERROR:', err);
+                        res.sendStatus(500);
+                    }
+                });
             }else{
-                res.sendStatus(401); // Unauthorized
+                res.sendStatus(400); // Bad request
             }
-            
+        }).catch(err => {
+            if(err == USER_NOT_FOUND_ERROR){
+                res.sendStatus(401); // Unauthorized
+            }else{
+                console.error('ERROR:', err);
+                res.sendStatus(500);
+            }
         });
         
     });

@@ -151,10 +151,9 @@ app.get('/login', function (req, res) {
     res.sendFile(html_path + 'LoginPages/Regular.html');
 });
 
-app.post('/login', function (req, res) { // FIXME: update
+app.post('/login', function (req, res) {
     var username = req.body.username;
     var password = req.body.password;
-    var redirected = false;
     db.getPasswordHash(username).then(hash => {
         bcrypt.verifyPromise(password, hash).then(same => {
             if (same) {
@@ -162,11 +161,9 @@ app.post('/login', function (req, res) { // FIXME: update
                 db.loginUser(username).then(user_uuid => {
                     res.cookie('hermes_uuid', user_uuid);
                     res.redirect('/chat');
-                    redirected = true;
                 }).catch(err => console.error('ERROR: ', err));
             } else {
                 res.sendFile(html_path + 'LoginPages/IncorrectPassword.html')
-                redirected = true;
             }
         });
     }).catch(err => {
@@ -176,32 +173,6 @@ app.post('/login', function (req, res) { // FIXME: update
             console.error('ERROR: ', err);
         }
     });
-    /*db.getFromList("users", async function (err, result) {
-        for (value of result) {
-            login = value.split(SEPCHAR);
-
-            if (login[0] == username) {
-                let same = await bcrypt.verify(password, login[1]);
-
-                if (same) {
-                    console.log(username, 'logged in.')
-                    let user_uuid = db.loginUser(username);
-                    res.cookie('hermes_username', username);
-                    res.cookie('hermes_uuid', user_uuid);
-                    res.redirect('/chat');
-                    redirected = true;
-                } else {
-                    res.sendFile(html_path + 'LoginPages/IncorrectPassword.html')
-                    redirected = true;
-                }
-            }
-        }
-        if (!redirected) {
-            res.sendFile(html_path + 'LoginPages/UserNotFound.html');
-        }
-
-    });*/
-
 });
 
 app.get('*', function (req, res) {
@@ -211,10 +182,3 @@ app.get('*', function (req, res) {
 app.listen(8080, function () {
     console.log('listening on *:8080');
 });
-
-const login_cleanup_interval = setInterval(function(){
-    console.log('CHECKING EXPIRATION');
-    db.checkExpriation(SESSION_TIMEOUT, function(removed_sessions){ // FIXME: update
-        console.log('Cleaned up ' + removed_sessions + ' session(s) from the db');
-    });
-},1000*60*60);
