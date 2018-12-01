@@ -1,23 +1,37 @@
+let USER_NOT_FOUND_ERROR = new Error('User not found');
+USER_NOT_FOUND_ERROR.code = 10000;
+let USER_NOT_LOGGED_IN_ERROR = new Error('User not found or not logged in');
+USER_NOT_LOGGED_IN_ERROR.code = 10001;
+let FIELD_REQUIRED_ERROR = new Error('Fields required where left blank');
+FIELD_REQUIRED_ERROR.code = 10002;
+let TOKEN_INVALID_ERROR = new Error('Token was invalid');
+TOKEN_INVALID_ERROR.code = 10003;
+
+const NULLCHAR = String.fromCharCode(0x0);
+const SEPCHAR = String.fromCharCode(0x1);
+
 module.exports = function(app, db, bcrypt, utils){
 
-    app.post('/api/loadmessages', function (req, res) { // FIXME: update
-        db.isValidUUID(req.body.uuid, function (ok) {
+    app.post('/api/loadmessages', function (req, res) {
+        db.checkLoggedInUser(req.body.uuid).then(ok => {
             if (ok) {
-                db.getFromList('messages', function (err, result) {
-                    data = ''
-                    i = 0;
-                    result.forEach(function (value) {
-                        if (i != 0) {
-                            data += NULLCHAR;
-                        }
-                        data += value;
-                        i++;
-                    });
+                db.getMessages().then(result => {
+                    let data = '';
+                    for(let i=0;i<result.length;i++){
+                        data += result[i].username + SEPCHAR;
+                        data += result[i].message + SEPCHAR;
+                        data += result[i].timesent.getTime();
+                        if(i!=result.length-1)
+                        data += NULLCHAR;
+                    }
                     res.send(data);
-                });
+                }).catch(err => console.error('ERROR:', err));
             } else {
                 res.sendStatus(401); // Unauthorized
             }
+        }).catch(err => {
+            console.error('ERROR:', err);
+            res.sendStatus(500); // Internal Server Error
         });
     });
 
@@ -25,28 +39,28 @@ module.exports = function(app, db, bcrypt, utils){
         res.sendStatus(401);
     });
 
-    app.post('/api/sendmessage/:message', function (req, res) { // FIXME: update
-        db.getLoggedInUserTimeFromUUID(req.body.uuid, function (username, time, ok) {
-            if (ok) {
-                db.addToMessages(username, req.params.message, utils.getNowStr());
-                res.sendStatus(200); // Success
-            } else {
-                
-                res.sendStatus(401); // Unauthorized
-            }
+    app.post('/api/sendmessage/:message', function (req, res) {
+        db.getUserForUUID(req.body.uuid).then(user => {
+            db.addMessage(user, req.params.message);
+        }).catch(err => {
+            console.error('ERROR:', err);
+            res.sendStatus(500); // Internal Server Error
         });
-    })
+    });
 
     app.get('/api/sendmessage/:message', function (req, res) {
         res.sendStatus(401);
     });
 
-    app.post('/api/getusername', function (req, res) { // FIXME: update
-        db.getLoggedInUserTimeFromUUID(req.body.uuid, function (user, time, status) {
-            if (status) {
-                res.send(user);
-            } else {
+    app.post('/api/getusername', function (req, res) {
+        db.getUserForUUID(req.body.uuid).then(user => {
+            res.send(user);
+        }).catch(err => {
+            if(err == USER_NOT_FOUND_ERROR){
                 res.sendStatus(401); // Unauthorized
+            }else{
+                console.error('ERROR:', err);
+                res.sendStatus(500);
             }
         });
     });
@@ -93,18 +107,8 @@ module.exports = function(app, db, bcrypt, utils){
         res.sendStatus(405); // Bad Method
     });
 
-    app.post('/api/logout', function (req, res) { // FIXME: update
-        user_uuid = req.body.uuid;
-        // If the uuid is not valid, logoutUUID will error out
-        db.getLoggedInUserTimeFromUUID(user_uuid, function (user, time, ok) {
-            if (ok) {
-                db.logoutUUID(user_uuid);
-                console.log(user + ' logged out');
-                res.sendStatus(200); // Success
-            } else {
-                res.sendStatus(401); // Unauthorized
-            }
-        });
+    app.post('/api/logout', function (req, res) {
+        db.logoutUser(req.body.uuid);
     });
 
     app.get('/api/logout', function (req, res) {

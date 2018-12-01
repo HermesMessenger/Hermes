@@ -8,8 +8,6 @@ const favicon = require('express-favicon'); // Favicon
 const fileExists = require('file-exists');
 const path = require('path');
 
-require('./server/api')(app, db, bcrypt, utils); // API Abstraction
-
 const web_client_path = __dirname + '/web_client/';
 const html_path = web_client_path + 'html/';
 const js_path = web_client_path + 'js/';
@@ -23,10 +21,21 @@ console.log('------------------------------------------');
 const NULLCHAR = String.fromCharCode(0x0);
 const SEPCHAR = String.fromCharCode(0x1);
 
+let USER_NOT_FOUND_ERROR = new Error('User not found');
+USER_NOT_FOUND_ERROR.code = 10000;
+let USER_NOT_LOGGED_IN_ERROR = new Error('User not found or not logged in');
+USER_NOT_LOGGED_IN_ERROR.code = 10001;
+let FIELD_REQUIRED_ERROR = new Error('Fields required where left blank');
+FIELD_REQUIRED_ERROR.code = 10002;
+let TOKEN_INVALID_ERROR = new Error('Token was invalid');
+TOKEN_INVALID_ERROR.code = 10003;
+
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(cookieParser()); // for parsing cookies
 app.use(favicon(path.join(__dirname, '/logos/HermesSquare.png')));
+
+require('./server/api')(app, db, bcrypt, utils); // API Abstraction
 
 app.post('/', function (req, res) {
     console.log('COOKIES:', req.cookies);
@@ -116,29 +125,24 @@ app.post('/register', function (req, res) {
     var password1 = req.body.password1;
     var password2 = req.body.password2;
 
-    if (password1 == password2) {//FIXME: Update
-        db.getFromList("users", async function (err, result) {
-            var i = 0;
-            for (value of result) {
-                login = value.split(SEPCHAR);
-
-                if (login[0] == username) {
-                    var exists = true;
-                    res.sendFile(html_path + 'LoginPages/UserExists.html');
-                } else i++;
-            }
-
-            if (!exists) { // User doesn't exist
+    if (password1 == password2) {
+        db.isntAlreadyRegistered(username).then(result => {
+            if(result){
                 console.log('New user: ', username);
                 bcrypt.save(username, password1);
-                res.cookie('hermes_username', username);
-                res.cookie('hermes_uuid', db.logInUser(username)); // KEPT FOR LEGACY PURPOSES
-                res.redirect('/chat');
+                db.loginUser(username).then(result => {
+                    console.log(result);
+                    res.cookie('hermes_uuid', result);
+                    res.redirect('/chat');
+                }).catch(err => {
+                    res.sendFile(html_path + 'LoginPages/FailSignup.html');
+                });
+                
+            }else{
+                res.sendFile(html_path + 'LoginPages/UserExists.html');
             }
         });
-    }
-
-    else {
+    } else {
         res.sendFile(html_path + 'LoginPages/FailSignup.html');
     };
 });
@@ -151,7 +155,28 @@ app.post('/login', function (req, res) { // FIXME: update
     var username = req.body.username;
     var password = req.body.password;
     var redirected = false;
-    db.getFromList("users", async function (err, result) {
+    db.getPasswordHash(username).then(hash => {
+        bcrypt.verifyPromise(password, hash).then(same => {
+            if (same) {
+                console.log(username, 'logged in.')
+                db.loginUser(username).then(user_uuid => {
+                    res.cookie('hermes_uuid', user_uuid);
+                    res.redirect('/chat');
+                    redirected = true;
+                }).catch(err => console.error('ERROR: ', err));
+            } else {
+                res.sendFile(html_path + 'LoginPages/IncorrectPassword.html')
+                redirected = true;
+            }
+        });
+    }).catch(err => {
+        if(err == USER_NOT_FOUND_ERROR){
+            res.sendFile(html_path + 'LoginPages/UserNotFound.html');
+        }else{
+            console.error('ERROR: ', err);
+        }
+    });
+    /*db.getFromList("users", async function (err, result) {
         for (value of result) {
             login = value.split(SEPCHAR);
 
@@ -160,8 +185,8 @@ app.post('/login', function (req, res) { // FIXME: update
 
                 if (same) {
                     console.log(username, 'logged in.')
-                    let user_uuid = db.logInUser(username);
-                    res.cookie('hermes_username', username); // FIXME: remove; kept for legacy purposes
+                    let user_uuid = db.loginUser(username);
+                    res.cookie('hermes_username', username);
                     res.cookie('hermes_uuid', user_uuid);
                     res.redirect('/chat');
                     redirected = true;
@@ -175,7 +200,7 @@ app.post('/login', function (req, res) { // FIXME: update
             res.sendFile(html_path + 'LoginPages/UserNotFound.html');
         }
 
-    });
+    });*/
 
 });
 

@@ -25,11 +25,23 @@ module.exports = class {
 
     // TODO: Make multiple channels (for now 'general' is always used)
     addMessage(user, message){
+        
         const query = 'INSERT INTO Messages (Channel, Username, Message, TimeSent) values(?,?,?,toTimestamp(now()));';
         let data = ['general', user, message];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, {prepare: true}).then(result => {
                 resolve();
+            }).catch(err => {
+                reject(err);
+            });
+        });
+    }
+
+    getMessages(){
+        const query = 'SELECT Username, Message, TimeSent FROM Messages WHERE channel=\'general\' ORDER BY TimeSent;';
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, {prepare: true}).then(result => {
+                resolve(result.rows);
             }).catch(err => {
                 reject(err);
             });
@@ -77,6 +89,16 @@ module.exports = class {
         });
     }
 
+    isntAlreadyRegistered(user){
+        const query = 'SELECT COUNT (*) as count from Users where Username = ? ALLOW FILTERING;';
+        let data = [user];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, {prepare: true}).then(result => {
+                resolve(result.first().count.low==0);
+            }).catch(err => reject(err));
+        });
+    }
+
     loginUser(user){
         // FIXME: check if user is already logged in, to update it
         const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) IF NOT EXISTS USING TTL ?;';
@@ -84,6 +106,7 @@ module.exports = class {
         let data = [user_uuid, user, SESSION_TIMEOUT];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, {prepare: true}).then(result => {
+                console.log(user_uuid);
                 resolve(user_uuid);
             }).catch(err => reject(err));
         });

@@ -100,12 +100,15 @@ $(function () {
                         if (loaded_messages <= i) {
                             let username = decodeURIComponent(message_pair[0]);
                             let message = decodeURIComponent(message_pair[1]);
-                            let time = message_pair[2];
-
-                            if (decodeURIComponent(prev_pair[2]).split("$")[0] != decodeURIComponent(time).split("$")[0]) {
+                            let time = new Date(parseInt(decodeURIComponent(message_pair[2])));
+                            let prev_time = new Date(parseInt(decodeURIComponent(prev_pair[2])));
+                            let day = time.getDay() + '/' + time.getMonth() + '/' + time.getFullYear();
+                            let hour = time.getHours() + ':' + time.getMinutes() + ':' + time.getSeconds();
+                            let prev_day = prev_time.getDay() + '/' + prev_time.getMonth() + '/' + prev_time.getFullYear();
+                            if (day != prev_day) {
                                 let date_message = $('<li>');
                                 date_message.attr("class", "date");
-                                date_message.append(decodeURIComponent(time).split("$")[0]);
+                                date_message.append(day);
                                 $("#messages").append(date_message);
                             }
                             if (!Object.keys(user_colors).includes(username)) {
@@ -236,7 +239,7 @@ $(function () {
                                 sendNotifiaction("New message from " + username, username + ": " + message);
                             }
 
-                            new_message.append("<span class='time'>" + decodeURIComponent(time).split("$")[1] + "</span>");
+                            new_message.append("<span class='time'>" + hour + "</span>");
 
                             $('#messages').append(new_message);
                             $('html, body').animate({
