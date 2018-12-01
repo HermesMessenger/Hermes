@@ -41,7 +41,9 @@ module.exports = function(app, db, bcrypt, utils){
 
     app.post('/api/sendmessage/:message', function (req, res) {
         db.getUserForUUID(req.body.uuid).then(user => {
+            console.log('CHAT:', user+':', req.params.message);
             db.addMessage(user, req.params.message);
+            res.sendStatus(200);
         }).catch(err => {
             console.error('ERROR:', err);
             res.sendStatus(500); // Internal Server Error

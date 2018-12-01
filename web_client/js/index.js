@@ -34,13 +34,6 @@ $(function () {
             $('#m').val('');
             return false;
         });
-        $('#send').click(function (event) {
-            msg = encodeURIComponent($('#m').val()).split("");
-            msg = msg.join("");	
-            httpPostAsync('/api/sendmessage/' + msg, uuid_header, function (res) {});
-            $('#m').val('');
-            return false;
-        });
 
         $("#quote").click(function () {
             $("li").each(function () {
@@ -68,7 +61,7 @@ $(function () {
         var user_colors = {};
 
         if (!("Notification" in window)) {
-            alert("This browser does not support desktop notification");
+            alert("This browser does not support desktop notifications");
             notifications_supported = false;
         }
         if (notifications_supported) {

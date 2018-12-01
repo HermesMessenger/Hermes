@@ -213,6 +213,7 @@ app.listen(8080, function () {
 });
 
 const login_cleanup_interval = setInterval(function(){
+    console.log('CHECKING EXPIRATION');
     db.checkExpriation(SESSION_TIMEOUT, function(removed_sessions){ // FIXME: update
         console.log('Cleaned up ' + removed_sessions + ' session(s) from the db');
     });

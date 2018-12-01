@@ -106,7 +106,6 @@ module.exports = class {
         let data = [user_uuid, user, SESSION_TIMEOUT];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, {prepare: true}).then(result => {
-                console.log(user_uuid);
                 resolve(user_uuid);
             }).catch(err => reject(err));
         });
