@@ -24,7 +24,7 @@ CREATE TABLE Hermes.Sessions (
 CREATE TABLE Hermes.Settings (
     UUID TIMEUUID,
     Username TEXT,
-    Notifications BOOLEAN,
+    Notifications TINYINT,
     Color TEXT,
     /*TODO: ADD PROFILE PICTURES*/
     PRIMARY KEY(UUID, Username)

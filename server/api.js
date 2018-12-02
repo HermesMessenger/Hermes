@@ -163,7 +163,59 @@ module.exports = function (app, db, bcrypt, utils) {
                 res.sendStatus(500);
             }
         });
+    });
 
+    app.post('/api/saveSettings/:color/:notifications', function (req, res) {
+        let color = req.params.color;
+        let notifications = req.params.notifications;
+        
+        let uuid = req.body.uuid;
+        db.getUserForUUID(uuid).then(user => {
+            console.log('Saving settings for', user+':', '#'+color, parseInt(notifications));
+            db.saveSettingWithUsername(user, color, parseInt(notifications)).then(()=>res.sendStatus(200)).catch(err => {
+                if (err == USER_NOT_FOUND_ERROR) {
+                    res.sendStatus(401); // Unauthorized
+                } else {
+                    console.error('ERROR:', err);
+                    res.sendStatus(500);
+                }
+            });
+        }).catch(err => {
+            if (err == USER_NOT_FOUND_ERROR) {
+                res.sendStatus(401); // Unauthorized
+            } else {
+                console.error('ERROR:', err);
+                res.sendStatus(500);
+            }
+        });
+    });
+
+    app.post('/api/getSettings/', function (req, res) {
+        let uuid = req.body.uuid;
+        db.getUserForUUID(uuid).then(user => {
+            db.getSettingUsername(user).then((data) => {
+                let color = data[0];
+                let notifications = data[1];
+                console.log(user, 'got its settings:', '#'+color, notifications);
+                res.status(200).send('#'+color+SEPCHAR+notifications);
+            }).catch(err => {
+                if (err == FIELD_REQUIRED_ERROR) {
+                    res.sendStatus(400); // Bad request
+                }else if (err == USER_NOT_FOUND_ERROR) {
+                    res.sendStatus(401); // Unauthorized
+                } else {
+                    console.error('ERROR:', err);
+                    res.sendStatus(500);
+                }
+            });
+        }).catch(err => {
+            if (err == USER_NOT_FOUND_ERROR) {
+                res.sendStatus(401); // Unauthorized
+            } else {
+                console.error('ERROR:', err);
+                res.sendStatus(500);
+            }
+        });
     });
 
     app.get('/api/clearMessages/:token', function (req, res) {

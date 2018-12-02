@@ -11,6 +11,10 @@ FIELD_REQUIRED_ERROR.code = 10002;
 let TOKEN_INVALID_ERROR = new Error('Token was invalid');
 TOKEN_INVALID_ERROR.code = 10003;
 
+const NOTIFICATIONS_ON = 0;
+const NOTIFICATIONS_SOMETIMES = 1;
+const NOTIFICATIONS_OFF = 2;
+
 function escapeCQL(str = '') {
     // Takes the string until the ';'
     let idx = str.indexOf(';');
@@ -169,7 +173,7 @@ module.exports = class {
         });
     }
 
-    saveSettingWithUsername(username, color, notifications = true) {
+    saveSettingWithUsername(username, color, notifications = NOTIFICATIONS_ON) {
         const query = 'SELECT UUID FROM Users WHERE Username=? allow filtering;';
         let data = [username];
         return new Promise((resolve, reject) => {
@@ -180,13 +184,13 @@ module.exports = class {
                         resolve();
                     }).catch(err => reject(err));
                 } else {
-                    reject(USER_NOT_LOGGED_IN_ERROR);
+                    reject(USER_NOT_FOUND_ERROR);
                 }
             }).catch(err => reject(err));
         });
     }
 
-    saveSettingWithUUID(uuid, color, notifications = true) {
+    saveSettingWithUUID(uuid, color, notifications = NOTIFICATIONS_ON) {
         const query = 'SELECT Username FROM Users WHERE UUID=?;';
         let data = [uuid];
         return new Promise((resolve, reject) => {
@@ -203,7 +207,7 @@ module.exports = class {
         });
     }
 
-    saveSetting(uuid, username, color, notifications = true) {
+    saveSetting(uuid, username, color, notifications = NOTIFICATIONS_ON) {
         const query = 'INSERT INTO Settings (UUID, Username, Color, Notifications) values(?,?,?,?);';
         return new Promise((resolve, reject) => {
             let data = [uuid, username, color, notifications];
@@ -223,7 +227,7 @@ module.exports = class {
 
     getSetting(uuid = undefined, username = undefined) {
         if (uuid) {
-            const query = 'SELECT color,notifications FROM Settings WHERE uuid=?;';
+            const query = 'SELECT color, notifications FROM Settings WHERE uuid=?;';
             return new Promise((resolve, reject) => {
                 let data = [uuid];
                 this.client.execute(query, data, { prepare: true }).then(result => {
@@ -236,13 +240,13 @@ module.exports = class {
                 }).catch(err => reject(err));
             });
         } else if (username) {
-            const query = 'SELECT color,notifications FROM Settings WHERE username=? ALLOW FILTERING;';
+            const query = 'SELECT color, notifications FROM Settings WHERE username=? ALLOW FILTERING;';
             return new Promise((resolve, reject) => {
                 let data = [username];
                 this.client.execute(query, data, { prepare: true }).then(result => {
                     let userRow = result.first();
                     if (userRow) {
-                        resolve(userRow.color, userRow.notifications);
+                        resolve([userRow.color, userRow.notifications]);
                     } else {
                         reject(USER_NOT_FOUND_ERROR);
                     }
