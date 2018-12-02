@@ -2,6 +2,18 @@ function getRandomRGBPart() {
     return Math.floor(Math.random() * 201);
 }
 
+/**
+ * A function that pads a number to have azero if its below ten
+ * @param {Number} n The number to pad
+ * @returns {String} The padded number
+ */
+function padNumber(n){
+    if(n<10){
+        return '0'+n;
+    }
+    return n.toString();
+}
+
 
 function getCookie(cname) { // From W3Schools
     var name = cname + "=";

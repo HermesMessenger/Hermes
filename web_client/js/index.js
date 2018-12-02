@@ -95,9 +95,9 @@ $(function () {
                             let message = decodeURIComponent(message_pair[1]);
                             let time = new Date(parseInt(decodeURIComponent(message_pair[2])));
                             let prev_time = new Date(parseInt(decodeURIComponent(prev_pair[2])));
-                            let day = time.getDay() + '/' + time.getMonth() + '/' + time.getFullYear();
-                            let hour = time.getHours() + ':' + time.getMinutes() + ':' + time.getSeconds();
-                            let prev_day = prev_time.getDay() + '/' + prev_time.getMonth() + '/' + prev_time.getFullYear();
+                            let day = time.getDate() + '/' + (time.getMonth()+1) + '/' + time.getFullYear();
+                            let hour = padNumber(time.getHours()) + ':' + padNumber(time.getMinutes()) + ':' + padNumber(time.getSeconds());
+                            let prev_day = prev_time.getDate() + '/' + (prev_time.getMonth()+1) + '/' + prev_time.getFullYear();
                             if (day != prev_day) {
                                 let date_message = $('<li>');
                                 date_message.attr("class", "date");
