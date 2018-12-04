@@ -3,17 +3,23 @@ function getRandomRGBPart() {
 }
 
 /**
- * A function that pads a number to have azero if its below ten
+ * A function that pads a number to have a zero if it is below ten
  * @param {Number} n The number to pad
  * @returns {String} The padded number
  */
-function padNumber(n){
-    if(n<10){
-        return '0'+n;
+function padNumber(n) {
+    if (n < 10) {
+        return '0' + n;
     }
     return n.toString();
 }
 
+/**
+ * Check if app is running through Electron or not
+ */
+function isElectron() {
+    return navigator.userAgent.indexOf('Electron') !== -1;
+   }
 
 function getCookie(cname) { // From W3Schools
     var name = cname + "=";

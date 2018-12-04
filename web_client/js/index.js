@@ -12,6 +12,9 @@ function sendNotifiaction(user, message) {
     }
 }
 
+if (navigator.userAgent.indexOf('Electron') !== -1) { // App is running through Electron
+    window.sendUUID(getCookie('hermes_uuid'));
+}
 
 $(function () {
     const uuid_header = {uuid: getCookie('hermes_uuid')};

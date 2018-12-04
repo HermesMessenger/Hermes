@@ -165,14 +165,25 @@ module.exports = function (app, db, bcrypt, utils) {
         });
     });
 
+    app.get('/api/verifyUUID/:uuid', function (req, res) { // For Hermes Desktop
+        let uuid = req.params.uuid;
+        if (uuid) {
+            db.checkLoggedInUser(uuid).then(() => {
+                res.sendStatus(200);
+            }).catch(err => res.sendStatus(400));
+        } else {
+            res.sendStatus(400);
+        };
+    });
+
     app.post('/api/saveSettings/:color/:notifications', function (req, res) {
         let color = req.params.color;
         let notifications = req.params.notifications;
-        
+
         let uuid = req.body.uuid;
         db.getUserForUUID(uuid).then(user => {
-            console.log('Saving settings for', user+':', '#'+color, parseInt(notifications));
-            db.saveSettingWithUsername(user, color, parseInt(notifications)).then(()=>res.sendStatus(200)).catch(err => {
+            console.log('Saving settings for', user + ':', '#' + color, parseInt(notifications));
+            db.saveSettingWithUsername(user, color, parseInt(notifications)).then(() => res.sendStatus(200)).catch(err => {
                 if (err == USER_NOT_FOUND_ERROR) {
                     res.sendStatus(401); // Unauthorized
                 } else {
@@ -196,12 +207,12 @@ module.exports = function (app, db, bcrypt, utils) {
             db.getSettingUsername(user).then((data) => {
                 let color = data[0];
                 let notifications = data[1];
-                console.log(user, 'got its settings:', '#'+color, notifications);
-                res.status(200).send('#'+color+SEPCHAR+notifications);
+                console.log(user, 'got its settings:', '#' + color, notifications);
+                res.status(200).send('#' + color + SEPCHAR + notifications);
             }).catch(err => {
                 if (err == FIELD_REQUIRED_ERROR) {
                     res.sendStatus(400); // Bad request
-                }else if (err == USER_NOT_FOUND_ERROR) {
+                } else if (err == USER_NOT_FOUND_ERROR) {
                     res.sendStatus(401); // Unauthorized
                 } else {
                     console.error('ERROR:', err);
