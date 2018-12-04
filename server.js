@@ -38,6 +38,7 @@ app.use(favicon(path.join(__dirname, '/logos/HermesSquare.png')));
 require('./server/api')(app, db, bcrypt, utils); // API Abstraction
 
 app.get('/', function (req, res) {
+    //res.cookie('hermes_style', 'dark');
     if (req.cookies.hermes_uuid) {
         res.redirect('/chat');
     } else {
@@ -65,6 +66,16 @@ app.get('/css/:file', function (req, res) {
     fileExists(css_path + req.params.file, function (err, exists) {
         if (exists) {
             res.sendFile(css_path + req.params.file);
+        } else {
+            res.sendStatus(404)
+        }
+    });
+});
+
+app.get('/css/dark/:file', function (req, res) {
+    fileExists(css_path + 'dark/' + req.params.file, function (err, exists) {
+        if (exists) {
+            res.sendFile(css_path + 'dark/' + req.params.file);
         } else {
             res.sendStatus(404)
         }

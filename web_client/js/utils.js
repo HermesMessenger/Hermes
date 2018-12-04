@@ -1,5 +1,5 @@
 function getRandomRGBPart() {
-    return Math.floor(Math.random() * 201);
+    return Math.floor(Math.random() * 150 + 50);
 }
 
 /**

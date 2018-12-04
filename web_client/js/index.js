@@ -16,6 +16,10 @@ if (navigator.userAgent.indexOf('Electron') !== -1) { // App is running through 
     window.sendUUID(getCookie('hermes_uuid'));
 }
 
+if(getCookie('hermes_style')=='dark'){
+    $('#hermes_style').attr('href', 'css/dark/index.css');
+}
+
 $(function () {
     const uuid_header = {uuid: getCookie('hermes_uuid')};
     $('#logout_uuid').val(getCookie('hermes_uuid'));
