@@ -176,14 +176,15 @@ module.exports = function (app, db, bcrypt, utils) {
         };
     });
 
-    app.post('/api/saveSettings/:color/:notifications', function (req, res) {
+    app.post('/api/saveSettings/:color/:notifications/:image_b64', function (req, res) {
         let color = req.params.color;
         let notifications = req.params.notifications;
+        let image_b64 = decodeURIComponent(req.params.image_b64);
 
         let uuid = req.body.uuid;
         db.getUserForUUID(uuid).then(user => {
             console.log('Saving settings for', user + ':', '#' + color, parseInt(notifications));
-            db.saveSettingWithUsername(user, color, parseInt(notifications)).then(() => res.sendStatus(200)).catch(err => {
+            db.saveSettingWithUsername(user, color, parseInt(notifications), image_b64).then(() => res.sendStatus(200)).catch(err => {
                 if (err == USER_NOT_FOUND_ERROR) {
                     res.sendStatus(401); // Unauthorized
                 } else {
@@ -207,8 +208,9 @@ module.exports = function (app, db, bcrypt, utils) {
             db.getSettingUsername(user).then((data) => {
                 let color = data[0];
                 let notifications = data[1];
+                let image_b64 = data[2];
                 console.log(user, 'got its settings:', '#' + color, notifications);
-                res.status(200).send('#' + color + SEPCHAR + notifications);
+                res.status(200).send('#' + color + SEPCHAR + notifications + SEPCHAR + image_b64);
             }).catch(err => {
                 if (err == FIELD_REQUIRED_ERROR) {
                     res.sendStatus(400); // Bad request

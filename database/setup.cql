@@ -26,7 +26,7 @@ CREATE TABLE Hermes.Settings (
     Username TEXT,
     Notifications TINYINT,
     Color TEXT,
-    /*TODO: ADD PROFILE PICTURES*/
+    Image BLOB,
     PRIMARY KEY(UUID, Username)
 );
 
