@@ -149,9 +149,10 @@ app.post('/login', function (req, res) {
     }).catch(err => res.sendFile(html_path + 'LoginPages/UserNotFound.html'));
 });
 
-app.get('/setCookie/:uuid', function (req, res) {
+app.get('/setCookie/:uuid/:theme', function (req, res) {
     db.checkLoggedInUser(req.params.uuid).then(() => {
         res.cookie('hermes_uuid', req.params.uuid);
+        res.cookie('hermes_style', req.params.theme);
         res.redirect('/chat');
     }).catch(err => res.redirect('/login'));
 });
