@@ -90,7 +90,7 @@ form button {
 }
 
 #messages li.date {
-	background: rgb(63, 63, 63);
+	background: rgb(67, 82, 72);
 	text-align: center;
 }
 
@@ -129,4 +129,24 @@ form button {
 
 a {
     color: rgb(122, 170, 224);
+}
+
+#myBtn {
+  display: none;
+  position: fixed;
+  bottom: 55px;
+  right: 3px;
+  z-index: 99;
+  font-size: 18px;
+  border: none;
+  outline: none;
+  background-color: #3f5643;
+  color: white;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+#myBtn:hover {
+  background-color: #719e79;
 }
