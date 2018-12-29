@@ -5,11 +5,13 @@
     <link rel="shortcut icon" href="/favicon.png" type="image/png">
     <link rel="icon" href="/favicon.png" type="image/png">
     <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
-    <link id="hermes_style" rel="stylesheet" href="css/index.css">
+    <link id="hermes_style" rel="stylesheet" href="css/chat.css">
     <script src="js/jquery.js" type="text/javascript"></script>
     <script src="js/ifvisible.js" type="text/javascript"></script>
     <script src="js/utils.js" type="text/javascript"></script>
+    <script src="js/settings.js" type="text/javascript"></script>
     <script src="js/index.js" type="text/javascript"></script>
+    
   </head>
 
 
@@ -21,41 +23,13 @@
     <ul id="messages"></ul>
     <div id="space"></div>
     <div id="footer">
-    <form action="" id="message_send_form">
-        <div id="user"></div>
+        <form action="" id="message_send_form">
+            <div id="user"></div>
             <input id="m" autocomplete="off" autofocus/>
             <button id='send'><b>Send</b></button>
         </form>
-        <form method="post" action="/logout" id="logout_form">
-            <button id="logout" type="submit" ><b>Log out</b></button>
-            <input type="hidden" name="uuid" id="logout_uuid">
-        </form>
+        <button id="settings" type="submit" ><b>Settings</b></button> 
     </div>
-    <div id="settings"></div>
-    
-    <script>
-      // When the user scrolls down 20px from the top of the document, show the button
-      var y,alturaElementos=0;
-      window.onload=function(){
-        for(var i=0;i<document.getElementById('messages').childElementCount;i++){
-          alturaElementos+=document.getElementById('messages').children[i].offsetHeight;
-        }
-        window.onscroll = scrollFunction;
-        function scrollFunction() {
-            y=document.getElementById('space').offsetTop;
-            if (window.scrollY < y-alturaElementos-window.innerHeight+$("#space").height()) {
-                document.getElementById("myBtn").style.display = "block";
-            } else {
-                document.getElementById("myBtn").style.display = "none";
-            }
-        }
-      }
-      // When the user clicks on the button, scroll to the top of the document
-      function topFunction() {
-          document.body.scrollTop = y;
-          document.documentElement.scrollTop = y;
-      }
-
-    </script>
+    <div id="myModal" class="modal"></div>
   </body>
 </html>

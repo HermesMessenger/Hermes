@@ -17,17 +17,21 @@ if (navigator.userAgent.indexOf('Electron') !== -1) { // App is running through 
 }
 
 if(getCookie('hermes_style')=='dark'){
-    $('#hermes_style').attr('href', 'css/dark/index.css');
+    $('#hermes_style').attr('href', 'css/dark/chat.css');
 }
 
 $(function () {
     const uuid_header = {uuid: getCookie('hermes_uuid')};
-    $('#logout_uuid').val(getCookie('hermes_uuid'));
+    
     $("#rightclick").hide();
     $(document).click(function () {
         $("#rightclick").hide(100); //Hide on click outside
     });
-    $("#settings").load("/settings");
+    $("#myModal").load("settings", function(){
+        $('#logout_uuid').val(getCookie('hermes_uuid'));
+        loadSettingsJS();
+    });
+    
     var username;
     httpPostAsync('/api/getusername', uuid_header, function(res){
         username = res;
@@ -257,6 +261,26 @@ $(function () {
             });
         }, 500);
     });
-    
-
 });
+
+//JS para el boton que te baja al final del chat 29-12-2018
+var y,alturaElementos=0;
+window.onload=function(){
+  for(var i=0;i<document.getElementById('messages').childElementCount;i++){
+    alturaElementos+=document.getElementById('messages').children[i].offsetHeight;
+  }
+  window.onscroll = function() {scrollFunction()};
+  function scrollFunction() {
+      y=document.getElementById('space').offsetTop;
+      if (window.scrollY < y-alturaElementos-window.innerHeight+$("#space").height()) {
+          document.getElementById("myBtn").style.display = "block";
+      } else {
+          document.getElementById("myBtn").style.display = "none";
+      }
+  }
+}
+function topFunction() {
+    document.body.scrollTop = y;
+    document.documentElement.scrollTop = y;
+}
+
