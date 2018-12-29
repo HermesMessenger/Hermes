@@ -52,6 +52,14 @@ app.get('/chat', function (req, res) {
     }).catch(err => res.redirect('/login'));
 });
 
+app.get('/settings', function (req, res) {
+    if(req.headers['user-agent'].indexOf('Electron') !== -1){
+        res.sendFile(html_path + 'settingsPages/hermesDesktop.html');
+    }else{
+        res.sendFile(html_path + 'settingsPages/regular.html');
+    }
+});
+
 app.get('/js/:file', function (req, res) {
     fileExists(js_path + req.params.file, function (err, exists) {
         if (exists) {

@@ -26,7 +26,8 @@ $(function () {
     $("#rightclick").hide();
     $(document).click(function () {
         $("#rightclick").hide(100); //Hide on click outside
-    })
+    });
+    $("#settings").load("/settings");
     var username;
     httpPostAsync('/api/getusername', uuid_header, function(res){
         username = res;
@@ -77,6 +78,8 @@ $(function () {
                 console.log('Notifications_Allowed:', notifications_allowed);
             });
         }
+
+        $("#space").height($("#footer").height()+10);
         window.sessionStorage.clear();
         window.setInterval(function () {
             $("#messages").find("li:not(.date)").each(function () {

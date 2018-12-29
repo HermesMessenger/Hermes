@@ -31,6 +31,8 @@
             <input type="hidden" name="uuid" id="logout_uuid">
         </form>
     </div>
+    <div id="settings"></div>
+    
     <script>
       // When the user scrolls down 20px from the top of the document, show the button
       var y,alturaElementos=0;
@@ -38,10 +40,10 @@
         for(var i=0;i<document.getElementById('messages').childElementCount;i++){
           alturaElementos+=document.getElementById('messages').children[i].offsetHeight;
         }
-        window.onscroll = function() {scrollFunction()};
+        window.onscroll = scrollFunction;
         function scrollFunction() {
             y=document.getElementById('space').offsetTop;
-            if (window.scrollY < y-alturaElementos-700) {
+            if (window.scrollY < y-alturaElementos-window.innerHeight+$("#space").height()) {
                 document.getElementById("myBtn").style.display = "block";
             } else {
                 document.getElementById("myBtn").style.display = "none";

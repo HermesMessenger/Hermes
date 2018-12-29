@@ -19,7 +19,7 @@ function padNumber(n) {
  */
 function isElectron() {
     return navigator.userAgent.indexOf('Electron') !== -1;
-   }
+}
 
 function getCookie(cname) { // From W3Schools
     var name = cname + "=";
