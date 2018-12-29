@@ -6,7 +6,6 @@
 
 body {
 	font: 15px Ubuntu Mono, monospace;
-	font-family: Arial, Helvetica, sans-serif;
 }
 
 #footer {
@@ -60,16 +59,19 @@ form button {
 }
 
 #messages {
+    font: 16px Ubuntu Mono, monospace;
 	list-style-type: none;
 	margin: 0;
 	padding: 0
 }
 
 #messages li {
+    font: 16px Ubuntu Mono, monospace;
 	padding: 5px 10px;
 }
 
 #messages li:nth-child(odd) {
+    font: 16px Ubuntu Mono, monospace;
 	background: #eee;
 }
 
@@ -142,6 +144,7 @@ form button {
 }
 
 .modal {
+    font-family: Arial, Helvetica, sans-serif;
   display: none;
   position: fixed;
   z-index: 1;
