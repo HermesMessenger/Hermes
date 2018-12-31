@@ -54,7 +54,7 @@ app.get('/chat', function (req, res) {
 
 app.get('/settings', function (req, res) {
     if(req.headers['user-agent'].indexOf('Electron') !== -1){
-        res.sendFile(html_path + 'settingsPages/hermesDesktop.html');
+        res.sendFile(html_path + 'settingsPages/electron.html');
     }else{
         res.sendFile(html_path + 'settingsPages/regular.html');
     }

@@ -1,7 +1,7 @@
 * {
 	margin: 0;
 	padding: 0;
-	box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 body {
@@ -23,6 +23,10 @@ form {
 
 #message_send_form {
     width: 90%;
+}
+
+#logout_form {
+    width: 9%;
 }
 
 #user {
@@ -67,7 +71,8 @@ form button {
 
 #messages li {
     font: 16px Ubuntu Mono, monospace;
-	padding: 5px 10px;
+    padding: 5px 10px;
+    white-space: pre-wrap;
 }
 
 #messages li:nth-child(odd) {

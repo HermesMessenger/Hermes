@@ -40,9 +40,10 @@ $(function () {
         const SEPCHAR = String.fromCharCode(0x1);
         let line_length = 150;
         $('#message_send_form').submit(function () {
-            msg = encodeURIComponent($('#m').val()).split("");
-            msg = msg.join("");	
-            httpPostAsync('/api/sendmessage/' + msg, uuid_header, function (res) {});
+            msg = $('#m').val();
+            var header = uuid_header;
+            header['message'] = msg;
+            httpPostAsync('/api/sendmessage/', header, function (res) {});
             $('#m').val('');
             return false;
         });
@@ -105,10 +106,11 @@ $(function () {
                     for (let i = 0; i < messages.length; i++) {
                         let message_pair = messages[i].split(SEPCHAR);
                         if (loaded_messages <= i) {
-                            let username = decodeURIComponent(message_pair[0]);
-                            let message = decodeURIComponent(message_pair[1]);
-                            let time = new Date(parseInt(decodeURIComponent(message_pair[2])));
-                            let prev_time = new Date(parseInt(decodeURIComponent(prev_pair[2])));
+                            let username = message_pair[0];
+                            let message = message_pair[1];
+                            //console.log(message);
+                            let time = new Date(parseInt(message_pair[2]));
+                            let prev_time = new Date(parseInt(prev_pair[2]));
                             let day = time.getDate() + '/' + (time.getMonth()+1) + '/' + time.getFullYear();
                             let hour = padNumber(time.getHours()) + ':' + padNumber(time.getMinutes()) + ':' + padNumber(time.getSeconds());
                             let prev_day = prev_time.getDate() + '/' + (prev_time.getMonth()+1) + '/' + prev_time.getFullYear();
@@ -269,7 +271,7 @@ window.onload=function(){
   for(var i=0;i<document.getElementById('messages').childElementCount;i++){
     alturaElementos+=document.getElementById('messages').children[i].offsetHeight;
   }
-  window.onscroll = function() {scrollFunction()};
+  window.onscroll = scrollFunction();
   function scrollFunction() {
       y=document.getElementById('space').offsetTop;
       if (window.scrollY < y-alturaElementos-window.innerHeight+$("#space").height()) {

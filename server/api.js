@@ -21,9 +21,11 @@ module.exports = function (app, db, bcrypt, utils) {
                         data += result[i].username + SEPCHAR;
                         data += result[i].message + SEPCHAR;
                         data += result[i].timesent.getTime();
+                        console.log(result[i].message);
                         if (i != result.length - 1)
                             data += NULLCHAR;
                     }
+                    
                     res.send(data);
                 }).catch(err => console.error('ERROR:', err));
             } else {
@@ -39,9 +41,9 @@ module.exports = function (app, db, bcrypt, utils) {
         res.sendStatus(401);
     });
 
-    app.post('/api/sendmessage/:message', function (req, res) {
+    app.post('/api/sendmessage/', function (req, res) {
         db.getUserForUUID(req.body.uuid).then(user => {
-            db.addMessage(user, req.params.message);
+            db.addMessage(user, req.body.message);
             res.sendStatus(200);
         }).catch(err => {
             console.error('ERROR:', err);
@@ -49,7 +51,7 @@ module.exports = function (app, db, bcrypt, utils) {
         });
     });
 
-    app.get('/api/sendmessage/:message', function (req, res) {
+    app.get('/api/sendmessage/', function (req, res) {
         res.sendStatus(401);
     });
 
