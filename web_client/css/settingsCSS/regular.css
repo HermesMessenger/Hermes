@@ -1,3 +1,5 @@
+@import "/css/settings_common.css";
+
 .modal {
     font-family: Arial, Helvetica, sans-serif;
   display: none;
@@ -55,46 +57,6 @@
   padding: 2px 16px;
   background-color: #5cb85c;
   color: white;
-}
-
-@-webkit-keyframes slideIn {
-  from {bottom: -300px; opacity: 0}
-  to {bottom: 0; opacity: 1}
-}
-
-@keyframes slideIn {
-  from {bottom: -300px; opacity: 0}
-  to {bottom: 0; opacity: 1}
-}
-
-@-webkit-keyframes fadeIn {
-  from {opacity: 0}
-  to {opacity: 1}
-}
-
-@keyframes fadeIn {
-  from {opacity: 0}
-  to {opacity: 1}
-}
-
-@-webkit-keyframes slideOut {
-    from {bottom: 0; opacity: 1}
-    to {bottom: -300px; opacity: 0}
-}
-
-@keyframes slideOut {
-    from {bottom: 0; opacity: 1}
-    to {bottom: -300px; opacity: 0}
-}
-
-@-webkit-keyframes fadeOut {
-    from {opacity: 1}
-    to {opacity: 0}
-}
-
-@keyframes fadeOut {
-    from {opacity: 1}
-    to {opacity: 0}
 }
 
 #save_form{

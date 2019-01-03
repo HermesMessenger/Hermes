@@ -77,10 +77,18 @@ function loadSettingsJS() {
         modalContent.style.animationName = "slideOut";
         setTimeout(function(){
             modal.style.display = "None";
+        },400);
+    }
+
+    function slideSettingsOutReloading() {
+        modal.style.animationName = "fadeOut";
+        modalContent.style.animationName = "slideOut";
+        setTimeout(function(){
+            modal.style.display = "None";
             location.reload();
         },400);
     }
-    animate_out = slideSettingsOut;
+    animate_out = slideSettingsOutReloading;
 
     span.onclick = slideSettingsOut;
 
