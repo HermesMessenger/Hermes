@@ -1,13 +1,10 @@
-<div class="modal-content">
+<div class="modal-content" id="modal-content-id">
     <div class="modal-header">
 
         <span class="close">&times;</span>
 
         <div class="one">
             <h2>Hermes Settings</h2>
-        </div>
-        <div class="two">
-            <h2>Hermes Desktop Settings</h2>
         </div>
     </div>
     <div class="modal-body">
@@ -25,27 +22,27 @@
             <div class="tcol">
                 <h4>Choose your color</h4>
             </div>
-            <div class="col"></div>
+            <div class="col"><input type="color" name="favcolor" value="#5cb85c"></div>
             <div class="tpic">
                 <h4>Choose your picture</h4>
             </div>
             <div class="pic">
-                <input type='file' onchange="loadPicture()" accept="image/*" />
+                <input type='file' accept="image/*" />
+                <img id="img_element" width=25 height=25 style="display: inline-block">
             </div>
             <div class="tchp">
                 <h4>Change password</h4>
             </div>
             <div class="chp">
-                <input type="text" placeholder="Old password"><br><br>
-                <input type="password" placeholder="New password"><input type="checkbox"><br><br>
-                <input type="password" placeholder="Repeat password"><br>
+                <input id="old" type="password" placeholder="Old password"><input type="checkbox" id="old_pwd_box"><br>
+                <input id="new" type="password" placeholder="New password"><input type="checkbox" id="new_pwd_box"><br>
+                <input id="repeat" type="password" placeholder="Repeat password">
             </div>
             <div class="slo">
                 <div class="sse">
-                    <form method="post" action="/logout" id="save_form">
-                        <button id="save" type="submit"><b>Save changes</b></button>
-                        <input type="hidden" name="uuid" id="save_uuid">
-                    </form>
+                    <div id="save_form">
+                        <button id="save" onclick="saveSettings('regular')"><b>Save changes</b></button>
+                    </div>
                 </div>
                 <div class="lou">
                     <form method="POST" action="logout" id="logout_form">
@@ -54,10 +51,12 @@
                     </form>
                 </div>
             </div>
-        </div>
-        <div class="space"></div>
-        <div class="desk">
-            <p>mundo</p>
+            <div>
+                <div id="Dth">
+                    <h4 class="Dth">Use Dark Theme</h4>
+                </div>
+                <div id="tik"><input type="checkbox" id="dark_theme_box"></div>
+            </div>
         </div>
     </div>
 </div>

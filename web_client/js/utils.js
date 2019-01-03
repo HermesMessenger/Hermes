@@ -38,9 +38,9 @@ function getCookie(cname) { // From W3Schools
 }
 
 /**
- * A function that makes a GET request to a url
+ * A function that makes a GET request to a url and only calls back if the response was 200
  *  @param {String} theUrl: the url to make the GET request to
- *  @param {Function} callback: the function to be called with the responseText data
+ *  @param {function(String):void} callback: the function to be called with the responseText data
  */
 function httpGetAsync(theUrl, callback) {
     var xmlHttp = new XMLHttpRequest();
@@ -53,9 +53,9 @@ function httpGetAsync(theUrl, callback) {
 }
 
 /**
- * A function that makes a GET request to a url
+ * A function that makes a GET request to a url and the response status
  *  @param {String} theUrl: the url to make the GET request to
- *  @param {Function} callback: the function to be called with the responseText data & the status
+ *  @param {function(String, int):void} callback: the function to be called with the responseText data & the status
  */
 function httpGetStatusAsync(theUrl, callback) {
     var xmlHttp = new XMLHttpRequest();
@@ -68,10 +68,10 @@ function httpGetStatusAsync(theUrl, callback) {
 }
 
 /**
- * A function that makes a POST request to a url with some json data
+ * A function that makes a POST request to a url with some json data and only calls back if the response was 200
  *  @param {String} theUrl: the url to make the POST request to
  *  @param {JSON} jsonData: the data of the header, in json format
- *  @param {Function} callback: thse function to be called with the responseText data
+ *  @param {function(String):void} callback: thse function to be called with the responseText data
  */
 function httpPostAsync(theUrl, jsonData, callback) {
     var xmlHttp = new XMLHttpRequest();
@@ -85,10 +85,10 @@ function httpPostAsync(theUrl, jsonData, callback) {
 }
 
 /**
- * A function that makes a POST request to a url with some json data
+ * A function that makes a POST request to a url with some json data and the response status
  *  @param {String} theUrl: the url to make the POST request to
  *  @param {JSON} jsonData: the data of the header, in json format
- *  @param {Function} callback: thse function to be called with the responseText data & the status
+ *  @param {function(String, int):void} callback: thse function to be called with the responseText data & the status
  */
 function httpPostStatusAsync(theUrl, jsonData, callback) {
     var xmlHttp = new XMLHttpRequest();

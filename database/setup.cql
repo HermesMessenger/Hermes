@@ -25,6 +25,7 @@ CREATE TABLE Hermes.Settings (
     UUID TIMEUUID,
     Username TEXT,
     Notifications TINYINT,
+    Dark BOOLEAN,
     Color TEXT,
     Image BLOB,
     PRIMARY KEY(UUID, Username)

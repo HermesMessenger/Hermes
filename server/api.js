@@ -21,7 +21,6 @@ module.exports = function (app, db, bcrypt, utils) {
                         data += result[i].username + SEPCHAR;
                         data += result[i].message + SEPCHAR;
                         data += result[i].timesent.getTime();
-                        console.log(result[i].message);
                         if (i != result.length - 1)
                             data += NULLCHAR;
                     }
@@ -178,15 +177,16 @@ module.exports = function (app, db, bcrypt, utils) {
         };
     });
 
-    app.post('/api/saveSettings/:color/:notifications/:image_b64', function (req, res) {
+    app.post('/api/saveSettings/:color/:notifications/:dark/:image_b64', function (req, res) {
         let color = req.params.color;
+        let dark = req.params.dark=='true';
         let notifications = req.params.notifications;
         let image_b64 = decodeURIComponent(req.params.image_b64);
 
         let uuid = req.body.uuid;
         db.getUserForUUID(uuid).then(user => {
-            console.log('Saving settings for', user + ':', '#' + color, parseInt(notifications));
-            db.saveSettingWithUsername(user, color, parseInt(notifications), image_b64).then(() => res.sendStatus(200)).catch(err => {
+            console.log('Saving settings for', user + ':', '#' + color, parseInt(notifications), dark);
+            db.saveSettingWithUsername(user, color, parseInt(notifications), image_b64, dark).then(() => res.sendStatus(200)).catch(err => {
                 if (err == USER_NOT_FOUND_ERROR) {
                     res.sendStatus(401); // Unauthorized
                 } else {
@@ -204,6 +204,24 @@ module.exports = function (app, db, bcrypt, utils) {
         });
     });
 
+    app.get('/api/getSettings/:username', function (req, res) { // Only for chat (Color & image only)
+        db.getSettingUsername(decodeURIComponent(req.params.username)).then((data) => {
+            let color = data[0];
+            let image_b64 = data[2];
+            console.log(decodeURIComponent(req.params.username), 'got its chat settings:', '#' + color);
+            res.status(200).send({color: '#' + color,image: image_b64});
+        }).catch(err => {
+            if (err == FIELD_REQUIRED_ERROR) {
+                res.sendStatus(400); // Bad request
+            } else if (err == USER_NOT_FOUND_ERROR) {
+                res.sendStatus(401); // Unauthorized
+            } else {
+                console.error('ERROR:', err);
+                res.sendStatus(500);
+            }
+        });
+    });
+
     app.post('/api/getSettings/', function (req, res) {
         let uuid = req.body.uuid;
         db.getUserForUUID(uuid).then(user => {
@@ -211,8 +229,9 @@ module.exports = function (app, db, bcrypt, utils) {
                 let color = data[0];
                 let notifications = data[1];
                 let image_b64 = data[2];
-                console.log(user, 'got its settings:', '#' + color, notifications);
-                res.status(200).send('#' + color + SEPCHAR + notifications + SEPCHAR + image_b64);
+                let dark = data[3];
+                console.log(user, 'got its settings:', '#' + color, notifications, dark);
+                res.status(200).send({color: '#' + color, notifications: notifications,image: image_b64,dark: dark});
             }).catch(err => {
                 if (err == FIELD_REQUIRED_ERROR) {
                     res.sendStatus(400); // Bad request

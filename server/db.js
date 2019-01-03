@@ -3,6 +3,7 @@ const uuidv1 = require('uuid/v1');
 const SESSION_TIMEOUT = 60 * 60 * 24 * 7 // A week in seconds
 const DEFAULT_IMAGE = '/9j/4AAQSkZJRgABAQEASABIAAD//gA7Q1JFQVRPUjogZ2QtanBlZyB2MS4wICh1c2luZyBJSkcgSlBFRyB2NjIpLCBxdWFsaXR5ID0gOTAK/9sAQwAEAgMDAwIEAwMDBAQEBAUJBgUFBQULCAgGCQ0LDQ0NCwwMDhAUEQ4PEw8MDBIYEhMVFhcXFw4RGRsZFhoUFhcW/8AACwgAgACAAQERAP/EABwAAQACAwEBAQAAAAAAAAAAAAAGBwMEBQIBCP/EADgQAAICAQICBwQJAwUAAAAAAAABAgMEBREGIQcSEzFBUWFxgZGhFBUiMlKxweHwIzOyQmOCktH/2gAIAQEAAD8A/RQAAAAAAAAAAAAAAAAAAAAAAAAABkxaLsjIhRRXKy2x9WMYrdtk74a4Foqgr9Xfa2Nb9hCW0I+1rm37OXtJZhYGFhxUcbEopS/BWonrMw8TKj1cnFpuT8LK1L8yLcR8C4eRB3aVL6Nd39lJt1y/Vfl6EBzsa/Dyp4+TXKu2t7Si/AwgAAAAs7o84fhpmnrMyIL6Zet3uudUX3RXr5/DwJMACP8AHOg16xp0p1QSzKYt1S8ZL8D9H4eT95Vkk4ycZJxaezT70fAAAAdfgbBjn8T41M1vXCXaT9VHnt73sveW6AACqukvAjhcU2uEdoZMVckvN7qXzTfvOAAAACV9ECT4nu3S3WJLb/vAskAAFe9MiX1phPbn2Muf/IhoAAAO70cZccTi7H672jf1qm/Vrl80i1wAAVf0qZayeKpVRe6xao1vbz5yf+W3uI2AAAD1XOULIzhJxlFpxku9PzLc4R1erWdIryOsu2glG+K/0z/8fev2OsADncSanRpGl2ZlzTcVtXDfnOXgv54blQZV1mTk2ZF0utZbNynLzbe7MYAAAB0eGdSz9N1KNmApWTn9mVKTkrV5NItfSMi3LwoX3YluLOX3qrdusv2+HsNwGvqWRPFw53wxrciUVyqrScpFUcW6rqGqalKWdCVKr3UMdppVr2Px82coAAAA7/CHC2XrUlfY3Rhp87Guc/SK/Xu9pYui6Rp+lUKvCxlB7bSm1vKXtf8AEdAAGhrOk6fqtHZZuNCzZfZl3Tj7Jd6K74w4VytHbyKW78Pf+5t9qv0kv1/IjwAABIuAOHXrGY8jJTWHRJdf/cl+Ffr+5Z1VcKq1XXFRhBJRilskl4IyAAAx21wtrddkVKE01KMlumn4MrLpA4c+qMpZWLFvDulsl39lL8L9PL+bxwAA2NKw7tQ1GnCoW9l01Fb9y82/RLd+4uHSMKjTtOqwseO1dUeqn4t+Lfq3zNsAAAGrquHTn4FuHfFOu6PVfmvJr1T5lPaxhW6dqd+Ff9+mbjvt95eD962ZrAAm3Q/p6nfk6nOO6r/o1P1fOXy2+LJ8AAAACB9MGnJSxtUrjt1v6NrXxi/8vkQcAFs9HmKsXhLEW2zti7ZPz6z3Xy2O2AAAADi8e4v0zhPMhtzrr7WL8nH7T+Sa95UoALr0mpU6VjUpbKumEfhFI2QAAAAYNQgrsG+p81OqUfimikgf/9k='
 
+
 let USER_NOT_FOUND_ERROR = new Error('User not found');
 USER_NOT_FOUND_ERROR.code = 10000;
 let USER_NOT_LOGGED_IN_ERROR = new Error('User not found or not logged in');
@@ -21,6 +22,20 @@ function escapeCQL(str = '') {
     let idx = str.indexOf(';');
     str = str.substring(0, idx < 0 ? str.length : idx);  // FIXME replace more cases
     return str;
+}
+
+function getRandomHEXPart() {
+    // Random RGB part to hex
+    var hexString = (Math.floor(Math.random() * 150 + 50)).toString(16);
+    if (hexString.length % 2) {
+        // Pad it of it's small
+        hexString = '0' + hexString;
+    }
+    return hexString;
+}
+
+function createColor(){
+    return getRandomHEXPart()+getRandomHEXPart()+getRandomHEXPart();
 }
 
 module.exports = class {
@@ -57,7 +72,9 @@ module.exports = class {
         const query = 'INSERT INTO Users (UUID, Username, PasswordHash) values(now(),?,?) IF NOT EXISTS;';
         let data = [user, passwordHash];
         return new Promise((resolve, reject) => {
-            this.client.execute(query, data, { prepare: true }).then(result => resolve()).catch(err => reject(err));
+            this.client.execute(query, data, { prepare: true }).then(result => {
+                this.saveSettingWithUsername(user,createColor()).then(result => resolve()).catch(err => reject(err));
+            }).catch(err => reject(err));
         });
     }
 
@@ -174,14 +191,14 @@ module.exports = class {
         });
     }
 
-    saveSettingWithUsername(username, color, notifications = NOTIFICATIONS_ON, image_b64 = DEFAULT_IMAGE) {
+    saveSettingWithUsername(username, color, notifications = NOTIFICATIONS_ON, image_b64 = DEFAULT_IMAGE, dark = false) {
         const query = 'SELECT UUID FROM Users WHERE Username=? allow filtering;';
         let data = [username];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, { prepare: true }).then(result => {
                 let uuidRow = result.first();
                 if (uuidRow) {
-                    this.saveSetting(uuidRow.uuid, username, color, notifications, image_b64).then(() => {
+                    this.saveSetting(uuidRow.uuid, username, color, notifications, image_b64, dark).then(() => {
                         resolve();
                     }).catch(err => reject(err));
                 } else {
@@ -191,14 +208,14 @@ module.exports = class {
         });
     }
 
-    saveSettingWithUUID(uuid, color, notifications = NOTIFICATIONS_ON, image_b64 = DEFAULT_IMAGE) {
+    saveSettingWithUUID(uuid, color, notifications = NOTIFICATIONS_ON, image_b64 = DEFAULT_IMAGE, dark = false) {
         const query = 'SELECT Username FROM Users WHERE UUID=?;';
         let data = [uuid];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, { prepare: true }).then(result => {
                 let userRow = result.first();
                 if (userRow) {
-                    this.saveSetting(uuid, userRow.username, color, notifications, image_b64).then(() => {
+                    this.saveSetting(uuid, userRow.username, color, notifications, image_b64, dark).then(() => {
                         resolve();
                     }).catch(err => reject(err));
                 } else {
@@ -208,10 +225,11 @@ module.exports = class {
         });
     }
 
-    saveSetting(uuid, username, color, notifications = NOTIFICATIONS_ON, image_b64 = DEFAULT_IMAGE) {
-        const query = 'INSERT INTO Settings (UUID, Username, Color, Notifications, textAsBlob(Image)) values(?,?,?,?);';
+    saveSetting(uuid, username, color, notifications = NOTIFICATIONS_ON, image_b64 = DEFAULT_IMAGE, dark = false) {
+        const query = 'INSERT INTO Settings (UUID, Username, Color, Notifications, Image, dark) values(?,?,?,?,textAsBlob(?),?);';
         return new Promise((resolve, reject) => {
-            let data = [uuid, username, color, notifications, image_b64];
+            let data = [uuid, username, color, notifications, image_b64, dark];
+            //console.log(data);
             this.client.execute(query, data, { prepare: true }).then(result => {
                 resolve();
             }).catch(err => reject(err));
@@ -228,26 +246,26 @@ module.exports = class {
 
     getSetting(uuid = undefined, username = undefined) {
         if (uuid) {
-            const query = 'SELECT color, notifications, blobAsText(image) as image FROM Settings WHERE uuid=?;';
+            const query = 'SELECT color, notifications, blobAsText(image) as image, dark FROM Settings WHERE uuid=?;';
             return new Promise((resolve, reject) => {
                 let data = [uuid];
                 this.client.execute(query, data, { prepare: true }).then(result => {
                     let userRow = result.first();
                     if (userRow) {
-                        resolve([userRow.color, userRow.notifications, userRow.image]);
+                        resolve([userRow.color, userRow.notifications, userRow.image, userRow.dark]);
                     } else {
                         reject(USER_NOT_FOUND_ERROR);
                     }
                 }).catch(err => reject(err));
             });
         } else if (username) {
-            const query = 'SELECT color, notifications, blobAsText(image) as image FROM Settings WHERE username=? ALLOW FILTERING;';
+            const query = 'SELECT color, notifications, blobAsText(image) as image, dark FROM Settings WHERE username=? ALLOW FILTERING;';
             return new Promise((resolve, reject) => {
                 let data = [username];
                 this.client.execute(query, data, { prepare: true }).then(result => {
                     let userRow = result.first();
                     if (userRow) {
-                        resolve([userRow.color, userRow.notifications, userRow.image]);
+                        resolve([userRow.color, userRow.notifications, userRow.image, userRow.dark]);
                     } else {
                         reject(USER_NOT_FOUND_ERROR);
                     }
