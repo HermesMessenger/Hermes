@@ -121,98 +121,55 @@ $(function () {
                                 date_message.append(day);
                                 $("#messages").append(date_message);
                             }
+                            if (!Object.keys(user_colors).includes(username)) {
+                                let response = httpGetSync("/api/getSettings/" + encodeURIComponent(username));
+                                user_colors[username] = JSON.parse(response);
+                            }
+                            let color = user_colors[username].color;
+                            let new_message = $('<li>');
+                            new_message.append($('<img>').attr('src', IMG_URL_HEADER + user_colors[username].image).attr("id", "chat_prof_pic"));//.css("display", 'inline_block').css("width", '2%').css("height", '2%'));
+                            let new_message_body = $('<span style="position: absolute">');
+                            new_message_body.append($('<b>').text(username + ': ').css("color", color));
 
-                            function nextStuff() { // So that the code isn't repeated
-                                let color = user_colors[username].color;
-                                let new_message = $('<li>');
-                                new_message.append($('<img>').attr('src', IMG_URL_HEADER+user_colors[username].image).attr("id","chat_prof_pic"));//.css("display", 'inline_block').css("width", '2%').css("height", '2%'));
-                                let new_message_body = $('<span style="position: absolute">');
-                                new_message_body.append($('<b>').text(username + ': ').css("color", color));
+                            let linkMatch = message.match(/([\w\d]+):\/\/([\w\d\.-]+)\.([\w\d]+)\/?([\w\d-@:%_\+.~#?&/=]*)/g);
+                            let quoteMatch = message.match(/\"(.+): ((.)+)\"/);
 
-                                let linkMatch = message.match(/([\w\d]+):\/\/([\w\d\.-]+)\.([\w\d]+)\/?([\w\d-@:%_\+.~#?&/=]*)/g);
-                                let quoteMatch = message.match(/\"(.+): ((.)+)\"/);
+                            if (linkMatch && quoteMatch) { // Both links and quotes in message
 
-                                if (linkMatch && quoteMatch) { // Both links and quotes in message
+                                linkStart = message.search(linkMatch[0]);
+                                linkEnd = linkStart + (linkMatch[0].length);
+                                linkNum = linkMatch.length;
+                                let linkSpan = $('<a>').attr('target', '_blank').attr('href', linkMatch[0]).text(linkMatch[0]);
 
-                                    linkStart = message.search(linkMatch[0]);
-                                    linkEnd = linkStart + (linkMatch[0].length);
-                                    linkNum = linkMatch.length;
-                                    let linkSpan = $('<a>').attr('target', '_blank').attr('href', linkMatch[0]).text(linkMatch[0]);
+                                quoteStart = message.search(quoteMatch[0]);
+                                quoteEnd = quoteStart + (quoteMatch[0].length);
+                                let quoteSpan = $("<span>").text(quoteMatch[0].substring(1, quoteMatch[0].length - 1)).attr("class", "quote user-" + quoteMatch[1].replace(/[ ]/g, "space"));
 
-                                    quoteStart = message.search(quoteMatch[0]);
-                                    quoteEnd = quoteStart + (quoteMatch[0].length);
-                                    let quoteSpan = $("<span>").text(quoteMatch[0].substring(1, quoteMatch[0].length - 1)).attr("class", "quote user-" + quoteMatch[1].replace(/[ ]/g, "space"));
-
-                                    let cssRuleExists = false;
-                                    for (var r = 0; r < document.styleSheets[document.styleSheets.length - 1].rules; r++) {
-                                        if (document.styleSheets[document.styleSheets.length - 1].rules[r].selectorText.includes('user-'+quoteMatch[1].replace(/[ ]/g, "space"))) {
-                                            cssRuleExists = true;
-                                            break
-                                        }
+                                let cssRuleExists = false;
+                                for (var r = 0; r < document.styleSheets[document.styleSheets.length - 1].rules; r++) {
+                                    if (document.styleSheets[document.styleSheets.length - 1].rules[r].selectorText.includes('user-' + quoteMatch[1].replace(/[ ]/g, "space"))) {
+                                        cssRuleExists = true;
+                                        break
                                     }
-                                    if (!cssRuleExists) {
-                                        document.styleSheets[document.styleSheets.length - 1].addRule(".quote.user-" + quoteMatch[1].replace(/[ ]/g, "space") + ":before", "border: 2px  " + user_colors[quoteMatch[1]].color + " solid;");
-                                    }
-
-                                    if (quoteStart < linkStart) {
-                                        new_message_body.append($("<span>").text(message.substring(0, quoteStart)));
-                                        new_message_body.append(quoteSpan);
-                                        new_message_body.append($("<span>").text(message.substring(quoteEnd, linkStart)));
-
-                                        for (let r = 0; r < linkNum; r++) {
-                                            oldLinkEnd = linkStart + (linkMatch[r].length);
-                                            linkStart = message.search(linkMatch[r]);
-                                            linkEnd = linkStart + (linkMatch[r].length);
-                                            nextLinkStart = message.search(linkMatch[r + 1]);
-
-                                            let linkSpan = $('<a>').attr('target', '_blank').attr('href', linkMatch[r]).text(linkMatch[r]);
-                                            new_message.append(linkSpan);
-
-                                            if (r + 1 == linkNum) {
-                                                new_message_body.append($("<span>").text(message.substring(linkEnd)));
-                                            } else {
-                                                new_message_body.append($("<span>").text(message.substring(linkEnd, nextLinkStart)));
-                                            }
-                                        }
-
-                                        new_message_body.append($("<span>").text(message.substring(linkEnd)));
-
-                                    } else {
-                                        new_message_body.append($("<span>").text(message.substring(0, linkStart)));
-                                        for (let r = 0; r < linkNum; r++) {
-                                            oldLinkEnd = linkStart + (linkMatch[r].length);
-                                            linkStart = message.search(linkMatch[r]);
-                                            linkEnd = linkStart + (linkMatch[r].length);
-                                            nextLinkStart = message.search(linkMatch[r + 1]);
-
-                                            let linkSpan = $('<a>').attr('target', '_blank').attr('href', linkMatch[r]).text(linkMatch[r]);
-                                            new_message_body.append(linkSpan);
-
-                                            if (r + 1 == linkNum) {
-                                                new_message_body.append($("<span>").text(message.substring(linkEnd)));
-                                            } else {
-                                                new_message_body.append($("<span>").text(message.substring(linkEnd, nextLinkStart)));
-                                            }
-                                        }
-
-                                        new_message_body.append($("<span>").text(message.substring(linkEnd, quoteStart)));
-                                        new_message_body.append(quoteSpan);
-                                        new_message_body.append($("<span>").text(message.substring(quoteEnd)));
-                                    }
-
+                                }
+                                if (!cssRuleExists) {
+                                    document.styleSheets[document.styleSheets.length - 1].addRule(".quote.user-" + quoteMatch[1].replace(/[ ]/g, "space") + ":before", "border: 2px  " + user_colors[quoteMatch[1]].color + " solid;");
                                 }
 
-                                else if (linkMatch) { // Only link in message
-                                    linkNum = linkMatch.length;
-                                    new_message_body.append($("<span>").text(message.substring(0, message.search(linkMatch[0]))));
+                                if (quoteStart < linkStart) {
+                                    new_message_body.append($("<span>").text(message.substring(0, quoteStart)));
+                                    new_message_body.append(quoteSpan);
+                                    new_message_body.append($("<span>").text(message.substring(quoteEnd, linkStart)));
 
                                     for (let r = 0; r < linkNum; r++) {
+                                        oldLinkEnd = linkStart + (linkMatch[r].length);
                                         linkStart = message.search(linkMatch[r]);
                                         linkEnd = linkStart + (linkMatch[r].length);
                                         nextLinkStart = message.search(linkMatch[r + 1]);
 
                                         let linkSpan = $('<a>').attr('target', '_blank').attr('href', linkMatch[r]).text(linkMatch[r]);
-                                        new_message_body.append(linkSpan);
+                                        new_message.append(linkSpan);
+
                                         if (r + 1 == linkNum) {
                                             new_message_body.append($("<span>").text(message.substring(linkEnd)));
                                         } else {
@@ -220,52 +177,88 @@ $(function () {
                                         }
                                     }
 
-                                }
+                                    new_message_body.append($("<span>").text(message.substring(linkEnd)));
 
-                                else if (quoteMatch) { // Only quote in message
-                                    let quoteSpan = $("<span>").text(quoteMatch[0].substring(1, quoteMatch[0].length - 1)).attr("class", "quote user-" + quoteMatch[1].replace(/[ ]/g, "space"));
-                                    //console.log(quoteSpan)
-                                    let cssRuleExists = false;
-                                    for (let r = 0; r < document.styleSheets[document.styleSheets.length - 1].rules; r++) {
-                                        if (document.styleSheets[document.styleSheets.length - 1].rules[r].selectorText.includes('user-'+quoteMatch[1].replace(/[ ]/g, "space"))) {
-                                            cssRuleExists = true;
-                                            break
+                                } else {
+                                    new_message_body.append($("<span>").text(message.substring(0, linkStart)));
+                                    for (let r = 0; r < linkNum; r++) {
+                                        oldLinkEnd = linkStart + (linkMatch[r].length);
+                                        linkStart = message.search(linkMatch[r]);
+                                        linkEnd = linkStart + (linkMatch[r].length);
+                                        nextLinkStart = message.search(linkMatch[r + 1]);
+
+                                        let linkSpan = $('<a>').attr('target', '_blank').attr('href', linkMatch[r]).text(linkMatch[r]);
+                                        new_message_body.append(linkSpan);
+
+                                        if (r + 1 == linkNum) {
+                                            new_message_body.append($("<span>").text(message.substring(linkEnd)));
+                                        } else {
+                                            new_message_body.append($("<span>").text(message.substring(linkEnd, nextLinkStart)));
                                         }
                                     }
-                                    if (!cssRuleExists) {
-                                        document.styleSheets[document.styleSheets.length - 1].addRule(".quote.user-" + quoteMatch[1].replace(/[ ]/g, "space") + ":before", "border: 2px solid " + user_colors[quoteMatch[1]].color + ";");
-                                    }
-                                    quoteStart = message.search(quoteMatch[0]);
-                                    quoteEnd = quoteStart + (quoteMatch[0].length);
-                                    new_message_body.append($("<span>").text(message.substring(0, quoteStart)));
+
+                                    new_message_body.append($("<span>").text(message.substring(linkEnd, quoteStart)));
                                     new_message_body.append(quoteSpan);
                                     new_message_body.append($("<span>").text(message.substring(quoteEnd)));
                                 }
 
-                                else { // No links or quotes in message
-                                    new_message_body.append($("<span>").text(message)); // Span is there to get the text for the quoting system
-                                };
+                            }
 
-                                if (username != getCookie('hermes_username') && !first_load) {
-                                    sendNotifiaction("New message from " + username, username + ": " + message);
+                            else if (linkMatch) { // Only link in message
+                                linkNum = linkMatch.length;
+                                new_message_body.append($("<span>").text(message.substring(0, message.search(linkMatch[0]))));
+
+                                for (let r = 0; r < linkNum; r++) {
+                                    linkStart = message.search(linkMatch[r]);
+                                    linkEnd = linkStart + (linkMatch[r].length);
+                                    nextLinkStart = message.search(linkMatch[r + 1]);
+
+                                    let linkSpan = $('<a>').attr('target', '_blank').attr('href', linkMatch[r]).text(linkMatch[r]);
+                                    new_message_body.append(linkSpan);
+                                    if (r + 1 == linkNum) {
+                                        new_message_body.append($("<span>").text(message.substring(linkEnd)));
+                                    } else {
+                                        new_message_body.append($("<span>").text(message.substring(linkEnd, nextLinkStart)));
+                                    }
                                 }
-                                new_message.append(new_message_body);
-                                new_message.append("<span class='time'>" + hour + "</span>");
 
-                                $('#messages').append(new_message);
-                                $('html, body').animate({
-                                    scrollTop: $("#space").offset().top
-                                }, 0)
-                                loaded_messages++;
                             }
-                            if (!Object.keys(user_colors).includes(username)) {
-                                httpGetAsync("/api/getSettings/" + encodeURIComponent(username), (response) => {
-                                    user_colors[username] = JSON.parse(response);
-                                    nextStuff();
-                                });
-                            } else {
-                                nextStuff();
+
+                            else if (quoteMatch) { // Only quote in message
+                                let quoteSpan = $("<span>").text(quoteMatch[0].substring(1, quoteMatch[0].length - 1)).attr("class", "quote user-" + quoteMatch[1].replace(/[ ]/g, "space"));
+                                //console.log(quoteSpan)
+                                let cssRuleExists = false;
+                                for (let r = 0; r < document.styleSheets[document.styleSheets.length - 1].rules; r++) {
+                                    if (document.styleSheets[document.styleSheets.length - 1].rules[r].selectorText.includes('user-' + quoteMatch[1].replace(/[ ]/g, "space"))) {
+                                        cssRuleExists = true;
+                                        break
+                                    }
+                                }
+                                if (!cssRuleExists) {
+                                    document.styleSheets[document.styleSheets.length - 1].addRule(".quote.user-" + quoteMatch[1].replace(/[ ]/g, "space") + ":before", "border: 2px solid " + user_colors[quoteMatch[1]].color + ";");
+                                }
+                                quoteStart = message.search(quoteMatch[0]);
+                                quoteEnd = quoteStart + (quoteMatch[0].length);
+                                new_message_body.append($("<span>").text(message.substring(0, quoteStart)));
+                                new_message_body.append(quoteSpan);
+                                new_message_body.append($("<span>").text(message.substring(quoteEnd)));
                             }
+
+                            else { // No links or quotes in message
+                                new_message_body.append($("<span>").text(message)); // Span is there to get the text for the quoting system
+                            };
+
+                            if (username != getCookie('hermes_username') && !first_load) {
+                                sendNotifiaction("New message from " + username, username + ": " + message);
+                            }
+                            new_message.append(new_message_body);
+                            new_message.append("<span class='time'>" + hour + "</span>");
+
+                            $('#messages').append(new_message);
+                            $('html, body').animate({
+                                scrollTop: $("#space").offset().top
+                            }, 0)
+                            loaded_messages++;
                         }
                         prev_pair = message_pair;
                     }

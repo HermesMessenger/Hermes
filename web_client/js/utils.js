@@ -38,6 +38,18 @@ function getCookie(cname) { // From W3Schools
 }
 
 /**
+ * A function that makes a GET request to a url
+ *  @param {String} theUrl: the url to make the GET request to
+ *  @returns {String} The response text
+ */
+function httpGetSync(theUrl){
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
+    xmlHttp.send( null );
+    return xmlHttp.responseText;
+}
+
+/**
  * A function that makes a GET request to a url and only calls back if the response was 200
  *  @param {String} theUrl: the url to make the GET request to
  *  @param {function(String):void} callback: the function to be called with the responseText data
