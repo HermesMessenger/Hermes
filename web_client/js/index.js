@@ -1,12 +1,13 @@
 var notifications_supported = true;
 var notifications_allowed = false;
 
-function sendNotifiaction(user, message) {
+function sendNotifiaction(user, message, image) {
     if (notifications_allowed && notifications_supported) {
-        if (!(ifvisible.now())) {
+        if (!!(ifvisible.now())) {
+            console.log(image);
             new Notification(user, {
                 body: message,
-                icon: '/favicon.png' /* TODO: be the user's profile image */
+                icon: image
             });
         };
     }
@@ -175,7 +176,7 @@ $(function () {
                                     document.styleSheets[document.styleSheets.length - 1].addRule(".quote.user-" + quoteuser, quoteMatch);
                                 }
 
-                                if (quoteStart < linkStart && quoteEnd > linkEnd) {
+                                if (quoteStart < linkStart && quoteEnd > linkEnd) { // Link inside quote
                                     new_message_body.append($("<span>").text(message.substring(0, quoteStart)));
                                     new_message_body.append(quoteSpan);
                                     if (linkEnd > quoteEnd) {
@@ -199,7 +200,7 @@ $(function () {
 
                                         new_message_body.append($("<span>").text(message.substring(linkEnd)));
                                     }
-                                } else if (quoteEnd < linkStart){
+                                } else if (quoteEnd < linkStart){ // Link after quote
                                     new_message_body.append($("<span>").text(message.substring(0, quoteStart)));
                                     new_message_body.append(quoteSpan);
                                     if (linkEnd > quoteEnd) {
@@ -223,7 +224,7 @@ $(function () {
 
                                         new_message_body.append($("<span>").text(message.substring(linkEnd)));
                                     }
-                                } else if (linkStart < quoteStart) {
+                                } else if (linkStart < quoteStart) { // Link before quote
                                     new_message_body.append($("<span>").text(message.substring(0, linkStart)));
                                     for (let r = 0; r < linkNum; r++) {
                                         oldLinkEnd = linkStart + (linkMatch[r].length);
@@ -293,7 +294,7 @@ $(function () {
                             };
 
                             if (username != getCookie('hermes_username') && !first_load) {
-                                sendNotifiaction("New message from " + username, username + ": " + message);
+                                sendNotifiaction("New message from " + username, username + ": " + message, 'data:image/png;base64,'+user_colors[username].image);
                             }
 
                             new_message.append(new_message_body);
