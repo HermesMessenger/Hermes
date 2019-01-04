@@ -126,7 +126,7 @@ $(function () {
                                 user_colors[username] = JSON.parse(response);
                             }
                             let color = user_colors[username].color;
-                            let new_message = $('<li>');
+                            let new_message = $('<li id=message'+i+'>');
                             new_message.append($('<img>').attr('src', IMG_URL_HEADER + user_colors[username].image).attr("id", "chat_prof_pic"));//.css("display", 'inline_block').css("width", '2%').css("height", '2%'));
                             let new_message_body = $('<span style="position: absolute">');
                             new_message_body.append($('<b>').text(username + ': ').css("color", color));
@@ -265,10 +265,16 @@ $(function () {
                             if (username != getCookie('hermes_username') && !first_load) {
                                 sendNotifiaction("New message from " + username, username + ": " + message);
                             }
+                            
                             new_message.append(new_message_body);
-                            new_message.append("<span class='time'>" + hour + "</span>");
+                            let time_el = $("<span class='time'>").text(hour);
+                            new_message.append(time_el);
 
                             $('#messages').append(new_message);
+                            new_message_body.width(window.innerWidth-45-time_el.width());
+                            if(new_message_body.height()>16){
+                                new_message.height(new_message_body.height());
+                            }
                             $('html, body').animate({
                                 scrollTop: $("#space").offset().top
                             }, 0)

@@ -72,6 +72,8 @@ form button {
     font: 16px Ubuntu Mono, monospace;
 	padding: 5px 10px 5px 0px;
     white-space: pre-wrap;
+    word-break: break-all;
+    word-wrap: break-word;
     height: 26px;
 }
 
@@ -118,9 +120,10 @@ form button {
 }
 
 .quote {
-    padding: 0px 2px;
+    padding: 1px 2px;
     color: #ffffff;
     display: inline-block;
+    margin: 4px 0px;
 }
 
 a {
