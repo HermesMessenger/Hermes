@@ -134,8 +134,10 @@ $(function () {
                             let linkMatch = message.match(/([\w\d]+):\/\/([\w\d\.-]+)\.([\w\d]+)\/?([\w\d-@:%_\+.~#?&/=]*)/g);
                             let quoteMatch = message.match(/\"(.+): ((.)+)\"/);
                             let quotecss = "";
+                            let quoteuser = "";
                             if (quoteMatch) {
                                 quotecss = "border-left: 3px  " + user_colors[quoteMatch[1]].color + " solid; background-color: " + user_colors[quoteMatch[1]].color + "50;";
+                                quoteuser = quoteMatch[1].replace(/[ ]/g, "space").replace(/[:]/, "colon");
                             }
 
                             if (linkMatch && quoteMatch) { // Both links and quotes in message
@@ -147,17 +149,17 @@ $(function () {
 
                                 quoteStart = message.search(quoteMatch[0]);
                                 quoteEnd = quoteStart + (quoteMatch[0].length);
-                                let quoteSpan = $("<span>").text(quoteMatch[0].substring(1, quoteMatch[0].length - 1)).attr("class", "quote user-" + quoteMatch[1].replace(/[ ]/g, "space"));
+                                let quoteSpan = $("<span>").text(quoteMatch[0].substring(1, quoteMatch[0].length - 1)).attr("class", "quote user-" + quoteuser);
 
                                 let cssRuleExists = false;
                                 for (var r = 0; r < document.styleSheets[document.styleSheets.length - 1].rules; r++) {
-                                    if (document.styleSheets[document.styleSheets.length - 1].rules[r].selectorText.includes('user-' + quoteMatch[1].replace(/[ ]/g, "space"))) {
+                                    if (document.styleSheets[document.styleSheets.length - 1].rules[r].selectorText.includes('user-' + quoteuser)) {
                                         cssRuleExists = true;
                                         break
                                     }
                                 }
                                 if (!cssRuleExists) {
-                                    document.styleSheets[document.styleSheets.length - 1].addRule(".quote.user-" + quoteMatch[1].replace(/[ ]/g, "space"), quoteMatch);
+                                    document.styleSheets[document.styleSheets.length - 1].addRule(".quote.user-" + quoteuser, quoteMatch);
                                 }
 
                                 if (quoteStart < linkStart) {
@@ -229,17 +231,17 @@ $(function () {
                             }
 
                             else if (quoteMatch) { // Only quote in message
-                                let quoteSpan = $("<span>").text(quoteMatch[0].substring(1, quoteMatch[0].length - 1)).attr("class", "quote user-" + quoteMatch[1].replace(/[ ]/g, "space"));
+                                let quoteSpan = $("<span>").text(quoteMatch[0].substring(1, quoteMatch[0].length - 1)).attr("class", "quote user-" + quoteuser);
                                 //console.log(quoteSpan)
                                 let cssRuleExists = false;
                                 for (let r = 0; r < document.styleSheets[document.styleSheets.length - 1].rules; r++) {
-                                    if (document.styleSheets[document.styleSheets.length - 1].rules[r].selectorText.includes('user-' + quoteMatch[1].replace(/[ ]/g, "space"))) {
+                                    if (document.styleSheets[document.styleSheets.length - 1].rules[r].selectorText.includes('user-' + quoteuser)) {
                                         cssRuleExists = true;
                                         break
                                     }
                                 }
                                 if (!cssRuleExists) {
-                                    document.styleSheets[document.styleSheets.length - 1].addRule(".quote.user-" + quoteMatch[1].replace(/[ ]/g, "space"), quotecss);
+                                    document.styleSheets[document.styleSheets.length - 1].addRule(".quote.user-" + quoteuser, quotecss);
                                 }
                                 quoteStart = message.search(quoteMatch[0]);
                                 quoteEnd = quoteStart + (quoteMatch[0].length);
