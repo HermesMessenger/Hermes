@@ -3,7 +3,7 @@ var notifications_allowed = false;
 
 function sendNotifiaction(user, message, image) {
     if (notifications_allowed && notifications_supported) {
-        if (!!(ifvisible.now())) {
+        if (!(ifvisible.now())) {
             console.log(image);
             new Notification(user, {
                 body: message,
