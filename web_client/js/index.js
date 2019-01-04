@@ -137,7 +137,15 @@ $(function () {
                             let quoteuser = "";
                             if (quoteMatch) {
                                 quotecss = "border-left: 3px  " + user_colors[quoteMatch[1]].color + " solid; background-color: " + user_colors[quoteMatch[1]].color + "50;";
-                                quoteuser = quoteMatch[1].replace(/[ ]/g, "space").replace(/[:]/, "colon");
+                                quoteuser = quoteMatch[1]
+                                        .replace(/[ ]/g, "space")
+                                        .replace(/[:]/g, "colon")
+                                        .replace(/[.]/g, "dot")
+                                        .replace(/[#]/g, "hashtag")
+                                        .replace(/[{]/g, "openkey")
+                                        .replace(/[}]/g, "closekey")
+                                        .replace(/[[]]/g, "openbracket")
+                                        .replace(/[\]]/g, "closebracket");
                             }
 
                             if (linkMatch && quoteMatch) { // Both links and quotes in message
