@@ -3,6 +3,7 @@ const uuid_header = {uuid: getCookie('hermes_uuid')};
 const IMG_WIDTH = 128;
 const IMG_HEIGHT = 128;
 let image_used = undefined;
+let lastTheme = 'light';
 let animate_out = ()=>{};
 
 function loadSettingsJS() {
@@ -48,6 +49,7 @@ function loadSettingsJS() {
                     break;
             }
             startColor();
+            lastTheme = json_reponse.dark?'dark':'light';
             document.getElementById("dark_theme_box").checked = json_reponse.dark;
         });
     }
@@ -87,7 +89,11 @@ function loadSettingsJS() {
         modalContent.style.animationName = "slideOut";
         setTimeout(function(){
             modal.style.display = "None";
-            location.reload();
+            let newTheme = $("#dark_theme_box").is(":checked")?'dark':'light';
+            if(lastTheme != newTheme){
+                lastTheme = newTheme;
+                setTheme(newTheme);
+            }
         },400);
     }
     animate_out = slideSettingsOutReloading;

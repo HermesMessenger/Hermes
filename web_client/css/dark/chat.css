@@ -70,7 +70,9 @@ form button {
 
 #messages li {
     font: 16px Ubuntu Mono, monospace;
-	padding: 5px 10px;
+	padding: 5px 10px 5px 0px;
+    white-space: pre-wrap;
+    height: 26px;
 }
 
 #messages li:nth-child(odd) {
@@ -116,14 +118,9 @@ form button {
 }
 
 .quote {
-	border: 1px #ffffff solid;
-	background: rgb(63, 63, 63);
-	color: #ffffff;
-}
-
-.quote:before {
-	content: "";
-	border: 1px #368 solid;
+    padding: 0px 2px;
+    color: #ffffff;
+    display: inline-block;
 }
 
 a {
@@ -152,7 +149,7 @@ a {
 
 #chat_prof_pic {
     display: inline-block;
-    width: 2%;
-    height: 2%;
-    margin: auto;
+    width: 16px;
+    height: 16px;
+    margin: 0px 5px;
 }

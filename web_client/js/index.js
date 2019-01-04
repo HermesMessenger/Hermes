@@ -133,6 +133,10 @@ $(function () {
 
                             let linkMatch = message.match(/([\w\d]+):\/\/([\w\d\.-]+)\.([\w\d]+)\/?([\w\d-@:%_\+.~#?&/=]*)/g);
                             let quoteMatch = message.match(/\"(.+): ((.)+)\"/);
+                            let quotecss = "";
+                            if (quoteMatch) {
+                                quotecss = "border-left: 3px  " + user_colors[quoteMatch[1]].color + " solid; background-color: " + user_colors[quoteMatch[1]].color + "50;";
+                            }
 
                             if (linkMatch && quoteMatch) { // Both links and quotes in message
 
@@ -153,7 +157,7 @@ $(function () {
                                     }
                                 }
                                 if (!cssRuleExists) {
-                                    document.styleSheets[document.styleSheets.length - 1].addRule(".quote.user-" + quoteMatch[1].replace(/[ ]/g, "space") + ":before", "border: 2px  " + user_colors[quoteMatch[1]].color + " solid;");
+                                    document.styleSheets[document.styleSheets.length - 1].addRule(".quote.user-" + quoteMatch[1].replace(/[ ]/g, "space"), quoteMatch);
                                 }
 
                                 if (quoteStart < linkStart) {
@@ -235,7 +239,7 @@ $(function () {
                                     }
                                 }
                                 if (!cssRuleExists) {
-                                    document.styleSheets[document.styleSheets.length - 1].addRule(".quote.user-" + quoteMatch[1].replace(/[ ]/g, "space") + ":before", "border: 2px solid " + user_colors[quoteMatch[1]].color + ";");
+                                    document.styleSheets[document.styleSheets.length - 1].addRule(".quote.user-" + quoteMatch[1].replace(/[ ]/g, "space"), quotecss);
                                 }
                                 quoteStart = message.search(quoteMatch[0]);
                                 quoteEnd = quoteStart + (quoteMatch[0].length);

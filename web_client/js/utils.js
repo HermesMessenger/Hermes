@@ -21,6 +21,10 @@ function isElectron() {
     return navigator.userAgent.indexOf('Electron') !== -1;
 }
 
+function setTheme(theme){
+    location.assign('/setTheme/'+theme);
+}
+
 function getCookie(cname) { // From W3Schools
     var name = cname + "=";
     var decodedCookie = decodeURIComponent(document.cookie);

@@ -189,6 +189,11 @@ app.get('/setCookie/:uuid/:theme', function (req, res) {
     }).catch(err => res.redirect('/login'));
 });
 
+app.get('/setTheme/:theme', function (req, res) {
+    res.cookie('hermes_style', req.params.theme);
+    res.redirect('/');
+});
+
 app.get('*', function (req, res) {
     res.redirect('/');
 });

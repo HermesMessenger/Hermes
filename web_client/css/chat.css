@@ -38,7 +38,7 @@ form input {
     background: #222;
     color: #FFF;
     border: 0;
-	padding: 18px;
+	padding: 15px;
 	width: 75%;
 }
 
@@ -116,15 +116,9 @@ form button {
 }
 
 .quote {
-	border: 1px #000000 solid;
-	background: #e0e0e0;
+    padding: 1px;
     color: #000000;
     display: inline-block;
-}
-
-.quote:before {
-	content: "";
-	border: 1px #368 solid;
 }
 
 #myBtn {
