@@ -4,6 +4,8 @@ const IMG_WIDTH = 128;
 const IMG_HEIGHT = 128;
 let image_used = undefined;
 let lastTheme = 'light';
+let lastColor = '';
+var changed = false;
 let animate_out = ()=>{};
 
 function loadSettingsJS() {
@@ -37,6 +39,7 @@ function loadSettingsJS() {
             image_used = json_reponse.image;
             document.getElementById("img_element").src = IMG_URL_HEADER+json_reponse.image;
             $("input[type=color]").val(json_reponse.color);
+            lastColor = json_reponse.color;
             switch (json_reponse.notifications) {
                 case 0:
                     $("#notselect").val('always');
@@ -93,6 +96,8 @@ function loadSettingsJS() {
             if(lastTheme != newTheme){
                 lastTheme = newTheme;
                 setTheme(newTheme);
+            }else{
+                if(changed) location.reload();
             }
         },400);
     }
@@ -175,6 +180,7 @@ function saveRegularSettings() {
     loadPictureAsURL((PicURL) => {
         let pic_regex = /data:image\/\w+;base64,(.+)/;
         let picture_b64 = encodeURIComponent(PicURL ? pic_regex.exec(PicURL)[1] : image_used);
+        if(PicURL) changed = true;
         let notifications = 0;
         switch ($("#notselect").val()) {
             case 'always':
@@ -188,6 +194,7 @@ function saveRegularSettings() {
                 break;
         }
         let color = $("input[type=color]").val();
+        if (color!=lastColor) changed = true;
         let clean_color = color.substring(1,color.length);
         let dark_theme = $("#dark_theme_box").is(":checked");
         httpPostAsync("/api/saveSettings/"+clean_color+"/"+notifications+"/"+dark_theme+"/"+picture_b64, uuid_header, ()=>{});
