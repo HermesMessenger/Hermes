@@ -108,6 +108,7 @@ module.exports = function (app, db, bcrypt, utils) {
 
     app.post('/api/logout', function (req, res) {
         db.logoutUser(req.body.uuid);
+        res.sendStatus(200);
     });
 
     app.get('/api/logout', function (req, res) {

@@ -1,5 +1,7 @@
 const IMG_URL_HEADER = "data:image/png;base64,";
 const uuid_header = {uuid: getCookie('hermes_uuid')};
+const IMG_WIDTH = 128;
+const IMG_HEIGHT = 128;
 let image_used = undefined;
 let animate_out = ()=>{};
 
@@ -131,24 +133,31 @@ function loadPictureAsURL(callback) {
 
     reader.onloadend = function () {
         let picURL = reader.result;
-        // TODO: Resize image instead of checking if it's correct
-        let img = new Image();
-        img.onload = function () {
-            if (img.width <= 128 && img.height <= 128) {
-                document.getElementById("img_element").src = picURL;
-                callback(picURL);
-            } else {
-                console.log('Image is too big');
-                callback(undefined); // Calling the callback as if there wasn't an image
-            }
-        };
-        img.src = picURL;
-
+        resizeImage(picURL, IMG_WIDTH, IMG_HEIGHT, (picURL)=>{
+            document.getElementById("img_element").src = picURL;
+            callback(picURL);
+        });
     }
     if (file) {
         reader.readAsDataURL(file); //reads the data as a URL
     } else {
         callback(undefined);
+    }
+}
+
+function resizeImage(URL, width, height, callback){
+    var img = new Image();
+    img.src = URL;
+    img.onload = function () {
+        console.log(img.width, img.height);
+        var canvas = document.createElement("canvas", {id: "resize_canvas"});
+        canvas.width = width;
+        canvas.height = height;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0,0, width, height);
+        ctx.save();
+        let new_url = canvas.toDataURL("image/png");
+        callback(new_url);
     }
 }
 
