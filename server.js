@@ -173,7 +173,10 @@ app.post('/login', function (req, res) {
                 db.loginUser(username).then(user_uuid => {
                     res.cookie('hermes_uuid', user_uuid);
                     res.redirect('/chat');
-                }).catch(err => res.sendFile(html_path + 'LoginPages/IncorrectPassword.html'));
+                }).catch(err => {
+                    //console.log(err);
+                    res.sendFile(html_path + 'LoginPages/IncorrectPassword.html');
+                });
             } else {
                 res.sendFile(html_path + 'LoginPages/IncorrectPassword.html')
             }
