@@ -159,6 +159,36 @@ app.post('/register', function (req, res) {
     };
 });
 
+app.get('/createBot', function (req, res) {
+    res.sendFile(html_path + 'BotPages/CreateBot.html');
+});
+
+app.post('/createBot', function (req, res) {
+    var botname = req.body.botname;
+    var password1 = req.body.password1;
+    var password2 = req.body.password2;
+
+    if (password1 == password2) {
+        db.isntBotAlreadyRegistered(botname).then(result => {
+            if(result){
+                console.log('New bot: ', botname);
+                bcrypt.saveBot(botname, password1);
+                db.loginBot(botname).then(result => {
+                    res.cookie('bot_uuid', result);
+                    res.sendFile(html_path + 'BotPages/BotCreated.html');
+                }).catch(err => {
+                    res.sendFile(html_path + 'BotPages/FailSignup.html');
+                });
+                
+            }else{
+                res.sendFile(html_path + 'BotPages/BotExists.html');
+            }
+        });
+    } else {
+        res.sendFile(html_path + 'BotPages/FailSignup.html');
+    };
+});
+
 app.get('/login', function (req, res) {
     res.sendFile(html_path + 'LoginPages/Regular.html');
 });

@@ -1,4 +1,5 @@
 @import url(https://fonts.googleapis.com/css?family=Ubuntu:300);
+@import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono);
 
 .login-page {
   width: 360px;
@@ -142,6 +143,10 @@
 }
 .container .info span .fa {
   color: #EF3B3A;
+}
+.token {
+  font-family: "Ubuntu Mono", sans-serif;
+  font-size: 1em;
 }
 body {
   background: #8DC26F;
