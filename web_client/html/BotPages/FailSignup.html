@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Create bot</title>
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="shortcut icon" href="/favicon.png" type="image/png">
+    <link rel="icon" href="/favicon.png" type="image/png">
+    <script src='js/jquery.js'></script>
+    <script src="js/utils.js"></script>
+  </head>
+
+  <body>
+    <div class="login-page">
+      <div class="error">
+        <p class="message">Passwords do not match. </p>
+      </div>
+      <div class="form">
+        <form class="login-form">
+          <input type="text" name='botname' id="botname" placeholder="Bot Name" required pattern=".+[Bb]ot" oninvalid="this.setCustomValidity('The bot\'s name must end with \'bot\'.')" oninput="this.setCustomValidity('')">
+          <input type="password" name="password1" id="password1" placeholder="Bot Password"/ required>
+          <input type="password" name="password2" id="password2" placeholder="Repeat Password"/ required>
+          <button type="submit" formaction="/createBot" formmethod="post">Create Bot</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
+

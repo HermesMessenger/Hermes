@@ -7,6 +7,13 @@ CREATE TABLE Hermes.Users (
     PRIMARY KEY(UUID, Username)
 );
 
+CREATE TABLE Hermes.Bots (
+    UUID TIMEUUID,
+    Botname TEXT,
+    PasswordHash TEXT,
+    PRIMARY KEY(UUID, Botname)
+);
+
 CREATE TABLE Hermes.Messages (
     channel TEXT,
     timesent TIMESTAMP,

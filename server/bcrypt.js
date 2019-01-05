@@ -23,6 +23,15 @@ module.exports = class {
         });
     }
 
+    saveBot(botname, password) {
+        let t = this;
+        return new Promise((resolve, reject) => {
+            t.bcrypt.hash(password, SaltRounds).then(hash => {
+                t.db.registerBot(botname, hash).then(() => resolve()).catch(err => reject(err));
+            }).catch(err => reject(err));
+        });
+    }
+
     update(username, new_password) {
         let t = this;
         return new Promise((resolve, reject) => {
