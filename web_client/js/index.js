@@ -147,8 +147,8 @@ $(function () {
                                     .replace(/[#]/g, "hashtag")
                                     .replace(/[{]/g, "openkey")
                                     .replace(/[}]/g, "closekey")
-                                    .replace(/[[]]/g, "openbracket")
-                                    .replace(/[\]]/g, "closebracket");
+                                    .replace(/\[/g, "openbracket")
+                                    .replace(/\]/g, "closebracket");
                             }
 
                             if (linkMatch && quoteMatch) { // Both links and quotes in message
