@@ -57,6 +57,18 @@ function loadSettingsJS() {
         });
     }
 
+    function loadThemeFromSettings(){
+        httpPostAsync("/api/getSettings", uuid_header, (response) => {
+            let json_reponse = JSON.parse(response);
+            let db_theme = json_reponse.dark?'dark':'light';
+            if(getCookie('hermes_style') == ""){
+                setTheme(db_theme);
+            }else if(getCookie('hermes_style') != db_theme){
+                setTheme(db_theme);
+            }
+        });
+    }
+
     startColor();
 
     for (i = 0; i < acc.length; i++) {
@@ -135,6 +147,7 @@ function loadSettingsJS() {
         loadPictureAsURL(()=>{});
     }
 
+    loadThemeFromSettings();
 
 }
 
