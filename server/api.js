@@ -36,6 +36,31 @@ module.exports = function (app, db, bcrypt, utils) {
         });
     });
 
+    app.post('/api/loadmessages/:timestamp', function (req, res) {
+        db.checkLoggedInUser(req.body.uuid).then(ok => {
+            if (ok) {
+                db.getMessagesFrom(new Date(parseInt(req.params.timestamp))).then(result => {
+                    
+                    let data = [];
+                    for (let i = 0; i < result.length; i++) {
+                        let json_data = {};
+                        json_data.username = result[i].username;
+                        json_data.message = result[i].message;
+                        json_data.time = result[i].timesent.getTime();
+                        data.push(json_data);
+                    }
+                    res.json(data);
+                }).catch(err => console.error('ERROR:', err));
+            } else {
+                res.sendStatus(401); // Unauthorized
+
+            }
+        }).catch(err => {
+            console.error('ERROR:', err);
+            res.sendStatus(500); // Internal Server Error
+        });
+    });
+
     app.get('/api/loadmessages', function (req, res) {
         res.sendStatus(401);
     });

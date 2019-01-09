@@ -1,4 +1,4 @@
-POST http://localhost:8080/api/loadmessages/ HTTP/1.1
+POST http://localhost:8080/api/loadmessages/1546679703606 HTTP/1.1
 content-type: application/json
 
 {

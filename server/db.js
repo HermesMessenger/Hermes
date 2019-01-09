@@ -68,6 +68,18 @@ module.exports = class {
         });
     }
 
+    getMessagesFrom(timestamp) {
+        const query = 'SELECT Username, Message, TimeSent FROM Messages WHERE channel=\'general\' and TimeSent>? ORDER BY TimeSent;';
+        return new Promise((resolve, reject) => {
+            let data = [timestamp];
+            this.client.execute(query, data,{ prepare: true }).then(result => {
+                resolve(result.rows);
+            }).catch(err => {
+                reject(err);
+            });
+        });
+    }
+
     registerUser(user, passwordHash) {
         const query = 'INSERT INTO Users (UUID, Username, PasswordHash) values(now(),?,?) IF NOT EXISTS;';
         let data = [user, passwordHash];
