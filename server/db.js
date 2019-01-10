@@ -91,7 +91,7 @@ module.exports = class {
     }
 
     registerBot(bot, passwordHash) {
-        const query = 'INSERT INTO Bots (UUID, Botname, PasswordHash) values(now(),?,?) IF NOT EXISTS;';
+        const query = 'INSERT INTO Users (UUID, Username, PasswordHash) values(now(),?,?) IF NOT EXISTS;';
         let data = [bot, passwordHash];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, { prepare: true }).then(result => {
@@ -145,7 +145,7 @@ module.exports = class {
     }
 
     isntBotAlreadyRegistered(bot) {
-        const query = 'SELECT COUNT (*) as count from Bots where Botname = ? ALLOW FILTERING;';
+        const query = 'SELECT COUNT (*) as count from Users where Username = ? ALLOW FILTERING;';
         let data = [bot];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, { prepare: true }).then(result => {

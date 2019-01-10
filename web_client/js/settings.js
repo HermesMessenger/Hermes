@@ -1,12 +1,14 @@
 const IMG_URL_HEADER = "data:image/png;base64,";
-const uuid_header = {uuid: getCookie('hermes_uuid')};
+const uuid_header = {
+    uuid: getCookie('hermes_uuid')
+};
 const IMG_WIDTH = 128;
 const IMG_HEIGHT = 128;
 let image_used = undefined;
 let lastTheme = 'light';
 let lastColor = '';
 var changed = false;
-let animate_out = ()=>{};
+let animate_out = () => {};
 
 function loadSettingsJS() {
 
@@ -33,11 +35,11 @@ function loadSettingsJS() {
         }
     }
 
-    function loadSettingsFromDB(){
+    function loadSettingsFromDB() {
         httpPostAsync("/api/getSettings", uuid_header, (response) => {
             let json_reponse = JSON.parse(response);
             image_used = json_reponse.image;
-            document.getElementById("img_element").src = IMG_URL_HEADER+json_reponse.image;
+            document.getElementById("img_element").src = IMG_URL_HEADER + json_reponse.image;
             $("input[type=color]").val(json_reponse.color);
             lastColor = json_reponse.color;
             switch (json_reponse.notifications) {
@@ -52,18 +54,18 @@ function loadSettingsJS() {
                     break;
             }
             startColor();
-            lastTheme = json_reponse.dark?'dark':'light';
+            lastTheme = json_reponse.dark ? 'dark' : 'light';
             document.getElementById("dark_theme_box").checked = json_reponse.dark;
         });
     }
 
-    function loadThemeFromSettings(){
+    function loadThemeFromSettings() {
         httpPostAsync("/api/getSettings", uuid_header, (response) => {
             let json_reponse = JSON.parse(response);
-            let db_theme = json_reponse.dark?'dark':'light';
-            if(getCookie('hermes_style') == ""){
+            let db_theme = json_reponse.dark ? 'dark' : 'light';
+            if (getCookie('hermes_style') == "") {
                 setTheme(db_theme);
-            }else if(getCookie('hermes_style') != db_theme){
+            } else if (getCookie('hermes_style') != db_theme) {
                 setTheme(db_theme);
             }
         });
@@ -88,30 +90,30 @@ function loadSettingsJS() {
         modal.style.display = "block";
         modal.style.animationName = "fadeIn";
         modalContent.style.animationName = "slideIn";
-        
+
     }
 
     function slideSettingsOut() {
         modal.style.animationName = "fadeOut";
         modalContent.style.animationName = "slideOut";
-        setTimeout(function(){
+        setTimeout(function () {
             modal.style.display = "None";
-        },400);
+        }, 400);
     }
 
     function slideSettingsOutReloading() {
         modal.style.animationName = "fadeOut";
         modalContent.style.animationName = "slideOut";
-        setTimeout(function(){
+        setTimeout(function () {
             modal.style.display = "None";
-            let newTheme = $("#dark_theme_box").is(":checked")?'dark':'light';
-            if(lastTheme != newTheme){
+            let newTheme = $("#dark_theme_box").is(":checked") ? 'dark' : 'light';
+            if (lastTheme != newTheme) {
                 lastTheme = newTheme;
                 setTheme(newTheme);
-            }else{
-                if(changed) location.reload();
+            } else {
+                if (changed) location.reload();
             }
-        },400);
+        }, 400);
     }
     animate_out = slideSettingsOutReloading;
 
@@ -143,8 +145,8 @@ function loadSettingsJS() {
         }
     }
 
-    document.querySelector('input[type=file]').onchange = function(){
-        loadPictureAsURL(()=>{});
+    document.querySelector('input[type=file]').onchange = function () {
+        loadPictureAsURL(() => {});
     }
 
     loadThemeFromSettings();
@@ -157,7 +159,7 @@ function loadPictureAsURL(callback) {
 
     reader.onloadend = function () {
         let picURL = reader.result;
-        resizeImage(picURL, IMG_WIDTH, IMG_HEIGHT, (picURL)=>{
+        resizeImage(picURL, IMG_WIDTH, IMG_HEIGHT, (picURL) => {
             document.getElementById("img_element").src = picURL;
             callback(picURL);
         });
@@ -169,16 +171,18 @@ function loadPictureAsURL(callback) {
     }
 }
 
-function resizeImage(URL, width, height, callback){
+function resizeImage(URL, width, height, callback) {
     var img = new Image();
     img.src = URL;
     img.onload = function () {
         console.log(img.width, img.height);
-        var canvas = document.createElement("canvas", {id: "resize_canvas"});
+        var canvas = document.createElement("canvas", {
+            id: "resize_canvas"
+        });
         canvas.width = width;
         canvas.height = height;
         var ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0,0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
         ctx.save();
         let new_url = canvas.toDataURL("image/png");
         callback(new_url);
@@ -193,7 +197,7 @@ function saveRegularSettings() {
     loadPictureAsURL((PicURL) => {
         let pic_regex = /data:image\/\w+;base64,(.+)/;
         let picture_b64 = encodeURIComponent(PicURL ? pic_regex.exec(PicURL)[1] : image_used);
-        if(PicURL) changed = true;
+        if (PicURL) changed = true;
         let notifications = 0;
         switch ($("#notselect").val()) {
             case 'always':
@@ -207,13 +211,17 @@ function saveRegularSettings() {
                 break;
         }
         let color = $("input[type=color]").val();
-        if (color!=lastColor) changed = true;
-        let clean_color = color.substring(1,color.length);
+        if (color != lastColor) changed = true;
+        let clean_color = color.substring(1);
         let dark_theme = $("#dark_theme_box").is(":checked");
-        httpPostAsync("/api/saveSettings/"+clean_color+"/"+notifications+"/"+dark_theme+"/"+picture_b64, uuid_header, ()=>{});
-        if ($("#old").val() != '') {
-            updatePassword();
-        }
+        httpPostAsync("/api/saveSettings", {
+            uuid: uuid_header.uuid, 
+            color: clean_color, 
+            notifications: notifications,
+            dark: dark_theme, 
+            image_b64: picture_b64
+        });
+        if ($("#old").val() != '') updatePassword();
     });
 }
 

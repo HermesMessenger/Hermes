@@ -24,7 +24,7 @@ module.exports = function (app, db, bcrypt, utils) {
                         if (i != result.length - 1)
                             data += NULLCHAR;
                     }
-                    
+
                     res.send(data);
                 }).catch(err => console.error('ERROR:', err));
             } else {
@@ -203,13 +203,13 @@ module.exports = function (app, db, bcrypt, utils) {
         };
     });
 
-    app.post('/api/saveSettings/:color/:notifications/:dark/:image_b64', function (req, res) {
-        let color = req.params.color;
-        let dark = req.params.dark=='true';
-        let notifications = req.params.notifications;
-        let image_b64 = decodeURIComponent(req.params.image_b64);
-
+    app.post('/api/saveSettings', function (req, res) {
+        let color = req.body.color;
+        let dark = req.body.dark == 'true';
+        let notifications = req.body.notifications;
+        let image_b64 = decodeURIComponent(req.body.image_b64);
         let uuid = req.body.uuid;
+
         db.getUserForUUID(uuid).then(user => {
             console.log('Saving settings for', user + ':', '#' + color, parseInt(notifications), dark);
             db.saveSettingWithUsername(user, color, parseInt(notifications), image_b64, dark).then(() => res.sendStatus(200)).catch(err => {
@@ -235,7 +235,10 @@ module.exports = function (app, db, bcrypt, utils) {
             let color = data[0];
             let image_b64 = data[2];
             console.log(decodeURIComponent(req.params.username), 'got its chat settings:', '#' + color);
-            res.status(200).send({color: '#' + color,image: image_b64});
+            res.status(200).send({
+                color: '#' + color,
+                image: image_b64
+            });
         }).catch(err => {
             if (err == FIELD_REQUIRED_ERROR) {
                 res.sendStatus(400); // Bad request
@@ -257,7 +260,12 @@ module.exports = function (app, db, bcrypt, utils) {
                 let image_b64 = data[2];
                 let dark = data[3];
                 console.log(user, 'got its settings:', '#' + color, notifications, dark);
-                res.status(200).send({color: '#' + color, notifications: notifications,image: image_b64,dark: dark});
+                res.status(200).send({
+                    color: '#' + color,
+                    notifications: notifications,
+                    image: image_b64,
+                    dark: dark
+                });
             }).catch(err => {
                 if (err == FIELD_REQUIRED_ERROR) {
                     res.sendStatus(400); // Bad request
