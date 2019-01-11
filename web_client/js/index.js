@@ -154,7 +154,11 @@ $(function () {
                                 .replace(/[{]/g, "openkey")
                                 .replace(/[}]/g, "closekey")
                                 .replace(/\[/g, "openbracket")
-                                .replace(/\]/g, "closebracket");
+                                .replace(/\]/g, "closebracket")
+                                .replace(/\$/g, "dollarsign")
+                                .replace(/[@]/g, "at")
+                                .replace(/[;]/g, "semicolon")
+                                .replace(/[!]/g, "exclamation");
                         }
 
                         if (linkMatch && quoteMatch) { // Both links and quotes in message
