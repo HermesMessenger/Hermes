@@ -123,7 +123,7 @@ $(function () {
                         let day = time.getDate() + '/' + (time.getMonth() + 1) + '/' + time.getFullYear();
                         let hour = padNumber(time.getHours()) + ':' + padNumber(time.getMinutes()) + ':' + padNumber(time.getSeconds());
                         let prev_day = prev_time.getDate() + '/' + (prev_time.getMonth() + 1) + '/' + prev_time.getFullYear();
-                        console.log(day, prev_day);
+                        
                         if (day != prev_day) {
                             let date_message = $('<li>');
                             date_message.attr("class", "date");
