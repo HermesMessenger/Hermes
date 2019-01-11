@@ -13,6 +13,10 @@ function sendNotifiaction(user, message, image) {
     }
 }
 
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
 if (navigator.userAgent.indexOf('Electron') !== -1) { // App is running through Electron
     window.sendUUID(getCookie('hermes_uuid'));
 }
@@ -284,7 +288,8 @@ $(function () {
                             if (!cssRuleExists) {
                                 document.styleSheets[document.styleSheets.length - 1].addRule(".quote.user-" + quoteuser, quotecss);
                             }
-                            quoteStart = message.search(quoteMatch[0]);
+                            
+                            quoteStart = message.search(escapeRegExp(quoteMatch[0]));
                             quoteEnd = quoteStart + (quoteMatch[0].length);
                             new_message_body.append($("<span>").text(message.substring(0, quoteStart)));
                             new_message_body.append(quoteSpan);
