@@ -19,7 +19,7 @@
           <p class="message">Not registered? <a href="#">Create an account</a>.</p>
         </form>
         <form class="register-form">
-          <input type="text" name='username' id="username" placeholder="User Name"/ required>
+          <input type="text" name='username' id="username" placeholder="User Name"/ required pattern="^(?!.*[Bb]ot$)[^\\^$|?*+(){}\[\]]+$" oninvalid="this.setCustomValidity('The username mustn\'t end with \'bot\' or have one of these: \\ ^ $ | ? * + ( ) { } [ ]')">
           <input type="password" name="password1" id="password1" placeholder="Password"/ required>
           <input type="password" name="password2" id="password2" placeholder="Repeat Password"/ required>
           <button type="submit" formaction="/register" formmethod="post">Create Account</button>
