@@ -47,10 +47,12 @@ $(function () {
         let line_length = 150;
         $('#message_send_form').submit(function () {
             msg = $('#m').val();
-            var header = uuid_header;
-            header['message'] = msg;
-            httpPostAsync('/api/sendmessage/', header, function (res) { });
-            $('#m').val('');
+            if(msg!=''){
+                var header = uuid_header;
+                header['message'] = msg;
+                httpPostAsync('/api/sendmessage/', header, function (res) { });
+                $('#m').val('');
+            }
             return false;
         });
 
