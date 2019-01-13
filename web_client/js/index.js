@@ -23,7 +23,6 @@ if (navigator.userAgent.indexOf('Electron') !== -1) { // App is running through 
 
 if (getCookie('hermes_style') == 'dark') {
     $('#hermes_style').attr('href', 'css/dark/chat.css');
-    $('#settings_style').attr('href', 'css/dark/settings.css');
 }
 
 $(function () {

@@ -70,30 +70,6 @@ app.get('/js/:file', function (req, res) {
     });
 });
 
-app.get('/css/settings.css', function (req, res) {
-    if(req.headers['user-agent'].indexOf('Electron') !== -1){
-        res.sendFile(css_path + 'settingsCSS/electron.css');
-    }else{
-        res.sendFile(css_path + 'settingsCSS/regular.css');
-    }
-});
-
-app.get('/css/settings_common.css', function (req, res) {
-    res.sendFile(css_path + 'settingsCSS/common.css');
-});
-
-app.get('/css/dark/settings.css', function (req, res) {
-    if(req.headers['user-agent'].indexOf('Electron') !== -1){
-        res.sendFile(css_path + 'dark/settingsCSS/electron.css');
-    }else{
-        res.sendFile(css_path + 'dark/settingsCSS/regular.css');
-    }
-});
-
-app.get('/css/dark/settings_common.css', function (req, res) {
-    res.sendFile(css_path + 'dark/settingsCSS/common.css');
-});
-
 app.get('/css/:file', function (req, res) {
     fileExists(css_path + req.params.file, function (err, exists) {
         if (exists) {
