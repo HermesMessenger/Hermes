@@ -205,7 +205,7 @@ module.exports = function (app, db, bcrypt, utils) {
 
     app.post('/api/saveSettings', function (req, res) {
         let color = req.body.color;
-        let dark = req.body.dark == 'true';
+        let dark = req.body.dark;
         let notifications = req.body.notifications;
         let image_b64 = decodeURIComponent(req.body.image_b64);
         let uuid = req.body.uuid;

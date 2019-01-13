@@ -220,7 +220,7 @@ function saveRegularSettings() {
             notifications: notifications,
             dark: dark_theme, 
             image_b64: picture_b64
-        });
+        }, ()=>{});
         if ($("#old").val() != '') updatePassword();
     });
 }
