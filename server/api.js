@@ -139,7 +139,7 @@ module.exports = function (app, db, bcrypt, utils) {
                         console.log('New user: ', username);
                         bcrypt.save(username, password1);
                         db.loginUser(username).then(uuid => {
-                            res.sendStatus(200).send(uuid)
+                            res.status(200).send(uuid)
                         }).catch(err => res.sendStatus(500)) // Server Error
                     } else res.sendStatus(409) // Conflict
                 }).catch(err => res.sendStatus(500)) // Server Error
