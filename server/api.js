@@ -127,6 +127,27 @@ module.exports = function (app, db, bcrypt, utils) {
         }
     });
 
+    app.post('/api/register', function (req, res) {
+        var username = req.body.username;
+        var password1 = req.body.password1;
+        var password2 = req.body.password2;
+
+        if (username && password1 && password2) {
+            if (password1 == password2) {
+                db.isntAlreadyRegistered(username).then(result => {
+                    if(result){
+                        console.log('New user: ', username);
+                        bcrypt.save(username, password1);
+                        db.loginUser(username).then(uuid => {
+                            res.status(200).send(uuid)
+                        }).catch(err => res.sendStatus(500)) // Server Error
+                    } else res.sendStatus(409) // Conflict
+                }).catch(err => res.sendStatus(500)) // Server Error
+            } else res.sendStatus(400);    
+        } else res.sendStatus(400);    
+    });
+
+
     app.get('/api/login', function (req, res) {
         res.sendStatus(405); // Bad Method
     });
