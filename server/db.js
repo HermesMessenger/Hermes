@@ -56,6 +56,33 @@ module.exports = class {
             });
         });
     }
+	// TODO: Make multiple channels (for now 'general' is always used)
+    deleteMessage(timestamp) {
+
+        const query = 'DELETE FROM Messages WHERE channel=? and TimeSent=?;';
+        let data = ['general', timestamp];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, { prepare: true }).then(result => {
+                resolve();
+            }).catch(err => {
+                reject(err);
+            });
+        });
+    }
+	
+	// TODO: Make multiple channels (for now 'general' is always used)
+    editMessage(message, newmessage, timesent) {
+
+        const query = 'UPDATE Messages SET message=? WHERE channel=? and TimeSent=? IF message=?;';
+        let data = [newmessage, 'general', timesent, message];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, { prepare: true }).then(result => {
+                resolve();
+            }).catch(err => {
+                reject(err);
+            });
+        });
+    }
 
     getMessages() {
         const query = 'SELECT Username, Message, TimeSent FROM Messages WHERE channel=\'general\' ORDER BY TimeSent;';

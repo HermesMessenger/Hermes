@@ -78,6 +78,34 @@ module.exports = function (app, db, bcrypt, utils) {
     app.get('/api/sendmessage/', function (req, res) {
         res.sendStatus(401);
     });
+	
+	app.post('/api/deletemessage/', function (req, res) {
+        db.getUserForUUID(req.body.uuid).then(user => {
+            db.deleteMessage(req.body.timestamp);
+            res.sendStatus(200);
+        }).catch(err => {
+            console.error('ERROR:', err);
+            res.sendStatus(500); // Internal Server Error
+        });
+    });
+
+    app.get('/api/deletemessage/', function (req, res) {
+        res.sendStatus(401);
+    });
+	
+	app.post('/api/editmessage/', function (req, res) {
+        db.getUserForUUID(req.body.uuid).then(user => {
+            db.editMessage(req.body.message, req.body.newmessage, req.body.timestamp);
+            res.sendStatus(200);
+        }).catch(err => {
+            console.error('ERROR:', err);
+            res.sendStatus(500); // Internal Server Error
+        });
+    });
+
+    app.get('/api/editmessage/', function (req, res) {
+        res.sendStatus(401);
+    });
 
     app.post('/api/getusername', function (req, res) {
         db.getUserForUUID(req.body.uuid).then(user => {
