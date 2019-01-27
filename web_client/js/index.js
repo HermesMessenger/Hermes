@@ -57,7 +57,8 @@ $(function () {
 
         $("#quote").click(function () {
             $("li").each(function () {
-                if (($("#rightclick").position().top > $(this).position().top && $("#rightclick").position().top < $(this).position().top + $(this).height()) && ($("#rightclick").position().left > $(this).position().left && $("#rightclick").position().left < $(this).position().left + $(this).width())) {
+				let paddings=$(this).css('padding').split('px ');
+                if (($("#rightclick").position().top > $(this).position().top - parseInt(paddings[0]) && $("#rightclick").position().top < $(this).position().top + $(this).height() + parseInt(paddings[2])) && ($("#rightclick").position().left > $(this).position().left - parseInt(paddings[1]) && $("#rightclick").position().left < $(this).position().left + $(this).width() + parseInt(paddings[3]))) {
                     if ($(this).find(".quote").length >= 1) { //Testeo si hay quote en el mensaje
                         $("#m").val("\"" +
                             $(this).find("b").text() +
@@ -75,9 +76,45 @@ $(function () {
                             $("#m").val()
                         );
                     }
+					return;
                 }
             })
         });
+		
+		$("#delete").click(function () {
+            $("li").each(function () {
+                let paddings=$(this).css('padding').split('px ');
+                if (($("#rightclick").position().top > $(this).position().top - parseInt(paddings[0]) && $("#rightclick").position().top < $(this).position().top + $(this).height() + parseInt(paddings[2])) && ($("#rightclick").position().left > $(this).position().left - parseInt(paddings[1]) && $("#rightclick").position().left < $(this).position().left + $(this).width() + parseInt(paddings[3]))) {
+					var header = uuid_header;
+					header['timestamp'] = parseInt($(this).attr('data-timestamp'));
+					httpPostAsync('/api/deletemessage/', header, function (res) { });
+                    return;
+                }
+            })
+        });
+		var edit_header = uuid_header;
+		edit_header['message'] = $(this).find('b').next().text();
+		$("#edit").click(function () {
+            $("li").each(function () {
+                let paddings=$(this).css('padding').split('px ');
+                if (($("#rightclick").position().top > $(this).position().top - parseInt(paddings[0]) && $("#rightclick").position().top < $(this).position().top + $(this).height() + parseInt(paddings[2])) && ($("#rightclick").position().left > $(this).position().left - parseInt(paddings[1]) && $("#rightclick").position().left < $(this).position().left + $(this).width() + parseInt(paddings[3]))) {
+					edit_header['message'] = $(this).find('b').next().text();
+					edit_header['timestamp'] = parseInt($(this).attr('data-timestamp'));
+					//Setting inputs and other stuff to not overwrite the message when re-loading the messages
+					editing_message_timestamp = parseInt($(this).attr('data-timestamp'));
+					prev_html=$('#messages').html();
+					let input=$('<input>').val(edit_header['message']);
+					input.attr('data-timestamp', parseInt($(this).attr('data-timestamp')));
+					input.attr('id', 'editing');
+					$(this).find('b').parent().append(input);
+					$(this).find('b').next().remove();
+					$(this).find('b').next().focus();
+					editing_message_val=$(this).find('b').next().val();
+					//httpPostAsync('/api/editmessage/', header, function (res) { });
+                }
+            })
+        });
+		
         var user_colors = {};
 
         if (!("Notification" in window)) {
@@ -95,26 +132,31 @@ $(function () {
         window.sessionStorage.clear();
 
         var last_message_timestamp = 0;
+		var last_message_timestamp_notified = 0;
+		var editing_message_timestamp = 0;
+		var editing_message_val = '';
         let prev_json = {};
         let first_load = true;
-        window.setInterval(function () {
-            $("#messages").find("li:not(.date)").each(function () {
-                $(this).unbind("contextmenu"); // Unbind to prevent multiple callbacks
-                $(this).bind("contextmenu", function (event) { // Capture Right Click Event
-                    $("#rightclick").hide();
-                    event.preventDefault();
-                    $("#rightclick").show(100).css({ // Show #rightclick at cursor position
-                        top: event.pageY + "px",
-                        left: event.pageX + "px"
-                    })
-                });
-            })
+		let prev_html='';
+		//let focused_element=null;
+		//let focused_element_val='';
+        let interval=window.setInterval(function () {
+			last_message_timestamp = 0;
+			prev_json={};
+			prev_html=$('#messages').html();
+			//focused_element=$(':focus');
+			//focused_element_val=$(':focus').val();
             httpPostAsync('/api/loadmessages/' + last_message_timestamp, uuid_header, function (res) {
                 if (res !== '' || res !== '[]') {
+					$('#messages').html('');
                     let messages = JSON.parse(res);
                     
                     for (let i = 0; i < messages.length; i++) {
                         let message_json = messages[i];
+						/*if($(document).find(focused_element)){
+							$(focused_element).focus();
+							$(focused_element).val(focused_element_val);
+						}*/
 
                         let username = message_json.username;
                         let message = message_json.message;
@@ -131,6 +173,12 @@ $(function () {
                             date_message.append(day);
                             $("#messages").append(date_message);
                         }
+						if(message_json.time==editing_message_timestamp){
+							$('#messages').append($(prev_html).find('b+input[data-timestamp="'+editing_message_timestamp+'"]').parent().parent()[0].outerHTML);
+							$('#messages').find('b+input[data-timestamp="'+editing_message_timestamp+'"]').focus();
+							$('#messages').find('b+input[data-timestamp="'+editing_message_timestamp+'"]').val(editing_message_val);
+							continue;
+						}
                         if (!Object.keys(user_colors).includes(username)) {
                             let response = httpGetSync("/api/getSettings/" + encodeURIComponent(username));
                             user_colors[username] = JSON.parse(response);
@@ -305,14 +353,17 @@ $(function () {
                             new_message_body.append($("<span>").text(message)); // Span is there to get the text for the quoting system
                         };
 
-                        if (username != getCookie('hermes_username') && !first_load) {
+                        if (username != getCookie('hermes_username') && !first_load && last_message_timestamp_notified<last_message_timestamp) {
                             sendNotifiaction("New message from " + username, username + ": " + message, 'data:image/png;base64,' + user_colors[username].image);
+							last_message_timestamp_notified=last_message_timestamp;
                         }
 
                         new_message.append(new_message_body);
                         let time_el = $("<span class='time'>").text(hour);
                         new_message.append(time_el);
-
+						
+						new_message.attr('data-timestamp', message_json.time);
+						
                         $('#messages').append(new_message);
                         new_message_body.width(window.innerWidth - 45 - time_el.width());
                         if (new_message_body.height() > 16) {
@@ -329,6 +380,31 @@ $(function () {
 
             });
         }, 500);
+		console.log(interval)
+		
+		window.setInterval(function(){
+			$("#messages").find("li:not(.date)").each(function () {
+                $(this).unbind("contextmenu"); // Unbind to prevent multiple callbacks
+                $(this).bind("contextmenu", function (event) { // Capture Right Click Event
+                    $("#rightclick").hide();
+                    event.preventDefault();
+                    $("#rightclick").show(100).css({ // Show #rightclick at cursor position
+                        top: event.pageY + "px",
+                        left: event.pageX + "px"
+                    })
+                });
+            })
+			
+			editing_message_val=$('#editing').val();
+			$('#editing').keypress(function(e){
+				if(e.keyCode==13){
+					edit_header['newmessage']=$(this).val();
+					httpPostAsync('/api/editmessage/', edit_header, function (res) { });
+					editing_message_timestamp=0;
+					editing_message_val='';
+				}
+			})
+		},100)
     });
 });
 
