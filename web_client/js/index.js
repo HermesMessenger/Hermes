@@ -4,7 +4,6 @@ var notifications_allowed = false;
 function sendNotifiaction(user, message, image) {
     if (notifications_allowed && notifications_supported) {
         if (!(ifvisible.now())) {
-            console.log(image);
             new Notification(user, {
                 body: message,
                 icon: image
@@ -41,8 +40,6 @@ $(function () {
     httpPostAsync('/api/getusername', uuid_header, function (res) {
         username = res;
         $('#user').append($('<b>').text(username + ':'));
-        const NULLCHAR = String.fromCharCode(0x0);
-        const SEPCHAR = String.fromCharCode(0x1);
         let line_length = 150;
         $('#message_send_form').submit(function () {
             msg = $('#m').val();
@@ -99,21 +96,25 @@ $(function () {
             $("li").each(function () {
                 let paddings = $(this).css('padding').split('px ');
                 if (($("#rightclick").position().top > $(this).position().top - parseInt(paddings[0]) && $("#rightclick").position().top < $(this).position().top + $(this).height() + parseInt(paddings[2])) && ($("#rightclick").position().left > $(this).position().left - parseInt(paddings[1]) && $("#rightclick").position().left < $(this).position().left + $(this).width() + parseInt(paddings[3]))) {
-                    edit_header['message'] = $(this).find('b').next().text();
-                    edit_header['timestamp'] = parseInt($(this).attr('data-timestamp'));
-                    edit_header['message_uuid'] = $(this).attr('message-uuid');
-                    is_editing = true;
-                    //Setting inputs and other stuff to not overwrite the message when re-loading the messages
-                    //editing_message_timestamp = parseInt($(this).attr('data-timestamp'));
-                    prev_html = $('#messages').html();
-                    let input = $('<input>').val(edit_header['message']);
-                    input.attr('data-timestamp', parseInt($(this).attr('data-timestamp')));
-                    input.attr('id', 'editing');
-                    $(this).find('b').parent().append(input);
-                    $(this).find('b').next().remove();
-                    $(this).find('b').next().focus();
-                    editing_message_val = $(this).find('b').next().val();
-                    //httpPostAsync('/api/editmessage/', header, function (res) { });
+                    let sender = $(this).find('b').text();
+                    sender = sender.substr(0, sender.length - 2);
+                    if (!is_editing && username == sender) {
+                        edit_header['message'] = $(this).find('b').next().text();
+                        edit_header['timestamp'] = parseInt($(this).attr('data-timestamp'));
+                        edit_header['message_uuid'] = $(this).attr('message-uuid');
+                        is_editing = true;
+                        //Setting inputs and other stuff to not overwrite the message when re-loading the messages
+                        //editing_message_timestamp = parseInt($(this).attr('data-timestamp'));
+                        prev_html = $('#messages').html();
+                        let input = $('<input>').val(edit_header['message']);
+                        input.attr('data-timestamp', parseInt($(this).attr('data-timestamp')));
+                        input.attr('id', 'editing');
+                        $(this).find('b').parent().append(input);
+                        $(this).find('b').next().remove();
+                        $(this).find('b').next().focus();
+                        editing_message_val = $(this).find('b').next().val();
+                        //httpPostAsync('/api/editmessage/', header, function (res) { });
+                    }
                 }
             })
         });
@@ -149,7 +150,6 @@ $(function () {
             prev_html = $('#messages').html();
             //focused_element=$(':focus');
             //focused_element_val=$(':focus').val();
-            console.log(last_message_uuid);
             httpPostAsync('/api/loadmessages/' + last_message_uuid, uuid_header, function (res) {
                 if (res !== '' || res !== '[]') {
                     //$('#messages').html('');
@@ -172,7 +172,7 @@ $(function () {
                         let message = message_json.message;
                         last_message_timestamp = message_json.time;
                         last_message_uuid = message_json.uuid;
-                        
+
 
                         let time = new Date(message_json.time);
                         let prev_time = new Date(prev_json.time);
@@ -342,7 +342,6 @@ $(function () {
 
                         else if (quoteMatch) { // Only quote in message
                             let quoteSpan = $("<span>").text(quoteMatch[0].substring(1, quoteMatch[0].length - 1)).attr("class", "quote user-" + quoteuser);
-                            //console.log(quoteSpan)
                             let cssRuleExists = false;
                             for (let r = 0; r < document.styleSheets[document.styleSheets.length - 1].rules; r++) {
                                 if (document.styleSheets[document.styleSheets.length - 1].rules[r].selectorText.includes('user-' + quoteuser)) {
@@ -376,12 +375,11 @@ $(function () {
 
                         new_message.attr('data-timestamp', message_json.time);
 
-                        
-                        if(message_json.time_uuid){ // It's an edited message
-                            console.log($('li#message-' + message_json.uuid).html(), new_message);
+
+                        if (message_json.time_uuid) { // It's an edited message
                             $('li#message-' + message_json.uuid).html(new_message.html());
                             last_message_uuid = message_json.time_uuid;
-                        }else{ // It isn't
+                        } else { // It isn't
                             $('#messages').append(new_message);
                         }
                         new_message_body.width(window.innerWidth - 45 - time_el.width());

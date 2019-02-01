@@ -95,6 +95,22 @@ module.exports = class {
         });
     }
 
+    getMessageSender(message_uuid) {
+        const query = 'SELECT Username FROM Messages WHERE channel=\'general\' AND UUID=?;';
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, [message_uuid], { prepare: true }).then(result => {
+                let res = result.first();
+                if(res){
+                    resolve(res.username);
+                }else{
+                    reject(new Error('Message not found'));
+                }
+            }).catch(err => {
+                reject(err);
+            });
+        });
+    }
+
     getMessagesFrom(uuid) {
         const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=\'general\' and UUID>? ORDER BY UUID;';
         return new Promise((resolve, reject) => {

@@ -107,14 +107,19 @@ module.exports = function (app, db, bcrypt, utils) {
     });
 	
 	app.post('/api/deletemessage/', function (req, res) {
-        db.checkLoggedInUser(req.body.uuid).then(ok => {
-            if(ok){
-                db.deleteMessage(req.body.message_uuid);
-                deleted_messages.push({uuid: req.body.message_uuid, del_time: new Date().getTime(), time_uuid: new TimeUUID()});
-                res.sendStatus(200);
-            }else{
+        db.getUserForUUID(req.body.uuid).then(user => {
+            db.getMessageSender(req.body.message_uuid).then(sender => {
+                if(user == sender){
+                    db.deleteMessage(req.body.message_uuid);
+                    deleted_messages.push({uuid: req.body.message_uuid, del_time: new Date().getTime(), time_uuid: new TimeUUID()});
+                    res.sendStatus(200);
+                }else{
+                    res.sendStatus(500); // Internal Server Error
+                }
+            }).catch(err => {
+                console.error('ERROR:', err);
                 res.sendStatus(500); // Internal Server Error
-            }
+            });
         }).catch(err => {
             console.error('ERROR:', err);
             res.sendStatus(500); // Internal Server Error
@@ -127,16 +132,25 @@ module.exports = function (app, db, bcrypt, utils) {
 	
 	app.post('/api/editmessage/', function (req, res) {
         db.getUserForUUID(req.body.uuid).then((user) => {
-            db.editMessage(req.body.message_uuid, req.body.newmessage);
-            edited_messages.push({
-                uuid: req.body.message_uuid, 
-                message: req.body.newmessage, 
-                edit_time: new Date().getTime(), 
-                time_uuid: new TimeUUID(),
-                username: user,
-                time: new TimeUUID(req.body.message_uuid).getDate().getTime()
+            db.getMessageSender(req.body.message_uuid).then(sender => {
+                if(user == sender){
+                    db.editMessage(req.body.message_uuid, req.body.newmessage);
+                    edited_messages.push({
+                        uuid: req.body.message_uuid, 
+                        message: req.body.newmessage, 
+                        edit_time: new Date().getTime(), 
+                        time_uuid: new TimeUUID(),
+                        username: user,
+                        time: new TimeUUID(req.body.message_uuid).getDate().getTime()
+                    });
+                    res.sendStatus(200);
+                }else{
+                    res.sendStatus(500); // Internal Server Error
+                }
+            }).catch(err => {
+                console.error('ERROR:', err);
+                res.sendStatus(500); // Internal Server Error
             });
-            res.sendStatus(200);
         }).catch(err => {
             console.error('ERROR:', err);
             res.sendStatus(500); // Internal Server Error
