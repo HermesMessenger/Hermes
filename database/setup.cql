@@ -8,11 +8,11 @@ CREATE TABLE Hermes.Users (
 );
 
 CREATE TABLE Hermes.Messages (
+    UUID TIMEUUID,
     channel TEXT,
-    timesent TIMESTAMP,
     message TEXT,
     username TEXT,
-    PRIMARY KEY(channel, timesent)
+    PRIMARY KEY(channel, UUID)
 );
 
 CREATE TABLE Hermes.Sessions (

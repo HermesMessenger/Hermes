@@ -10,6 +10,11 @@ TOKEN_INVALID_ERROR.code = 10003;
 const NULLCHAR = String.fromCharCode(0x0);
 const SEPCHAR = String.fromCharCode(0x1);
 
+const TimeUUID = require('cassandra-driver').types.TimeUuid;
+
+let deleted_messages = []
+let edited_messages = []
+
 module.exports = function (app, db, bcrypt, utils) {
 
     app.post('/api/loadmessages', function (req, res) {
@@ -18,6 +23,7 @@ module.exports = function (app, db, bcrypt, utils) {
                 db.getMessages().then(result => {
                     let data = '';
                     for (let i = 0; i < result.length; i++) {
+                        data += result[i].uuid + SEPCHAR;
                         data += result[i].username + SEPCHAR;
                         data += result[i].message + SEPCHAR;
                         data += result[i].timesent.getTime();
@@ -36,20 +42,41 @@ module.exports = function (app, db, bcrypt, utils) {
         });
     });
 
-    app.post('/api/loadmessages/:timestamp', function (req, res) {
+    app.post('/api/loadmessages/:message_uuid', function (req, res) {
         db.checkLoggedInUser(req.body.uuid).then(ok => {
             if (ok) {
-                db.getMessagesFrom(new Date(parseInt(req.params.timestamp))).then(result => {
+                db.getMessagesFrom(req.params.message_uuid).then(result => {
                     
-                    let data = [];
+                    let newm = [];
                     for (let i = 0; i < result.length; i++) {
                         let json_data = {};
+                        json_data.uuid = result[i].uuid;
                         json_data.username = result[i].username;
                         json_data.message = result[i].message;
                         json_data.time = result[i].timesent.getTime();
-                        data.push(json_data);
+                        newm.push(json_data);
                     }
-                    res.json(data);
+                    let from_date = TimeUUID.fromString(req.params.message_uuid).getDate().getTime();
+                    let delm = [];
+                    deleted_messages.forEach((message)=>{
+                        if(message.del_time>from_date){
+                            delm.push({uuid: message.uuid, time_uuid: message.time_uuid});
+                        }
+                    });
+
+                    let editm = [];
+                    edited_messages.forEach((message)=>{
+                        if(message.edit_time>from_date){
+                            newm.push({
+                                uuid: message.uuid,
+                                message: message.message,
+                                time_uuid: message.time_uuid,
+                                time: message.time,
+                                username: message.username,
+                            });
+                        }
+                    });
+                    res.json({newmessages: newm, deletedmessages: delm, editedmessages: editm});
                 }).catch(err => console.error('ERROR:', err));
             } else {
                 res.sendStatus(401); // Unauthorized
@@ -80,9 +107,14 @@ module.exports = function (app, db, bcrypt, utils) {
     });
 	
 	app.post('/api/deletemessage/', function (req, res) {
-        db.getUserForUUID(req.body.uuid).then(user => {
-            db.deleteMessage(req.body.timestamp);
-            res.sendStatus(200);
+        db.checkLoggedInUser(req.body.uuid).then(ok => {
+            if(ok){
+                db.deleteMessage(req.body.message_uuid);
+                deleted_messages.push({uuid: req.body.message_uuid, del_time: new Date().getTime(), time_uuid: new TimeUUID()});
+                res.sendStatus(200);
+            }else{
+                res.sendStatus(500); // Internal Server Error
+            }
         }).catch(err => {
             console.error('ERROR:', err);
             res.sendStatus(500); // Internal Server Error
@@ -94,8 +126,16 @@ module.exports = function (app, db, bcrypt, utils) {
     });
 	
 	app.post('/api/editmessage/', function (req, res) {
-        db.getUserForUUID(req.body.uuid).then(user => {
-            db.editMessage(req.body.message, req.body.newmessage, req.body.timestamp);
+        db.getUserForUUID(req.body.uuid).then((user) => {
+            db.editMessage(req.body.message_uuid, req.body.newmessage);
+            edited_messages.push({
+                uuid: req.body.message_uuid, 
+                message: req.body.newmessage, 
+                edit_time: new Date().getTime(), 
+                time_uuid: new TimeUUID(),
+                username: user,
+                time: new TimeUUID(req.body.message_uuid).getDate().getTime()
+            });
             res.sendStatus(200);
         }).catch(err => {
             console.error('ERROR:', err);

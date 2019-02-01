@@ -34,8 +34,8 @@ function getRandomHEXPart() {
     return hexString;
 }
 
-function createColor(){
-    return getRandomHEXPart()+getRandomHEXPart()+getRandomHEXPart();
+function createColor() {
+    return getRandomHEXPart() + getRandomHEXPart() + getRandomHEXPart();
 }
 
 module.exports = class {
@@ -46,7 +46,7 @@ module.exports = class {
     // TODO: Make multiple channels (for now 'general' is always used)
     addMessage(user, message) {
 
-        const query = 'INSERT INTO Messages (Channel, Username, Message, TimeSent) values(?,?,?,toTimestamp(now()));';
+        const query = 'INSERT INTO Messages (UUID, Channel, Username, Message) values(now(),?,?,?);';
         let data = ['general', user, message];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, { prepare: true }).then(result => {
@@ -56,25 +56,25 @@ module.exports = class {
             });
         });
     }
-	// TODO: Make multiple channels (for now 'general' is always used)
-    deleteMessage(timestamp) {
-
-        const query = 'DELETE FROM Messages WHERE channel=? and TimeSent=?;';
-        let data = ['general', timestamp];
+    // TODO: Make multiple channels (for now 'general' is always used)
+    deleteMessage(uuid) {
+        const query = 'DELETE FROM Messages WHERE channel=? and UUID=?;';
+        let data = ['general', uuid];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, { prepare: true }).then(result => {
-                resolve();
+                resolve(uuid);
             }).catch(err => {
                 reject(err);
             });
         });
-    }
-	
-	// TODO: Make multiple channels (for now 'general' is always used)
-    editMessage(message, newmessage, timesent) {
 
-        const query = 'UPDATE Messages SET message=? WHERE channel=? and TimeSent=? IF message=?;';
-        let data = [newmessage, 'general', timesent, message];
+
+    }
+
+    // TODO: Make multiple channels (for now 'general' is always used)
+    editMessage(uuid, newmessage) {
+        const query = 'UPDATE Messages SET message=? WHERE channel=? and UUID=?;';
+        let data = [newmessage, 'general', uuid];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, { prepare: true }).then(result => {
                 resolve();
@@ -85,7 +85,7 @@ module.exports = class {
     }
 
     getMessages() {
-        const query = 'SELECT Username, Message, TimeSent FROM Messages WHERE channel=\'general\' ORDER BY TimeSent;';
+        const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=\'general\' ORDER BY UUID;';
         return new Promise((resolve, reject) => {
             this.client.execute(query, { prepare: true }).then(result => {
                 resolve(result.rows);
@@ -95,11 +95,11 @@ module.exports = class {
         });
     }
 
-    getMessagesFrom(timestamp) {
-        const query = 'SELECT Username, Message, TimeSent FROM Messages WHERE channel=\'general\' and TimeSent>? ORDER BY TimeSent;';
+    getMessagesFrom(uuid) {
+        const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=\'general\' and UUID>? ORDER BY UUID;';
         return new Promise((resolve, reject) => {
-            let data = [timestamp];
-            this.client.execute(query, data,{ prepare: true }).then(result => {
+            let data = [uuid];
+            this.client.execute(query, data, { prepare: true }).then(result => {
                 resolve(result.rows);
             }).catch(err => {
                 reject(err);
@@ -112,7 +112,7 @@ module.exports = class {
         let data = [user, passwordHash];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, { prepare: true }).then(result => {
-                this.saveSettingWithUsername(user,createColor()).then(result => resolve()).catch(err => reject(err));
+                this.saveSettingWithUsername(user, createColor()).then(result => resolve()).catch(err => reject(err));
             }).catch(err => reject(err));
         });
     }
@@ -123,7 +123,7 @@ module.exports = class {
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, { prepare: true }).then(result => {
                 this.saveSettingWithUsername(bot, createColor(), NOTIFICATIONS_OFF, DEFAULT_IMAGE_BOT)
-                .then(result => resolve()).catch(err => reject(err));
+                    .then(result => resolve()).catch(err => reject(err));
             }).catch(err => reject(err));
         });
     }
@@ -189,7 +189,7 @@ module.exports = class {
         let data = [user, SESSION_TIMEOUT];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, { prepare: true }).then(result => {
-                this.client.execute(uuid_query, [user], {prepare: true}).then(result =>{
+                this.client.execute(uuid_query, [user], { prepare: true }).then(result => {
                     resolve(result.first().uuid.toString());
                 }).catch(err => reject(err));
             }).catch(err => reject(err));
@@ -204,7 +204,7 @@ module.exports = class {
         let data = [bot, BOT_SESSION_TIMEOUT];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, { prepare: true }).then(result => {
-                this.client.execute(uuid_query, [bot], {prepare: true}).then(result =>{
+                this.client.execute(uuid_query, [bot], { prepare: true }).then(result => {
                     resolve(result.first().uuid.toString());
                 }).catch(err => reject(err));
             }).catch(err => reject(err));
