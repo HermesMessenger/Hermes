@@ -114,7 +114,7 @@ module.exports = function (app, db, bcrypt, utils) {
                     deleted_messages.push({uuid: req.body.message_uuid, del_time: new Date().getTime(), time_uuid: new TimeUUID()});
                     res.sendStatus(200);
                 }else{
-                    res.sendStatus(500); // Internal Server Error
+                    res.sendStatus(403); // Forbidden
                 }
             }).catch(err => {
                 console.error('ERROR:', err);
