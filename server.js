@@ -1,6 +1,6 @@
 const app = require('express')();
-const DB = require('./server/db');
-const BCRYPT = require('./server/bcrypt');
+const db = new (require('./server/db'))();
+const bcrypt = new (require('./server/bcrypt'))(db);
 const utils = require('./server/utils');
 const bodyParser = require('body-parser'); // Peticiones POST
 const cookieParser = require('cookie-parser'); // Cookies
@@ -9,36 +9,37 @@ const fileExists = require('file-exists');
 const path = require('path');
 
 const web_client_path = __dirname + '/web_client/';
-
 const html_path = web_client_path + 'html/';
-
 const js_path = web_client_path + 'js/';
 const css_path = web_client_path + 'css/';
 
 const SESSION_TIMEOUT = 60 * 60 * 24 * 7 // A week in seconds
 
-let db = new DB();
 console.log('------------------------------------------');
 
-let bcrypt = new BCRYPT(db);
 
 const NULLCHAR = String.fromCharCode(0x0);
 const SEPCHAR = String.fromCharCode(0x1);
+
+let USER_NOT_FOUND_ERROR = new Error('User not found');
+USER_NOT_FOUND_ERROR.code = 10000;
+let USER_NOT_LOGGED_IN_ERROR = new Error('User not found or not logged in');
+USER_NOT_LOGGED_IN_ERROR.code = 10001;
+let FIELD_REQUIRED_ERROR = new Error('Fields required where left blank');
+FIELD_REQUIRED_ERROR.code = 10002;
+let TOKEN_INVALID_ERROR = new Error('Token was invalid');
+TOKEN_INVALID_ERROR.code = 10003;
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(cookieParser()); // for parsing cookies
 app.use(favicon(path.join(__dirname, '/logos/HermesSquare.png')));
 
-app.post('/', function (req, res) {
-    console.log('COOKIES:', req.cookies);
-    //res.cookie('hermes_username', req.body.username);
-    res.cookie('hermes_uuid', req.body.uuid);
-    res.redirect('/chat');
-});
+require('./server/api')(app, db, bcrypt, utils); // API Abstraction
 
 app.get('/', function (req, res) {
-    if (req.cookies.uuid) {
+    //res.cookie('hermes_style', 'dark');
+    if (req.cookies.hermes_uuid) {
         res.redirect('/chat');
     } else {
         res.redirect('/login');
@@ -46,7 +47,17 @@ app.get('/', function (req, res) {
 });
 
 app.get('/chat', function (req, res) {
-    res.sendFile(html_path + 'index.html');
+    db.checkLoggedInUser(req.cookies.hermes_uuid).then(() => {
+        res.sendFile(html_path + 'chat.html');
+    }).catch(err => res.redirect('/login'));
+});
+
+app.get('/settings', function (req, res) {
+    if(req.headers['user-agent'].indexOf('Electron') !== -1){
+        res.sendFile(html_path + 'settingsPages/electron.html');
+    }else{
+        res.sendFile(html_path + 'settingsPages/regular.html');
+    }
 });
 
 app.get('/js/:file', function (req, res) {
@@ -54,7 +65,7 @@ app.get('/js/:file', function (req, res) {
         if (exists) {
             res.sendFile(js_path + req.params.file);
         } else {
-            res.sendStatus(404)
+            res.sendStatus(404);
         }
     });
 });
@@ -69,44 +80,23 @@ app.get('/css/:file', function (req, res) {
     });
 });
 
-app.get('/clearMessages', function (req, res) {
-    db.clear('messages');
-    res.redirect('/');
-    console.log('Cleared messages');
-});
-
-app.get('/clearUsers', function (req, res) {
-    db.clear('users');
-    res.redirect('/');
-    console.log('Cleared users.');
-});
-
-app.get('/clearLoggedInUsers', function (req, res) {
-    db.clear('logged_in_users');
-    res.redirect('/');
-    console.log('Cleared logged in users.');
+app.get('/css/dark/:file', function (req, res) {
+    fileExists(css_path + 'dark/' + req.params.file, function (err, exists) {
+        if (exists) {
+            res.sendFile(css_path + 'dark/' + req.params.file);
+        } else {
+            res.sendStatus(404)
+        }
+    });
 });
 
 app.post('/logout', function (req, res) {
     if (req.body.uuid) {
-        db.getLoggedInUserTimeFromUUID(req.body.uuid, function (user, time, ok) {
-            if (ok) {
-                console.log(user + ' logged out');
-                res.clearCookie('hermes_username'); // TODO: remove; kept for legacy purposes
-                res.clearCookie('hermes_uuid');
-                db.logoutUUID(req.body.uuid);
-                res.redirect('/');
-            } else {
-                console.log(user + ' tried to log out with invalid uuid; removing cookies & redirecting');
-                res.clearCookie('hermes_username'); // TODO: remove; kept for legacy purposes
-                res.clearCookie('hermes_uuid');
-                // If the uuid is invalid logoutUUID will error out
-                res.redirect('/');
-            }
-        });
+        res.clearCookie('hermes_uuid');
+        db.logoutUser(req.body.uuid);
+        res.redirect('/');
     } else {
         // no uuid cookie
-        res.clearCookie('hermes_username'); // TODO: remove; kept for legacy purposes
         res.redirect('/');
     }
 });
@@ -125,29 +115,53 @@ app.post('/register', function (req, res) {
     var password2 = req.body.password2;
 
     if (password1 == password2) {
-        db.getFromList("users", async function (err, result) {
-            var i = 0;
-            for (value of result) {
-                login = value.split(SEPCHAR);
-
-                if (login[0] == username) {
-                    var exists = true;
-                    res.sendFile(html_path + 'LoginPages/UserExists.html');
-                } else i++;
-            }
-
-            if (!exists) { // User doesn't exist
+        db.isntAlreadyRegistered(username).then(result => {
+            if(result){
                 console.log('New user: ', username);
                 bcrypt.save(username, password1);
-                res.cookie('hermes_username', username);
-                res.cookie('hermes_uuid', db.logInUser(username)); // KEPT FOR LEGACY PURPOSES
-                res.redirect('/chat');
+                db.loginUser(username).then(result => {
+                    res.cookie('hermes_uuid', result);
+                    res.redirect('/chat');
+                }).catch(err => {
+                    res.sendFile(html_path + 'LoginPages/FailSignup.html');
+                });
+                
+            }else{
+                res.sendFile(html_path + 'LoginPages/UserExists.html');
             }
         });
-    }
-
-    else {
+    } else {
         res.sendFile(html_path + 'LoginPages/FailSignup.html');
+    };
+});
+
+app.get('/createBot', function (req, res) {
+    res.sendFile(html_path + 'BotPages/CreateBot.html');
+});
+
+app.post('/createBot', function (req, res) {
+    var botname = req.body.botname;
+    var password1 = req.body.password1;
+    var password2 = req.body.password2;
+
+    if (password1 == password2) {
+        db.isntBotAlreadyRegistered(botname).then(result => {
+            if(result){
+                console.log('New bot: ', botname);
+                bcrypt.saveBot(botname, password1);
+                db.loginBot(botname).then(result => {
+                    res.cookie('bot_uuid', result);
+                    res.sendFile(html_path + 'BotPages/BotCreated.html');
+                }).catch(err => {
+                    res.sendFile(html_path + 'BotPages/FailSignup.html');
+                });
+                
+            }else{
+                res.sendFile(html_path + 'BotPages/BotExists.html');
+            }
+        });
+    } else {
+        res.sendFile(html_path + 'BotPages/FailSignup.html');
     };
 });
 
@@ -158,191 +172,35 @@ app.get('/login', function (req, res) {
 app.post('/login', function (req, res) {
     var username = req.body.username;
     var password = req.body.password;
-    var redirected = false;
-    db.getFromList("users", async function (err, result) {
-        for (value of result) {
-            login = value.split(SEPCHAR);
-
-            if (login[0] == username) {
-                let same = await bcrypt.verify(password, login[1]);
-
-                if (same) {
-                    console.log(username, 'logged in.')
-                    let user_uuid = db.logInUser(username);
-                    res.cookie('hermes_username', username); // TODO: remove; kept for legacy purposes
+    db.getPasswordHash(username).then(hash => {
+        bcrypt.verifyPromise(password, hash).then(same => {
+            if (same) {
+                console.log(username, 'logged in.')
+                db.loginUser(username).then(user_uuid => {
                     res.cookie('hermes_uuid', user_uuid);
                     res.redirect('/chat');
-                    redirected = true;
-                } else {
-                    res.sendFile(html_path + 'LoginPages/IncorrectPassword.html')
-                    redirected = true;
-                }
-            }
-        }
-        if (!redirected) {
-            res.sendFile(html_path + 'LoginPages/UserNotFound.html');
-        }
-
-    });
-
-});
-
-/*
----------------------------------------------------------------------------------
-                                _    ____ ___
-                               / \  |  _ \_ _|
-                              / _ \ | |_) | |
-                             / ___ \|  __/| |
-                            /_/   \_\_|  |___|
-
----------------------------------------------------------------------------------
-*/
-
-app.post('/api/loadmessages', function (req, res) {
-    db.isValidUUID(req.body.uuid, function (ok) {
-        if (ok) {
-            db.getFromList('messages', function (err, result) {
-                data = ''
-                i = 0;
-                result.forEach(function (value) {
-                    if (i != 0) {
-                        data += NULLCHAR;
-                    }
-                    data += value;
-                    i++;
+                }).catch(err => {
+                    //console.log(err);
+                    res.sendFile(html_path + 'LoginPages/IncorrectPassword.html');
                 });
-                res.send(data);
-            });
-        } else {
-            res.sendStatus(401); // Unauthorized
-        }
-    });
-});
-
-app.get('/api/loadmessages', function (req, res) {
-    res.sendStatus(401);
-});
-
-app.post('/api/sendmessage/:message', function (req, res) {
-    db.getLoggedInUserTimeFromUUID(req.body.uuid, function (username, time, ok) {
-        if (ok) {
-            db.addToMessages(username, req.params.message, utils.getNowStr());
-            res.sendStatus(200); // Success
-        } else {
-            
-            res.sendStatus(401); // Unauthorized
-        }
-    });
-})
-
-app.get('/api/sendmessage/:message', function (req, res) {
-    res.sendStatus(401);
-});
-
-app.post('/api/getusername', function (req, res) {
-    db.getLoggedInUserTimeFromUUID(req.body.uuid, function (user, time, status) {
-        if (status) {
-            res.send(user);
-        } else {
-            res.sendStatus(401); // Unauthorized
-        }
-    });
-});
-
-app.get('/api/getusername', function (req, res) {
-    res.sendStatus(405); // Bad method (GET instead of POST)
-});
-
-app.post('/api/login', function (req, res) {
-    username = req.body.username;
-    password = req.body.password;
-    if (username && password) {
-        var redirected = false;
-        db.getFromList("users", async function (err, result) {
-            for (value of result) {
-                login = value.split(SEPCHAR);
-
-                if (login[0] == username) {
-                    let same = await bcrypt.verify(password, login[1]);
-
-                    if (same) {
-                        console.log(username, 'logged in.')
-                        let user_uuid = db.logInUser(username);
-                        res.cookie('hermes_username', username); // TODO: remove; kept for legacy purposes
-                        res.cookie('hermes_uuid', user_uuid);
-                        res.redirect('/chat');
-                        redirected = true;
-                    } else {
-                        res.sendStatus(419).send('Login error');
-                        redirected = true;
-                    }
-                }
-            }
-            if (!redirected) {
-                res.sendStatus(419).send('Login error');
+            } else {
+                res.sendFile(html_path + 'LoginPages/IncorrectPassword.html')
             }
         });
-    } else {
-        res.sendStatus(400); // Bad request: either username and/or pasword are not present
-    }
+    }).catch(err => res.sendFile(html_path + 'LoginPages/UserNotFound.html'));
 });
 
-app.get('/api/login', function (req, res) {
-    res.sendStatus(405); // Bad Method
+app.get('/setCookie/:uuid/:theme', function (req, res) {
+    db.checkLoggedInUser(req.params.uuid).then(() => {
+        res.cookie('hermes_uuid', req.params.uuid);
+        res.cookie('hermes_style', req.params.theme);
+        res.redirect('/chat');
+    }).catch(err => res.redirect('/login'));
 });
 
-app.post('/api/logout', function (req, res) {
-    user_uuid = req.body.uuid;
-    // If the uuid is not valid, logoutUUID will error out
-    db.getLoggedInUserTimeFromUUID(user_uuid, function (user, time, ok) {
-        if (ok) {
-            db.logoutUUID(user_uuid);
-            console.log(user + ' logged out');
-            res.sendStatus(200); // Success
-        } else {
-            res.sendStatus(401); // Unauthorized
-        }
-    });
-});
-
-app.get('/api/logout', function (req, res) {
-    res.sendStatus(405); // Bad Method
-});
-
-app.post('/api/updatePassword', function(req, res){
-    let old_password = req.body.old_password;
-    let new_password = req.body.new_password;
-    let new_password_repeat = req.body.new_password_repeat;
-    let uuid = req.body.uuid;
-    db.getLoggedInUserTimeFromUUID(uuid,function(user, time, ok){
-        if(ok){
-            if(new_password == new_password_repeat){
-                bcrypt.update(user,old_password, new_password, function(ok){
-                    if(ok){
-                        res.sendStatus(200); // Success
-                    }else{
-                        res.sendStatus(500); // Server error
-                    }
-                });
-            }else{
-                res.sendStatus(401); // Unauthorized
-            }
-        }else{
-            res.sendStatus(401); // Unauthorized
-        }
-        
-    });
-    
-});
-
-app.get('/api/teapot', function (req, res) {
-    console.log('I\'m a teapot!');
-    res.sendStatus(418); // I'm a teapot
-});
-
-app.get('/api/*', function (req, res) {
-    console.log('Tried to access a not implemented part of the API: ' + req.url);
-    res.sendStatus(404); // Not found
+app.get('/setTheme/:theme', function (req, res) {
+    res.cookie('hermes_style', req.params.theme);
+    res.redirect('/');
 });
 
 app.get('*', function (req, res) {
@@ -352,9 +210,3 @@ app.get('*', function (req, res) {
 app.listen(8080, function () {
     console.log('listening on *:8080');
 });
-
-const login_cleanup_interval = setInterval(function(){
-    db.checkExpriation(SESSION_TIMEOUT, function(removed_sessions){
-        console.log('Cleaned up ' + removed_sessions + ' session(s) from the db');
-    });
-},1000*60*60);

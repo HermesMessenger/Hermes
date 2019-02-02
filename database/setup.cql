@@ -1,4 +1,4 @@
-CREATE KEYSPACE Hermes WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '3'}  AND durable_writes = true;
+CREATE KEYSPACE Hermes WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'}  AND durable_writes = true;
 
 CREATE TABLE Hermes.Users (
     UUID TIMEUUID,
@@ -7,11 +7,12 @@ CREATE TABLE Hermes.Users (
     PRIMARY KEY(UUID, Username)
 );
 
-/* This could be replicated so that there are channels, each with its own table */
 CREATE TABLE Hermes.Messages (
-    Username TEXT,
-    Message TEXT,
-    TimeSent TIMESTAMP PRIMARY KEY
+    UUID TIMEUUID,
+    channel TEXT,
+    message TEXT,
+    username TEXT,
+    PRIMARY KEY(channel, UUID)
 );
 
 CREATE TABLE Hermes.Sessions (
@@ -23,9 +24,15 @@ CREATE TABLE Hermes.Sessions (
 CREATE TABLE Hermes.Settings (
     UUID TIMEUUID,
     Username TEXT,
-    Notifications BOOLEAN,
+    Notifications TINYINT,
+    Dark BOOLEAN,
     Color TEXT,
-    /*TODO: ADD PROFILE PICTURES*/
+    Image BLOB,
     PRIMARY KEY(UUID, Username)
 );
 
+CREATE TABLE Hermes.TOKENS (
+    UUID UUID PRIMARY KEY
+);
+
+INSERT INTO Hermes.TOKENS (UUID) values(uuid());

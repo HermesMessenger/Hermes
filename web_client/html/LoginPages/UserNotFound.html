@@ -1,35 +1,39 @@
 <!DOCTYPE html>
-  <head>
+
+<head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login to Hermes</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
     <link rel="shortcut icon" href="/favicon.png" type="image/png">
     <link rel="icon" href="/favicon.png" type="image/png">
     <script src='js/jquery.js'></script>
-  </head>
+    <script src="js/utils.js"></script>
+</head>
 
-  <body>
+<body>
     <div class="login-page">
       <div class="error_2lines">
         <p class="message">User does not exist. <br>Have you <a href="#">created an account?</a></p>
       </div>
       <div class="form">
         <form class="login-form">
-          <input type="text" name="username" id="username" placeholder="User Name"/ required>
-          <input type="password" name="password" id="password" placeholder="Password"/ required>
-          <button type="submit" formaction="/login" formmethod="post">Log In</button>
-          <p class="message">Not registered? <a href="#">Create an account</a>.</p>
+            <input type="text" name="username" id="username" placeholder="User Name"/ required pattern="^(?!.*[Bb]ot$)[^\\^$|?*+(){}\[\]]+$" oninvalid="this.setCustomValidity('The username mustn\'t end with \'bot\' or have one of these: \\ ^ $ | ? * + ( ) { } [ ]')">
+            <input type="password" name="password" id="password" placeholder="Password"/ required>
+            <button type="submit" formaction="/login" formmethod="post">Log In</button>
+            <p class="message">Not registered? <a href="#">Create an account</a>.</p>
         </form>
         <form class="register-form">
-          <input type="text" name='username' id="username" placeholder="User Name"/ required>
-          <input type="password" name="password1" id="password1" placeholder="Password"/ required>
-          <input type="password" name="password2" id="password2" placeholder="Repeat Password"/ required>
-          <button type="submit" formaction="/register" formmethod="post">Create Account</button>
-          <p class="message">Already registered? <a href="#">Sign in</a>.</p>
+            <input type="text" name='username' id="username" placeholder="User Name"/ required pattern="^(?!.*[Bb]ot$)[^\\^$|?*+(){}\[\]]+$"
+                oninvalid="this.setCustomValidity('The username mustn\'t end with \'bot\' or have one of these: \\ ^ $ | ? * + ( ) { } [ ]')">
+            <input type="password" name="password1" id="password1" placeholder="Password"/ required>
+            <input type="password" name="password2" id="password2" placeholder="Repeat Password"/ required>
+            <button type="submit" formaction="/register" formmethod="post">Create Account</button>
+            <p class="message">Already registered? <a href="#">Sign in</a>.</p>
         </form>
       </div>
     </div>
     <script src="js/login.js"></script>
-  </body>
-</html>
+</body>
 
+</html>

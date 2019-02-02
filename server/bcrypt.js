@@ -1,7 +1,7 @@
-const SEPCHAR = String.fromCharCode(0x1);
+const SaltRounds = 3;
 
-module.exports = class {
-    constructor(db){
+module.exports = class {
+    constructor(db) {
         this.bcrypt = require('bcrypt');
         this.db = db;
     }
@@ -10,18 +10,34 @@ module.exports = class {
         return await this.bcrypt.compare(password, hash);
     }
 
+    verifyPromise(password, hash) {
+        return this.bcrypt.compare(password, hash);
+    }
+
     save(username, password) {
-        let db = this.db;
-        this.bcrypt.hash(password, 3, function(err, hash) {
-            db.addToUsers(username, hash);
+        let t = this;
+        return new Promise((resolve, reject) => {
+            t.bcrypt.hash(password, SaltRounds).then(hash => {
+                t.db.registerUser(username, hash).then(() => resolve()).catch(err => reject(err));
+            }).catch(err => reject(err));
         });
     }
 
-    update(username, old_password, new_password, callback=function(ok){}) {
-        let db = this.db;
-        this.bcrypt.hash(new_password, 3, function(err, hash) {
-            db.updateUserPassword(username, old_password, hash, this, callback);
+    saveBot(botname, password) {
+        let t = this;
+        return new Promise((resolve, reject) => {
+            t.bcrypt.hash(password, SaltRounds).then(hash => {
+                t.db.registerBot(botname, hash).then(() => resolve()).catch(err => reject(err));
+            }).catch(err => reject(err));
         });
     }
 
+    update(username, new_password) {
+        let t = this;
+        return new Promise((resolve, reject) => {
+            t.bcrypt.hash(new_password, SaltRounds).then(hash => {
+                t.db.updatePasswordHash(username, hash).then(() => resolve()).catch(err => reject(err));
+            }).catch(err => reject(err));
+        });
+    }
 };

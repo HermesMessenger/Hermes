@@ -1,0 +1,6 @@
+POST http://localhost:8080/api/getSettings/ HTTP/1.1
+content-type: application/json
+
+{
+    "uuid": "9e813920-0f50-11e9-acc7-9d7907306a39"
+}

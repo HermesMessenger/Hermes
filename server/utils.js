@@ -22,5 +22,5 @@ module.exports.getNowStr = function(){
 }
 
 module.exports.getCurrentTimeStamp = function(){
-    return Math.floor(new Date() / 1000); // Gets the UNIX timestamp in milliseconds, divides it to seconds & floors it
+    return parseInt(new Date()); // Gets the UNIX timestamp in milliseconds
 }

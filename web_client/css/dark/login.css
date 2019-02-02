@@ -1,0 +1,196 @@
+@import url(https://fonts.googleapis.com/css?family=Ubuntu:300);
+/* TODO Update for dark mode */
+
+
+.login-page {
+  width: 360px;
+  padding: 8% 0 0;
+  margin: auto;
+}
+.success {
+  position: relative;
+  background: #4CAF50;
+  max-width: 300px;
+  height: 50px;
+  margin: 0 auto 100px;
+  padding: 5px;
+  text-align: center;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 25px 0 rgba(0, 0, 0, 0.24);
+}
+.error {
+  position: relative;
+  background: #ef9a9a;
+  max-width: 300px;
+  height: 50px;
+  margin: 0 auto 100px;
+  padding: 5px;
+  text-align: center;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 25px 0 rgba(0, 0, 0, 0.24);
+}
+
+.error_2lines {
+  position: relative;
+  background: #ef9a9a;
+  max-width: 300px;
+  height: 70px;
+  margin: 0 auto 100px;
+  padding: 5px;
+  text-align: center;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 25px 0 rgba(0, 0, 0, 0.24);
+}
+
+.form {
+  position: relative;
+  background: #FFFFFF;
+  max-width: 360px;
+  margin: 0 auto 100px;
+  padding: 33px;
+  text-align: center;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 25px 0 rgba(0, 0, 0, 0.24); 
+}
+.form input {
+  font-family: "Ubuntu", sans-serif;
+  outline: 0;
+  background: #f2f2f2;
+  width: 100%;
+  border: 0;
+  margin: 0 0 15px;
+  padding: 15px;
+  box-sizing: border-box;
+  font-size: 15px;
+}
+.form button {
+  font-family: "Ubuntu", sans-serif;
+  text-transform: uppercase;
+  outline: 0;
+  background: #4CAF50;
+  width: 100%;
+  border: 0;
+  padding: 15px;
+  color: #FFFFFF;
+  font-size: 16px;
+  -webkit-transition: all 0.3 ease;
+  transition: all 0.3 ease;
+  cursor: pointer;
+}
+.form button:hover,.form button:active,.form button:focus {
+  background: #43A047;
+}
+.success .message {
+  margin: 15px 0 0;
+  color: #000000;
+  font-size: 18px;
+}
+.error .message {
+  margin: 15px 0 0;
+  color: #000000;
+  font-size: 18px;
+}
+
+.error_2lines .message {
+  margin: 15px 0 0;
+  color: #000000;
+  font-size: 18px;
+}
+
+.error_2lines .message a {
+  margin: 15px 0 0;
+  font-size: 18px;
+  color: rgb(0, 89, 255);
+  text-decoration: none;
+}
+
+.form .message {
+  margin: 15px 0 0;
+  color: #b3b3b3;
+  font-size: 16px;
+}
+.form .message a {
+  color: #179C3B;
+  text-decoration: none;
+}
+.form .register-form {
+  display: none;
+}
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 300px;
+  margin: 0 auto;
+}
+.container:before, .container:after {
+  content: "";
+  display: block;
+  clear: both;
+}
+.container .info {
+  margin: 50px auto;
+  text-align: center;
+}
+.container .info h1 {
+  margin: 0 0 15px;
+  padding: 0;
+  font-size: 36px;
+  font-weight: 300;
+  color: #1a1a1a;
+}
+.container .info span {
+  color: #4d4d4d;
+  font-size: 12px;
+}
+.container .info span a {
+  color: #000000;
+  text-decoration: none;
+}
+.container .info span .fa {
+  color: #EF3B3A;
+}
+body {
+  background: #8DC26F;
+  font-family: "Ubuntu", sans-serif;
+}
+.cookie-notice {
+    position: absolute;
+    bottom: 0%;
+    left: 0%;
+    background-color: #FFFFFF;
+    width: 100%;
+    height: 10%;
+    display: table;
+}
+
+.cookie-notice-content {
+    vertical-align: middle;
+    display: table-cell;
+    text-align: center;
+}
+
+.cookie-notice-content button {
+    display: inline-block;
+    right: 2%;
+    bottom: 2%;
+    position: fixed;
+    width: 10%;
+    height: 6%;
+    background-color: #8DC26F;
+    border: none;
+    font-family: "Ubuntu", sans-serif;
+    font-weight: 1000;
+    font-size: 14px;
+    color: white;
+    overflow: hidden;
+}
+
+.cookie-notice-content #cookie-n-text {
+    display: table;
+    left: 1%;
+    bottom: 1%;
+    position: fixed;
+    width: 86%;
+    height: 8%;
+}
+
+#cookie-n-text span {
+    vertical-align: middle;
+    display: table-cell;
+}
