@@ -65,7 +65,6 @@ module.exports = function (app, db, bcrypt, utils) {
                         }
                     });
 
-                    let editm = [];
                     edited_messages.forEach((message)=>{
                         if(message.edit_time>from_date){
                             newm.push({
@@ -78,7 +77,7 @@ module.exports = function (app, db, bcrypt, utils) {
                             });
                         }
                     });
-                    res.json({newmessages: newm, deletedmessages: delm, editedmessages: editm});
+                    res.json({newmessages: newm, deletedmessages: delm});
                 }).catch(err => console.error('ERROR:', err));
             } else {
                 res.sendStatus(401); // Unauthorized
