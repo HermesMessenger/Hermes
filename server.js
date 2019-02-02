@@ -33,7 +33,7 @@ TOKEN_INVALID_ERROR.code = 10003;
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(cookieParser()); // for parsing cookies
-app.use(favicon(path.join(__dirname, '/logos/HermesMessengerLogo.png')));
+app.use(favicon(path.join(__dirname, '/logos/HermesMessengerLogoV2.svg')));
 
 require('./server/api')(app, db, bcrypt, utils); // API Abstraction
 
