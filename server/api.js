@@ -54,6 +54,7 @@ module.exports = function (app, db, bcrypt, utils) {
                         json_data.username = result[i].username;
                         json_data.message = result[i].message;
                         json_data.time = result[i].timesent.getTime();
+                        json_data.edited = false;
                         newm.push(json_data);
                     }
                     let from_date = TimeUUID.fromString(req.params.message_uuid).getDate().getTime();
@@ -73,6 +74,7 @@ module.exports = function (app, db, bcrypt, utils) {
                                 time_uuid: message.time_uuid,
                                 time: message.time,
                                 username: message.username,
+                                edited: true,
                             });
                         }
                     });

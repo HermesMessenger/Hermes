@@ -376,7 +376,7 @@ $(function () {
                         new_message.attr('data-timestamp', message_json.time);
 
 
-                        if (message_json.time_uuid) { // It's an edited message
+                        if (message_json.edited) { // It's an edited message
                             $('li#message-' + message_json.uuid).html(new_message.html());
                             last_message_uuid = message_json.time_uuid;
                         } else { // It isn't
