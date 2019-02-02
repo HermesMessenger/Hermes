@@ -18,9 +18,6 @@ const SESSION_TIMEOUT = 60 * 60 * 24 * 7 // A week in seconds
 console.log('------------------------------------------');
 
 
-const NULLCHAR = String.fromCharCode(0x0);
-const SEPCHAR = String.fromCharCode(0x1);
-
 let USER_NOT_FOUND_ERROR = new Error('User not found');
 USER_NOT_FOUND_ERROR.code = 10000;
 let USER_NOT_LOGGED_IN_ERROR = new Error('User not found or not logged in');

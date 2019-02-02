@@ -11,6 +11,12 @@ const NULLCHAR = String.fromCharCode(0x0);
 const SEPCHAR = String.fromCharCode(0x1);
 
 const TimeUUID = require('cassandra-driver').types.TimeUuid;
+const Events = require('./events');
+const {EventManager, EventHandler} = Events;
+
+let eventManager = new EventManager();
+//example event:
+//eventManager.setSendMessangeHandler(new EventHandler(Events.shellEventHandler, 'python3 newMessage'));
 
 let deleted_messages = []
 let edited_messages = []
@@ -97,6 +103,7 @@ module.exports = function (app, db, bcrypt, utils) {
         db.getUserForUUID(req.body.uuid).then(user => {
             db.addMessage(user, req.body.message);
             res.sendStatus(200);
+            eventManager.callSendMessageHandler([user, req.body.message]);
         }).catch(err => {
             console.error('ERROR:', err);
             res.sendStatus(500); // Internal Server Error
@@ -114,6 +121,7 @@ module.exports = function (app, db, bcrypt, utils) {
                     db.deleteMessage(req.body.message_uuid);
                     deleted_messages.push({uuid: req.body.message_uuid, del_time: new Date().getTime(), time_uuid: new TimeUUID()});
                     res.sendStatus(200);
+                    eventManager.callDeleteMessageHandler([user, req.body.message_uuid]);
                 }else{
                     res.sendStatus(403); // Forbidden
                 }
@@ -145,6 +153,7 @@ module.exports = function (app, db, bcrypt, utils) {
                         time: new TimeUUID(req.body.message_uuid).getDate().getTime()
                     });
                     res.sendStatus(200);
+                    eventManager.callEditMessageHandler([user, req.body.newmessage]);
                 }else{
                     res.sendStatus(500); // Internal Server Error
                 }
@@ -189,6 +198,7 @@ module.exports = function (app, db, bcrypt, utils) {
                         console.log(username, 'logged in through the API.')
                         db.loginUser(username).then(user_uuid => {
                             res.status(200).send(user_uuid);
+                            eventManager.callLoginUserHandler([username]);
                         }).catch(err => {
                             console.error('ERROR: ', err);
                             res.sendStatus(500); // Server error
@@ -222,7 +232,8 @@ module.exports = function (app, db, bcrypt, utils) {
                         console.log('New user: ', username);
                         bcrypt.save(username, password1);
                         db.loginUser(username).then(uuid => {
-                            res.status(200).send(uuid)
+                            res.status(200).send(uuid);
+                            eventManager.callRegisterUserHandler([username]);
                         }).catch(err => res.sendStatus(500)) // Server Error
                     } else res.sendStatus(409) // Conflict
                 }).catch(err => res.sendStatus(500)) // Server Error
@@ -237,6 +248,7 @@ module.exports = function (app, db, bcrypt, utils) {
 
     app.post('/api/logout', function (req, res) {
         db.logoutUser(req.body.uuid);
+        eventManager.callLogoutUserHandler([req.body.uuid]);
         res.sendStatus(200);
     });
 
@@ -418,6 +430,7 @@ module.exports = function (app, db, bcrypt, utils) {
     app.get('/api/teapot', function (req, res) {
         console.log('I\'m a teapot!');
         res.sendStatus(418); // I'm a teapot
+        eventManager.callTeapotHandler([]);
     });
 
     app.get('/api/*', function (req, res) {
