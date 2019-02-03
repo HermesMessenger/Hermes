@@ -24,7 +24,7 @@ if (getCookie('hermes_style') == 'dark') {
     $('#hermes_style').attr('href', 'css/dark/chat.css');
 }
 
-$(function () {
+$(window).on('load', function () {
     const uuid_header = { uuid: getCookie('hermes_uuid') };
 
     $("#rightclick").hide();
@@ -106,11 +106,23 @@ $(function () {
                         //Setting inputs and other stuff to not overwrite the message when re-loading the messages
                         //editing_message_timestamp = parseInt($(this).attr('data-timestamp'));
                         prev_html = $('#messages').html();
-                        let input = $('<input>').val(edit_header['message']);
+                        let input = $('<textarea>').val(edit_header['message']);
                         input.attr('data-timestamp', parseInt($(this).attr('data-timestamp')));
                         input.attr('id', 'editing');
-                        $(this).find('b').parent().append(input);
+                        
                         $(this).find('b').next().remove();
+                        $(this).find('b').parent().append(input);
+                        //input.parent().parent().height(input[0].scrollHeight);
+                        
+                        let space_left = $(window).width() - input.offset().left - input.parent().next().width() - parseFloat(input.parent().next().css('right'));
+                        input.width(space_left);
+                        input.attr('rows', countTextareaLines(input[0])+'');
+                        input.parent().parent().height(input.height());
+                        input.bind('input propertychange', function(){
+                            input.attr('rows', countTextareaLines(input[0])+'');
+                            //console.log(input.parent().height(), input[0].scrollHeight);
+                            input.parent().parent().height(input.height());
+                        });
                         $(this).find('b').next().focus();
                         editing_message_val = $(this).find('b').next().val();
                         //httpPostAsync('/api/editmessage/', header, function (res) { });
@@ -368,24 +380,37 @@ $(function () {
                             sendNotifiaction("New message from " + username, username + ": " + message, 'data:image/png;base64,' + user_colors[username].image);
                             last_message_timestamp_notified = last_message_timestamp;
                         }
-
-                        new_message.append(new_message_body);
                         let time_el = $("<span class='time'>").text(hour);
+                        new_message_body.attr('class', 'message_body');
+                        //new_message_body.css('max-width', $(window).width()-time_el.width()-parseFloat(time_el.css('right')));
+                        
+                        //console.log(new_message_body.css(),$(window).width() - 45 - time_el.width());
+                        
+                        new_message.append(new_message_body);
                         new_message.append(time_el);
 
                         new_message.attr('data-timestamp', message_json.time);
 
+                        let message_with_body = new_message;
 
+                        const MESSAGE_HEIGHT = 16;
                         if (message_json.edited) { // It's an edited message
-                            $('li#message-' + message_json.uuid).html(new_message.html());
+                            $('li#message-' + message_json.uuid).replaceWith(new_message);
+                            message_with_body = $('li#message-' + message_json.uuid);
+                            //new_message_body.text('EDITIIIII')
                             last_message_uuid = message_json.time_uuid;
                         } else { // It isn't
                             $('#messages').append(new_message);
+                            
                         }
-                        new_message_body.width(window.innerWidth - 45 - time_el.width());
-                        if (new_message_body.height() > 16) {
-                            new_message.height(new_message_body.height());
+
+                        new_message_body.width($(window).width() - new_message_body.offset().left - time_el.width() - parseFloat(time_el.css('right')));
+                        
+                        if (new_message_body.height() > MESSAGE_HEIGHT) {
+                            message_with_body.height(new_message_body.height());
                         }
+                        //$(window).width() - input.offset().left - input.parent().next().width() - parseFloat(input.parent().next().css('right'))
+                        
                         $('html, body').animate({
                             scrollTop: $("#space").offset().top
                         }, 0);

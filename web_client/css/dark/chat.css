@@ -35,6 +35,8 @@ form {
     text-align: right
 }
 
+input, button, textarea { outline: none; }
+
 form input {
     font: 18px Ubuntu Mono, monospace;
     background: #222;
@@ -52,12 +54,20 @@ form button {
     padding: 10px;
 }
 
+form button:active {
+    background: rgba(39, 126, 43, 0.8);
+}
+
 #settings {
     font: 16px Ubuntu Mono, monospace;
     background: #1E90FF;
     border: none;
     padding: 10px;
     width: 9%;
+}
+
+#settings:active {
+    background: rgb(21, 106, 190);
 }
 
 #messages {
@@ -352,6 +362,25 @@ option[value="never"] {
     width: 16px;
     height: 16px;
     margin: 0px 5px;
+}
+
+textarea#editing {
+    border: none;
+    font: italic 15px Ubuntu Mono, monospace;
+    word-wrap: break-word;
+    word-break: break-all;
+    resize: none;
+    display: inline;
+}
+
+span.message_body {
+    display: inline-block;
+}
+
+span {
+    white-space: pre-wrap;
+    word-break: break-all;
+    word-wrap: break-word;
 }
 
 @-webkit-keyframes slideIn {
