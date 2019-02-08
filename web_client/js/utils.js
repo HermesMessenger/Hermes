@@ -1,3 +1,20 @@
+/**
+ * A function that converts a TimeUUID to a timestamp
+ * @param {String} UUID The UUID
+ * @returns {Date} The timestamp
+ */
+function toTimestamp(uuid) {
+    uuid = uuid.split('-')
+    let time = [
+        uuid[2].substring(1),
+        uuid[1],
+        uuid[0]
+    ].join('')
+
+    time = parseInt(time, 16) - 122192928000000000 / 10000
+    return new Date(time)
+}
+
 function getRandomRGBPart() {
     return Math.floor(Math.random() * 150 + 50);
 }

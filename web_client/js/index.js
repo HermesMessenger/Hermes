@@ -16,9 +16,7 @@ function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
-if (navigator.userAgent.indexOf('Electron') !== -1) { // App is running through Electron
-    window.sendUUID(getCookie('hermes_uuid'));
-}
+if (isElectron())  window.sendUUID(getCookie('hermes_uuid'));
 
 if (getCookie('hermes_style') == 'dark') {
     $('#hermes_style').attr('href', 'css/dark/chat.css');
@@ -83,14 +81,14 @@ $(window).on('load', function () {
                 let paddings = $(this).css('padding').split('px ');
                 if (($("#rightclick").position().top > $(this).position().top - parseInt(paddings[0]) && $("#rightclick").position().top < $(this).position().top + $(this).height() + parseInt(paddings[2])) && ($("#rightclick").position().left > $(this).position().left - parseInt(paddings[1]) && $("#rightclick").position().left < $(this).position().left + $(this).width() + parseInt(paddings[3]))) {
                     var header = uuid_header;
-                    header['message_uuid'] = $(this).attr('message-uuid');
+                    header.message_uuid = $(this).attr('id').substr(8);
                     httpPostAsync('/api/deletemessage/', header, function (res) { });
                     return;
                 }
             })
         });
         var edit_header = uuid_header;
-        edit_header['message'] = $(this).find('b').next().text();
+        edit_header.message = $(this).find('b').next().text();
         var is_editing = false;
         $("#edit").click(function () {
             $("li").each(function () {
@@ -99,20 +97,19 @@ $(window).on('load', function () {
                     let sender = $(this).find('b').text();
                     sender = sender.substr(0, sender.length - 2);
                     if (!is_editing && username == sender) {
-                        edit_header['message'] = $(this).find('b').next().text();
-                        edit_header['timestamp'] = parseInt($(this).attr('data-timestamp'));
-                        edit_header['message_uuid'] = $(this).attr('message-uuid');
+                        edit_header.message = $(this).find('b').next().text();
+                        edit_header.timestamp = parseInt(toTimestamp($(this).attr('id')));
+                        console.log(edit_header.timestamp)
+                        edit_header.message_uuid = $(this).attr('id').substr(8);
+
                         is_editing = true;
-                        //Setting inputs and other stuff to not overwrite the message when re-loading the messages
-                        //editing_message_timestamp = parseInt($(this).attr('data-timestamp'));
+
                         prev_html = $('#messages').html();
                         let input = $('<textarea>').val(edit_header['message']);
-                        input.attr('data-timestamp', parseInt($(this).attr('data-timestamp')));
                         input.attr('id', 'editing');
                         
                         $(this).find('b').next().remove();
                         $(this).find('b').parent().append(input);
-                        //input.parent().parent().height(input[0].scrollHeight);
                         
                         let space_left = $(window).width() - input.offset().left - input.parent().next().width() - parseFloat(input.parent().next().css('right'));
                         input.width(space_left);
@@ -125,7 +122,6 @@ $(window).on('load', function () {
                         });
                         $(this).find('b').next().focus();
                         editing_message_val = $(this).find('b').next().val();
-                        //httpPostAsync('/api/editmessage/', header, function (res) { });
                     }
                 }
             })
@@ -150,18 +146,11 @@ $(window).on('load', function () {
         var last_message_timestamp = 0;
         var last_message_uuid = '13814000-1dd2-11b2-8080-808080808080'; // Smallest posible UUID for timestamp 0 (1/1/1970 00:00:00)
         var last_message_timestamp_notified = 0;
-        var editing_message_timestamp = 0;
-        var editing_message_val = '';
         let prev_json = {};
         let first_load = true;
-        let prev_html = '';
 
-        //let focused_element=null;
-        //let focused_element_val='';
         let interval = window.setInterval(function () {
             prev_html = $('#messages').html();
-            //focused_element=$(':focus');
-            //focused_element_val=$(':focus').val();
             httpPostAsync('/api/loadmessages/' + last_message_uuid, uuid_header, function (res) {
                 if (res !== '' || res !== '[]') {
                     //$('#messages').html('');
@@ -175,11 +164,6 @@ $(window).on('load', function () {
 
                     for (let i = 0; i < messages.length; i++) {
                         let message_json = messages[i];
-						/*if($(document).find(focused_element)){
-							$(focused_element).focus();
-							$(focused_element).val(focused_element_val);
-						}*/
-
                         let username = message_json.username;
                         let message = message_json.message;
                         last_message_timestamp = message_json.time;
@@ -197,18 +181,13 @@ $(window).on('load', function () {
                             date_message.append(day);
                             $("#messages").append(date_message);
                         }
-                        if (message_json.time == editing_message_timestamp) {
-                            $('#messages').append($(prev_html).find('b+input[data-timestamp="' + editing_message_timestamp + '"]').parent().parent()[0].outerHTML);
-                            $('#messages').find('b+input[data-timestamp="' + editing_message_timestamp + '"]').focus();
-                            $('#messages').find('b+input[data-timestamp="' + editing_message_timestamp + '"]').val(editing_message_val);
-                            continue;
-                        }
+
                         if (!Object.keys(user_colors).includes(username)) {
                             let response = httpGetSync("/api/getSettings/" + encodeURIComponent(username));
                             user_colors[username] = JSON.parse(response);
                         }
                         let color = user_colors[username].color;
-                        let new_message = $('<li id=message-' + last_message_uuid + ' message-uuid=' + last_message_uuid + '>');
+                        let new_message = $('<li id=message-' + last_message_uuid + '>');
                         new_message.append($('<img>').attr('src', IMG_URL_HEADER + user_colors[username].image).attr("id", "chat_prof_pic"));//.css("display", 'inline_block').css("width", '2%').css("height", '2%'));
                         let new_message_body = $('<span style="position: absolute">');
                         new_message_body.append($('<b>').text(username + ': ').css("color", color));
@@ -318,11 +297,9 @@ $(window).on('load', function () {
                                     let linkSpan = $('<a>').attr('target', '_blank').attr('href', linkMatch[r]).text(linkMatch[r]);
                                     new_message_body.append(linkSpan);
 
-                                    if (r + 1 == linkNum) {
-                                        new_message_body.append($("<span>").text(message.substring(linkEnd, quoteStart)));
-                                    } else {
-                                        new_message_body.append($("<span>").text(message.substring(linkEnd, nextLinkStart)));
-                                    }
+                                    if (r + 1 == linkNum) new_message_body.append($("<span>").text(message.substring(linkEnd, quoteStart)));
+
+                                    else new_message_body.append($("<span>").text(message.substring(linkEnd, nextLinkStart)));
                                 }
 
                                 new_message_body.append($("<span>").text(message.substring(linkEnd, quoteStart)));
@@ -382,14 +359,9 @@ $(window).on('load', function () {
                         }
                         let time_el = $("<span class='time'>").text(hour);
                         new_message_body.attr('class', 'message_body');
-                        //new_message_body.css('max-width', $(window).width()-time_el.width()-parseFloat(time_el.css('right')));
-                        
-                        //console.log(new_message_body.css(),$(window).width() - 45 - time_el.width());
-                        
+
                         new_message.append(new_message_body);
                         new_message.append(time_el);
-
-                        new_message.attr('data-timestamp', message_json.time);
 
                         let message_with_body = new_message;
 
@@ -397,7 +369,6 @@ $(window).on('load', function () {
                         if (message_json.edited) { // It's an edited message
                             $('li#message-' + message_json.uuid).replaceWith(new_message);
                             message_with_body = $('li#message-' + message_json.uuid);
-                            //new_message_body.text('EDITIIIII')
                             last_message_uuid = message_json.time_uuid;
                         } else { // It isn't
                             $('#messages').append(new_message);
@@ -409,7 +380,6 @@ $(window).on('load', function () {
                         if (new_message_body.height() > MESSAGE_HEIGHT) {
                             message_with_body.height(new_message_body.height());
                         }
-                        //$(window).width() - input.offset().left - input.parent().next().width() - parseFloat(input.parent().next().css('right'))
                         
                         $('html, body').animate({
                             scrollTop: $("#space").offset().top
