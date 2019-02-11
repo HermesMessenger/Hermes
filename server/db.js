@@ -84,6 +84,18 @@ module.exports = class {
         });
     }
 
+    getSingleMessage(uuid) {
+        const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE UUID = ? ALLOW FILTERING;';
+        let data = [uuid];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data,  { prepare: true }).then(result => {
+                resolve(result.rows[0]);
+            }).catch(err => {
+                reject(err);
+            });
+        });
+    }
+
     getMessages() {
         const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=\'general\' ORDER BY UUID;';
         return new Promise((resolve, reject) => {
@@ -323,7 +335,6 @@ module.exports = class {
         const query = 'INSERT INTO Settings (UUID, Username, Color, Notifications, Image, dark) values(?,?,?,?,textAsBlob(?),?);';
         return new Promise((resolve, reject) => {
             let data = [uuid, username, color, notifications, image_b64, dark];
-            //console.log(data);
             this.client.execute(query, data, { prepare: true }).then(result => {
                 resolve();
             }).catch(err => reject(err));

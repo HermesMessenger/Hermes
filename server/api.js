@@ -68,7 +68,12 @@ module.exports = function (app, db, bcrypt, utils) {
                     let delm = [];
                     deleted_messages.forEach((message)=>{
                         if(message.del_time>from_date){
-                            delm.push({uuid: message.uuid, time_uuid: message.time_uuid});
+                            delm.push({
+                                uuid: message.uuid,
+                                del_time: message.del_time, 
+                                time_uuid: message.time_uuid, 
+                                original_message: message.original_message
+                            });
                         }
                     });
 
@@ -118,10 +123,20 @@ module.exports = function (app, db, bcrypt, utils) {
 	
 	app.post('/api/deletemessage/', function (req, res) {
         db.getUserForUUID(req.body.uuid).then(user => {
-            db.getMessageSender(req.body.message_uuid).then(sender => {
-                if(user == sender){
+            db.getSingleMessage(req.body.message_uuid).then(message => {
+                if(user == message.username){
                     db.deleteMessage(req.body.message_uuid);
-                    deleted_messages.push({uuid: req.body.message_uuid, del_time: new Date().getTime(), time_uuid: new TimeUUID()});
+                    deleted_messages.push({
+                        uuid: req.body.message_uuid, 
+                        del_time: new Date().getTime(), 
+                        time_uuid: new TimeUUID(), 
+                        original_message: {
+                            uuid: message.uuid,
+                            username: message.username,
+                            message: message.message,
+                            timesent: new Date(message.timesent).getTime(), 
+                        }
+                    });
                     res.sendStatus(200);
                     eventManager.callDeleteMessageHandler([user, req.body.message_uuid]);
                     HAeventManager.callDeleteMessageHandler([user, req.body.message_uuid, req.body.uuid]);
