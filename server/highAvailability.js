@@ -1,13 +1,30 @@
 module.exports = {
-    init: function(app, db, bcrypt, utils) {},
+    //TODO Fill this up
+    init: function (app, db, bcrypt, utils) {
+        app.post('/HA/hello', function(req, res){
+            
+        })
+    },
 
-    login: function(body, uuid){},
+    login: function (body, uuid) { },
 
-    logout: function(body){},
+    register: function (body, user_uuid, login_uuid) { },
 
-    sendMessage: function(body){},
+    logout: function (body) { },
 
-    deleteMessage: function(body){},
+    sendMessage: function (body, message_uuid) { },
 
-    editMessage: function(body){},
+    deleteMessage: function (body) { },
+
+    editMessage: function (body) { },
+
+    updatePassword: function (body) { },
+
+    saveSettings: function (body) { },
+
+    clearMessages: function (token) { },
+
+    clearUsers: function (token) { },
+
+    clearSessions: function (token) { },
 }

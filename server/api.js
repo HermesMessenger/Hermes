@@ -249,10 +249,11 @@ module.exports = function (app, db, bcrypt, utils) {
                 db.isntAlreadyRegistered(username).then(result => {
                     if(result){
                         console.log('New user: ', username);
-                        bcrypt.save(username, password1);
-                        db.loginUser(username).then(uuid => {
-                            res.status(200).send(uuid);
-                            eventManager.callRegisterUserHandler([username]);
+                        bcrypt.save(username, password1).then(user_uuid => {
+                            db.loginUser(username).then(uuid => {
+                                res.status(200).send(uuid);
+                                eventManager.callRegisterUserHandler([username]);
+                            }).catch(err => res.sendStatus(500)) // Server Error
                         }).catch(err => res.sendStatus(500)) // Server Error
                     } else res.sendStatus(409) // Conflict
                 }).catch(err => res.sendStatus(500)) // Server Error
