@@ -46,11 +46,12 @@ module.exports = class {
     // TODO: Make multiple channels (for now 'general' is always used)
     addMessage(user, message) {
 
-        const query = 'INSERT INTO Messages (UUID, Channel, Username, Message) values(now(),?,?,?);';
-        let data = ['general', user, message];
+        const query = 'INSERT INTO Messages (UUID, Channel, Username, Message) values(?,?,?,?);';
+        let message_uuid = new cassandra.types.TimeUuid();
+        let data = [message_uuid, 'general', user, message];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, { prepare: true }).then(result => {
-                resolve();
+                resolve(message_uuid);
             }).catch(err => {
                 reject(err);
             });
