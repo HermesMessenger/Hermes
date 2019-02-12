@@ -468,11 +468,13 @@ module.exports = function (app, db, bcrypt, utils) {
         eventManager.callTeapotHandler([]);
     });
 
+    HA.init(app, db,bcrypt, utils);
+
     app.get('/api/*', function (req, res) {
         console.log('Tried to access a non implemented part of the API: ' + req.url);
         res.sendStatus(404); // Not found
     });
 
-    HA.init(app, db,bcrypt, utils);
+    
 
 };
