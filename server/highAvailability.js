@@ -1,14 +1,17 @@
 module.exports = {
-    //TODO Fill this up
+    //TODO Add HA API
     init: function (app, db, bcrypt, utils) {
-        app.post('/HA/hello', function(req, res){
-            
-        })
+        app.post('/API/HA/hello', function(req, res){
+
+        });
+
+        //TODO make the code for recieving & sending the clear token
     },
 
-    login: function (body, uuid) { },
+    //TODO Add HA function calls to make post requests
+    login: function (body, session_uuid) { },
 
-    register: function (body, user_uuid, login_uuid) { },
+    register: function (body, user_uuid, session_uuid) { },
 
     logout: function (body) { },
 
