@@ -51,27 +51,24 @@ $(window).on('load', function () {
         });
 
         $("#quote").click(function () {
-            $("li").each(function () {
-                let paddings = $(this).css('padding').split('px ');
-                if (($("#rightclick").position().top > $(this).position().top - parseInt(paddings[0]) && $("#rightclick").position().top < $(this).position().top + $(this).height() + parseInt(paddings[2])) && ($("#rightclick").position().left > $(this).position().left - parseInt(paddings[1]) && $("#rightclick").position().left < $(this).position().left + $(this).width() + parseInt(paddings[3]))) {
-                    if ($(this).find(".quote").length >= 1) { //Testeo si hay quote en el mensaje
-                        $("#m").val("\"" +
-                            $(this).find("b").text() +
-                            $(this).find("b").next().text() +
-                            // No ponemos el quote
-                            $(this).find("b").next().next().next().text() + "\" " +
-                            $("#m").val()
-                        );
-                    } else {
-                        $("#m").val("\"" +
-                            $(this).find("b").text() +
-                            $(this).find("b").next().text() +
-                            $(this).find("b").next().next().text() +
-                            $(this).find("b").next().next().next().text() + "\" " +
-                            $("#m").val()
-                        );
+            $("li").each(function (i) {
+
+                if (i != $('li').length - 1 ) {
+
+                    let click = $("#rightclick").position().top
+                    let start = $(this).offset().top
+                    let next = $('li').eq(i + 1).offset().top
+
+                    if (click > start && click < next) {
+
+                        let res = parseQuote($(this))
+                        $("#m").val(res + $("#m").val())
+
+                        return false; 
                     }
-                    return;
+                } else {
+                    let res = parseQuote($(this))
+                    $("#m").val(res + $("#m").val())
                 }
             })
         });
@@ -127,7 +124,7 @@ $(window).on('load', function () {
             })
         });
 
-        var user_colors = {};
+        var users = {};
 
         if (!("Notification" in window)) {
             alert("This browser does not support desktop notifications");
@@ -182,14 +179,14 @@ $(window).on('load', function () {
                             $("#messages").append(date_message);
                         }
 
-                        if (!Object.keys(user_colors).includes(username)) {
+                        if (!Object.keys(users).includes(username)) {
                             let response = httpGetSync("/api/getSettings/" + encodeURIComponent(username));
-                            user_colors[username] = JSON.parse(response);
+                            users[username] = JSON.parse(response);
                         }
-                        let color = user_colors[username].color;
+                        let color = users[username].color;
                         let new_message = $('<li id=message-' + last_message_uuid + '>');
-                        new_message.append($('<img>').attr('src', IMG_URL_HEADER + user_colors[username].image).attr("id", "chat_prof_pic"));//.css("display", 'inline_block').css("width", '2%').css("height", '2%'));
-                        let new_message_body = $('<span style="position: absolute">');
+                        new_message.append($('<img>').attr('src', IMG_URL_HEADER + users[username].image).attr("id", "chat_prof_pic"));//.css("display", 'inline_block').css("width", '2%').css("height", '2%'));
+                        let new_message_body = $('<span>');
                         new_message_body.append($('<b>').text(username + ': ').css("color", color));
 
                         let linkMatch = message.match(/([\w\d]+):\/\/([\w\d\.-]+)\.([\w\d]+)\/?([\w\d-@:%_\+.~#?&/=]*)/g);
@@ -197,7 +194,7 @@ $(window).on('load', function () {
                         let quotecss = "";
                         let quoteuser = "";
                         if (quoteMatch) {
-                            quotecss = "border-left: 3px  " + user_colors[quoteMatch[1]].color + " solid; background-color: " + user_colors[quoteMatch[1]].color + "50;";
+                            quotecss = "border-left: 3px  " + users[quoteMatch[1]].color + " solid; background-color: " + users[quoteMatch[1]].color + "50;";
                             quoteuser = quoteMatch[1]
                                 .replace(/[ ]/g, "space")
                                 .replace(/[:]/g, "colon")
@@ -354,7 +351,7 @@ $(window).on('load', function () {
                         };
 
                         if (username != getCookie('hermes_username') && !first_load && last_message_timestamp_notified < last_message_timestamp) {
-                            sendNotifiaction("New message from " + username, username + ": " + message, 'data:image/png;base64,' + user_colors[username].image);
+                            sendNotifiaction("New message from " + username, username + ": " + message, 'data:image/png;base64,' + users[username].image);
                             last_message_timestamp_notified = last_message_timestamp;
                         }
                         let time_el = $("<span class='time'>").text(hour);
@@ -363,27 +360,15 @@ $(window).on('load', function () {
                         new_message.append(new_message_body);
                         new_message.append(time_el);
 
-                        let message_with_body = new_message;
-
-                        const MESSAGE_HEIGHT = 16;
                         if (message_json.edited) { // It's an edited message
                             $('li#message-' + message_json.uuid).replaceWith(new_message);
                             message_with_body = $('li#message-' + message_json.uuid);
                             last_message_uuid = message_json.time_uuid;
-                        } else { // It isn't
-                            $('#messages').append(new_message);
-                            
-                        }
 
-                        new_message_body.width($(window).width() - new_message_body.offset().left - time_el.width() - parseFloat(time_el.css('right')));
-                        
-                        if (new_message_body.height() > MESSAGE_HEIGHT) {
-                            message_with_body.height(new_message_body.height());
-                        }
-                        
-                        $('html, body').animate({
-                            scrollTop: $("#space").offset().top
-                        }, 0);
+                        } else  $('#messages').append(new_message);
+
+                        new_message.height(new_message_body.height());
+
                         first_load = false;
                         prev_json = message_json;
                     }
@@ -417,26 +402,15 @@ $(window).on('load', function () {
             });
         }, 100)
     });
-});
 
-//JS para el boton que te baja al final del chat 29-12-2018
-var y, alturaElementos = 0;
-window.onload = function () {
-    for (var i = 0; i < document.getElementById('messages').childElementCount; i++) {
-        alturaElementos += document.getElementById('messages').children[i].offsetHeight;
-    }
-    window.onscroll = scrollFunction();
-    function scrollFunction() {
-        y = document.getElementById('space').offsetTop;
-        if (window.scrollY < y - alturaElementos - window.innerHeight + $("#space").height()) {
-            document.getElementById("myBtn").style.display = "block";
-        } else {
-            document.getElementById("myBtn").style.display = "none";
-        }
-    }
-}
-function topFunction() {
-    document.body.scrollTop = y;
-    document.documentElement.scrollTop = y;
-}
+    
+    $(window).resize(() => {
+        console.log('resized')
+        $("#messages").find("li").each(function(){
+            let h = $(this).find(".message_body").height();
+            console.log(h)
+            $(this).height(h);
+        });
+    });
+});
 

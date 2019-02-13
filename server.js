@@ -12,8 +12,7 @@ const web_client_path = __dirname + '/web_client/';
 const html_path = web_client_path + 'html/';
 const js_path = web_client_path + 'js/';
 const css_path = web_client_path + 'css/';
-
-const SESSION_TIMEOUT = 60 * 60 * 24 * 7 // A week in seconds
+const img_path = web_client_path + 'images/';
 
 console.log('------------------------------------------');
 
@@ -61,6 +60,16 @@ app.get('/js/:file', function (req, res) {
     fileExists(js_path + req.params.file, function (err, exists) {
         if (exists) {
             res.sendFile(js_path + req.params.file);
+        } else {
+            res.sendStatus(404);
+        }
+    });
+});
+
+app.get('/images/:file', function (req, res) {
+    fileExists(img_path + req.params.file, function (err, exists) {
+        if (exists) {
+            res.sendFile(img_path + req.params.file);
         } else {
             res.sendStatus(404);
         }

@@ -17,7 +17,6 @@
 
 
 <body>
-    <button onclick="topFunction()" id="myBtn" title="See recent messages.">↓</button>
     <ul id="rightclick">
         <li id="quote">Quote</li>
         <li id="delete">Delete</li>
@@ -25,14 +24,12 @@
     </ul>
     <ul id="messages"></ul>
     <div id="space"></div>
-    <div id="footer">
-        <form action="" id="message_send_form">
-            <div id="user"></div>
-            <input id="m" autocomplete="off" autofocus />
-            <button id='send'><b>Send</b></button>
-        </form>
-        <button id="settings" type="submit"><b>Settings</b></button>
-    </div>
+    <form action="" id="message_send_form">
+        <div id="user"></div>
+        <input id="m" autocomplete="off" autofocus />
+        <button id='send'></button>
+    </form>
+    <button id="settings" ></button>
     <div id="myModal" class="modal"></div>
 </body>
 
