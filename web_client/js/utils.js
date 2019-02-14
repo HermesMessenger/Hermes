@@ -58,6 +58,22 @@ function getCookie(cname) { // From W3Schools
     return "";
 }
 
+function parseQuote(context) {
+    if (context.find(".quote").length >= 1) { //Testeo si hay quote en el mensaje
+        return ("\"" +
+            context.find("b").text() +
+            context.find("b").next().text() +
+            // No ponemos el quote
+            context.find("b").next().next().next().text() + "\" ");
+    } else {
+        return ("\"" +
+            context.find("b").text() +
+            context.find("b").next().text() +
+            context.find("b").next().next().text() +
+            context.find("b").next().next().next().text() + "\" ");
+    }
+}
+
 /**
  * A function that makes a GET request to a url
  *  @param {String} theUrl: the url to make the GET request to

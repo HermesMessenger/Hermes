@@ -1,5 +1,3 @@
-/*#5cb85c*/
-
 * {
     margin: 0;
     padding: 0;
@@ -8,66 +6,86 @@
 
 body {
     font: 15px Ubuntu Mono, monospace;
+    background: #E8F5E9;
 }
 
-#footer {
-    background: #111;
-    padding: 3px;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
+#space {
     height: 50px;
 }
 
-form {
+#settings {
     display: inline-block;
+    position: fixed;
+    font: 18px Ubuntu Mono, monospace;
+    background: url(/images/settings.png) no-repeat;
+    background-size: 24px;
+    background-position: center;
+    background-color: #fff;
+    color: #000;
+    border-radius: 16px;
+    border: 3px solid #000000;
+    margin: 8px;
+    width: 44px;
+    height: 44px;
+    bottom: 0;
+    right: 0;
+}
+
+form {
+    display: block;
+    position: fixed;
+    font: 18px Ubuntu Mono, monospace;
+    background: #fff;
+    color: #000;
+    border-radius: 16px;
+    border: 3px solid #000000;
+    margin: 8px;
+    padding: 10px;
+    height: 44px;
+    width: auto;
+    bottom: 0%;
+    float : left;
 }
 
 #message_send_form {
-    width: 90%;
+    left: 4px;
+    right: 64px;
 }
 
 #user {
-    width: 10%;
+    display: table-cell;
+    white-space: nowrap;
+    width: auto;
     font: 18px Ubuntu Mono, monospace;
-    color: #fff;
+    color: #000;
     display: inline-block;
-    text-align: right
 }
 
-input, button, textarea { outline: none; }
+input, button, textarea { 
+    outline: none; 
+}
 
 form input {
+    display: table-cell;
+    white-space: nowrap;
     font: 18px Ubuntu Mono, monospace;
-    background: #222;
-    color: #FFF;
-    border: 0;
-    padding: 15px;
-    width: 75%;
+    border: none;
+    width: calc(100vw - 180px);
 }
 
 form button {
+    display: table-cell;
+    white-space: nowrap;
     font: 16px Ubuntu Mono, monospace;
-    width: 12%;
-    background: rgba(53, 167, 59, 0.8);
+    float: right;
+    width: 20px;
+    height: 20px;
+    right: 0px;
+    background: url(/images/send.png) no-repeat;
+    background-color: #fff;
+    background-size: 20px;
+    background-position: center;
     border: none;
-    padding: 10px;
-}
-
-form button:active {
-    background: rgba(39, 126, 43, 0.8);
-}
-
-#settings {
-    font: 16px Ubuntu Mono, monospace;
-    background: #1E90FF;
-    border: none;
-    padding: 10px;
-    width: 9%;
-}
-
-#settings:active {
-    background: rgb(21, 106, 190);
 }
 
 #messages {
@@ -77,32 +95,39 @@ form button:active {
     padding: 0
 }
 
-#messages li {
+#myMessage {
     font: 16px Ubuntu Mono, monospace;
+    margin: 100px 10px 100px;
     padding: 5px 10px 5px 0px;
     white-space: pre-wrap;
     word-break: break-all;
     word-wrap: break-word;
-    height: 26px;
 }
 
-#messages li:nth-child(odd) {
+
+#messages li {
     font: 16px Ubuntu Mono, monospace;
-    background: #eee;
-}
-
-#space {
-    height: 50px;
+    margin: 12px 24px 12px 128px;
+    padding: 8px;
+    border: 2px solid #000;
+    background: #C8E6C9;
+    border-radius: 16px 4px 16px 16px;
+    white-space: pre-wrap;
+    min-height: 36px;
+    overflow: hidden;
 }
 
 .time {
     position: absolute;
-    right: 1%;
-    color: #333333;
+    right: 0;
+    margin: 0px 32px 0px 4px;
+    color: #000;
 }
 
 #messages li.date {
-    background: #ccf;
+    border-radius: 0;
+    border: 0;
+    background: 0;
     text-align: center;
 }
 
@@ -136,7 +161,7 @@ form button:active {
 }
 
 #myBtn {
-    display: none;
+    display: block;
     position: fixed;
     bottom: 55px;
     right: 3px;
@@ -371,23 +396,14 @@ textarea#editing {
 
 span.message_body {
     display: inline-block;
+    position: absolute;
+    width: calc(100vw - 300px)
 }
 
 span {
     white-space: pre-wrap;
     word-break: break-all;
     word-wrap: break-word;
-}
-
-@-webkit-keyframes slideIn {
-    from {
-        bottom: -300px;
-        opacity: 0
-    }
-    to {
-        bottom: 0;
-        opacity: 1
-    }
 }
 
 @keyframes slideIn {
@@ -398,35 +414,6 @@ span {
     to {
         bottom: 0;
         opacity: 1
-    }
-}
-
-@-webkit-keyframes fadeIn {
-    from {
-        opacity: 0
-    }
-    to {
-        opacity: 1
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0
-    }
-    to {
-        opacity: 1
-    }
-}
-
-@-webkit-keyframes slideOut {
-    from {
-        bottom: 0;
-        opacity: 1
-    }
-    to {
-        bottom: -300px;
-        opacity: 0
     }
 }
 
@@ -441,20 +428,21 @@ span {
     }
 }
 
-@-webkit-keyframes fadeOut {
-    from {
-        opacity: 1
-    }
-    to {
-        opacity: 0
-    }
-}
 
-@keyframes fadeOut {
-    from {
-        opacity: 1
+@media only screen and (max-width: 600px) {
+    #messages li {
+        font: 16px Ubuntu Mono, monospace;
+        margin: 12px 24px 12px 64px;
+        padding: 8px;
+        border: 2px solid #000;
+        background: #C8E6C9;
+        border-radius: 16px 4px 16px 16px;
+        white-space: pre-wrap;
     }
-    to {
-        opacity: 0
+
+    span.message_body {
+        display: inline-block;
+        position: absolute;
+        width: calc(100vw - 220px)
     }
-}
+  }
