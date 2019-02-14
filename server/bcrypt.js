@@ -18,7 +18,7 @@ module.exports = class {
         let t = this;
         return new Promise((resolve, reject) => {
             t.bcrypt.hash(password, SaltRounds).then(hash => {
-                t.db.registerUser(username, hash).then(() => resolve()).catch(err => reject(err));
+                t.db.registerUser(username, hash).then((uuid) => resolve(uuid)).catch(err => reject(err));
             }).catch(err => reject(err));
         });
     }
