@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=PT+Sans');
+
 * {
     margin: 0;
     padding: 0;
@@ -5,7 +7,7 @@
 }
 
 body {
-    font: 15px Ubuntu Mono, monospace;
+    font: 15px "PT Sans", Sans-Serif;
     background: #111;
 }
 
@@ -16,7 +18,7 @@ body {
 #settings {
     display: inline-block;
     position: fixed;
-    font: 18px Ubuntu Mono, monospace;
+    font: 18px "PT Sans", Sans-Serif;
     background: url(/images/settings.png) no-repeat;
     background-size: 24px;
     background-position: center;
@@ -34,7 +36,7 @@ body {
 form {
     display: block;
     position: fixed;
-    font: 18px Ubuntu Mono, monospace;
+    font: 18px "PT Sans", Sans-Serif;
     background: #333;
     color: #fff;
     border-radius: 16px;
@@ -56,7 +58,7 @@ form {
     display: table-cell;
     white-space: nowrap;
     width: auto;
-    font: 18px Ubuntu Mono, monospace;
+    font: 18px "PT Sans", Sans-Serif;
     color: #fff;
     display: inline-block;
 }
@@ -70,7 +72,7 @@ form input {
     color: #fff;
     display: table-cell;
     white-space: nowrap;
-    font: 18px Ubuntu Mono, monospace;
+    font: 18px "PT Sans", Sans-Serif;
     border: none;
     width: calc(100vw - 180px);
 }
@@ -78,7 +80,7 @@ form input {
 form button {
     display: table-cell;
     white-space: nowrap;
-    font: 16px Ubuntu Mono, monospace;
+    font: 16px "PT Sans", Sans-Serif;
     float: right;
     width: 20px;
     height: 20px;
@@ -91,14 +93,14 @@ form button {
 }
 
 #messages {
-    font: 16px Ubuntu Mono, monospace;
+    font: 16px "PT Sans", Sans-Serif;
     list-style-type: none;
     margin: 0;
     padding: 0
 }
 
 #myMessage {
-    font: 16px Ubuntu Mono, monospace;
+    font: 16px "PT Sans", Sans-Serif;
     margin: 100px 10px 100px;
     padding: 5px 10px 5px 0px;
     white-space: pre-wrap;
@@ -108,7 +110,7 @@ form button {
 
 
 #messages li {
-    font: 16px Ubuntu Mono, monospace;
+    font: 16px "PT Sans", Sans-Serif;
     margin: 12px 24px 12px 128px;
     padding: 8px;
     border: None;
@@ -250,7 +252,7 @@ form button {
 }
 
 #save {
-    font: 16px Ubuntu Mono, monospace;
+    font: 16px "PT Sans", Sans-Serif;
     width: 100%;
     background: green;
     border: none;
@@ -258,7 +260,7 @@ form button {
 }
 
 #logout {
-    font: 16px Ubuntu Mono, monospace;
+    font: 16px "PT Sans", Sans-Serif;
     width: 100%;
     background: rgba(255, 89, 89, 0.8);
     border: none;
@@ -390,7 +392,7 @@ option[value="never"] {
 
 textarea#editing {
     border: none;
-    font: italic 15px Ubuntu Mono, monospace;
+    font: italic 15px "PT Sans", Sans-Serif;
     word-wrap: break-word;
     word-break: break-all;
     resize: none;
@@ -434,12 +436,9 @@ span {
 
 @media only screen and (max-width: 600px) {
     #messages li {
-        font: 16px Ubuntu Mono, monospace;
+        font: 16px "PT Sans", Sans-Serif;
         margin: 12px 24px 12px 64px;
         padding: 8px;
-        border: 2px solid #fff;
-        background: #333;
-        border-radius: 16px 4px 16px 16px;
         white-space: pre-wrap;
     }
 
