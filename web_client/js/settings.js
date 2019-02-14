@@ -198,7 +198,6 @@ function updatePassword() {
     }, (text, status)=>{
         console.log('PASSWORD STATUS:', status);
     });
-    console.log("Password updating is not implemented");
 }
 
 function saveRegularSettings() {
