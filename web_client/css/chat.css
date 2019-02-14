@@ -6,7 +6,7 @@
 
 body {
     font: 15px Ubuntu Mono, monospace;
-    background: #E8F5E9;
+    background: #111;
 }
 
 #space {
@@ -20,10 +20,10 @@ body {
     background: url(/images/settings.png) no-repeat;
     background-size: 24px;
     background-position: center;
-    background-color: #fff;
-    color: #000;
+    background-color: #333;
+    color: #fff;
     border-radius: 16px;
-    border: 3px solid #000000;
+    border: None;
     margin: 8px;
     width: 44px;
     height: 44px;
@@ -35,10 +35,10 @@ form {
     display: block;
     position: fixed;
     font: 18px Ubuntu Mono, monospace;
-    background: #fff;
-    color: #000;
+    background: #333;
+    color: #fff;
     border-radius: 16px;
-    border: 3px solid #000000;
+    border: None;
     margin: 8px;
     padding: 10px;
     height: 44px;
@@ -57,7 +57,7 @@ form {
     white-space: nowrap;
     width: auto;
     font: 18px Ubuntu Mono, monospace;
-    color: #000;
+    color: #fff;
     display: inline-block;
 }
 
@@ -66,6 +66,8 @@ input, button, textarea {
 }
 
 form input {
+    background-color: inherit;
+    color: #fff;
     display: table-cell;
     white-space: nowrap;
     font: 18px Ubuntu Mono, monospace;
@@ -82,7 +84,7 @@ form button {
     height: 20px;
     right: 0px;
     background: url(/images/send.png) no-repeat;
-    background-color: #fff;
+    background-color: #333;
     background-size: 20px;
     background-position: center;
     border: none;
@@ -109,8 +111,9 @@ form button {
     font: 16px Ubuntu Mono, monospace;
     margin: 12px 24px 12px 128px;
     padding: 8px;
-    border: 2px solid #000;
-    background: #C8E6C9;
+    border: None;
+    background-color: #4CAF50;
+    color: #fff;
     border-radius: 16px 4px 16px 16px;
     white-space: pre-wrap;
     min-height: 36px;
@@ -121,7 +124,7 @@ form button {
     position: absolute;
     right: 0;
     margin: 0px 32px 0px 4px;
-    color: #000;
+    color: #fff;
 }
 
 #messages li.date {
@@ -136,10 +139,10 @@ form button {
     z-index: 1000;
     position: absolute;
     overflow: hidden;
-    border: 1px solid #CCC;
+    border: None;
     white-space: nowrap;
-    background: #FFF;
-    color: #333;
+    background: #222;
+    color: #fff;
     padding: 3px 0;
     border-radius: 3px;
 }
@@ -155,7 +158,7 @@ form button {
 
 .quote {
     padding: 1px 2px;
-    color: #000000;
+    color: #fff;
     display: inline-block;
     margin: 4px 0px;
 }
@@ -201,8 +204,8 @@ form button {
 .modal-content {
     position: fixed;
     bottom: 0;
-    background-color: #fefefe;
-    color: black;
+    background-color: #fff;
+    color: #000;
     width: 100%;
     -webkit-animation-name: slideIn;
     -webkit-animation-duration: 0.4s;
@@ -212,14 +215,14 @@ form button {
 }
 
 .close {
-    color: white;
+    color: #000;
     float: right;
     font-size: 28px;
     font-weight: bold;
 }
 
 .close:hover, .close:focus {
-    color: #000;
+    color: #fff;
     text-decoration: none;
     cursor: pointer;
 }
@@ -434,8 +437,8 @@ span {
         font: 16px Ubuntu Mono, monospace;
         margin: 12px 24px 12px 64px;
         padding: 8px;
-        border: 2px solid #000;
-        background: #C8E6C9;
+        border: 2px solid #fff;
+        background: #333;
         border-radius: 16px 4px 16px 16px;
         white-space: pre-wrap;
     }
