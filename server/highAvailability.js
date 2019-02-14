@@ -23,25 +23,41 @@ module.exports = {
     },
 
     //TODO Add HA function calls to make post requests
-    login: function (body, session_uuid) { },
+    login: async function (body, session_uuid) {
+        console.log('HA LOGIN:', body.username);
+    },
 
-    register: function (body, user_uuid, session_uuid) { },
+    register: async function (body, user_uuid, session_uuid) {
+        console.log('HA REGISTER:', body.username);
+    },
 
-    logout: function (body) { },
+    logout: async function (body) {
+        console.log('HA LOGOUT:', body.uuid);
+    },
 
-    sendMessage: function (body, message_uuid) { },
+    sendMessage: async function (body, message_uuid) {
+        console.log('HA SENDMESSAGE:', body.message);
+    },
 
-    deleteMessage: function (body) { },
+    deleteMessage: async function (body) {
+        console.log('HA DELETEMESSAGE:', body.message_uuid);
+    },
 
-    editMessage: function (body) { },
+    editMessage: async function (body) {
+        console.log('HA EDITMESSAGE:', body.newmessage);
+    },
 
-    updatePassword: function (body) { },
+    updatePassword: async function (body) {
+        console.log('HA UPDATEPASSWORD');
+    },
 
-    saveSettings: function (body) { },
+    saveSettings: async function (body) {
+        console.log('HA SAVESETTINGS');
+    },
 
-    clearMessages: function (token) { },
+    clearMessages: async function (token) { },
 
-    clearUsers: function (token) { },
+    clearUsers: async function (token) { },
 
-    clearSessions: function (token) { },
+    clearSessions: async function (token) { },
 }

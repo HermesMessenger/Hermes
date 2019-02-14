@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser'); // Cookies
 const favicon = require('express-favicon'); // Favicon
 const fileExists = require('file-exists');
 const path = require('path');
+const HA = require('./server/highAvailability.js');
 
 const web_client_path = __dirname + '/web_client/';
 const html_path = web_client_path + 'html/';
@@ -30,9 +31,9 @@ TOKEN_INVALID_ERROR.code = 10003;
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(cookieParser()); // for parsing cookies
-app.use(favicon(path.join(__dirname, '/logos/HermesMessengerLogoV2.svg')));
+app.use(favicon(path.join(__dirname, '/logos/HermesMessengerLogoV2.png')));
 
-require('./server/api')(app, db, bcrypt, utils); // API Abstraction
+require('./server/api')(app, db, bcrypt, utils, HA); // API Abstraction
 
 app.get('/', function (req, res) {
     //res.cookie('hermes_style', 'dark');
@@ -50,9 +51,9 @@ app.get('/chat', function (req, res) {
 });
 
 app.get('/settings', function (req, res) {
-    if(req.headers['user-agent'].indexOf('Electron') !== -1){
+    if (req.headers['user-agent'].indexOf('Electron') !== -1) {
         res.sendFile(html_path + 'settingsPages/electron.html');
-    }else{
+    } else {
         res.sendFile(html_path + 'settingsPages/regular.html');
     }
 });
@@ -91,6 +92,7 @@ app.post('/logout', function (req, res) {
     if (req.body.uuid) {
         res.clearCookie('hermes_uuid');
         db.logoutUser(req.body.uuid);
+        HA.logout(req.body)
         res.redirect('/');
     } else {
         // no uuid cookie
@@ -113,17 +115,18 @@ app.post('/register', function (req, res) {
 
     if (password1 == password2) {
         db.isntAlreadyRegistered(username).then(result => {
-            if(result){
+            if (result) {
                 console.log('New user: ', username);
-                bcrypt.save(username, password1);
-                db.loginUser(username).then(result => {
-                    res.cookie('hermes_uuid', result);
-                    res.redirect('/chat');
-                }).catch(err => {
-                    res.sendFile(html_path + 'LoginPages/FailSignup.html');
-                });
-                
-            }else{
+                bcrypt.save(username, password1).then(user_uuid => {
+                    db.loginUser(username).then(session_uuid => {
+                        res.cookie('hermes_uuid', session_uuid);
+                        res.redirect('/chat');
+                        HA.register(req.body,user_uuid,session_uuid);
+                    }).catch(err => {
+                        res.sendFile(html_path + 'LoginPages/FailSignup.html');
+                    });
+                }).catch(err => res.sendFile(html_path + 'LoginPages/FailSignup.html'))
+            } else {
                 res.sendFile(html_path + 'LoginPages/UserExists.html');
             }
         });
@@ -143,8 +146,9 @@ app.post('/createBot', function (req, res) {
 
     if (password1 == password2) {
         db.isntBotAlreadyRegistered(botname).then(result => {
-            if(result){
+            if (result) {
                 console.log('New bot: ', botname);
+                //TODO Add bot registration
                 bcrypt.saveBot(botname, password1);
                 db.loginBot(botname).then(result => {
                     res.cookie('bot_uuid', result);
@@ -152,8 +156,8 @@ app.post('/createBot', function (req, res) {
                 }).catch(err => {
                     res.sendFile(html_path + 'BotPages/FailSignup.html');
                 });
-                
-            }else{
+
+            } else {
                 res.sendFile(html_path + 'BotPages/BotExists.html');
             }
         });
@@ -176,6 +180,7 @@ app.post('/login', function (req, res) {
                 db.loginUser(username).then(user_uuid => {
                     res.cookie('hermes_uuid', user_uuid);
                     res.redirect('/chat');
+                    HA.login(req.body, user_uuid);
                 }).catch(err => {
                     //console.log(err);
                     res.sendFile(html_path + 'LoginPages/IncorrectPassword.html');

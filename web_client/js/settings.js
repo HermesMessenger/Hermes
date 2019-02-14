@@ -189,7 +189,15 @@ function resizeImage(URL, width, height, callback) {
     }
 }
 
-function updatePassword() { // TODO
+function updatePassword() {
+    httpPostStatusAsync('/api/updatePassword',{
+        uuid: uuid_header.uuid,
+        old_password: $('#old').val(),
+        new_password: $('#new').val(),
+        new_password_repeat: $('#repeat').val()
+    }, (text, status)=>{
+        console.log('PASSWORD STATUS:', status);
+    });
     console.log("Password updating is not implemented");
 }
 

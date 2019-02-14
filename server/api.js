@@ -13,7 +13,7 @@ const SEPCHAR = String.fromCharCode(0x1);
 const TimeUUID = require('cassandra-driver').types.TimeUuid;
 const Events = require('./events');
 const { EventManager, EventHandler } = Events;
-const HA = require('./highAvailability.js')
+
 
 let eventManager = new EventManager();
 //example event:
@@ -22,7 +22,7 @@ let eventManager = new EventManager();
 let deleted_messages = []
 let edited_messages = []
 
-module.exports = function (app, db, bcrypt, utils) {
+module.exports = function (app, db, bcrypt, utils, HA) {
 
     app.post('/api/loadmessages', function (req, res) {
         db.checkLoggedInUser(req.body.uuid).then(ok => {
@@ -298,7 +298,7 @@ module.exports = function (app, db, bcrypt, utils) {
                                 HA.updatePassword(req.body)
                             }).catch(err => {
                                 if (err == USER_NOT_FOUND_ERROR) {
-                                    res.sendStatus(401); // Unauthorized
+                                    res.sendStatus(403); // Forbidden
                                 } else {
                                     console.error('ERROR:', err);
                                     res.sendStatus(500);
@@ -309,7 +309,7 @@ module.exports = function (app, db, bcrypt, utils) {
                         }
                     }).catch(err => {
                         if (err == USER_NOT_FOUND_ERROR) {
-                            res.sendStatus(401); // Unauthorized
+                            res.sendStatus(403); // Forbidden
                         } else {
                             console.error('ERROR:', err);
                             res.sendStatus(500);
@@ -317,7 +317,7 @@ module.exports = function (app, db, bcrypt, utils) {
                     });
                 }).catch(err => {
                     if (err == USER_NOT_FOUND_ERROR) {
-                        res.sendStatus(401); // Unauthorized
+                        res.sendStatus(403); // Forbidden
                     } else {
                         console.error('ERROR:', err);
                         res.sendStatus(500);
@@ -328,7 +328,7 @@ module.exports = function (app, db, bcrypt, utils) {
             }
         }).catch(err => {
             if (err == USER_NOT_FOUND_ERROR) {
-                res.sendStatus(401); // Unauthorized
+                res.sendStatus(403); // Forbidden
             } else {
                 console.error('ERROR:', err);
                 res.sendStatus(500);
