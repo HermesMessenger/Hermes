@@ -13,6 +13,11 @@ body {
     height: 50px;
 }
 
+#image {
+    display: inline-block;
+    margin-left: 16px
+}
+
 #settings {
     display: inline-block;
     position: fixed;
@@ -31,7 +36,7 @@ body {
     right: 0;
 }
 
-form {
+#message_send_form {
     display: block;
     position: fixed;
     font: 18px Ubuntu Mono, monospace;
@@ -52,20 +57,26 @@ form {
     right: 64px;
 }
 
+#separator {
+    bottom: 0;
+    height: 64px;
+}
+
 #user {
-    display: table-cell;
+    overflow: hidden;
     white-space: nowrap;
-    width: auto;
     font: 18px Ubuntu Mono, monospace;
     color: #000;
-    display: inline-block;
+    display: inline;
+    font-weight: bold;
+    margin-left: 4px
 }
 
 input, button, textarea { 
     outline: none; 
 }
 
-form input {
+#m {
     display: table-cell;
     white-space: nowrap;
     font: 18px Ubuntu Mono, monospace;
@@ -73,7 +84,7 @@ form input {
     width: calc(100vw - 180px);
 }
 
-form button {
+#send {
     display: table-cell;
     white-space: nowrap;
     font: 16px Ubuntu Mono, monospace;
@@ -89,10 +100,7 @@ form button {
 }
 
 #messages {
-    font: 16px Ubuntu Mono, monospace;
     list-style-type: none;
-    margin: 0;
-    padding: 0
 }
 
 #myMessage {
@@ -107,11 +115,11 @@ form button {
 
 #messages li {
     font: 16px Ubuntu Mono, monospace;
-    margin: 12px 24px 12px 128px;
+    margin: 12px 24px 0px 128px;
     padding: 8px;
     border: 2px solid #000;
-    background: #C8E6C9;
     border-radius: 16px 4px 16px 16px;
+    background: #C8E6C9;
     white-space: pre-wrap;
     min-height: 36px;
     overflow: hidden;
@@ -160,28 +168,8 @@ form button {
     margin: 4px 0px;
 }
 
-#myBtn {
-    display: block;
-    position: fixed;
-    bottom: 55px;
-    right: 3px;
-    z-index: 99;
-    font-size: 18px;
-    border: none;
-    outline: none;
-    background-color: #8DC26F;
-    color: white;
-    cursor: pointer;
-    padding: 10px;
-    border-radius: 4px;
-}
-
-#myBtn:hover {
-    background-color: #90EE90;
-}
-
 .modal {
-    font-family: Arial, Helvetica, sans-serif;
+    font: 16px Ubuntu Mono, monospace;
     display: none;
     position: fixed;
     z-index: 1;
@@ -198,74 +186,76 @@ form button {
     animation-duration: 0.4s;
 }
 
-.modal-content {
+#modal-content {
+    margin: 10vh 64px;
+    border: 3px solid #000;
+    border-radius: 16px;
     position: fixed;
     bottom: 0;
-    background-color: #fefefe;
+    background-color: #E8F5E9;
     color: black;
-    width: 100%;
+    width: calc(100vw - 128px);
     -webkit-animation-name: slideIn;
     -webkit-animation-duration: 0.4s;
     animation-name: slideIn;
     animation-duration: 0.4s;
-    height: 65%;
+    height: 550px;
 }
 
 .close {
-    color: white;
+    color: #fff;
     float: right;
-    font-size: 28px;
+    font-size: 36px;
     font-weight: bold;
+    margin-right: 10px;
+    vertical-align: middle;
+    transition: color 0.3s ease;
 }
 
 .close:hover, .close:focus {
-    color: #000;
+    color: #EF5350;
     text-decoration: none;
     cursor: pointer;
 }
 
 .modal-header {
-    background-color: #5cb85c;
-    color: white;
-    height: 25px;
+    border-bottom: 3px solid #000;
+    border-radius: 13px 13px 0 0;
+    background-color: #66BB6A;
+    height: 36px;
 }
 
 .modal-body {
     padding: 2px 16px;
 }
 
-.modal-footer {
-    padding: 2px 16px;
-    background-color: #5cb85c;
-    color: white;
-}
-
-#save_form {
-    bottom: 10px;
-    position: absolute;
-    width: 20%;
-}
 
 #save {
+    float: left;
+    left: 96px;
+    width: 150px;
+    bottom: 10px;
+    position: absolute;
     font: 16px Ubuntu Mono, monospace;
-    width: 100%;
-    background: green;
-    border: none;
-    padding: 10px;
+    background: #66BB6A;
+    border: 2px solid #000;
+    border-radius: 16px ;
+    padding: 8px;
+    font-weight: bold;
 }
 
 #logout {
-    font: 16px Ubuntu Mono, monospace;
-    width: 100%;
-    background: rgba(255, 89, 89, 0.8);
-    border: none;
-    padding: 10px;
-}
-
-#logout_form {
+    float: left;
+    left: 272px;
+    width: 150px;
     bottom: 10px;
     position: absolute;
-    width: 20%;
+    font: 16px Ubuntu Mono, monospace;
+    background: rgba(255, 89, 89, 0.8);
+    border: 2px solid #000;
+    border-radius: 16px ;
+    padding: 8px;
+    font-weight: bold;
 }
 
 .desk {
@@ -288,16 +278,6 @@ article, aside, figure, footer, header, hgroup, menu, nav, section {
     display: block;
 }
 
-.sse {
-    float: left;
-    width: 50%;
-}
-
-.lou {
-    float: right;
-    width: 50%;
-}
-
 option[value="always"] {
     background: #88ff88;
 }
@@ -311,8 +291,12 @@ option[value="never"] {
 }
 
 .one {
+    font: 24px Ubuntu Mono, monospace;
+    color: #FFF;
     float: left;
     width: 40%;
+    margin-top: 4px;
+    margin-left: 48px;
 }
 
 .two {
@@ -320,57 +304,19 @@ option[value="never"] {
     width: 40%;
 }
 
-.tnot {
-    margin-top: 10px;
+#notselect {
+    width: 128px;
+    height: 32px;
+    margin: 5px 0 0 64px;
+    border: 2px solid #000;
+    border-radius: 8px;
+    font: 16px Ubuntu Mono, monospace;
 }
 
-.not {
-    margin-top: 5px;
-}
-
-.tcol {
-    margin-top: 10px;
-}
-
-.col {
-    margin-top: 5px;
-}
-
-.tpic {
-    margin-top: 10px;
-}
-
-.pic {
-    margin-top: 5px;
-}
-
-.tchp {
-    margin-top: 10px;
-}
-
-#old {
-    margin-top: 5px;
-    margin-right: 5px;
-}
-
-#new {
-    margin-top: 10px;
-    margin-right: 5px;
-}
-
-#repeat {
-    margin-top: 10px;
-}
-
-#Dth {
-    float: left;
-    margin-top: 10px;
-    margin-right: 5px;
-}
-
-#tik {
-    float: left;
-    margin-top: 12px
+.setting {
+    display:inline-block;
+    margin: 32px;
+    font-weight: bold
 }
 
 .space2 {
@@ -385,7 +331,36 @@ option[value="never"] {
     margin: 0px 5px;
 }
 
-textarea#editing {
+#color {
+    text-align: center;
+    font: 16px Ubuntu Mono, monospace;
+    border: 2px solid #000;
+    border-radius: 8px;
+    display: inline-block;
+    width: 72px;
+    height: 32px;
+    margin-left: 32px;
+}
+
+#chpswd {
+    position: absolute;
+    top: 270px;
+    left: 16px;
+}
+
+.pswd {
+    display: block;
+    position: relative;
+    padding-left: 8px;
+    font: 16px Ubuntu Mono, monospace;
+    border: 2px solid #000;
+    border-radius: 8px;
+    width: 150px;
+    height: 32px;
+    margin: 0 16px 8px 240px;
+}
+
+textarea #editing {
     border: none;
     font: italic 15px Ubuntu Mono, monospace;
     word-wrap: break-word;
@@ -428,21 +403,34 @@ span {
     }
 }
 
+@media only screen and (max-width: 1000px) {
+    .web {
+        width: 100%;
+    }
+}
 
 @media only screen and (max-width: 600px) {
     #messages li {
-        font: 16px Ubuntu Mono, monospace;
         margin: 12px 24px 12px 64px;
-        padding: 8px;
-        border: 2px solid #000;
-        background: #C8E6C9;
-        border-radius: 16px 4px 16px 16px;
-        white-space: pre-wrap;
     }
 
     span.message_body {
-        display: inline-block;
-        position: absolute;
         width: calc(100vw - 220px)
     }
-  }
+
+    .setting {
+        margin: 32px 0px;
+    }
+
+    .pswd {
+        margin: 0 16px 8px 175px;
+    }
+
+    #save {
+        left: 16px;
+    }
+    
+    #logout {
+        left: 190px;
+    }
+}

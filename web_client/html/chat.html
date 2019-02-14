@@ -1,36 +1,36 @@
-<!DOCTYPE html>
-<html>
-  <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Hermes</title>
-      <link rel="shortcut icon" href="/favicon.png">
-      <link rel="icon" href="/favicon.png">
-      <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
-      <link id="hermes_style" rel="stylesheet" href="css/chat.css">
-      <script src="js/jquery.js" type="text/javascript"></script>
-      <script src="js/ifvisible.js" type="text/javascript"></script>
-      <script src="js/utils.js" type="text/javascript"></script>
-      <script src="js/settings.js" type="text/javascript"></script>
-      <script src="js/index.js" type="text/javascript"></script>
-  </head>
-  <body>
-      <button onclick="topFunction()" id="myBtn" title="See recent messages.">↓</button>
-      <ul id="rightclick">
-          <li id="quote">Quote</li>
-          <li id="delete">Delete</li>
-          <li id="edit">Edit</li>
-      </ul>
-      <ul id="messages"></ul>
-      <div id="space"></div>
-      <div id="footer">
-          <form action="" id="message_send_form">
-              <div id="user"></div>
-              <input id="m" autocomplete="off" autofocus />
-              <button id='send'><b>Send</b></button>
-          </form>
-          <button id="settings" type="submit"><b>Settings</b></button>
-      </div>
-      <div id="myModal" class="modal"></div>
-  </body>
+<!doctype html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hermes</title>
+    <link rel="shortcut icon" href="/favicon.png">
+    <link rel="icon" href="/favicon.png">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+    <link id="hermes_style" rel="stylesheet" href="css/chat.css">
+    <script src="js/jquery.js" type="text/javascript"></script>
+    <script src="js/ifvisible.js" type="text/javascript"></script>
+    <script src="js/utils.js" type="text/javascript"></script>
+    <script src="js/settings.js" type="text/javascript"></script>
+    <script src="js/index.js" type="text/javascript"></script>
+</head>
+
+
+<body>
+    <ul id="rightclick">
+        <li id="quote">Quote</li>
+        <li id="delete">Delete</li>
+        <li id="edit">Edit</li>
+    </ul>
+    <ul id="messages"></ul>
+    <form action="" id="message_send_form">
+        <p id="user"></p>
+        <input id="m" autocomplete="off" autofocus />
+        <button id='send'></button>
+    </form>
+    <div id="separator"></div>
+    <button id="settings" ></button>
+    <div id="myModal" class="modal"></div>
+</body>
+
 </html>

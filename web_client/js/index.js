@@ -37,11 +37,13 @@ $(window).on('load', function () {
     var username;
     httpPostAsync('/api/getusername', uuid_header, function (res) {
         username = res;
-        $('#user').append($('<b>').text(username + ':'));
-        let line_length = 150;
+        $('#user').text(username + ':');
+
+        $("#m").width($(window).width() - 175 - $("#user").width())
+
         $('#message_send_form').submit(function () {
             msg = $('#m').val();
-            if (msg != '') {
+            if (!msg.match(/^\s*$/)) {
                 var header = uuid_header;
                 header['message'] = msg;
                 httpPostAsync('/api/sendmessage/', header, function (res) { });
@@ -405,12 +407,12 @@ $(window).on('load', function () {
 
     
     $(window).resize(() => {
-        console.log('resized')
         $("#messages").find("li").each(function(){
-            let h = $(this).find(".message_body").height();
-            console.log(h)
-            $(this).height(h);
+            $(this).height($(this).find(".message_body").height());
         });
+
+        $("#m").width($(window).width() - 175 - $("#user").width())        
     });
+
 });
 
