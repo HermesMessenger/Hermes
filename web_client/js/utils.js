@@ -108,7 +108,7 @@ function httpGetAsync(theUrl, callback) {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            callback(xmlHttp.responseText);
+            if (callback)  callback(xmlHttp.responseText);
     }
     xmlHttp.open("GET", theUrl, true); // true for asynchronous
     xmlHttp.send(null);
@@ -123,7 +123,7 @@ function httpGetStatusAsync(theUrl, callback) {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState == 4)
-            callback(xmlHttp.responseText, xmlHttp.status);
+            if (callback)  callback(xmlHttp.responseText, xmlHttp.status);
     }
     xmlHttp.open("GET", theUrl, true); // true for asynchronous
     xmlHttp.send(null);
@@ -139,7 +139,7 @@ function httpPostAsync(theUrl, jsonData, callback) {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            callback(xmlHttp.responseText);
+            if (callback)  callback(xmlHttp.responseText);
     }
     xmlHttp.open("POST", theUrl, true); // true for asynchronous
     xmlHttp.setRequestHeader('Content-Type', 'application/json');
@@ -156,7 +156,7 @@ function httpPostStatusAsync(theUrl, jsonData, callback) {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState == 4)
-            callback(xmlHttp.responseText, xmlHttp.status);
+            if (callback)  callback(xmlHttp.responseText, xmlHttp.status);
     }
     xmlHttp.open("POST", theUrl, true); // true for asynchronous
     xmlHttp.setRequestHeader('Content-Type', 'application/json');

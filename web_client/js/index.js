@@ -33,7 +33,7 @@ $(window).on('load', function () {
             if (!msg.match(/^\s*$/)) {
                 var header = uuid_header;
                 header['message'] = msg;
-                httpPostAsync('/api/sendmessage/', header, res => { });
+                httpPostAsync('/api/sendmessage/', header);
                 $('#m').val('');
             }
             return false;
@@ -75,14 +75,14 @@ $(window).on('load', function () {
 
                         let header = uuid_header;
                         header.message_uuid = $(this).attr('id').substr(8);
-                        httpPostAsync('/api/deletemessage/', header, res => { });
+                        httpPostAsync('/api/deletemessage/', header);
 
                         return false;
                     }
                 } else {
                     let header = uuid_header;
                     header.message_uuid = $(this).attr('id').substr(8);
-                    httpPostAsync('/api/deletemessage/', header, res => { });
+                    httpPostAsync('/api/deletemessage/', header);
                 }
             })
         });
@@ -188,9 +188,9 @@ $(window).on('load', function () {
 
         const interval = window.setInterval(function () {
             prev_html = $('#messages').html();
-            httpPostAsync('/api/loadmessages/' + last_message_uuid, uuid_header, function (res) {
+            httpPostAsync('/api/loadmessages/' + last_message_uuid, uuid_header, res => {
                 if (res !== '' || res !== '[]') {
-                    //$('#messages').html('');
+
                     let res_json = JSON.parse(res);
                     let messages = res_json.newmessages;
                     let delm = res_json.deletedmessages;
@@ -452,7 +452,7 @@ $(window).on('load', function () {
             $('#editing').keypress(function (e) {
                 if (e.keyCode == 13 && is_editing) {
                     edit_header['newmessage'] = $(this).val();
-                    httpPostAsync('/api/editmessage/', edit_header, function (res) { });
+                    httpPostAsync('/api/editmessage/', edit_header);
                     editing_message_timestamp = 0;
                     editing_message_val = '';
                     is_editing = false;
