@@ -226,9 +226,7 @@ $(window).on('load', function () {
                         let hour = padNumber(time.getHours()) + ':' + padNumber(time.getMinutes()) + ':' + padNumber(time.getSeconds());
                         let prev_day = prev_time.getDate() + '/' + (prev_time.getMonth() + 1) + '/' + prev_time.getFullYear();
                         if (day != prev_day) {
-                            let date_message = $('<li>');
-                            date_message.attr("class", "date");
-                            date_message.append(day);
+                            let date_message = $('<li>').attr("class", "date").append(day);
                             $("#messages").append(date_message);
                         }
 
@@ -238,6 +236,18 @@ $(window).on('load', function () {
                         }
                         let color = users[username].color;
                         let new_message = $('<li id=message-' + last_message_uuid + '>');
+
+                        let name = $("#message_send_form").find('p').text()
+                        name = name.substr(0, name.length - 1);
+
+
+                        console.log(username + ' and ' + name)
+                        if (username == name) {
+                            new_message.attr('class', 'myMessage')
+                        } else {
+                            new_message.attr('class', 'theirMessage')
+                        }
+
                         new_message.append($('<img>').attr('src', IMG_URL_HEADER + users[username].image).attr("id", "chat_prof_pic")); //.css("display", 'inline_block').css("width", '2%').css("height", '2%'));
                         let new_message_body = $('<span>');
                         new_message_body.append($('<b>').text(username + ': ').css("color", color));
@@ -402,6 +412,13 @@ $(window).on('load', function () {
                             last_message_timestamp_notified = last_message_timestamp;
                         }
                         let time_el = $("<span class='time'>").text(hour);
+
+                        if (username == name) {
+                            time_el.attr('class', 'myTime')
+                        } else {
+                            time_el.attr('class', 'theirTime')
+                        }
+
                         new_message_body.attr('class', 'message_body');
 
                         new_message.append(new_message_body);

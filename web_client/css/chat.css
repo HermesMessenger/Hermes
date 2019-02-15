@@ -113,17 +113,7 @@ input, button, textarea {
     list-style-type: none;
 }
 
-#myMessage {
-    font: 16px Ubuntu Mono, monospace;
-    margin: 100px 10px 100px;
-    padding: 5px 10px 5px 0px;
-    white-space: pre-wrap;
-    word-break: break-all;
-    word-wrap: break-word;
-}
-
-
-#messages li {
+.myMessage {
     font: 16px Ubuntu Mono, monospace;
     margin: 12px 24px 0px 128px;
     padding: 8px;
@@ -135,14 +125,34 @@ input, button, textarea {
     overflow: hidden;
 }
 
-.time {
+.theirMessage {
+    font: 16px Ubuntu Mono, monospace;
+    margin: 12px 128px 0px 24px;
+    padding: 8px;
+    border: 2px solid #000;
+    border-radius: 4px 16px 16px 16px;
+    background: #FFF;
+    white-space: pre-wrap;
+    min-height: 36px;
+    overflow: hidden;
+}
+
+.myTime {
     position: absolute;
     right: 0;
     margin: 0px 32px 0px 4px;
     color: #000;
 }
 
+.theirTime {
+    position: absolute;
+    right: 0;
+    margin: 0px 148px 0px 4px;
+    color: #000;
+}
+
 #messages li.date {
+    margin-top: 16px;
     border-radius: 0;
     border: 0;
     background: 0;
