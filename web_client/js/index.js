@@ -33,7 +33,7 @@ $(window).on('load', function () {
             if (!msg.match(/^\s*$/)) {
                 var header = uuid_header;
                 header['message'] = msg;
-                httpPostAsync('/api/sendmessage/', header, res => {});
+                httpPostAsync('/api/sendmessage/', header, res => { });
                 $('#m').val('');
             }
             return false;
@@ -75,14 +75,14 @@ $(window).on('load', function () {
 
                         let header = uuid_header;
                         header.message_uuid = $(this).attr('id').substr(8);
-                        httpPostAsync('/api/deletemessage/', header, res => {});
+                        httpPostAsync('/api/deletemessage/', header, res => { });
 
                         return false;
                     }
                 } else {
                     let header = uuid_header;
                     header.message_uuid = $(this).attr('id').substr(8);
-                    httpPostAsync('/api/deletemessage/', header, res => {});
+                    httpPostAsync('/api/deletemessage/', header, res => { });
                 }
             })
         });
@@ -116,12 +116,14 @@ $(window).on('load', function () {
 
                             $(this).find('b').next().remove();
                             $(this).find('b').parent().append(input);
+                            input.attr('rows', countTextareaLines(input[0]) + '');
+                            input.parent().parent().height(input.height() + 20);
 
                             //input.width($(window).width() - input.offset().left - $(this).find('b').width() - 120);
                             input.bind('input propertychange', function () {
-                                
+
                                 input.attr('rows', countTextareaLines(input[0]) + '');
-                                input.parent().parent().height(input.height()+20);
+                                input.parent().parent().height(input.height() + 20);
                             });
                             $(this).find('b').next().focus();
                             editing_message_val = $(this).find('b').next().val();
@@ -129,12 +131,12 @@ $(window).on('load', function () {
 
                         return false;
 
-                    } 
+                    }
 
                 } else {
 
                     let sender = $(this).find('b').text()
-                    sender = sender.substr(0, sender.length - 2); 
+                    sender = sender.substr(0, sender.length - 2);
 
                     if (!is_editing && username == sender) {
                         edit_header.message = $(this).find('b').next().text();
@@ -143,18 +145,19 @@ $(window).on('load', function () {
                         is_editing = true;
 
                         prev_html = $('#messages').html();
-                        let input = $('<input>').val(edit_header['message']);
+                        let input = $('<textarea>').val(edit_header['message']);
                         input.attr('id', 'editing');
 
                         $(this).find('b').next().remove();
                         $(this).find('b').parent().append(input);
-
-                        input.width($(window).width() - input.offset().left - $(this).find('b').width() - 120);
                         input.attr('rows', countTextareaLines(input[0]) + '');
-                        input.parent().parent().height(input.height());
+                        input.parent().parent().height(input.height() + 20);
+
+                        //input.width($(window).width() - input.offset().left - $(this).find('b').width() - 120);
                         input.bind('input propertychange', function () {
+
                             input.attr('rows', countTextareaLines(input[0]) + '');
-                            input.parent().parent().height(input.height());
+                            input.parent().parent().height(input.height() + 20);
                         });
                         $(this).find('b').next().focus();
                         editing_message_val = $(this).find('b').next().val();
@@ -440,7 +443,7 @@ $(window).on('load', function () {
             $('#editing').keypress(function (e) {
                 if (e.keyCode == 13 && is_editing) {
                     edit_header['newmessage'] = $(this).val();
-                    httpPostAsync('/api/editmessage/', edit_header, function (res) {});
+                    httpPostAsync('/api/editmessage/', edit_header, function (res) { });
                     editing_message_timestamp = 0;
                     editing_message_val = '';
                     is_editing = false;
