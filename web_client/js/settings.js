@@ -35,7 +35,7 @@ function loadSettingsJS() {
             let json_reponse = JSON.parse(response);
             image_used = json_reponse.image;
             document.getElementById("image").src = IMG_URL_HEADER + json_reponse.image;
-            $("input[type=color]").val(json_reponse.color);
+            $("input#color")[0].jscolor.fromString(json_reponse.color)
             lastColor = json_reponse.color;
             switch (json_reponse.notifications) {
                 case 0:
@@ -136,7 +136,7 @@ function loadPictureAsURL(callback) {
     reader.onloadend = function () {
         let picURL = reader.result;
         resizeImage(picURL, IMG_WIDTH, IMG_HEIGHT, (picURL) => {
-            document.getElementById("img_element").src = picURL;
+            document.getElementById("image").src = picURL;
             callback(picURL);
         });
     }
