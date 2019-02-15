@@ -76,6 +76,16 @@ input, button, textarea {
     outline: none; 
 }
 
+#editing {
+    display: table-cell;
+    white-space: nowrap;
+    font: 16px Ubuntu Mono, monospace;
+    font-style: italic;
+    border: none;
+    width: calc(100vw - 180px);
+    background: #C8E6C9;
+}
+
 #m {
     display: table-cell;
     white-space: nowrap;
