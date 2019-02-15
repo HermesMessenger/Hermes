@@ -414,7 +414,9 @@ $(window).on('load', function () {
                             message_with_body = $('li#message-' + message_json.uuid);
                             last_message_uuid = message_json.time_uuid;
                         } else {
-                            $('#messages').append(new_message);
+                            if($('#messages').find('li#message-' + message_json.uuid).length == 0){
+                                $('#messages').append(new_message);
+                            }
                         }
 
                         new_message.height(new_message_body.height());
