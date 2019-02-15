@@ -422,7 +422,6 @@ $(window).on('load', function () {
                         if(first_load) $(document).scrollTop($("#separator").offset().top)
                         else if (!message_json.edited) {
                             var scroll = $(document).height() - $(window).height() - $(window).scrollTop() - new_message.outerHeight();
-                            console.log(scroll)
                             if (scroll <= 35) $(document).scrollTop($("#separator").offset().top)
                         }
 
