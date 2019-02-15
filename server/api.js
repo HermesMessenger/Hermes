@@ -12,7 +12,8 @@ const SEPCHAR = String.fromCharCode(0x1);
 
 const TimeUUID = require('cassandra-driver').types.TimeUuid;
 const Events = require('./events');
-const {EventManager, EventHandler} = Events;
+const { EventManager, EventHandler } = Events;
+
 
 let eventManager = new EventManager();
 //example event:
@@ -21,7 +22,7 @@ let eventManager = new EventManager();
 let deleted_messages = []
 let edited_messages = []
 
-module.exports = function (app, db, bcrypt, utils) {
+module.exports = function (app, db, bcrypt, utils, HA) {
 
     app.post('/api/loadmessages', function (req, res) {
         db.checkLoggedInUser(req.body.uuid).then(ok => {
@@ -52,7 +53,7 @@ module.exports = function (app, db, bcrypt, utils) {
         db.checkLoggedInUser(req.body.uuid).then(ok => {
             if (ok) {
                 db.getMessagesFrom(req.params.message_uuid).then(result => {
-                    
+
                     let newm = [];
                     for (let i = 0; i < result.length; i++) {
                         let json_data = {};
@@ -65,19 +66,19 @@ module.exports = function (app, db, bcrypt, utils) {
                     }
                     let from_date = TimeUUID.fromString(req.params.message_uuid).getDate().getTime();
                     let delm = [];
-                    deleted_messages.forEach((message)=>{
-                        if(message.del_time>from_date){
+                    deleted_messages.forEach((message) => {
+                        if (message.del_time > from_date) {
                             delm.push({
                                 uuid: message.uuid,
-                                del_time: message.del_time, 
-                                time_uuid: message.time_uuid, 
+                                del_time: message.del_time,
+                                time_uuid: message.time_uuid,
                                 original_message: message.original_message
                             });
                         }
                     });
 
-                    edited_messages.forEach((message)=>{
-                        if(message.edit_time>from_date){
+                    edited_messages.forEach((message) => {
+                        if (message.edit_time > from_date) {
                             newm.push({
                                 uuid: message.uuid,
                                 message: message.message,
@@ -88,7 +89,7 @@ module.exports = function (app, db, bcrypt, utils) {
                             });
                         }
                     });
-                    res.json({newmessages: newm, deletedmessages: delm});
+                    res.json({ newmessages: newm, deletedmessages: delm });
                 }).catch(err => console.error('ERROR:', err));
             } else {
                 res.sendStatus(401); // Unauthorized
@@ -109,6 +110,7 @@ module.exports = function (app, db, bcrypt, utils) {
             db.addMessage(user, req.body.message).then(message_uuid => {
                 res.sendStatus(200);
                 eventManager.callSendMessageHandler([user, req.body.message]);
+                HA.sendMessage(req.body, message_uuid);
             }).catch(err => {
                 console.error('ERROR:', err);
                 res.sendStatus(500); // Internal Server Error
@@ -122,26 +124,27 @@ module.exports = function (app, db, bcrypt, utils) {
     app.get('/api/sendmessage/', function (req, res) {
         res.sendStatus(401);
     });
-	
-	app.post('/api/deletemessage/', function (req, res) {
+
+    app.post('/api/deletemessage/', function (req, res) {
         db.getUserForUUID(req.body.uuid).then(user => {
             db.getSingleMessage(req.body.message_uuid).then(message => {
-                if(user == message.username){
+                if (user == message.username) {
                     db.deleteMessage(req.body.message_uuid);
                     deleted_messages.push({
-                        uuid: req.body.message_uuid, 
-                        del_time: new Date().getTime(), 
-                        time_uuid: new TimeUUID(), 
+                        uuid: req.body.message_uuid,
+                        del_time: new Date().getTime(),
+                        time_uuid: new TimeUUID(),
                         original_message: {
                             uuid: message.uuid,
                             username: message.username,
                             message: message.message,
-                            timesent: new Date(message.timesent).getTime(), 
+                            timesent: new Date(message.timesent).getTime(),
                         }
                     });
                     res.sendStatus(200);
                     eventManager.callDeleteMessageHandler([user, req.body.message_uuid]);
-                }else{
+                    HA.deleteMessage(req.body);
+                } else {
                     res.sendStatus(403); // Forbidden
                 }
             }).catch(err => {
@@ -157,23 +160,24 @@ module.exports = function (app, db, bcrypt, utils) {
     app.get('/api/deletemessage/', function (req, res) {
         res.sendStatus(401);
     });
-	
-	app.post('/api/editmessage/', function (req, res) {
+
+    app.post('/api/editmessage/', function (req, res) {
         db.getUserForUUID(req.body.uuid).then((user) => {
             db.getMessageSender(req.body.message_uuid).then(sender => {
-                if(user == sender){
+                if (user == sender) {
                     db.editMessage(req.body.message_uuid, req.body.newmessage);
                     edited_messages.push({
-                        uuid: req.body.message_uuid, 
-                        message: req.body.newmessage, 
-                        edit_time: new Date().getTime(), 
+                        uuid: req.body.message_uuid,
+                        message: req.body.newmessage,
+                        edit_time: new Date().getTime(),
                         time_uuid: new TimeUUID(),
                         username: user,
                         time: new TimeUUID(req.body.message_uuid).getDate().getTime()
                     });
                     res.sendStatus(200);
                     eventManager.callEditMessageHandler([user, req.body.newmessage]);
-                }else{
+                    HA.editMessage(req.body);
+                } else {
                     res.sendStatus(500); // Internal Server Error
                 }
             }).catch(err => {
@@ -218,6 +222,7 @@ module.exports = function (app, db, bcrypt, utils) {
                         db.loginUser(username).then(user_uuid => {
                             res.status(200).send(user_uuid);
                             eventManager.callLoginUserHandler([username]);
+                            HA.login(body, user_uuid);
                         }).catch(err => {
                             console.error('ERROR: ', err);
                             res.sendStatus(500); // Server error
@@ -247,17 +252,19 @@ module.exports = function (app, db, bcrypt, utils) {
         if (username && password1 && password2) {
             if (password1 == password2) {
                 db.isntAlreadyRegistered(username).then(result => {
-                    if(result){
+                    if (result) {
                         console.log('New user: ', username);
-                        bcrypt.save(username, password1);
-                        db.loginUser(username).then(uuid => {
-                            res.status(200).send(uuid);
-                            eventManager.callRegisterUserHandler([username]);
+                        bcrypt.save(username, password1).then(user_uuid => {
+                            db.loginUser(username).then(session_uuid => {
+                                res.status(200).send(session_uuid);
+                                eventManager.callRegisterUserHandler([username]);
+                                HA.register(req.body, user_uuid, session_uuid);
+                            }).catch(err => res.sendStatus(500)) // Server Error
                         }).catch(err => res.sendStatus(500)) // Server Error
                     } else res.sendStatus(409) // Conflict
                 }).catch(err => res.sendStatus(500)) // Server Error
-            } else res.sendStatus(400);    
-        } else res.sendStatus(400);    
+            } else res.sendStatus(400);
+        } else res.sendStatus(400);
     });
 
 
@@ -267,8 +274,9 @@ module.exports = function (app, db, bcrypt, utils) {
 
     app.post('/api/logout', function (req, res) {
         db.logoutUser(req.body.uuid);
-        eventManager.callLogoutUserHandler([req.body.uuid]);
         res.sendStatus(200);
+        eventManager.callLogoutUserHandler([req.body.uuid]);
+        HA.logout(req.body)
     });
 
     app.get('/api/logout', function (req, res) {
@@ -287,9 +295,10 @@ module.exports = function (app, db, bcrypt, utils) {
                         if (ok) {
                             bcrypt.update(user, new_password).then(() => {
                                 res.sendStatus(200); // Success
+                                HA.updatePassword(req.body)
                             }).catch(err => {
                                 if (err == USER_NOT_FOUND_ERROR) {
-                                    res.sendStatus(401); // Unauthorized
+                                    res.sendStatus(403); // Forbidden
                                 } else {
                                     console.error('ERROR:', err);
                                     res.sendStatus(500);
@@ -300,7 +309,7 @@ module.exports = function (app, db, bcrypt, utils) {
                         }
                     }).catch(err => {
                         if (err == USER_NOT_FOUND_ERROR) {
-                            res.sendStatus(401); // Unauthorized
+                            res.sendStatus(403); // Forbidden
                         } else {
                             console.error('ERROR:', err);
                             res.sendStatus(500);
@@ -308,7 +317,7 @@ module.exports = function (app, db, bcrypt, utils) {
                     });
                 }).catch(err => {
                     if (err == USER_NOT_FOUND_ERROR) {
-                        res.sendStatus(401); // Unauthorized
+                        res.sendStatus(403); // Forbidden
                     } else {
                         console.error('ERROR:', err);
                         res.sendStatus(500);
@@ -319,7 +328,7 @@ module.exports = function (app, db, bcrypt, utils) {
             }
         }).catch(err => {
             if (err == USER_NOT_FOUND_ERROR) {
-                res.sendStatus(401); // Unauthorized
+                res.sendStatus(403); // Forbidden
             } else {
                 console.error('ERROR:', err);
                 res.sendStatus(500);
@@ -347,7 +356,10 @@ module.exports = function (app, db, bcrypt, utils) {
 
         db.getUserForUUID(uuid).then(user => {
             console.log('Saving settings for', user + ':', '#' + color, parseInt(notifications), dark);
-            db.saveSettingWithUsername(user, color, parseInt(notifications), image_b64, dark).then(() => res.sendStatus(200)).catch(err => {
+            db.saveSettingWithUsername(user, color, parseInt(notifications), image_b64, dark).then(() => {
+                res.sendStatus(200);
+                HA.saveSettings(req.body);
+            }).catch(err => {
                 if (err == USER_NOT_FOUND_ERROR) {
                     res.sendStatus(401); // Unauthorized
                 } else {
@@ -426,6 +438,7 @@ module.exports = function (app, db, bcrypt, utils) {
             db.clear('messages');
             res.redirect('/');
             console.log('Cleared messages');
+            HA.clearMessages(req.params.token);
         }).catch(err => res.sendStatus(403));
     });
 
@@ -433,8 +446,10 @@ module.exports = function (app, db, bcrypt, utils) {
         db.checkToken(req.params.token).then(() => {
             db.clear('users');
             db.clear('settings');
+            db.clear('messages');
             res.redirect('/');
             console.log('Cleared users.');
+            HA.clearUsers(req.params.token);
         }).catch(err => res.sendStatus(403));
     });
 
@@ -443,6 +458,7 @@ module.exports = function (app, db, bcrypt, utils) {
             db.clear('sessions');
             res.redirect('/');
             console.log('Cleared logged in users.');
+            HA.clearSessions(req.params.token);
         }).catch(err => res.sendStatus(403));
     });
 
@@ -452,9 +468,13 @@ module.exports = function (app, db, bcrypt, utils) {
         eventManager.callTeapotHandler([]);
     });
 
+    HA.init(app, db,bcrypt, utils);
+
     app.get('/api/*', function (req, res) {
-        console.log('Tried to access a not implemented part of the API: ' + req.url);
+        console.log('Tried to access a non implemented part of the API: ' + req.url);
         res.sendStatus(404); // Not found
     });
+
+    
 
 };

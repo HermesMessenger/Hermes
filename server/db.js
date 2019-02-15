@@ -137,11 +137,12 @@ module.exports = class {
     }
 
     registerUser(user, passwordHash) {
-        const query = 'INSERT INTO Users (UUID, Username, PasswordHash) values(now(),?,?) IF NOT EXISTS;';
-        let data = [user, passwordHash];
+        const query = 'INSERT INTO Users (UUID, Username, PasswordHash) values(?,?,?) IF NOT EXISTS;';
+        let uuid = new cassandra.types.TimeUuid();
+        let data = [uuid, user, passwordHash];
         return new Promise((resolve, reject) => {
             this.client.execute(query, data, { prepare: true }).then(result => {
-                this.saveSettingWithUsername(user, createColor()).then(result => resolve()).catch(err => reject(err));
+                this.saveSettingWithUsername(user, createColor()).then(result => resolve(uuid)).catch(err => reject(err));
             }).catch(err => reject(err));
         });
     }
