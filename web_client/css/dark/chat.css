@@ -74,7 +74,7 @@ input, button, textarea {
     outline: none; 
 }
 
-#editing {
+/*#editing {
     display: table-cell;
     white-space: nowrap;
     font: 16px Ubuntu Mono, monospace;
@@ -83,6 +83,19 @@ input, button, textarea {
     border: none;
     width: calc(100vw - 180px);
     background: rgb(66, 95, 67);
+}*/
+
+textarea#editing {
+    border: none;
+    color: #fff;
+    font: italic 15px Ubuntu Mono, monospace;
+    border: none;
+    width: calc(95vw - 180px);
+    background: rgb(66, 95, 67);
+    word-wrap: break-word;
+    word-break: break-all;
+    resize: none;
+    /*display: inline;*/
 }
 
 #m {
