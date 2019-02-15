@@ -76,7 +76,7 @@ input, button, textarea {
     outline: none; 
 }
 
-#editing {
+/*#editing {
     display: table-cell;
     white-space: nowrap;
     font: 16px Ubuntu Mono, monospace;
@@ -84,7 +84,7 @@ input, button, textarea {
     border: none;
     width: calc(100vw - 180px);
     background: #C8E6C9;
-}
+}*/
 
 #m {
     display: table-cell;
@@ -380,13 +380,16 @@ option[value="never"] {
     margin: 0 16px 8px 240px;
 }
 
-textarea #editing {
+textarea#editing {
     border: none;
     font: italic 15px Ubuntu Mono, monospace;
+    border: none;
+    width: calc(95vw - 180px);
+    background: #C8E6C9;
     word-wrap: break-word;
     word-break: break-all;
     resize: none;
-    display: inline;
+    /*display: inline;*/
 }
 
 span.message_body {

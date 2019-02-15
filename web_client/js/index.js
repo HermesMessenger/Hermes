@@ -126,16 +126,17 @@ $(window).on('load', function () {
                             is_editing = true;
 
                             prev_html = $('#messages').html();
-                            let input = $('<input>').val(edit_header['message']);
+                            let input = $('<textarea>').val(edit_header['message']);
                             input.attr('id', 'editing');
 
                             $(this).find('b').next().remove();
                             $(this).find('b').parent().append(input);
 
-                            input.width($(window).width() - input.offset().left - $(this).find('b').width() - 120);
+                            //input.width($(window).width() - input.offset().left - $(this).find('b').width() - 120);
                             input.bind('input propertychange', function () {
+                                
                                 input.attr('rows', countTextareaLines(input[0]) + '');
-                                input.parent().parent().height(input.height());
+                                input.parent().parent().height(input.height()+20);
                             });
                             $(this).find('b').next().focus();
                             editing_message_val = $(this).find('b').next().val();
