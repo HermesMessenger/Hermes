@@ -6,7 +6,7 @@
 
 body {
     font: 15px Ubuntu Mono, monospace;
-    background: #000;
+    background: #E8F5E9;
 }
 
 #space {
@@ -15,7 +15,7 @@ body {
 
 #image {
     display: inline-block;
-    margin-left: 16px;
+    margin-left: 16px
 }
 
 #settings {
@@ -25,10 +25,10 @@ body {
     background: url(/images/settings.png) no-repeat;
     background-size: 24px;
     background-position: center;
-    background-color: #222;
-    color: #fff;
+    background-color: #fff;
+    color: #000;
     border-radius: 16px;
-    border: 3px solid #fff;
+    border: 3px solid #000000;
     margin: 8px;
     width: 44px;
     height: 44px;
@@ -40,10 +40,10 @@ body {
     display: block;
     position: fixed;
     font: 18px Ubuntu Mono, monospace;
-    background: #222;
-    color: #fff;
+    background: #fff;
+    color: #000;
     border-radius: 16px;
-    border: 3px solid #fff;
+    border: 3px solid #000000;
     margin: 8px;
     padding: 10px;
     height: 44px;
@@ -66,7 +66,7 @@ body {
     overflow: hidden;
     white-space: nowrap;
     font: 18px Ubuntu Mono, monospace;
-    color: #fff;
+    color: #000;
     display: inline;
     font-weight: bold;
     margin-left: 4px
@@ -74,8 +74,6 @@ body {
 
 input, button, textarea { 
     outline: none; 
-    background-color: #222;
-    color: #fff;
 }
 
 #editing {
@@ -105,7 +103,7 @@ input, button, textarea {
     height: 20px;
     right: 0px;
     background: url(/images/send.png) no-repeat;
-    background-color: #222;
+    background-color: #fff;
     background-size: 20px;
     background-position: center;
     border: none;
@@ -119,9 +117,9 @@ input, button, textarea {
     font: 16px Ubuntu Mono, monospace;
     margin: 12px 24px 0px 128px;
     padding: 8px;
-    border: 2px solid #fff;
+    border: 2px solid #000;
     border-radius: 16px 4px 16px 16px;
-    background: #4ab14d;
+    background: #C8E6C9;
     white-space: pre-wrap;
     min-height: 36px;
     overflow: hidden;
@@ -131,10 +129,9 @@ input, button, textarea {
     font: 16px Ubuntu Mono, monospace;
     margin: 12px 128px 0px 24px;
     padding: 8px;
-    border: 2px solid #fff;
+    border: 2px solid #000;
     border-radius: 4px 16px 16px 16px;
-    background: #222;
-    color: #fff;
+    background: #FFF;
     white-space: pre-wrap;
     min-height: 36px;
     overflow: hidden;
@@ -144,14 +141,14 @@ input, button, textarea {
     position: absolute;
     right: 0;
     margin: 0px 32px 0px 4px;
-    color: #fff;
+    color: #000;
 }
 
 .theirTime {
     position: absolute;
     right: 0;
     margin: 0px 148px 0px 4px;
-    color: #fff;
+    color: #000;
 }
 
 #messages li.date {
@@ -160,7 +157,6 @@ input, button, textarea {
     border: 0;
     background: 0;
     text-align: center;
-    color: #fff;
 }
 
 #rightclick {
@@ -170,7 +166,7 @@ input, button, textarea {
     overflow: hidden;
     border: 1px solid #CCC;
     white-space: nowrap;
-    background: #222;
+    background: #FFF;
     color: #333;
     padding: 3px 0;
     border-radius: 3px;
@@ -187,7 +183,7 @@ input, button, textarea {
 
 .quote {
     padding: 1px 2px;
-    color: #fff;
+    color: #000000;
     display: inline-block;
     margin: 4px 0px;
 }
@@ -212,7 +208,7 @@ input, button, textarea {
 
 #modal-content {
     margin: 10vh 64px;
-    border: 3px solid #fff;
+    border: 3px solid #000;
     border-radius: 16px;
     position: fixed;
     bottom: 0;
@@ -227,7 +223,7 @@ input, button, textarea {
 }
 
 .close {
-    color: #222;
+    color: #fff;
     float: right;
     font-size: 36px;
     font-weight: bold;
@@ -243,7 +239,7 @@ input, button, textarea {
 }
 
 .modal-header {
-    border-bottom: 3px solid #fff;
+    border-bottom: 3px solid #000;
     border-radius: 13px 13px 0 0;
     background-color: #66BB6A;
     height: 36px;
@@ -262,7 +258,7 @@ input, button, textarea {
     position: absolute;
     font: 16px Ubuntu Mono, monospace;
     background: #66BB6A;
-    border: 2px solid #fff;
+    border: 2px solid #000;
     border-radius: 16px ;
     padding: 8px;
     font-weight: bold;
@@ -276,7 +272,7 @@ input, button, textarea {
     position: absolute;
     font: 16px Ubuntu Mono, monospace;
     background: rgba(255, 89, 89, 0.8);
-    border: 2px solid #fff;
+    border: 2px solid #000;
     border-radius: 16px ;
     padding: 8px;
     font-weight: bold;
@@ -316,7 +312,7 @@ option[value="never"] {
 
 .one {
     font: 24px Ubuntu Mono, monospace;
-    color: #222;
+    color: #FFF;
     float: left;
     width: 40%;
     margin-top: 4px;
@@ -332,7 +328,7 @@ option[value="never"] {
     width: 128px;
     height: 32px;
     margin: 5px 0 0 64px;
-    border: 2px solid #fff;
+    border: 2px solid #000;
     border-radius: 8px;
     font: 16px Ubuntu Mono, monospace;
 }
@@ -358,7 +354,7 @@ option[value="never"] {
 #color {
     text-align: center;
     font: 16px Ubuntu Mono, monospace;
-    border: 2px solid #fff;
+    border: 2px solid #000;
     border-radius: 8px;
     display: inline-block;
     width: 72px;
@@ -377,7 +373,7 @@ option[value="never"] {
     position: relative;
     padding-left: 8px;
     font: 16px Ubuntu Mono, monospace;
-    border: 2px solid #fff;
+    border: 2px solid #000;
     border-radius: 8px;
     width: 150px;
     height: 32px;
