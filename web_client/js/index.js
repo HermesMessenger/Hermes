@@ -1,21 +1,6 @@
 var notifications_supported = true;
 var notifications_allowed = false;
 
-function sendNotifiaction(user, message, image) {
-    if (notifications_allowed && notifications_supported) {
-        if (!(ifvisible.now())) {
-            new Notification(user, {
-                body: message,
-                icon: image
-            });
-        };
-    }
-}
-
-function escapeRegExp(string) {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-}
-
 if (isElectron()) window.sendUUID(getCookie('hermes_uuid'));
 
 if (getCookie('hermes_style') == 'dark') {
@@ -37,18 +22,18 @@ $(window).on('load', function () {
     });
 
     var username;
-    httpPostAsync('/api/getusername', uuid_header, function (res) {
+    httpPostAsync('/api/getusername', uuid_header, res => {
         username = res;
         $('#user').text(username + ':');
 
-        $("#m").width($(window).width() - 175 - $("#user").width())
+        $("#m").width($(window).width() - $("#user").width() - 175)
 
-        $('#message_send_form').submit(function () {
+        $('#message_send_form').submit(() => {
             msg = $('#m').val();
             if (!msg.match(/^\s*$/)) {
                 var header = uuid_header;
                 header['message'] = msg;
-                httpPostAsync('/api/sendmessage/', header, function (res) {});
+                httpPostAsync('/api/sendmessage/', header, res => {});
                 $('#m').val('');
             }
             return false;
@@ -185,13 +170,11 @@ $(window).on('load', function () {
             notifications_supported = false;
         }
         if (notifications_supported) {
-            Notification.requestPermission(function () {
+            Notification.requestPermission(() => {
                 notifications_allowed = (Notification.permission == 'granted');
-                console.log('Notifications_Allowed:', notifications_allowed);
             });
         }
 
-        $("#space").height($("#footer").height() + 10);
         window.sessionStorage.clear();
 
         var last_message_timestamp = 0;
@@ -200,7 +183,7 @@ $(window).on('load', function () {
         let prev_json = {};
         let first_load = true;
 
-        let interval = window.setInterval(function () {
+        const interval = window.setInterval(function () {
             prev_html = $('#messages').html();
             httpPostAsync('/api/loadmessages/' + last_message_uuid, uuid_header, function (res) {
                 if (res !== '' || res !== '[]') {
@@ -241,8 +224,6 @@ $(window).on('load', function () {
                         let name = $("#message_send_form").find('p').text()
                         name = name.substr(0, name.length - 1);
 
-
-                        console.log(username + ' and ' + name)
                         if (username == name) {
                             new_message.attr('class', 'myMessage')
                         } else {

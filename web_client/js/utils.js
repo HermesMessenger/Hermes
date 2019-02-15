@@ -31,6 +31,19 @@ function padNumber(n) {
     return n.toString();
 }
 
+function sendNotifiaction(user, message, image) {
+    if (notifications_allowed && notifications_supported && !(ifvisible.now())) {
+        new Notification(user, {
+            body: message,
+            icon: image
+        })
+    }
+}
+
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
 /**
  * Check if app is running through Electron or not
  */
