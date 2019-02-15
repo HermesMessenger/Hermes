@@ -6,104 +6,161 @@
 
 body {
     font: 15px Ubuntu Mono, monospace;
-    color: white;
-    background: rgb(51, 51, 51);
-}
-
-#footer {
-    background: #111;
-    padding: 3px;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    height: 50px;
-}
-
-form {
-    display: inline-block;
-}
-
-#message_send_form {
-    width: 90%;
-}
-
-#user {
-    width: 10%;
-    font: 18px Ubuntu Mono, monospace;
-    color: #fff;
-    display: inline-block;
-    text-align: right
-}
-
-input, button, textarea { outline: none; }
-
-form input {
-    font: 18px Ubuntu Mono, monospace;
-    background: #222;
-    color: #FFF;
-    border: 0;
-    padding: 15px;
-    width: 75%;
-}
-
-form button {
-    font: 16px Ubuntu Mono, monospace;
-    width: 12%;
-    background: rgba(53, 167, 59, 0.8);
-    border: none;
-    padding: 10px;
-}
-
-form button:active {
-    background: rgba(39, 126, 43, 0.8);
-}
-
-#settings {
-    font: 16px Ubuntu Mono, monospace;
-    background: #1E90FF;
-    border: none;
-    padding: 10px;
-    width: 9%;
-}
-
-#settings:active {
-    background: rgb(21, 106, 190);
-}
-
-#messages {
-    font: 16px Ubuntu Mono, monospace;
-    list-style-type: none;
-    margin: 0;
-    padding: 0
-}
-
-#messages li {
-    font: 16px Ubuntu Mono, monospace;
-    padding: 5px 10px 5px 0px;
-    white-space: pre-wrap;
-    word-break: break-all;
-    word-wrap: break-word;
-    height: 26px;
-}
-
-#messages li:nth-child(odd) {
-    font: 16px Ubuntu Mono, monospace;
-    background: rgb(63, 63, 63);
+    background: #000;
 }
 
 #space {
     height: 50px;
 }
 
-.time {
+#image {
+    display: inline-block;
+    margin-left: 16px;
+}
+
+#settings {
+    display: inline-block;
+    position: fixed;
+    font: 18px Ubuntu Mono, monospace;
+    background: url(/images/settings.png) no-repeat;
+    background-size: 24px;
+    background-position: center;
+    background-color: #222;
+    color: #fff;
+    border-radius: 16px;
+    border: 3px solid #fff;
+    margin: 8px;
+    width: 44px;
+    height: 44px;
+    bottom: 0;
+    right: 0;
+}
+
+#message_send_form {
+    display: block;
+    position: fixed;
+    font: 18px Ubuntu Mono, monospace;
+    background: #222;
+    color: #fff;
+    border-radius: 16px;
+    border: 3px solid #fff;
+    margin: 8px;
+    padding: 10px;
+    height: 44px;
+    width: auto;
+    bottom: 0%;
+    float : left;
+}
+
+#message_send_form {
+    left: 4px;
+    right: 64px;
+}
+
+#separator {
+    bottom: 0;
+    height: 64px;
+}
+
+#user {
+    overflow: hidden;
+    white-space: nowrap;
+    font: 18px Ubuntu Mono, monospace;
+    color: #fff;
+    display: inline;
+    font-weight: bold;
+    margin-left: 4px
+}
+
+input, button, textarea { 
+    outline: none; 
+    background-color: #222;
+    color: #fff;
+}
+
+#editing {
+    display: table-cell;
+    white-space: nowrap;
+    font: 16px Ubuntu Mono, monospace;
+    font-style: italic;
+    border: none;
+    width: calc(100vw - 180px);
+    background: #C8E6C9;
+}
+
+#m {
+    display: table-cell;
+    white-space: nowrap;
+    font: 18px Ubuntu Mono, monospace;
+    border: none;
+    width: calc(100vw - 180px);
+}
+
+#send {
+    display: table-cell;
+    white-space: nowrap;
+    font: 16px Ubuntu Mono, monospace;
+    float: right;
+    width: 20px;
+    height: 20px;
+    right: 0px;
+    background: url(/images/send.png) no-repeat;
+    background-color: #222;
+    background-size: 20px;
+    background-position: center;
+    border: none;
+}
+
+#messages {
+    list-style-type: none;
+}
+
+.myMessage {
+    font: 16px Ubuntu Mono, monospace;
+    margin: 12px 24px 0px 128px;
+    padding: 8px;
+    border: 2px solid #fff;
+    border-radius: 16px 4px 16px 16px;
+    background: #4ab14d;
+    white-space: pre-wrap;
+    min-height: 36px;
+    overflow: hidden;
+}
+
+.theirMessage {
+    font: 16px Ubuntu Mono, monospace;
+    margin: 12px 128px 0px 24px;
+    padding: 8px;
+    border: 2px solid #fff;
+    border-radius: 4px 16px 16px 16px;
+    background: #222;
+    color: #fff;
+    white-space: pre-wrap;
+    min-height: 36px;
+    overflow: hidden;
+}
+
+.myTime {
     position: absolute;
-    right: 1%;
-    color: #c0c0c0;
+    right: 0;
+    margin: 0px 32px 0px 4px;
+    color: #fff;
+}
+
+.theirTime {
+    position: absolute;
+    right: 0;
+    margin: 0px 148px 0px 4px;
+    color: #fff;
 }
 
 #messages li.date {
-    background: rgb(67, 82, 72);
+    margin-top: 16px;
+    border-radius: 0;
+    border: 0;
+    background: 0;
     text-align: center;
+    color: #fff;
 }
 
 #rightclick {
@@ -113,8 +170,8 @@ form button:active {
     overflow: hidden;
     border: 1px solid #CCC;
     white-space: nowrap;
-    background: rgb(63, 63, 63);
-    color: #FFF;
+    background: #222;
+    color: #333;
     padding: 3px 0;
     border-radius: 3px;
 }
@@ -125,42 +182,18 @@ form button:active {
 }
 
 #rightclick li:hover {
-    background-color: rgb(61, 73, 85);
+    background-color: #DEF;
 }
 
 .quote {
     padding: 1px 2px;
-    color: #ffffff;
+    color: #fff;
     display: inline-block;
     margin: 4px 0px;
 }
 
-a {
-    color: rgb(122, 170, 224);
-}
-
-#myBtn {
-    display: none;
-    position: fixed;
-    bottom: 55px;
-    right: 3px;
-    z-index: 99;
-    font-size: 18px;
-    border: none;
-    outline: none;
-    background-color: #3f5643;
-    color: white;
-    cursor: pointer;
-    padding: 10px;
-    border-radius: 4px;
-}
-
-#myBtn:hover {
-    background-color: #719e79;
-}
-
 .modal {
-    font-family: Arial, Helvetica, sans-serif;
+    font: 16px Ubuntu Mono, monospace;
     display: none;
     position: fixed;
     z-index: 1;
@@ -177,74 +210,76 @@ a {
     animation-duration: 0.4s;
 }
 
-.modal-content {
+#modal-content {
+    margin: 10vh 64px;
+    border: 3px solid #fff;
+    border-radius: 16px;
     position: fixed;
     bottom: 0;
-    background-color: #fefefe;
+    background-color: #E8F5E9;
     color: black;
-    width: 100%;
+    width: calc(100vw - 128px);
     -webkit-animation-name: slideIn;
     -webkit-animation-duration: 0.4s;
     animation-name: slideIn;
     animation-duration: 0.4s;
-    height: 65%;
+    height: 550px;
 }
 
 .close {
-    color: white;
+    color: #222;
     float: right;
-    font-size: 28px;
+    font-size: 36px;
     font-weight: bold;
+    margin-right: 10px;
+    vertical-align: middle;
+    transition: color 0.3s ease;
 }
 
 .close:hover, .close:focus {
-    color: #000;
+    color: #EF5350;
     text-decoration: none;
     cursor: pointer;
 }
 
 .modal-header {
-    background-color: #5cb85c;
-    color: white;
-    height: 25px;
+    border-bottom: 3px solid #fff;
+    border-radius: 13px 13px 0 0;
+    background-color: #66BB6A;
+    height: 36px;
 }
 
 .modal-body {
     padding: 2px 16px;
 }
 
-.modal-footer {
-    padding: 2px 16px;
-    background-color: #5cb85c;
-    color: white;
-}
-
-#save_form {
-    bottom: 10px;
-    position: absolute;
-    width: 20%;
-}
 
 #save {
+    float: left;
+    left: 96px;
+    width: 150px;
+    bottom: 10px;
+    position: absolute;
     font: 16px Ubuntu Mono, monospace;
-    width: 100%;
-    background: green;
-    border: none;
-    padding: 10px;
+    background: #66BB6A;
+    border: 2px solid #fff;
+    border-radius: 16px ;
+    padding: 8px;
+    font-weight: bold;
 }
 
 #logout {
-    font: 16px Ubuntu Mono, monospace;
-    width: 100%;
-    background: rgba(255, 89, 89, 0.8);
-    border: none;
-    padding: 10px;
-}
-
-#logout_form {
+    float: left;
+    left: 272px;
+    width: 150px;
     bottom: 10px;
     position: absolute;
-    width: 20%;
+    font: 16px Ubuntu Mono, monospace;
+    background: rgba(255, 89, 89, 0.8);
+    border: 2px solid #fff;
+    border-radius: 16px ;
+    padding: 8px;
+    font-weight: bold;
 }
 
 .desk {
@@ -267,16 +302,6 @@ article, aside, figure, footer, header, hgroup, menu, nav, section {
     display: block;
 }
 
-.sse {
-    float: left;
-    width: 50%;
-}
-
-.lou {
-    float: right;
-    width: 50%;
-}
-
 option[value="always"] {
     background: #88ff88;
 }
@@ -290,8 +315,12 @@ option[value="never"] {
 }
 
 .one {
+    font: 24px Ubuntu Mono, monospace;
+    color: #222;
     float: left;
     width: 40%;
+    margin-top: 4px;
+    margin-left: 48px;
 }
 
 .two {
@@ -299,57 +328,19 @@ option[value="never"] {
     width: 40%;
 }
 
-.tnot {
-    margin-top: 10px;
+#notselect {
+    width: 128px;
+    height: 32px;
+    margin: 5px 0 0 64px;
+    border: 2px solid #fff;
+    border-radius: 8px;
+    font: 16px Ubuntu Mono, monospace;
 }
 
-.not {
-    margin-top: 5px;
-}
-
-.tcol {
-    margin-top: 10px;
-}
-
-.col {
-    margin-top: 5px;
-}
-
-.tpic {
-    margin-top: 10px;
-}
-
-.pic {
-    margin-top: 5px;
-}
-
-.tchp {
-    margin-top: 10px;
-}
-
-#old {
-    margin-top: 5px;
-    margin-right: 5px;
-}
-
-#new {
-    margin-top: 10px;
-    margin-right: 5px;
-}
-
-#repeat {
-    margin-top: 10px;
-}
-
-#Dth {
-    float: left;
-    margin-top: 10px;
-    margin-right: 5px;
-}
-
-#tik {
-    float: left;
-    margin-top: 12px
+.setting {
+    display:inline-block;
+    margin: 32px;
+    font-weight: bold
 }
 
 .space2 {
@@ -364,7 +355,36 @@ option[value="never"] {
     margin: 0px 5px;
 }
 
-textarea#editing {
+#color {
+    text-align: center;
+    font: 16px Ubuntu Mono, monospace;
+    border: 2px solid #fff;
+    border-radius: 8px;
+    display: inline-block;
+    width: 72px;
+    height: 32px;
+    margin-left: 32px;
+}
+
+#chpswd {
+    position: absolute;
+    top: 270px;
+    left: 16px;
+}
+
+.pswd {
+    display: block;
+    position: relative;
+    padding-left: 8px;
+    font: 16px Ubuntu Mono, monospace;
+    border: 2px solid #fff;
+    border-radius: 8px;
+    width: 150px;
+    height: 32px;
+    margin: 0 16px 8px 240px;
+}
+
+textarea #editing {
     border: none;
     font: italic 15px Ubuntu Mono, monospace;
     word-wrap: break-word;
@@ -375,23 +395,14 @@ textarea#editing {
 
 span.message_body {
     display: inline-block;
+    position: absolute;
+    width: calc(100vw - 300px)
 }
 
 span {
     white-space: pre-wrap;
     word-break: break-all;
     word-wrap: break-word;
-}
-
-@-webkit-keyframes slideIn {
-    from {
-        bottom: -300px;
-        opacity: 0
-    }
-    to {
-        bottom: 0;
-        opacity: 1
-    }
 }
 
 @keyframes slideIn {
@@ -402,35 +413,6 @@ span {
     to {
         bottom: 0;
         opacity: 1
-    }
-}
-
-@-webkit-keyframes fadeIn {
-    from {
-        opacity: 0
-    }
-    to {
-        opacity: 1
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0
-    }
-    to {
-        opacity: 1
-    }
-}
-
-@-webkit-keyframes slideOut {
-    from {
-        bottom: 0;
-        opacity: 1
-    }
-    to {
-        bottom: -300px;
-        opacity: 0
     }
 }
 
@@ -445,20 +427,34 @@ span {
     }
 }
 
-@-webkit-keyframes fadeOut {
-    from {
-        opacity: 1
-    }
-    to {
-        opacity: 0
+@media only screen and (max-width: 1000px) {
+    .web {
+        width: 100%;
     }
 }
 
-@keyframes fadeOut {
-    from {
-        opacity: 1
+@media only screen and (max-width: 600px) {
+    #messages li {
+        margin: 12px 24px 12px 64px;
     }
-    to {
-        opacity: 0
+
+    span.message_body {
+        width: calc(100vw - 220px)
+    }
+
+    .setting {
+        margin: 32px 0px;
+    }
+
+    .pswd {
+        margin: 0 16px 8px 175px;
+    }
+
+    #save {
+        left: 16px;
+    }
+    
+    #logout {
+        left: 190px;
     }
 }
