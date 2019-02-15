@@ -413,14 +413,23 @@ $(window).on('load', function () {
                             $('li#message-' + message_json.uuid).replaceWith(new_message);
                             message_with_body = $('li#message-' + message_json.uuid);
                             last_message_uuid = message_json.time_uuid;
-
-                        } else $('#messages').append(new_message);
+                        } else {
+                            $('#messages').append(new_message);
+                        }
 
                         new_message.height(new_message_body.height());
 
-                        first_load = false;
+                        if(first_load) $(document).scrollTop($("#separator").offset().top)
+                        else if (!message_json.edited) {
+                            var scroll = $(document).height() - $(window).height() - $(window).scrollTop() - new_message.outerHeight();
+                            console.log(scroll)
+                            if (scroll <= 35) $(document).scrollTop($("#separator").offset().top)
+                        }
+
                         prev_json = message_json;
                     }
+
+                    first_load = false;
                 }
 
             });
