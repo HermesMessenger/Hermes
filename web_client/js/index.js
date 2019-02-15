@@ -450,11 +450,16 @@ $(window).on('load', function () {
             editing_message_val = $('#editing').val();
             $('#editing').keypress(function (e) {
                 if (e.keyCode == 13 && is_editing) {
-                    edit_header['newmessage'] = $(this).val();
-                    httpPostAsync('/api/editmessage/', edit_header);
-                    editing_message_timestamp = 0;
-                    editing_message_val = '';
-                    is_editing = false;
+                    if($(this).val()!=''){
+                        edit_header['newmessage'] = $(this).val();
+                        httpPostAsync('/api/editmessage/', edit_header);
+                        editing_message_timestamp = 0;
+                        editing_message_val = '';
+                        is_editing = false;
+                    }else{
+                        httpPostAsync('/api/deletemessage/', edit_header);
+                        is_editing = false;
+                    }
                 }
             });
         }, 100)
