@@ -14,7 +14,7 @@ function writeJSON(json = {}){
             config[key] = json[key]
         }
     }
-    fs.writeFile('config.json', JSON.stringify(config, null, 4), function (err) {
+    fs.writeFile('config.json', JSON.stringify(config, null, '\t'), function (err) {
         if (err) throw err;
         console.log('config.json created');
     });
