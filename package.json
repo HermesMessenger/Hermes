@@ -16,9 +16,11 @@
   },
   "devDependencies": {},
   "scripts": {
+    "prepare_project": "node scripts/prepareProject.js",
     "test": "node server.js",
     "start": "node server.js",
-    "postinstall": "node scripts/prepareProject.js"
+    "prestart": "npm run prepare_project",
+    "postinstall": "npm run prepare_project"
   },
   "repository": {
     "type": "git",

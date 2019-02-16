@@ -8,12 +8,23 @@ const configTemplate =
     "port": 8080
 }`;
 
+function writeJSON(){
+    fs.writeFile('config.json', configTemplate, function (err) {
+        if (err) throw err;
+        console.log('config.json created');
+    });
+}
+
 fileExists('config.json',(err,exists) => {
     if(err) throw err;
-    if(!exists) {
-        fs.writeFile('config.json', configTemplate, function (err) {
-            if (err) throw err;
-            console.log('config.json created');
-        });
+    if(exists) {
+        const config = require('../config.json');
+        if(!config.port || !config.mainIP || !config.generalToken){
+            writeJSON();
+        }else{
+            console.log('config.json correct');
+        }
+    }else{
+        writeJSON();
     }
 });
