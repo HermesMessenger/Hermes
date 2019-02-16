@@ -8,6 +8,7 @@ const favicon = require('express-favicon'); // Favicon
 const fileExists = require('file-exists');
 const path = require('path');
 const HA = require('./server/highAvailability.js');
+const config = require('./config.json')
 
 const web_client_path = __dirname + '/web_client/';
 const html_path = web_client_path + 'html/';
@@ -218,7 +219,7 @@ app.get('*', function (req, res) {
     res.redirect('/');
 });
 
-app.listen(8080, function () {
-    console.log('listening on *:8080');
+app.listen(config.port, function () {
+    console.log('listening on *:'+config.port);
     HA.startChecking()
 });

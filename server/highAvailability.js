@@ -7,6 +7,7 @@ const utils = require('./utils.js')
 
 connectedIPs = []
 serverStatus = -1
+connection = undefined
 
 module.exports = {
     //TODO Add HA API
@@ -14,7 +15,10 @@ module.exports = {
         app.post('/api/HA/hello', function(req, res){
             let IP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
             if(serverStatus == 0 && req.body.token == config.generalToken){
-                if(!(connectedIPs.includes(IP))) connectedIPs.push(IP);
+                if(!(connectedIPs.includes(IP))){
+                    connectedIPs.push(IP);
+                    console.log(IP, 'has connected as a secondary server');
+                }
                 res.status(200).send('');
             }else{
                 res.sendStatus(403); // Forbidden
@@ -31,7 +35,12 @@ module.exports = {
         let stdout = checkStatus.stdout.toString('utf8').trim()
         serverStatus = checkStatus.status;
         if(serverStatus == 1){
-            utils.request('POST', 'http://'+stdout+'/api/HA/hello', {token: config.generalToken}).catch(err => console.error(err))
+            if(connection != stdout) {
+                utils.request('POST', 'http://'+stdout+'/api/HA/hello', {token: config.generalToken}).then(body => {
+                    console.log('Connected to', 'http://'+stdout)
+                }).catch(err => console.log(err))
+                connection = stdout
+            }
         }
         setTimeout(() => this.startChecking(),2000);
     },

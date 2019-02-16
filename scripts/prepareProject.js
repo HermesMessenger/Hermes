@@ -4,7 +4,8 @@ const TimeUUID = require('cassandra-driver').types.TimeUuid;
 const configTemplate = 
 `{
     "generalToken": "${new TimeUUID()}",
-    "mainIP": "localhost:8080"
+    "mainIP": "localhost:8080",
+    "port": 8080
 }`;
 
 fileExists('config.json',(err,exists) => {

@@ -66,7 +66,6 @@ module.exports.request = async function (method, location, formData) {
         }
     } catch (err) {
         if (err.name == 'RequestError') {
-            console.error(err)
             throw new Error('Error: Can\'t connect to IP. \nEnsure you are connected to the Internet. ' + location + '\n\n')
 
         } else if (err == 'Error: Invalid token') {
