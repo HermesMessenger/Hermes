@@ -1,25 +1,39 @@
 const TimeUUID = require('cassandra-driver').types.TimeUuid;
+const spawn = require('child_process').spawnSync;
 
-mytoken = new TimeUUID();
-//! When using the server as the main one change this or:
-// TODO: Load this from an independent file
-generalToken = '2d903f7d-e6cb-4e28-83e8-7a2573eff3e3'
+const config = require('../config.json');
+const utils = require('./utils.js')
+
 
 connectedIPs = []
+serverStatus = -1
 
 module.exports = {
     //TODO Add HA API
     init: function (app, db, bcrypt, utils) {
-        app.post('/API/HA/hello', function(req, res){
-            if(req.body.token == generalToken){
-                connectedIPs.push(req.headers['x-forwarded-for'] || req.connection.remoteAddress);
-                res.status(200).send(token.toString());
+        app.post('/api/HA/hello', function(req, res){
+            let IP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+            if(serverStatus == 0 && req.body.token == config.generalToken){
+                if(!(connectedIPs.includes(IP))) connectedIPs.push(IP);
+                res.status(200).send('');
             }else{
                 res.sendStatus(403); // Forbidden
             }
         });
+        
 
         //TODO make the code for recieving & sending the clear token
+    },
+    startChecking: function(){
+        let checkStatus = spawn('bash', ['scripts/check_domain.sh', config.mainIP]);
+        let stderr = checkStatus.stderr.toString('utf8').trim()
+        if (stderr != '') throw new Error(stderr);
+        let stdout = checkStatus.stdout.toString('utf8').trim()
+        serverStatus = checkStatus.status;
+        if(serverStatus == 1){
+            utils.request('POST', 'http://'+stdout+'/api/HA/hello', {token: config.generalToken}).catch(err => console.error(err))
+        }
+        setTimeout(() => this.startChecking(),2000);
     },
 
     //TODO Add HA function calls to make post requests

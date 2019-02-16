@@ -10,12 +10,15 @@
     "cookie-parser": "^1.4.3",
     "express": "^4.16.4",
     "express-favicon": "^2.0.1",
-    "file-exists": "^5.0.1"
+    "file-exists": "^5.0.1",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4"
   },
   "devDependencies": {},
   "scripts": {
     "test": "node server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "postinstall": "node scripts/prepareProject.js"
   },
   "repository": {
     "type": "git",

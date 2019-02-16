@@ -1,12 +1,10 @@
 #!/bin/bash
 
-Domain="hermesmessenger.duckdns.org"
+Domain="$1"
 
 DomainIP=$(host $Domain | awk '/has address/ { print $4 ; exit }')
-
 ExternalIP=$(wget -q -O - "http://myexternalip.com/raw")
-
-if [ $DomainIP = $ExternalIP ] ; then
+if [ "$DomainIP" == "$ExternalIP" ] ; then
 
     exit 0 # I'm the server
 
