@@ -219,7 +219,25 @@ app.get('*', function (req, res) {
     res.redirect('/');
 });
 
-app.listen(config.port, function () {
+let server = app.listen(config.port, function () {
     console.log('listening on *:'+config.port);
     HA.startChecking()
 });
+
+let closing = false;
+function close(){
+    if(!closing){
+        closing = true;
+        console.log('Exiting process');
+        HA.close();
+        server.close();
+        console.log('------------------------------------------');
+    }
+}
+
+//catches ctrl+c event
+process.on('SIGINT', close);
+
+// catches "kill pid" (for example: nodemon restart)
+process.on('SIGUSR1', close);
+process.on('SIGUSR2', close);
