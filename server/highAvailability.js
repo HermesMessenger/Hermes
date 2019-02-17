@@ -3,7 +3,7 @@ const ipaddr = require('ipaddr.js');
 
 const config = require('../config.json');
 const utils = require('./utils.js');
-const FORCE_CONNECT = true;
+const FORCE_CONNECT = false;
 
 
 let connectedIPs = [];
