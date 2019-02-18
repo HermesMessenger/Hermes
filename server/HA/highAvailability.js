@@ -17,11 +17,12 @@ let connection = undefined;
 let closing = false;
 
 module.exports = {
-    //TODO Add HA API
     init: function (app, db, bcrypt, utils) {
+        //#region Main Server API methods
         app.post('/api/HA/hello', function (req, res) {
             // if ip.kind() == 'ipv6' then to make requests we have to add brackets '[ip]'
             // For example if ip = ::1 then ip.kind() == 'ipv6', so to call it we have to do [::1]
+            // This is already handled in the ServerObject class, with the toString()
             let address = new ServerObject(ipaddr.parse(req.headers['x-forwarded-for'] || req.connection.remoteAddress), req.body.port);
             if (serverStatus == 0 && req.body.token == config.generalToken) {
                 if (!(connectedIPs.includes(address))) {
@@ -53,6 +54,21 @@ module.exports = {
                 res.sendStatus(403); // Forbidden
             }
         });
+        //#endregion Main Server API methods
+        
+        //#region Secondary server API methods
+        app.post('/api/HA/login', function (req, res) {
+            if(req.body.server_session == connection.server_session.toString()){
+                db.loginHA(req.body.username, req.body.session_uuid).then(() => {
+                    res.sendStatus(200);
+                }).catch(err => {
+                    res.sendStatus(500);
+                })
+            }
+        });
+
+        //TODO: Add the rest of the methods
+        //#endregion
 
 
         //TODO make the code for recieving & sending the clear token
@@ -94,37 +110,45 @@ module.exports = {
         }
     },
 
-    //TODO Add HA function calls to make post requests
     login: async function (body, session_uuid) {
         console.log('HA LOGIN:', body.username);
+        //TODO make POST request to /api/HA/login {username, session_uuid, server_session}
     },
 
     register: async function (body, user_uuid, session_uuid) {
         console.log('HA REGISTER:', body.username);
+        //TODO make POST request to /api/HA/register {username, password, user_uuid, server_session}
+        //TODO make POST request to /api/HA/login {username, session_uuid, server_session}
     },
 
     logout: async function (body) {
         console.log('HA LOGOUT:', body.uuid);
+        //TODO make POST request to /api/logout {session_uuid}
     },
 
     sendMessage: async function (body, message_uuid) {
         console.log('HA SENDMESSAGE:', body.message);
+        //TODO make POST request to /api/HA/sendmessage {message, message_uuid, server_session}
     },
 
     deleteMessage: async function (body) {
         console.log('HA DELETEMESSAGE:', body.message_uuid);
+        //TODO make POST request to /api/deletemessage body
     },
 
     editMessage: async function (body) {
         console.log('HA EDITMESSAGE:', body.newmessage);
+        //TODO make POST request to /api/editmessage body
     },
 
     updatePassword: async function (body) {
         console.log('HA UPDATEPASSWORD');
+        //TODO make POST request to /api/updatepassword body
     },
 
     saveSettings: async function (body) {
         console.log('HA SAVESETTINGS');
+        //TODO make POST request to /api/savesettings body
     },
 
     clearMessages: async function (token) { },

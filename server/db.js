@@ -226,6 +226,18 @@ module.exports = class {
         });
     }
 
+    loginHA(user, session_uuid) {
+        const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) IF NOT EXISTS USING TTL ?;';
+        //const uuid_query = 'SELECT UUID FROM Sessions WHERE Username = ? ALLOW FILTERING;';
+        //let user_uuid = uuidv1();
+        let data = [user, session_uuid,SESSION_TIMEOUT];
+        return new Promise((resolve, reject) => {
+            this.client.execute(query, data, { prepare: true }).then(result => {
+                resolve();
+            }).catch(err => reject(err));
+        });
+    }
+
     loginBot(bot) {
         // FIXME: check if bot is already logged in, to update it
         const query = 'INSERT INTO Sessions (UUID, Username) values(now(),?) IF NOT EXISTS USING TTL ?;';
