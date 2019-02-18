@@ -4,7 +4,7 @@ const utils = require('../utils.js');
 
 // TODO Check for local ips like 127.0.0.1, 192.168.*
 
-module.exports = check_domain_func = async function(domain) {
+module.exports = check_domain_func = function(domain) {
     return new Promise((resolve, reject) => {
         dns.lookup(domain, function(err, main_ip) {
             if(err){reject(err);return}
