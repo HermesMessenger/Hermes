@@ -2,7 +2,12 @@ const dns = require('dns');
 const ping = require('ping');
 const utils = require('../utils.js');
 
-// TODO Check for local ips like 127.0.0.1, 192.168.*
+// TODO Check for ips that match, this ips will be compared to a local (WiFi) network IP:
+//10.0.0.0      ->  10.255.255.255  (Private network)
+//172.16.0.0    –>  172.31.255.255  (Private network)
+//192.168.0.0   ->  192.168.255.255 (Private network)
+// TODO Check for ips that match, this ips will be compared be port, as they're localhost:
+//127.0.0.0     ->  127.255.255.255 (Host)
 
 module.exports = check_domain_func = function(domain) {
     return new Promise((resolve, reject) => {
