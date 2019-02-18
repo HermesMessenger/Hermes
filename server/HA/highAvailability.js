@@ -1,52 +1,20 @@
+const TimeUUID = require('cassandra-driver').types.TimeUuid;
+
 const spawn = require('child_process').spawnSync;
 const ipaddr = require('ipaddr.js');
 
-const config = require('../config.json');
-const utils = require('./utils.js');
-const FORCE_CONNECT = false;
+const config = require('../../config.json');
+const utils = require('../utils.js');
+const types = require('./types.js');
+const ServerObject = types.ServerObject;
+const Connection = types.Connection;
+const FORCE_CONNECT = config.forceHAConnect;
 
 
 let connectedIPs = [];
-let serverStatus = -1;
+let serverStatus = -1; // 0 -> I'm the server; 1 -> I'm not the server
 let connection = undefined;
 let closing = false;
-
-Array.prototype.remove = function() {
-    var what, a = arguments, L = a.length, ax;
-    while (L && this.length) {
-        what = a[--L];
-        while ((ax = this.indexOf(what)) !== -1) {
-            this.splice(ax, 1);
-        }
-    }
-    return this;
-};
-
-
-class Address {
-    /**
-     * @param {ipaddr.IPv4 | ipaddr.IPv6} ip 
-     * @param {Number} port 
-     */
-    constructor(ip, port){
-        this.ip = ip;
-        this.port = port;
-    }
-
-    toString(){
-        let ip_str = this.ip.toString();
-        if(this.ip.kind() == 'ipv6'){
-            ip_str = `[${ip_str}]`
-        }
-        return `${ip_str}:${this.port}`
-    }
-
-    equals(other){
-        if(other.prototype == this.prototype){
-            return this.toString() == other.toString();
-        }
-    }
-}
 
 module.exports = {
     //TODO Add HA API
@@ -54,20 +22,20 @@ module.exports = {
         app.post('/api/HA/hello', function (req, res) {
             // if ip.kind() == 'ipv6' then to make requests we have to add brackets '[ip]'
             // For example if ip = ::1 then ip.kind() == 'ipv6', so to call it we have to do [::1]
-            let address = new Address(ipaddr.parse(req.headers['x-forwarded-for'] || req.connection.remoteAddress), req.body.port);
+            let address = new ServerObject(ipaddr.parse(req.headers['x-forwarded-for'] || req.connection.remoteAddress), req.body.port);
             if (serverStatus == 0 && req.body.token == config.generalToken) {
                 if (!(connectedIPs.includes(address))) {
                     connectedIPs.push(address);
                     console.log(address.toString(), 'has connected as a secondary server');
                 }
-                res.status(200).send('');
+                res.status(200).send(address.server_session.toString());
             } else {
                 res.sendStatus(403); // Forbidden
             }
         });
 
         app.post('/api/HA/bye', function (req, res) {
-            let address = new Address(ipaddr.parse(req.headers['x-forwarded-for'] || req.connection.remoteAddress), req.body.port);
+            let address = new ServerObject(ipaddr.parse(req.headers['x-forwarded-for'] || req.connection.remoteAddress), req.body.port, TimeUUID.fromString(req.body.server_session));
             if (serverStatus == 0 && req.body.token == config.generalToken) {
                 let includes = false;
                 for (addr of connectedIPs){
@@ -85,6 +53,8 @@ module.exports = {
                 res.sendStatus(403); // Forbidden
             }
         });
+
+
         //TODO make the code for recieving & sending the clear token
     },
     startChecking: function () {
@@ -96,17 +66,17 @@ module.exports = {
         if (serverStatus == 1) {
             if (connection != stdout) {
                 utils.request('POST', 'http://' + stdout + '/api/HA/hello', { token: config.generalToken, port: config.port }).then(body => {
-                    console.log('Connected to', 'http://' + stdout)
+                    console.log('Connected to', 'http://' + stdout, `(${body})`);
+                    connection = new Connection(stdout, body);
                 }).catch(err => console.log(err))
-                connection = stdout
             }
         }
         if (FORCE_CONNECT) {
             if (connection != config.mainIP) {
                 utils.request('POST', 'http://' + config.mainIP + '/api/HA/hello', { token: config.generalToken, port: config.port }).then(body => {
-                    console.log('Connected to', 'http://' + config.mainIP)
+                    console.log('Connected to', 'http://' + config.mainIP, `(${body})`);
+                    connection = new Connection(config.mainIP, body);
                 }).catch(err => console.log(err))
-                connection = config.mainIP
             }
         }
         if(closing)
@@ -118,8 +88,8 @@ module.exports = {
     close: function () {
         closing = true;
         if (connection) {
-            utils.request('POST', 'http://' + connection + '/api/HA/bye', { token: config.generalToken, port: config.port }).then(body => {
-                console.log('Disconnected from', 'http://' + connection);
+            utils.request('POST', 'http://' + connection.ip + '/api/HA/bye', { token: config.generalToken, port: config.port, server_session: connection.server_session }).then(body => {
+                console.log('Disconnected from', 'http://' + connection.ip);
             }).catch(err => console.log(err));
         }
     },

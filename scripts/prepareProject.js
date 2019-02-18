@@ -4,7 +4,8 @@ const TimeUUID = require('cassandra-driver').types.TimeUuid;
 const configTemplate = {
     generalToken: `${new TimeUUID()}`,
     mainIP: "localhost:8080",
-    port: 8080
+    port: 8080,
+    forceHAConnect: false
 };
 
 function writeJSON(json = {}){

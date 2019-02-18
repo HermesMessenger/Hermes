@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser'); // Cookies
 const favicon = require('express-favicon'); // Favicon
 const fileExists = require('file-exists');
 const path = require('path');
-const HA = require('./server/highAvailability.js');
+const HA = require('./server/HA/highAvailability.js');
 const config = require('./config.json')
 
 const web_client_path = __dirname + '/web_client/';
