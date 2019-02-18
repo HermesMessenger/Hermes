@@ -1,6 +1,6 @@
-<!DOCTYPE html>
-<html>
-  <head>
+<!doctype html>
+
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Hermes</title>
@@ -13,21 +13,48 @@
     <script src="js/utils.js" type="text/javascript"></script>
     <script src="js/settings.js" type="text/javascript"></script>
     <script src="js/index.js" type="text/javascript"></script>
-  </head>
-  <body>
-      <ul id="rightclick">
-          <li id="quote">Quote</li>
-          <li id="delete">Delete</li>
-          <li id="edit">Edit</li>
+</head>
+
+
+<body>
+	<div id="darkoverlay"></div>
+    <div id="menutop">
+      <div id="title">
+        <img src="/images/HermesMessengerLogoV2.png" id="chatimg">
+        <h3 id="chatname">GLOBAL</h3>
+      </div>
+      <div id="sidebarbtn">
+        <div class="bar" id="bar1"></div>
+        <div class="bar" id="bar2"></div>
+        <div class="bar" id="bar3"></div>
+      </div>
+    </div>
+    <div id="sidebar">
+      <h1 style="text-align: center;color:#fff;">Chats</h1>
+      <ul>
+        <li class="chatselect" data-channel="general">
+          <img src="/images/HermesMessengerLogoV2.png" id="chatimg">
+          <p id="chatname">GLOBAL</p>
+        </li>
       </ul>
-      <ul id="messages"></ul>
-      <form action="" id="message_send_form">
-          <p id="user"></p>
-          <input id="m" autocomplete="off" autofocus />
-          <button id='send'></button>
-      </form>
-      <div id="separator"></div>
-      <button id="settings" ></button>
-      <div id="myModal" class="modal"></div>
-  </body>
+    </div>
+    <ul id="rightclick">
+        <li id="quote">Quote</li>
+        <li id="delete">Delete</li>
+        <li id="edit">Edit</li>
+    </ul>
+	<ul id="theirRightclick">
+        <li id="quote">Quote</li>
+    </ul>
+    <ul id="messages"></ul>
+    <form action="" id="message_send_form">
+        <p id="user"></p>
+        <input id="m" autocomplete="off" autofocus />
+        <button id='send'></button>
+    </form>
+    <div id="separator"></div>
+    <button id="settings" ></button>
+    <div id="myModal" class="modal"></div>
+</body>
+
 </html>
