@@ -35,7 +35,7 @@ $(window).on('load', function () {
             if (!msg.match(/^\s*$/)) {
                 var header = uuid_header;
                 header['message'] = msg;
-                httpPostAsync('/api/sendmessage/', header, res => { });
+                httpPostAsync('/api/sendmessage/', header);
                 $('#m').val('');
             }
             return false;
@@ -76,14 +76,14 @@ $(window).on('load', function () {
 
                         let header = uuid_header;
                         header.message_uuid = $(this).attr('id').substr(8);
-                        httpPostAsync('/api/deletemessage/', header, res => { });
+                        httpPostAsync('/api/deletemessage/', header);
 
                         return false;
                     }
                 } else {
                     let header = uuid_header;
                     header.message_uuid = $(this).attr('id').substr(8);
-                    httpPostAsync('/api/deletemessage/', header, res => { });
+                    httpPostAsync('/api/deletemessage/', header);
                 }
             })
         });
@@ -429,13 +429,22 @@ $(window).on('load', function () {
                             message_with_body = $('li#message-' + message_json.uuid);
                             last_message_uuid = message_json.time_uuid;
 
-                        } else $('#messages').append(new_message);
+                        } else {
+                            if($('#messages').find('li#message-' + message_json.uuid).length == 0){
+                                $('#messages').append(new_message);
+                            }
+                        }
 
                         new_message.height(new_message_body.height());
 
-                        first_load = false;
+                        if(first_load) $(document).scrollTop($("#separator").offset().top)
+                        else if (!message_json.edited) {
+                            var scroll = $(document).height() - $(window).height() - $(window).scrollTop() - new_message.outerHeight();
+                            if (scroll <= 35) $(document).scrollTop($("#separator").offset().top)
+                        }
                         prev_json = message_json;
                     }
+                    first_load = false;
                 }
 
             });
