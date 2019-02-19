@@ -9,12 +9,11 @@ const utils = require('../utils.js');
 // TODO Check for ips that match, this ips will be compared be port, as they're localhost:
 //127.0.0.0     ->  127.255.255.255 (Host)
 
-module.exports = check_domain_func = function(domain) {
+module.exports = function(domain) {
     return new Promise((resolve, reject) => {
-        dns.lookup(domain, function(err, main_ip) {
+        dns.lookup(domain.replace(/(.+):\d+/, "$1"), function(err, main_ip) {
             if(err){reject(err);return}
             utils.request('GET', 'http://myexternalip.com/raw').then(my_ip => {
-                console.log(main_ip, my_ip);
                 if(main_ip == my_ip) resolve({status: 0}); // I'm the server
                 else {
                     ping.sys.probe(main_ip, function(isAlive){
@@ -23,7 +22,7 @@ module.exports = check_domain_func = function(domain) {
                     });
                 }
             }).catch(err => {
-                throw err;
+                resolve({status: 3}); // I'm not connected to the internet
             });
         });
     });

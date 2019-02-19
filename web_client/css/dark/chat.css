@@ -50,7 +50,7 @@ body {
     height: 44px;
     width: auto;
     bottom: 0%;
-    float : left;
+    float: left;
     left: 4px;
     right: 64px;
 }
@@ -70,20 +70,9 @@ body {
     margin-left: 4px
 }
 
-input, button, textarea { 
-    outline: none; 
+input, button, textarea {
+    outline: none;
 }
-
-/*#editing {
-    display: table-cell;
-    white-space: nowrap;
-    font: 16px Ubuntu Mono, monospace;
-    color: #fff;
-    font-style: italic;
-    border: none;
-    width: calc(100vw - 180px);
-    background: rgb(66, 95, 67);
-}*/
 
 textarea#editing {
     border: none;
@@ -95,7 +84,6 @@ textarea#editing {
     word-wrap: break-word;
     word-break: break-all;
     resize: none;
-    /*display: inline;*/
 }
 
 #m {
@@ -198,6 +186,28 @@ textarea#editing {
     background-color: rgb(100, 100, 100);
 }
 
+#theirRightclick {
+    display: none;
+    z-index: 1000;
+    position: absolute;
+    overflow: hidden;
+    border: 1px solid #CCC;
+    white-space: nowrap;
+    background: #FFF;
+    color: #333;
+    padding: 3px 0;
+    border-radius: 3px;
+}
+
+#theirRightclick li {
+    padding: 5px 8px;
+    cursor: pointer;
+}
+
+#theirRightclick li:hover {
+    background-color: #DEF;
+}
+
 .quote {
     padding: 1px 2px;
     color: #000000;
@@ -266,7 +276,6 @@ textarea#editing {
     padding: 2px 16px;
 }
 
-
 #save {
     float: left;
     left: 96px;
@@ -276,7 +285,7 @@ textarea#editing {
     font: 16px Ubuntu Mono, monospace;
     background: #66BB6A;
     border: 2px solid #000;
-    border-radius: 16px ;
+    border-radius: 16px;
     padding: 8px;
     font-weight: bold;
 }
@@ -290,7 +299,7 @@ textarea#editing {
     font: 16px Ubuntu Mono, monospace;
     background: rgba(255, 89, 89, 0.8);
     border: 2px solid #000;
-    border-radius: 16px ;
+    border-radius: 16px;
     padding: 8px;
     font-weight: bold;
 }
@@ -351,7 +360,7 @@ option[value="never"] {
 }
 
 .setting {
-    display:inline-block;
+    display: inline-block;
     margin: 32px;
     font-weight: bold;
     color: #fff
@@ -400,13 +409,15 @@ option[value="never"] {
     background-color: rgb(50, 50, 50);
 }
 
-#editing {
+textarea#editing {
     border: none;
     font: italic 15px Ubuntu Mono, monospace;
+    border: none;
+    width: calc(95vw - 180px);
+    background: rgb(66, 95, 67);
     word-wrap: break-word;
     word-break: break-all;
     resize: none;
-    display: inline;
 }
 
 span.message_body {
@@ -450,35 +461,113 @@ span {
 }
 
 @media only screen and (max-width: 600px) {
-    .myMessage {
-        margin: 12px 16px 12px 32px;
+    #messages li {
+        margin: 12px 24px 12px 64px;
     }
-
-    .theirMessage {
-        margin: 12px 32px 12px 16px;
-    }
-
-    .theirTime {
-        margin: 0px 42px 0px 4px;
-    }
-
     span.message_body {
-        width: calc(100vw - 200px)
+        width: calc(100vw - 220px)
     }
-
     .setting {
         margin: 32px 0px;
     }
-
     .pswd {
         margin: 0 16px 8px 175px;
     }
-
     #save {
         left: 16px;
     }
-    
     #logout {
         left: 190px;
     }
+}
+
+/*Top bar and Sidebar*/
+
+#sidebarbtn {
+    width: 50px;
+    height: 39px;
+    background: #428142;
+    transition: all .5s ease-in-out;
+    z-index: 8;
+    margin-top: -35px;
+    /* transform: rotate(90deg); */
+}
+
+#sidebarbtn:hover {
+    background: #305c30;
+}
+
+.bar {
+    width: 35px;
+    height: 5px;
+    background: #000;
+    margin: 6px 6px;
+}
+
+.bar#bar1 {
+    margin: 0 6px;
+}
+
+#menutop {
+    height: 40px;
+    background: #428142;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 40px;
+    z-index: 1;
+}
+
+#title {
+    font-size: 30px;
+    text-align: center;
+}
+
+#chatimg {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+
+#chatname {
+    color: #fff;
+    display: inline;
+}
+
+/* The side navigation menu */
+
+#sidebar {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1002;
+    top: 0;
+    left: 0;
+    background: #1d661d;
+    overflow-x: hidden;
+    padding-top: 60px;
+    transition: all .5s ease-in-out;
+}
+
+#darkoverlay {
+    z-index: -999;
+    background: rgba(0, 0, 0, 0.4);
+    position: fixed;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    opacity: 0;
+    transition: opacity .5s ease-in-out;
+}
+
+.chatselect {
+    background: #1d661d;
+    transition: all .5s ease-in-out;
+    padding: 6px;
+    font-size: 25px;
+    text-overflow: ellipsis;
+}
+
+.chatselect:hover {
+    background: #093309;
 }

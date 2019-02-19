@@ -414,14 +414,14 @@ $(window).on('load', function () {
                             message_with_body = $('li#message-' + message_json.uuid);
                             last_message_uuid = message_json.time_uuid;
                         } else {
-                            if($('#messages').find('li#message-' + message_json.uuid).length == 0){
+                            if ($('#messages').find('li#message-' + message_json.uuid).length == 0) {
                                 $('#messages').append(new_message);
                             }
                         }
 
                         new_message.height(new_message_body.height());
 
-                        if(first_load) $(document).scrollTop($("#separator").offset().top)
+                        if (first_load) $(document).scrollTop($("#separator").offset().top)
                         else if (!message_json.edited) {
                             var scroll = $(document).height() - $(window).height() - $(window).scrollTop() - new_message.outerHeight();
                             if (scroll <= 35) $(document).scrollTop($("#separator").offset().top)
@@ -437,30 +437,56 @@ $(window).on('load', function () {
         window.setInterval(function () {
             $("#messages").find("li:not(.date)").each(function () {
                 $(this).unbind("contextmenu"); // Unbind to prevent multiple callbacks
-                $(this).bind("contextmenu", function (event) { // Capture Right Click Event
-                    $("#rightclick").hide();
-                    event.preventDefault();
-                    $("#rightclick").show(100).css({ // Show #rightclick at cursor position
-                        top: event.pageY + "px",
-                        left: event.pageX + "px"
-                    })
-                });
+                if ($(this).hasClass("myMessage")) {
+                    $(this).bind("contextmenu", function (event) { // Capture Right Click Event
+                        $("#rightclick").hide();
+                        $("#theirRightclick").hide(100);
+                        event.preventDefault();
+                        $("#rightclick").show(100).css({ // Show #rightclick at cursor position
+                            top: event.pageY + "px",
+                            left: event.pageX + "px"
+                        })
+                    });
+                } else if ($(this).hasClass("theirMessage")) {
+                    $(this).bind("contextmenu", function (event) { // Capture Right Click Event
+                        $("#theirRightclick").hide();
+                        $("#rightclick").hide(100);
+                        event.preventDefault();
+                        $("#theirRightclick").show(100).css({ // Show #theirRightclick at cursor position
+                            top: event.pageY + "px",
+                            left: event.pageX + "px"
+                        })
+                    });
+                }
             })
 
             editing_message_val = $('#editing').val();
             $('#editing').keypress(function (e) {
                 if (e.keyCode == 13 && is_editing) {
-                    if($(this).val()!=''){
+                    if ($(this).val() != '') {
                         edit_header['newmessage'] = $(this).val();
                         httpPostAsync('/api/editmessage/', edit_header);
                         editing_message_timestamp = 0;
                         editing_message_val = '';
                         is_editing = false;
-                    }else{
+                    } else {
                         httpPostAsync('/api/deletemessage/', edit_header);
                         is_editing = false;
                     }
                 }
+            });
+            $("#sidebarbtn").click(function () {
+                $("#sidebar").css("width", "250px");
+                $("#darkoverlay").css("z-index", "1001");
+                $("#darkoverlay").css("opacity", "1");
+            });
+
+            $("#darkoverlay").click(function () {
+                $("#sidebar").css("width", "0");
+                $("#darkoverlay").css("opacity", "0");
+                window.setTimeout(function () {
+                    $("#darkoverlay").css("z-index", "-999");
+                }, 500)
             });
         }, 100)
     });
@@ -476,46 +502,46 @@ $(window).on('load', function () {
 
 });
 
-function parseMarkdown(markdown_list, message){
-    if(message.match("<(.+)>|</(.+)>")) return;
-    if(message.includes(" ")){
-        let res=$("<span>"),parts=message.split(" ");
-        let start=message.substring(0,message.match(/\w+/).index);
-        let end=message.substring(message.length-start.length,message.length);
-        for(part in parts){
-            if(start==end.split("").reverse().join("")){
-                res.append(parseMarkdown(markdown_list,start+parts[part].match(/\w+/)[0]+end));
-            }else{
-                res.append(parseMarkdown(markdown_list,parts[part]));
+function parseMarkdown(markdown_list, message) {
+    if (message.match("<(.+)>|</(.+)>")) return;
+    if (message.includes(" ")) {
+        let res = $("<span>"), parts = message.split(" ");
+        let start = message.substring(0, message.match(/\w+/).index);
+        let end = message.substring(message.length - start.length, message.length);
+        for (part in parts) {
+            if (start == end.split("").reverse().join("")) {
+                res.append(parseMarkdown(markdown_list, start + parts[part].match(/\w+/)[0] + end));
+            } else {
+                res.append(parseMarkdown(markdown_list, parts[part]));
             }
             res.append(" ");
         }
         return res;
     }
-    let markdown_message=$("<span>");
-    let markdown_text=message, last_starts="",last_ends="", in_message="";
-    for(symbol in markdown_list){
-        symbol=parseInt(symbol);
-        if(markdown_text.substring(markdown_text.indexOf(" "))!=""){
-            if(last_starts!="" && last_ends!=""){
-                markdown_text=message.replace(new RegExp(escapeRegExp(last_starts)+"(.+)"+escapeRegExp(last_ends)),"");
-                last_starts="";
-                last_ends="";
+    let markdown_message = $("<span>");
+    let markdown_text = message, last_starts = "", last_ends = "", in_message = "";
+    for (symbol in markdown_list) {
+        symbol = parseInt(symbol);
+        if (markdown_text.substring(markdown_text.indexOf(" ")) != "") {
+            if (last_starts != "" && last_ends != "") {
+                markdown_text = message.replace(new RegExp(escapeRegExp(last_starts) + "(.+)" + escapeRegExp(last_ends)), "");
+                last_starts = "";
+                last_ends = "";
             }
-            if(symbol==markdown_list.length-1)
+            if (symbol == markdown_list.length - 1)
                 break;
         }
-        let obj=markdown_list[symbol];
-        let start=obj["start"];
-        let has_params=obj["params"]=="true" ? true : false;
-        let params=[];
-        if(has_params){
-            let param_regex=start.replace(new RegExp("(\\[|\\]|\\(|\\))","g"),"\\$1").replace(/\$\d+/g,"(.+)");
-            let msg_param_match=markdown_text.match(param_regex);
+        let obj = markdown_list[symbol];
+        let start = obj["start"];
+        let has_params = obj["params"] == "true" ? true : false;
+        let params = [];
+        if (has_params) {
+            let param_regex = start.replace(new RegExp("(\\[|\\]|\\(|\\))", "g"), "\\$1").replace(/\$\d+/g, "(.+)");
+            let msg_param_match = markdown_text.match(param_regex);
 
-            if(msg_param_match!=null){
+            if (msg_param_match != null) {
                 // console.log(msg_param_match)
-                for(let param=1;param<msg_param_match.length;param++){
+                for (let param = 1; param < msg_param_match.length; param++) {
                     // console.log(param)
                     params.push(msg_param_match[param]);
                 }
@@ -523,66 +549,66 @@ function parseMarkdown(markdown_list, message){
         }
         // console.log(params)
 
-        let end=obj["end"];
-        let tag=obj["tag"];
-        
-        let next_obj=markdown_list[symbol+1>=markdown_list.length-1 ? markdown_list.length-1 : symbol+1];
-        let next_start=next_obj["start"];
-        let next_end=next_obj["end"];
+        let end = obj["end"];
+        let tag = obj["tag"];
 
-        let symb_regex=new RegExp(escapeRegExp(start)+"(.+)"+escapeRegExp(end));
-        let next_symb_regex=new RegExp(escapeRegExp(next_start)+"(.+)"+escapeRegExp(next_end));
-        if(markdown_text.match(symb_regex) && !has_params){
+        let next_obj = markdown_list[symbol + 1 >= markdown_list.length - 1 ? markdown_list.length - 1 : symbol + 1];
+        let next_start = next_obj["start"];
+        let next_end = next_obj["end"];
+
+        let symb_regex = new RegExp(escapeRegExp(start) + "(.+)" + escapeRegExp(end));
+        let next_symb_regex = new RegExp(escapeRegExp(next_start) + "(.+)" + escapeRegExp(next_end));
+        if (markdown_text.match(symb_regex) && !has_params) {
             console.log(markdown_text);
-            let match=markdown_text.match(symb_regex);
-            if(match!=null){
-                last_starts+=start;
-                last_ends=last_starts.split("").reverse().join("");
-                console.log(last_starts,last_ends)
-                markdown_text=markdown_text.replace(start,"");
-                markdown_text=markdown_text.replace(end,"");
-                console.log("md_txt = "+markdown_text, symbol)
-                let last_child=$(markdown_message).find(":last-child");
+            let match = markdown_text.match(symb_regex);
+            if (match != null) {
+                last_starts += start;
+                last_ends = last_starts.split("").reverse().join("");
+                console.log(last_starts, last_ends)
+                markdown_text = markdown_text.replace(start, "");
+                markdown_text = markdown_text.replace(end, "");
+                console.log("md_txt = " + markdown_text, symbol)
+                let last_child = $(markdown_message).find(":last-child");
 
-                if(last_child.length==0){
-                    $(markdown_message).append($(tag).append(parseMarkdown(markdown_list,match[1])));
-                    markdown_text.replace($(markdown_message).text(),"");
-                    console.log("md_msg (l-c=0) = "+$(markdown_message).text());
-                }else if(last_child.length>0){
-                    let txt=$(last_child[last_child.length-1]).text();
-                    $(last_child[last_child.length-1]).text("");
-                    $(last_child[last_child.length-1]).append($(tag).append(txt+parseMarkdown(match[1])));
-                    markdown_text.replace($(last_child[last_child.length-1]).text(),"");
-                    console.log("md_msg (l-c>0) = "+$(last_child[last_child.length-1]).text());
+                if (last_child.length == 0) {
+                    $(markdown_message).append($(tag).append(parseMarkdown(markdown_list, match[1])));
+                    markdown_text.replace($(markdown_message).text(), "");
+                    console.log("md_msg (l-c=0) = " + $(markdown_message).text());
+                } else if (last_child.length > 0) {
+                    let txt = $(last_child[last_child.length - 1]).text();
+                    $(last_child[last_child.length - 1]).text("");
+                    $(last_child[last_child.length - 1]).append($(tag).append(txt + parseMarkdown(match[1])));
+                    markdown_text.replace($(last_child[last_child.length - 1]).text(), "");
+                    console.log("md_msg (l-c>0) = " + $(last_child[last_child.length - 1]).text());
                 }
                 // console.log($(markdown_message)[0],markdown_text);
             }
-        }else if(has_params && params.length>0){
-            let last_child=$(markdown_message).find(":last-child");
-            if(last_child.length==0){
-                let paramtag=tag;
-                for(param in params){
-                    paramtag=paramtag.replace(new RegExp("\\$"+param,"g"),params[param]);
+        } else if (has_params && params.length > 0) {
+            let last_child = $(markdown_message).find(":last-child");
+            if (last_child.length == 0) {
+                let paramtag = tag;
+                for (param in params) {
+                    paramtag = paramtag.replace(new RegExp("\\$" + param, "g"), params[param]);
                 }
                 $(markdown_message).append(paramtag);
-                markdown_text="";
-            }else if(last_child.length>0){
-                $(last_child[last_child.length-1]).text("");
-                let paramtag=tag;
-                for(param in params){
-                    paramtag=paramtag.replace(new RegExp("\\$"+param,"g"),params[param]);
+                markdown_text = "";
+            } else if (last_child.length > 0) {
+                $(last_child[last_child.length - 1]).text("");
+                let paramtag = tag;
+                for (param in params) {
+                    paramtag = paramtag.replace(new RegExp("\\$" + param, "g"), params[param]);
                 }
-                $(last_child[last_child.length-1]).append(paramtag);
-                markdown_text="";
+                $(last_child[last_child.length - 1]).append(paramtag);
+                markdown_text = "";
             }
         }
-        if(JSON.stringify(next_obj)==JSON.stringify(obj) || markdown_text.match(next_symb_regex)==null){
+        if (JSON.stringify(next_obj) == JSON.stringify(obj) || markdown_text.match(next_symb_regex) == null) {
             // console.log(JSON.stringify(next_obj)==JSON.stringify(obj),markdown_text.match(next_symb_regex)==null,symbol)
             // symbol++;
         }
     }
 
-    if(markdown_text!=""){
+    if (markdown_text != "") {
         markdown_message.append(markdown_text);
     }
 
