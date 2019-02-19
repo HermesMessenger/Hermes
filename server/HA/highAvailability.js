@@ -6,6 +6,7 @@ const ipaddr = require('ipaddr.js');
 const config = require('../../config.json');
 const utils = require('../utils.js');
 const types = require('./types.js');
+const check_domain = require('./check_domain.js');
 const ServerObject = types.ServerObject;
 const Connection = types.Connection;
 const FORCE_CONNECT = config.forceHAConnect;
@@ -74,16 +75,14 @@ module.exports = {
         //TODO make the code for recieving & sending the clear token
     },
     startChecking: function () {
-        let checkStatus = spawn('bash', ['scripts/check_domain.sh', config.mainIP]);
-        let stderr = checkStatus.stderr.toString('utf8').trim()
-        if (stderr != '') throw new Error(stderr);
-        let stdout = checkStatus.stdout.toString('utf8').trim()
+        let checkStatus = check_domain(config.mainIP);
         serverStatus = checkStatus.status;
         if (serverStatus == 1) {
-            if (connection != stdout) {
-                utils.request('POST', 'http://' + stdout + '/api/HA/hello', { token: config.generalToken, port: config.port }).then(body => {
-                    console.log('Connected to', 'http://' + stdout, `(${body})`);
-                    connection = new Connection(stdout, body);
+            
+            if (connection != checkStatus.ip) {
+                utils.request('POST', 'http://' + checkStatus.ip + '/api/HA/hello', { token: config.generalToken, port: config.port }).then(body => {
+                    console.log('Connected to', 'http://' + checkStatus.ip, `(${body})`);
+                    connection = new Connection(checkStatus.ip, body);
                 }).catch(err => console.log(err))
             }
         }

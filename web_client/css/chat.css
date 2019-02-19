@@ -111,7 +111,6 @@ input, button, textarea {
 
 #messages {
     list-style-type: none;
-	margin-top: 40px;
 }
 
 .myMessage {
@@ -179,28 +178,6 @@ input, button, textarea {
 }
 
 #rightclick li:hover {
-    background-color: #DEF;
-}
-
-#theirRightclick {
-    display: none;
-    z-index: 1000;
-    position: absolute;
-    overflow: hidden;
-    border: 1px solid #CCC;
-    white-space: nowrap;
-    background: #FFF;
-    color: #333;
-    padding: 3px 0;
-    border-radius: 3px;
-}
-
-#theirRightclick li {
-    padding: 5px 8px;
-    cursor: pointer;
-}
-
-#theirRightclick li:hover {
     background-color: #DEF;
 }
 
@@ -479,94 +456,4 @@ span {
     #logout {
         left: 190px;
     }
-}
-
-/*Top bar and Sidebar*/
-#sidebarbtn{
-  width: 50px;
-  height: 39px;
-  background: #428142;
-  transition: all .5s ease-in-out;
-  z-index:8;
-  margin-top: -35px;
-  /* transform: rotate(90deg); */
-}
-
-#sidebarbtn:hover{
-  background: #305c30;
-}
-
-
-.bar {
-  width: 35px;
-  height: 5px;
-  background: #000;
-  margin: 6px 6px;
-}
-
-.bar#bar1 {
-  margin: 0 6px;
-}
-
-#menutop{
-  height: 40px;
-  background: #428142;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  height: 40px;
-  z-index: 1;
-}
-
-#title{
-  font-size: 30px;
-  text-align: center;
-}
-
-#chatimg{
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-}
-
-#chatname{
-  color: #fff;
-  display: inline;
-}
-
-/* The side navigation menu */
-#sidebar {
-  height: 100%;
-  width: 0;
-  position: fixed;
-  z-index: 1002;
-  top: 0;
-  left: 0;
-  background: #1d661d;
-  overflow-x: hidden;
-  padding-top: 60px;
-  transition: all .5s ease-in-out;
-}
-
-#darkoverlay{
-  z-index: -999;
-  background: rgba(0,0,0,0.4);
-  position: fixed;
-  top: 0;
-  height: 100%;
-  width: 100%;
-  opacity: 0;
-  transition: opacity .5s ease-in-out;
-}
-
-.chatselect{
-  background: #1d661d;
-  transition: all .5s ease-in-out;
-  padding: 6px;
-  font-size: 25px;
-  text-overflow: ellipsis;
-}
-
-.chatselect:hover{
-  background: #093309;
 }

@@ -15,11 +15,11 @@ module.exports = check_domain_func = function(domain) {
             if(err){reject(err);return}
             utils.request('GET', 'http://myexternalip.com/raw').then(my_ip => {
                 console.log(main_ip, my_ip);
-                if(main_ip == my_ip) resolve(0); // I'm the server
+                if(main_ip == my_ip) resolve({status: 0}); // I'm the server
                 else {
                     ping.sys.probe(main_ip, function(isAlive){
-                        if (isAlive) resolve(1); // Server is up but not me
-                        else resolve(2); // Server is down
+                        if (isAlive) resolve({status: 1, ip: main_ip}); // Server is up but not me
+                        else resolve({status: 2}); // Server is down
                     });
                 }
             }).catch(err => {

@@ -13,10 +13,8 @@ $(window).on('load', function () {
     };
 
     $("#rightclick").hide();
-	$("#theirRightclick").hide();
     $(document).click(function () {
         $("#rightclick").hide(100); //Hide on click outside
-        $("#theirRightclick").hide(100);
     });
     $("#myModal").load("settings", function () {
         $('#logout_uuid').val(getCookie('hermes_uuid'));
@@ -65,12 +63,13 @@ $(window).on('load', function () {
         });
 
         $("#delete").click(function () {
-            $("#messages").find("li").each(function (i) {
-                if (i != $("#messages").find("li").length - 1) {
+            $("li").each(function (i) {
+
+                if (i != $('li').length - 1) {
 
                     let click = $("#rightclick").position().top
                     let start = $(this).offset().top
-                    let next = $("#messages").find("li").eq(i + 1).offset().top
+                    let next = $('li').eq(i + 1).offset().top
 
                     if (click > start && click < next) {
 
@@ -189,9 +188,9 @@ $(window).on('load', function () {
 
         const interval = window.setInterval(function () {
             prev_html = $('#messages').html();
-            httpPostAsync('/api/loadmessages/' + last_message_uuid, uuid_header, function (res) {
+            httpPostAsync('/api/loadmessages/' + last_message_uuid, uuid_header, res => {
                 if (res !== '' || res !== '[]') {
-                    //$('#messages').html('');
+
                     let res_json = JSON.parse(res);
                     let messages = res_json.newmessages;
                     let delm = res_json.deletedmessages;
@@ -390,21 +389,7 @@ $(window).on('load', function () {
                             new_message_body.append(quoteSpan);
                             new_message_body.append($("<span>").text(message.substring(quoteEnd)));
                         } else { // No links or quotes in message
-                            let markdown_list=[
-                                {"start":"[$0]($1)","end":"","tag":"<a href='https://$1' target='_blank'>$0</a>","params":"true"}, // Not working properly, try for yourselves
-                                {"start":"**","end":"**","tag":"<b>"},
-                                {"start":"*","end":"*","tag":"<i>"},
-                                {"start":"~~","end":"~~","tag":"<strike>"},
-                                {"start":"","end":"","tag":""}
-                            ];
-                            let markdown_message=parseMarkdown(markdown_list,message);
-                            
-                            // console.log(markdown_message[0])
-                            if($(markdown_message).text()==""){
-                                new_message_body.append($("<span>").text(message));
-                            }else{
-                                new_message_body.append(markdown_message);
-                            }
+                            new_message_body.append($("<span>").text(message)); // Span is there to get the text for the quoting system
                         };
 
                         if (username != getCookie('hermes_username') && !first_load && last_message_timestamp_notified < last_message_timestamp) {
@@ -428,7 +413,6 @@ $(window).on('load', function () {
                             $('li#message-' + message_json.uuid).replaceWith(new_message);
                             message_with_body = $('li#message-' + message_json.uuid);
                             last_message_uuid = message_json.time_uuid;
-
                         } else {
                             if($('#messages').find('li#message-' + message_json.uuid).length == 0){
                                 $('#messages').append(new_message);
@@ -453,53 +437,32 @@ $(window).on('load', function () {
         window.setInterval(function () {
             $("#messages").find("li:not(.date)").each(function () {
                 $(this).unbind("contextmenu"); // Unbind to prevent multiple callbacks
-				if($(this).hasClass("myMessage")){
-					$(this).bind("contextmenu", function (event) { // Capture Right Click Event
-						$("#rightclick").hide();
-						$("#theirRightclick").hide(100);
-						event.preventDefault();
-						$("#rightclick").show(100).css({ // Show #rightclick at cursor position
-							top: event.pageY + "px",
-							left: event.pageX + "px"
-						})
-					});
-				}else if($(this).hasClass("theirMessage")){
-					$(this).bind("contextmenu", function (event) { // Capture Right Click Event
-						$("#theirRightclick").hide();
-						$("#rightclick").hide(100);
-						event.preventDefault();
-						$("#theirRightclick").show(100).css({ // Show #theirRightclick at cursor position
-							top: event.pageY + "px",
-							left: event.pageX + "px"
-						})
-					});
-				}
+                $(this).bind("contextmenu", function (event) { // Capture Right Click Event
+                    $("#rightclick").hide();
+                    event.preventDefault();
+                    $("#rightclick").show(100).css({ // Show #rightclick at cursor position
+                        top: event.pageY + "px",
+                        left: event.pageX + "px"
+                    })
+                });
             })
 
             editing_message_val = $('#editing').val();
             $('#editing').keypress(function (e) {
                 if (e.keyCode == 13 && is_editing) {
-                    edit_header['newmessage'] = $(this).val();
-                    httpPostAsync('/api/editmessage/', edit_header, function (res) { });
-                    editing_message_timestamp = 0;
-                    editing_message_val = '';
-                    is_editing = false;
+                    if($(this).val()!=''){
+                        edit_header['newmessage'] = $(this).val();
+                        httpPostAsync('/api/editmessage/', edit_header);
+                        editing_message_timestamp = 0;
+                        editing_message_val = '';
+                        is_editing = false;
+                    }else{
+                        httpPostAsync('/api/deletemessage/', edit_header);
+                        is_editing = false;
+                    }
                 }
             });
-			$("#sidebarbtn").click(function(){
-			  $("#sidebar").css("width","250px");
-			  $("#darkoverlay").css("z-index","1001");
-			  $("#darkoverlay").css("opacity","1");
-			});
-
-			$("#darkoverlay").click(function(){
-			  $("#sidebar").css("width","0");
-			  $("#darkoverlay").css("opacity","0");
-			  window.setTimeout(function(){
-				$("#darkoverlay").css("z-index","-999");
-			  },500)
-			});
-        }, 100);
+        }, 100)
     });
 
 
