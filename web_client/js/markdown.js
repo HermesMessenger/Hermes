@@ -3,7 +3,7 @@ const MD_RULES = [
     { regex: /(?:[^*]|^)(\*\*(.+?)\*\*)(?:[^*]|$)/, text_group: 1, tag: '<a class="MD-bold">', replace_group: 0 }, // This one has to go first beacause it overides the latter
     { regex: /\*(.+?)\*/, text_group: 0, tag: '<a class="MD-italics">' },
     { regex: /~(.+?)~/, text_group: 0, tag: '<a class="MD-strike">' },
-    { regex: /\[(.+?)\]\((.+?)\)/, text_group: 0, tag: '<a class="MD-link" href="$1">' }, // TODO: make this one match a http:// or https://
+    { regex: /\[(.+?)\]\(((http:\/\/|https:\/\/).+?)\)/, text_group: 0, tag: '<a class="MD-link" href="$1">' },
 ]
 
 
