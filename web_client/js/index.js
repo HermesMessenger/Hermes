@@ -505,6 +505,7 @@ $(window).on('load', function () {
 });
 
 function parseMarkdown(markdown_list, message){
+    if(message.match("<(.+)>|</(.+)>")) return;
     if(message.includes(" ")){
         let res=$("<span>"),parts=message.split(" ");
         let start=message.substring(0,message.match(/\w+/).index);
