@@ -27,12 +27,12 @@ fileExists('config.json',(err,exists) => {
         const config = require('../config.json');
         let config_correct = true;
         for(key of Object.keys(configTemplate)){
-            if(!config[key]){
+            if(config[key] == undefined){
+                console.log(`${key} is missing from config.json`);
                 config_correct = false;
             }
         }
         if(!config_correct){
-            console.log('Something\'s missing in config.json, recreating it')
             writeJSON(config);
         }else{
             console.log('config.json is correct');

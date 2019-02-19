@@ -75,6 +75,7 @@ module.exports = {
         //TODO make the code for recieving & sending the clear token
     },
     startChecking: function () {
+        if (closing) return;
         let checkStatus = check_domain(config.mainIP);
         serverStatus = checkStatus.status;
         if (serverStatus == 1) {
@@ -94,10 +95,8 @@ module.exports = {
                 }).catch(err => console.log(err))
             }
         }
-        if(closing)
-            console.log('Check HA function finished')
-        else
-            setTimeout(() => this.startChecking(), 2000);
+        
+        setTimeout(() => this.startChecking(), 2000);
     },
 
     close: function () {
