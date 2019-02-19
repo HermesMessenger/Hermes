@@ -13,10 +13,8 @@ $(window).on('load', function () {
     };
 
     $("#rightclick").hide();
-	$("#theirRightclick").hide();
     $(document).click(function () {
         $("#rightclick").hide(100); //Hide on click outside
-        $("#theirRightclick").hide(100);
     });
     $("#myModal").load("settings", function () {
         $('#logout_uuid').val(getCookie('hermes_uuid'));
@@ -35,7 +33,7 @@ $(window).on('load', function () {
             if (!msg.match(/^\s*$/)) {
                 var header = uuid_header;
                 header['message'] = msg;
-                httpPostAsync('/api/sendmessage/', header, res => { });
+                httpPostAsync('/api/sendmessage/', header);
                 $('#m').val('');
             }
             return false;
@@ -65,25 +63,26 @@ $(window).on('load', function () {
         });
 
         $("#delete").click(function () {
-            $("#messages").find("li").each(function (i) {
-                if (i != $("#messages").find("li").length - 1) {
+            $("li").each(function (i) {
+
+                if (i != $('li').length - 1) {
 
                     let click = $("#rightclick").position().top
                     let start = $(this).offset().top
-                    let next = $("#messages").find("li").eq(i + 1).offset().top
+                    let next = $('li').eq(i + 1).offset().top
 
                     if (click > start && click < next) {
 
                         let header = uuid_header;
                         header.message_uuid = $(this).attr('id').substr(8);
-                        httpPostAsync('/api/deletemessage/', header, res => { });
+                        httpPostAsync('/api/deletemessage/', header);
 
                         return false;
                     }
                 } else {
                     let header = uuid_header;
                     header.message_uuid = $(this).attr('id').substr(8);
-                    httpPostAsync('/api/deletemessage/', header, res => { });
+                    httpPostAsync('/api/deletemessage/', header);
                 }
             })
         });
@@ -189,9 +188,9 @@ $(window).on('load', function () {
 
         const interval = window.setInterval(function () {
             prev_html = $('#messages').html();
-            httpPostAsync('/api/loadmessages/' + last_message_uuid, uuid_header, function (res) {
+            httpPostAsync('/api/loadmessages/' + last_message_uuid, uuid_header, res => {
                 if (res !== '' || res !== '[]') {
-                    //$('#messages').html('');
+
                     let res_json = JSON.parse(res);
                     let messages = res_json.newmessages;
                     let delm = res_json.deletedmessages;
@@ -390,21 +389,7 @@ $(window).on('load', function () {
                             new_message_body.append(quoteSpan);
                             new_message_body.append($("<span>").text(message.substring(quoteEnd)));
                         } else { // No links or quotes in message
-                            let markdown_list=[
-                                {"start":"[$0]($1)","end":"","tag":"<a href='https://$1' target='_blank'>$0</a>","params":"true"}, // Not working properly, try for yourselves
-                                {"start":"**","end":"**","tag":"<b>"},
-                                {"start":"*","end":"*","tag":"<i>"},
-                                {"start":"~~","end":"~~","tag":"<strike>"},
-                                {"start":"","end":"","tag":""}
-                            ];
-                            let markdown_message=parseMarkdown(markdown_list,message);
-                            
-                            // console.log(markdown_message[0])
-                            if($(markdown_message).text()==""){
-                                new_message_body.append($("<span>").text(message));
-                            }else{
-                                new_message_body.append(markdown_message);
-                            }
+                            new_message_body.append($("<span>").text(message)); // Span is there to get the text for the quoting system
                         };
 
                         if (username != getCookie('hermes_username') && !first_load && last_message_timestamp_notified < last_message_timestamp) {
@@ -428,14 +413,24 @@ $(window).on('load', function () {
                             $('li#message-' + message_json.uuid).replaceWith(new_message);
                             message_with_body = $('li#message-' + message_json.uuid);
                             last_message_uuid = message_json.time_uuid;
-
-                        } else $('#messages').append(new_message);
+                        } else {
+                            if($('#messages').find('li#message-' + message_json.uuid).length == 0){
+                                $('#messages').append(new_message);
+                            }
+                        }
 
                         new_message.height(new_message_body.height());
 
-                        first_load = false;
+                        if(first_load) $(document).scrollTop($("#separator").offset().top)
+                        else if (!message_json.edited) {
+                            var scroll = $(document).height() - $(window).height() - $(window).scrollTop() - new_message.outerHeight();
+                            if (scroll <= 35) $(document).scrollTop($("#separator").offset().top)
+                        }
+
                         prev_json = message_json;
                     }
+
+                    first_load = false;
                 }
 
             });
@@ -444,53 +439,32 @@ $(window).on('load', function () {
         window.setInterval(function () {
             $("#messages").find("li:not(.date)").each(function () {
                 $(this).unbind("contextmenu"); // Unbind to prevent multiple callbacks
-				if($(this).hasClass("myMessage")){
-					$(this).bind("contextmenu", function (event) { // Capture Right Click Event
-						$("#rightclick").hide();
-						$("#theirRightclick").hide(100);
-						event.preventDefault();
-						$("#rightclick").show(100).css({ // Show #rightclick at cursor position
-							top: event.pageY + "px",
-							left: event.pageX + "px"
-						})
-					});
-				}else if($(this).hasClass("theirMessage")){
-					$(this).bind("contextmenu", function (event) { // Capture Right Click Event
-						$("#theirRightclick").hide();
-						$("#rightclick").hide(100);
-						event.preventDefault();
-						$("#theirRightclick").show(100).css({ // Show #theirRightclick at cursor position
-							top: event.pageY + "px",
-							left: event.pageX + "px"
-						})
-					});
-				}
+                $(this).bind("contextmenu", function (event) { // Capture Right Click Event
+                    $("#rightclick").hide();
+                    event.preventDefault();
+                    $("#rightclick").show(100).css({ // Show #rightclick at cursor position
+                        top: event.pageY + "px",
+                        left: event.pageX + "px"
+                    })
+                });
             })
 
             editing_message_val = $('#editing').val();
             $('#editing').keypress(function (e) {
                 if (e.keyCode == 13 && is_editing) {
-                    edit_header['newmessage'] = $(this).val();
-                    httpPostAsync('/api/editmessage/', edit_header, function (res) { });
-                    editing_message_timestamp = 0;
-                    editing_message_val = '';
-                    is_editing = false;
+                    if($(this).val()!=''){
+                        edit_header['newmessage'] = $(this).val();
+                        httpPostAsync('/api/editmessage/', edit_header);
+                        editing_message_timestamp = 0;
+                        editing_message_val = '';
+                        is_editing = false;
+                    }else{
+                        httpPostAsync('/api/deletemessage/', edit_header);
+                        is_editing = false;
+                    }
                 }
             });
-			$("#sidebarbtn").click(function(){
-			  $("#sidebar").css("width","250px");
-			  $("#darkoverlay").css("z-index","1001");
-			  $("#darkoverlay").css("opacity","1");
-			});
-
-			$("#darkoverlay").click(function(){
-			  $("#sidebar").css("width","0");
-			  $("#darkoverlay").css("opacity","0");
-			  window.setTimeout(function(){
-				$("#darkoverlay").css("z-index","-999");
-			  },500)
-			});
-        }, 100);
+        }, 100)
     });
 
 
@@ -503,115 +477,3 @@ $(window).on('load', function () {
     });
 
 });
-
-function parseMarkdown(markdown_list, message){
-    if(message.includes(" ")){
-        let res=$("<span>"),parts=message.split(" ");
-        let start=message.substring(0,message.match(/\w+/).index);
-        let end=message.substring(message.length-start.length,message.length);
-        for(part in parts){
-            if(start==end.split("").reverse().join("")){
-                res.append(parseMarkdown(markdown_list,start+parts[part].match(/\w+/)[0]+end));
-            }else{
-                res.append(parseMarkdown(markdown_list,parts[part]));
-            }
-            res.append(" ");
-        }
-        return res;
-    }
-    let markdown_message=$("<span>");
-    let markdown_text=message, last_starts="",last_ends="", in_message="";
-    for(symbol in markdown_list){
-        symbol=parseInt(symbol);
-        if(markdown_text.substring(markdown_text.indexOf(" "))!=""){
-            if(last_starts!="" && last_ends!=""){
-                markdown_text=message.replace(new RegExp(escapeRegExp(last_starts)+"(.+)"+escapeRegExp(last_ends)),"");
-                last_starts="";
-                last_ends="";
-            }
-            if(symbol==markdown_list.length-1)
-                break;
-        }
-        let obj=markdown_list[symbol];
-        let start=obj["start"];
-        let has_params=obj["params"]=="true" ? true : false;
-        let params=[];
-        if(has_params){
-            let param_regex=start.replace(new RegExp("(\\[|\\]|\\(|\\))","g"),"\\$1").replace(/\$\d+/g,"(.+)");
-            let msg_param_match=markdown_text.match(param_regex);
-
-            if(msg_param_match!=null){
-                // console.log(msg_param_match)
-                for(let param=1;param<msg_param_match.length;param++){
-                    // console.log(param)
-                    params.push(msg_param_match[param]);
-                }
-            }
-        }
-        // console.log(params)
-
-        let end=obj["end"];
-        let tag=obj["tag"];
-        
-        let next_obj=markdown_list[symbol+1>=markdown_list.length-1 ? markdown_list.length-1 : symbol+1];
-        let next_start=next_obj["start"];
-        let next_end=next_obj["end"];
-
-        let symb_regex=new RegExp(escapeRegExp(start)+"(.+)"+escapeRegExp(end));
-        let next_symb_regex=new RegExp(escapeRegExp(next_start)+"(.+)"+escapeRegExp(next_end));
-        if(markdown_text.match(symb_regex) && !has_params){
-            console.log(markdown_text);
-            let match=markdown_text.match(symb_regex);
-            if(match!=null){
-                last_starts+=start;
-                last_ends=last_starts.split("").reverse().join("");
-                console.log(last_starts,last_ends)
-                markdown_text=markdown_text.replace(start,"");
-                markdown_text=markdown_text.replace(end,"");
-                console.log("md_txt = "+markdown_text, symbol)
-                let last_child=$(markdown_message).find(":last-child");
-
-                if(last_child.length==0){
-                    $(markdown_message).append($(tag).append(parseMarkdown(markdown_list,match[1])));
-                    markdown_text.replace($(markdown_message).text(),"");
-                    console.log("md_msg (l-c=0) = "+$(markdown_message).text());
-                }else if(last_child.length>0){
-                    let txt=$(last_child[last_child.length-1]).text();
-                    $(last_child[last_child.length-1]).text("");
-                    $(last_child[last_child.length-1]).append($(tag).append(txt+parseMarkdown(match[1])));
-                    markdown_text.replace($(last_child[last_child.length-1]).text(),"");
-                    console.log("md_msg (l-c>0) = "+$(last_child[last_child.length-1]).text());
-                }
-                // console.log($(markdown_message)[0],markdown_text);
-            }
-        }else if(has_params && params.length>0){
-            let last_child=$(markdown_message).find(":last-child");
-            if(last_child.length==0){
-                let paramtag=tag;
-                for(param in params){
-                    paramtag=paramtag.replace(new RegExp("\\$"+param,"g"),params[param]);
-                }
-                $(markdown_message).append(paramtag);
-                markdown_text="";
-            }else if(last_child.length>0){
-                $(last_child[last_child.length-1]).text("");
-                let paramtag=tag;
-                for(param in params){
-                    paramtag=paramtag.replace(new RegExp("\\$"+param,"g"),params[param]);
-                }
-                $(last_child[last_child.length-1]).append(paramtag);
-                markdown_text="";
-            }
-        }
-        if(JSON.stringify(next_obj)==JSON.stringify(obj) || markdown_text.match(next_symb_regex)==null){
-            // console.log(JSON.stringify(next_obj)==JSON.stringify(obj),markdown_text.match(next_symb_regex)==null,symbol)
-            // symbol++;
-        }
-    }
-
-    if(markdown_text!=""){
-        markdown_message.append(markdown_text);
-    }
-
-    return markdown_message;
-}
