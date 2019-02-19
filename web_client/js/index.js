@@ -389,7 +389,22 @@ $(window).on('load', function () {
                             new_message_body.append(quoteSpan);
                             new_message_body.append($("<span>").text(message.substring(quoteEnd)));
                         } else { // No links or quotes in message
-                            new_message_body.append($("<span>").text(message)); // Span is there to get the text for the quoting system
+                            //TODO Make it so that it can be decoded back into markdown
+                            let markdown_list=[
+                                {"start":"[$0]($1)","end":"","tag":"<a href='https://$1' target='_blank'>$0</a>","params":"true"}, // Not working properly, try for yourselves
+                                {"start":"**","end":"**","tag":"<b>"},
+                                {"start":"*","end":"*","tag":"<i>"},
+                                {"start":"~~","end":"~~","tag":"<strike>"},
+                                {"start":"","end":"","tag":""}
+                            ];
+                            let markdown_message=parseMarkdown(markdown_list,message);
+
+                            // console.log(markdown_message[0])
+                            if($(markdown_message).text()==""){
+                                new_message_body.append($("<span>").text(message));
+                            }else{
+                                new_message_body.append(markdown_message);
+                            }
                         };
 
                         if (username != getCookie('hermes_username') && !first_load && last_message_timestamp_notified < last_message_timestamp) {
@@ -559,27 +574,27 @@ function parseMarkdown(markdown_list, message) {
         let symb_regex = new RegExp(escapeRegExp(start) + "(.+)" + escapeRegExp(end));
         let next_symb_regex = new RegExp(escapeRegExp(next_start) + "(.+)" + escapeRegExp(next_end));
         if (markdown_text.match(symb_regex) && !has_params) {
-            console.log(markdown_text);
+            //console.log(markdown_text);
             let match = markdown_text.match(symb_regex);
             if (match != null) {
                 last_starts += start;
                 last_ends = last_starts.split("").reverse().join("");
-                console.log(last_starts, last_ends)
+                //console.log(last_starts, last_ends)
                 markdown_text = markdown_text.replace(start, "");
                 markdown_text = markdown_text.replace(end, "");
-                console.log("md_txt = " + markdown_text, symbol)
+                //console.log("md_txt = " + markdown_text, symbol)
                 let last_child = $(markdown_message).find(":last-child");
 
                 if (last_child.length == 0) {
                     $(markdown_message).append($(tag).append(parseMarkdown(markdown_list, match[1])));
                     markdown_text.replace($(markdown_message).text(), "");
-                    console.log("md_msg (l-c=0) = " + $(markdown_message).text());
+                    //console.log("md_msg (l-c=0) = " + $(markdown_message).text());
                 } else if (last_child.length > 0) {
                     let txt = $(last_child[last_child.length - 1]).text();
                     $(last_child[last_child.length - 1]).text("");
                     $(last_child[last_child.length - 1]).append($(tag).append(txt + parseMarkdown(match[1])));
                     markdown_text.replace($(last_child[last_child.length - 1]).text(), "");
-                    console.log("md_msg (l-c>0) = " + $(last_child[last_child.length - 1]).text());
+                    //console.log("md_msg (l-c>0) = " + $(last_child[last_child.length - 1]).text());
                 }
                 // console.log($(markdown_message)[0],markdown_text);
             }
@@ -602,10 +617,12 @@ function parseMarkdown(markdown_list, message) {
                 markdown_text = "";
             }
         }
+        /*
         if (JSON.stringify(next_obj) == JSON.stringify(obj) || markdown_text.match(next_symb_regex) == null) {
             // console.log(JSON.stringify(next_obj)==JSON.stringify(obj),markdown_text.match(next_symb_regex)==null,symbol)
             // symbol++;
         }
+        */
     }
 
     if (markdown_text != "") {
