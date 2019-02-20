@@ -9,7 +9,7 @@ const MD_RULES = [
     { regex: /(?:[^*]|^)(\*([^*](?:.*?[^*])?)\*)(?:[^*]|$)/, text_group: 1, tag: '<i class="MD-italics">', replace_group: 0 },
     { regex: /~(.+?)~/, text_group: 0, tag: '<strike class="MD-strike">' },
     { regex: /\[(.+?)\]\(((?:http:\/\/|https:\/\/).+?)\)/, text_group: 0, tag: '<a class="MD-link" href="$1">' },
-    { regex: /`(.+?)`/, text_group: 0, tag: '<code class="MD-code">' }, //TODO: No tags should be inside the code element
+    { regex: /`(.+?)`/, text_group: 0, tag: '<code class="MD-code">' },
 ]
 
 // ### RULES FOR THE HTML -> MD PARSER ### //
@@ -55,29 +55,29 @@ function removeXSS(html_str) {
                 let inner_html = node.innerHTML;
                 node.innerHTML = escapeHTML(removeXSS(inner_html));
                 result += escapeHTML(node.outerHTML);
-            }else{
+            } else {
                 let inner_html = node.innerHTML;
                 node.innerHTML = removeXSS(inner_html);
                 result += node.outerHTML;
             }
         } else {
             let isXSS = true;
-            if(node.nodeName != '#text'){
+            if (node.nodeName != '#text') {
                 for (let rule of HTML_RULES) {
                     if (node.classList.contains(rule.class) && node.nodeName == rule.tag.toUpperCase()) {
                         isXSS = false;
                         break;
                     }
                 }
-            }else{
+            } else {
                 isXSS = false;
             }
             let node_repr = node.nodeValue;
             if (isXSS) {
                 console.log('XSS', node);
                 node_repr = escapeHTML(node.outerHTML);
-            }else{
-                if(node.outerHTML) node_repr = node.outerHTML;
+            } else {
+                if (node.outerHTML) node_repr = node.outerHTML;
             }
             result += node_repr;
         }
@@ -95,7 +95,7 @@ function MDtoHTML(MD_String) {
         let current_regex_not_global = new RegExp(current_regex.source, ''); // Set to not global to find the groups in each match
         if (all_matching_strings) {
             for (let m_str of all_matching_strings) {
-                
+
                 let match = m_str.match(current_regex_not_global);
                 let current_tag = current_rule.tag;
                 if (dollar_ms = current_rule.tag.match(/\$(\d+)/g)) {
