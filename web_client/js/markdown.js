@@ -4,7 +4,8 @@ const MD_RULES = [
     { regex: /(\*\*(.+?)\*\*)/, text_group: 1, tag: '<b class="MD-bold">', replace_group: 0 }, // This one has to go first beacause it overides the latter
     { regex: /\*(.+?)\*/, text_group: 0, tag: '<i class="MD-italics">' },
     { regex: /~(.+?)~/, text_group: 0, tag: '<strike class="MD-strike">' },
-    { regex: /\[(.+?)\]\(((http:\/\/|https:\/\/).+?)\)/, text_group: 0, tag: '<a class="MD-link" href="$1">' },
+    { regex: /\[(.+?)\]\(((?:http:\/\/|https:\/\/).+?)\)/, text_group: 0, tag: '<a class="MD-link" href="$1">' },
+    { regex: /`(.+?)`/, text_group: 0, tag: '<code class="MD-code">' },
 ]
 
 // ### RULES FOR THE HTML -> MD PARSER ### //
@@ -13,6 +14,7 @@ const HTML_RULES = [
     { class: 'MD-italics', md: '*$TEXT*' },
     { class: 'MD-strike', md: '~$TEXT~' },
     { class: 'MD-link', md: '[$TEXT]($HREF)' },
+    { class: 'MD-code', md: '`$TEXT`' },
 ]
 
 /**
