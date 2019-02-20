@@ -60,6 +60,8 @@ module.exports.request = async function (method, location, formData) {
                     callback(null, res.body)
                 }
                 return res.body
+            } else if (res.statusCode == 418) {
+                return '418'
             } else {
                 throw new Error('Bad status code: ' + res.statusCode)
             }

@@ -1,9 +1,9 @@
 // Anything within the tag with $nº will be replaced with that group
 const MD_RULES = [
-    { regex: /(?:[^*]|^)(\*\*(.+?)\*\*)(?:[^*]|$)/, text_group: 1, tag: '<span class="MD-bold">', replace_group: 0 }, // This one has to go first beacause it overides the latter
-    { regex: /\*(.+?)\*/, text_group: 0, tag: '<span class="MD-italics">' },
-    { regex: /~(.+?)~/, text_group: 0, tag: '<span class="MD-strike">' },
-    { regex: /\[(.+?)\]\(((http:\/\/|https:\/\/).+?)\)/, text_group: 0, tag: '<span class="MD-link" href="$1">' },
+    { regex: /(?:[^*]|^)(\*\*(.+?)\*\*)(?:[^*]|$)/, text_group: 1, tag: '<b class="MD-bold">', replace_group: 0 }, // This one has to go first beacause it overides the latter
+    { regex: /\*(.+?)\*/, text_group: 0, tag: '<i class="MD-italics">' },
+    { regex: /~(.+?)~/, text_group: 0, tag: '<strike class="MD-strike">' },
+    { regex: /\[(.+?)\]\(((http:\/\/|https:\/\/).+?)\)/, text_group: 0, tag: '<span style="display: inline;" class="MD-link" href="$1">' },
 ]
 
 /**
