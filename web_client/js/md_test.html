@@ -15,12 +15,16 @@
     Markdown: <input id="mdInput" type="text">
 
     <br><br><br>
-    Md to HTML: <div id="MD-Display" style="display: inline-block"></div>
+    Md to HTML: <div id="HTML-Display" style="display: inline-block"></div>
+    <br><br><br>
+    Md to HTML to Md: <div id="MD-Display" style="display: inline-block"></div>
     <script type="text/javascript">
-        let display = document.getElementById('MD-Display')
+        let html_display = document.getElementById('HTML-Display')
+        let md_display = document.getElementById('MD-Display')
         let input = document.getElementById('mdInput')
         input.onchange = () => {
-            display.innerHTML = MDtoHTML(input.value);
+            html_display.innerHTML = MDtoHTML(input.value);
+            md_display.innerText = HTMLtoMD(html_display.innerHTML);
         }
     </script>
 </body>
