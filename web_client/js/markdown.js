@@ -1,3 +1,7 @@
+//TODO: check for more XSS cases & fix them
+//TODO: make code blocks not have MD --> HTML in them
+
+
 // ### RULES FOR THE MD -> HTML PARSER ### //
 // Anything within the tag with $nº will be replaced with that group
 const MD_RULES = [
@@ -5,16 +9,16 @@ const MD_RULES = [
     { regex: /(?:[^*]|^)(\*([^*](?:.*?[^*])?)\*)(?:[^*]|$)/, text_group: 1, tag: '<i class="MD-italics">', replace_group: 0 },
     { regex: /~(.+?)~/, text_group: 0, tag: '<strike class="MD-strike">' },
     { regex: /\[(.+?)\]\(((?:http:\/\/|https:\/\/).+?)\)/, text_group: 0, tag: '<a class="MD-link" href="$1">' },
-    { regex: /`(.+?)`/, text_group: 0, tag: '<code class="MD-code">' },
+    { regex: /`(.+?)`/, text_group: 0, tag: '<code class="MD-code">' }, //TODO: No tags should be inside the code element
 ]
 
 // ### RULES FOR THE HTML -> MD PARSER ### //
 const HTML_RULES = [
-    { class: 'MD-bold', md: '**$TEXT**' },
-    { class: 'MD-italics', md: '*$TEXT*' },
-    { class: 'MD-strike', md: '~$TEXT~' },
-    { class: 'MD-link', md: '[$TEXT]($HREF)' },
-    { class: 'MD-code', md: '`$TEXT`' },
+    { tag: 'b', class: 'MD-bold', md: '**$TEXT**' },
+    { tag: 'i', class: 'MD-italics', md: '*$TEXT*' },
+    { tag: 'strike', class: 'MD-strike', md: '~$TEXT~' },
+    { tag: 'a', class: 'MD-link', md: '[$TEXT]($HREF)' },
+    { tag: 'code', class: 'MD-code', md: '`$TEXT`' },
 ]
 
 /**
@@ -25,6 +29,10 @@ function htmlToElements(html) {
     var template = document.createElement('template');
     template.innerHTML = html;
     return template.content.childNodes;
+}
+
+function escapeHTML(html) {
+    return $('<div>').text(html).html();
 }
 
 /**
@@ -38,12 +46,15 @@ function removeXSS(html_str) {
         if (node.childNodes.length > 0) {
             let isXSS = true;
             for (let rule of HTML_RULES) {
-                if (node.classList.contains(rule.class)) {
+                if (node.classList.contains(rule.class) && node.nodeName == rule.tag.toUpperCase()) {
                     isXSS = false;
                 }
             }
             if (isXSS) {
                 console.log('XSS', node);
+                let inner_html = node.innerHTML;
+                node.innerHTML = escapeHTML(removeXSS(inner_html));
+                result += escapeHTML(node.outerHTML);
             }else{
                 let inner_html = node.innerHTML;
                 node.innerHTML = removeXSS(inner_html);
@@ -51,9 +62,9 @@ function removeXSS(html_str) {
             }
         } else {
             let isXSS = true;
-            if(node.classList){
+            if(node.nodeName != '#text'){
                 for (let rule of HTML_RULES) {
-                    if (node.classList.contains(rule.class)) {
+                    if (node.classList.contains(rule.class) && node.nodeName == rule.tag.toUpperCase()) {
                         isXSS = false;
                         break;
                     }
@@ -61,12 +72,14 @@ function removeXSS(html_str) {
             }else{
                 isXSS = false;
             }
+            let node_repr = node.nodeValue;
             if (isXSS) {
                 console.log('XSS', node);
+                node_repr = escapeHTML(node.outerHTML);
             }else{
-                if(node.outerHTML) return node.outerHTML;
-                else result += node.nodeValue;
+                if(node.outerHTML) node_repr = node.outerHTML;
             }
+            result += node_repr;
         }
     }
     return result;
