@@ -1,7 +1,7 @@
 // ### RULES FOR THE MD -> HTML PARSER ### //
 // Anything within the tag with $nº will be replaced with that group
 const MD_RULES = [
-    { regex: /(?:[^*]|^)(\*\*(.+?)\*\*)(?:[^*]|$)/, text_group: 1, tag: '<b class="MD-bold">', replace_group: 0 }, // This one has to go first beacause it overides the latter
+    { regex: /(\*\*(.+?)\*\*)/, text_group: 1, tag: '<b class="MD-bold">', replace_group: 0 }, // This one has to go first beacause it overides the latter
     { regex: /\*(.+?)\*/, text_group: 0, tag: '<i class="MD-italics">' },
     { regex: /~(.+?)~/, text_group: 0, tag: '<strike class="MD-strike">' },
     { regex: /\[(.+?)\]\(((http:\/\/|https:\/\/).+?)\)/, text_group: 0, tag: '<a class="MD-link" href="$1">' },
@@ -25,6 +25,48 @@ function htmlToElements(html) {
     return template.content.childNodes;
 }
 
+/**
+ * This function removes all the HTML whose class is not one of the rules classes
+ */
+
+function removeXSS(html_str) {
+    let nodes = htmlToElements(html_str);
+    for (let node of nodes) {
+        if (node.childNodes.length > 0) {
+            let isXSS = true;
+            for (let rule of HTML_RULES) {
+                if (node.classList.contains(rule.class)) {
+                    isXSS = false;
+                }
+            }
+            if (!isXSS) {
+                let inner_html = node.innerHTML;
+                return removeXSS(inner_html);
+            } else {
+                return '';
+            }
+        } else {
+            let isXSS = true;
+            if(node.classList){
+                for (let rule of HTML_RULES) {
+                    if (node.classList.contains(rule.class)) {
+                        isXSS = false;
+                        break;
+                    }
+                }
+            }else{
+                isXSS = false;
+            }
+            if (!isXSS) {
+                if(node.outerHTML) return node.outerHTML;
+                else return node.nodeValue;
+            } else {
+                return '';
+            }
+        }
+    }
+}
+
 
 function MDtoHTML(MD_String) {
     let r = MD_String;
@@ -44,7 +86,7 @@ function MDtoHTML(MD_String) {
                         current_tag = current_tag.replace(dollar_s, match[group_number + 1])
                     }
                 }
-                let element = $(current_tag).html/* TODO make this XSS invulnerable */(match[current_rule.text_group + 1])
+                let element = $(current_tag).html(removeXSS(match[current_rule.text_group + 1]))
                 let to_replace = match[0];
                 if (current_rule.replace_group != undefined) to_replace = match[current_rule.replace_group + 1]
                 r = r.replace(to_replace, element.prop('outerHTML'));
@@ -60,15 +102,15 @@ function HTMLtoMD(html) {
     for (node of nodes) {
         let innerMD = ''
         if (node.childNodes.length > 0) {
-            for (let rule of HTML_RULES){
-                if(node.classList.contains(rule.class)){
+            for (let rule of HTML_RULES) {
+                if (node.classList.contains(rule.class)) {
                     let replaceVal = rule.md;
                     let href = node.getAttribute('href');
                     let inner_html = node.innerHTML;
                     let html_to_md = HTMLtoMD(inner_html);
                     replaceVal = replaceVal.replace('$TEXT', html_to_md);
-                    if(href){
-                        replaceVal = replaceVal.replace('$HREF',href);
+                    if (href) {
+                        replaceVal = replaceVal.replace('$HREF', href);
                     }
                     innerMD = replaceVal;
                     break;
