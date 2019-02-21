@@ -72,20 +72,26 @@ function getCookie(cname) { // From W3Schools
 }
 
 function parseQuote(context) {
-    let quote_content = '';
-    if (context.find(".quote").length >= 1) { //Test if there's a qoute in the messge
-        quote_content = context.find("b").text() +
-                    context.find("b").next().html() +
-                    // Skip qoute
-                    context.find("b").next().next().next().html();
-    } else {
-        quote_content = context.find("b").text() +
-                    context.find("b").next().html() +
-                    context.find("b").next().next().html() +
-                    context.find("b").next().next().next().html();
-    }
     console.log(context.html())
-    return '"' + HTMLtoMD(quote_content) + '"'
+    let b = context.find("#m-username")
+    let message_body = context.find("#m-body");
+    console.log(message_body.html())
+    let res = b.text() + message_body.html();
+    // TODO remake after remaking quotes
+    /*if (context.find(".quote").length >= 1) { // Check if message has a quote
+        res = b.text() +
+            b.next().html() +
+            // Skip the quote
+            b.next().next().next().html()
+    } else {
+        res = b.text() +
+            b.next().html() +
+            b.next().next().html() +
+            b.next().next().next().html()
+    }*/
+
+    res = res.replace(/"([^:]+):  "/, '')
+    return `"${HTMLtoMD(res)}"`
 }
 
 /**
@@ -215,3 +221,12 @@ function countTextareaLines(textarea) {
     return result;
 }
 //#endregion
+function toFragment(html){
+    var temp = document.createElement('template');
+    temp.innerHTML = html;
+    return temp.content;
+}
+
+String.prototype.replaceIndex=function(findex, tindex, replacement) {
+    return this.substr(0, findex) + replacement+ this.substr(tindex);
+}

@@ -40,36 +40,39 @@ $(window).on('load', function () {
         });
 
         $("#quote").click(function () {
-            $("li").each(function (i) {
+            let msg = $("#m").val()
+            msg = msg.replace(/"([^:]*): *(.+)" /, '') // Delete any quotes already in the message
 
-                if (i != $('li').length - 1) {
-
+            let messages_li = $("#messages").find("li");
+            messages_li.each(function (i) {
+                if (i != messages_li.length - 1) {
                     let click = $("#rightclick").position().top
                     let start = $(this).offset().top
-                    let next = $('li').eq(i + 1).offset().top
+                    let next = messages_li.eq(i + 1).offset().top
 
                     if (click > start && click < next) {
 
                         let res = parseQuote($(this))
-                        $("#m").val(res + $("#m").val())
+                        $("#m").val(res + msg)
 
                         return false;
                     }
                 } else {
                     let res = parseQuote($(this))
-                    $("#m").val(res + $("#m").val())
+                    $("#m").val(res + msg)
                 }
             })
         });
 
         $("#delete").click(function () {
-            $("li").each(function (i) {
+            let messages_li = $("#messages").find("li");
+            messages_li.each(function (i) {
 
-                if (i != $('li').length - 1) {
+                if (i != messages_li.length - 1) {
 
                     let click = $("#rightclick").position().top
                     let start = $(this).offset().top
-                    let next = $('li').eq(i + 1).offset().top
+                    let next = messages_li.eq(i + 1).offset().top
 
                     if (click > start && click < next) {
 
@@ -90,7 +93,7 @@ $(window).on('load', function () {
         var edit_header = uuid_header;
         edit_header.message = $(this).find('b').next().text();
         var is_editing = false;
-        $("#edit").click(function () {
+        $("#edit").click(function () { // TODO: update
             $("li").each(function (i) {
                 if (i != $('li').length - 1) {
 
@@ -235,15 +238,30 @@ $(window).on('load', function () {
 
                         new_message.append($('<img>').attr('src', IMG_URL_HEADER + users[username].image).attr("id", "chat_prof_pic")); //.css("display", 'inline_block').css("width", '2%').css("height", '2%'));
                         let new_message_body = $('<span>');
-                        new_message_body.append($('<b>').text(username + ': ').css("color", color));
+                        new_message_body.append($('<b id="m-username">').text(username + ': ').css("color", color));
 
-                        let linkMatch = message.match(/([\w\d]+):\/\/([\w\d\.-]+)\.([\w\d]+)\/?([\w\d-@:%_\+.~#?&/=]*)/g);
-                        let quoteMatch = message.match(/\"(.+): ((.)+)\"/);
-                        let quotecss = "";
-                        let quoteuser = "";
+                        
+                        let quoteREGEX = /(\"(.+): (.+)\")/;
+
+                        let messageHTML = message;
+
+                        let quoteMatch = message.match(quoteREGEX);
+                        // So that we dont parse the MD in the quote
+                        let convertedMDstart = 0;
+                        let convertedMDend = 0;
                         if (quoteMatch) {
-                            quotecss = "border-left: 3px  " + users[quoteMatch[1]].color + " solid; background-color: " + users[quoteMatch[1]].color + "50;";
-                            quoteuser = quoteMatch[1]
+                            //#region create a quote
+                            let quoted_user = quoteMatch[2]
+                            let quoted_message = `${quoted_user}: ${quoteMatch[3]}`
+                            //Create the css for the quote
+                            let quote_css =
+                            `
+                            border-left: 3px ${users[quoted_user].color} solid;
+                            background-color: ${users[quoted_user].color}50;
+                            `
+
+                            // Replace all the unvalid charaters in css IDs
+                            let quoted_user_id = quoted_user
                                 .replace(/[ ]/g, "space")
                                 .replace(/[:]/g, "colon")
                                 .replace(/[.]/g, "dot")
@@ -256,157 +274,70 @@ $(window).on('load', function () {
                                 .replace(/[@]/g, "at")
                                 .replace(/[;]/g, "semicolon")
                                 .replace(/[!]/g, "exclamation");
-                        }
 
-                        if (linkMatch && quoteMatch) { // Both links and quotes in message
+                            //Create the quote span
+                            let quoteSpan = $(`<span class="quote user-${quoted_user_id}">`).append(MDtoHTML(quoted_message));
 
-                            let linkStart = message.search(linkMatch[0]);
-                            let linkEnd = linkStart + (linkMatch[0].length - 1);
-                            let linkNum = linkMatch.length;
-                            let linkSpan = '<a target="_blank" href="' + linkMatch[0] + '">' + linkMatch[0] + '</a>';
-
-                            let quoteStart = message.search(quoteMatch[0]);
-                            let quoteEnd = quoteStart + (quoteMatch[0].length);
-                            let quoteText = quoteMatch[0].substring(1, quoteMatch[0].length - 1)
-                                .replace(linkMatch[0], linkSpan);
-
-                            let quoteSpan = $("<span>").append(quoteText).attr("class", "quote user-" + quoteuser);
-
+                            //Check if the CSS for the current user already exists
                             let cssRuleExists = false;
                             for (var r = 0; r < document.styleSheets[document.styleSheets.length - 1].rules; r++) {
-                                if (document.styleSheets[document.styleSheets.length - 1].rules[r].selectorText.includes('user-' + quoteuser)) {
+                                if (document.styleSheets[document.styleSheets.length - 1].rules[r].selectorText.includes(`user-${quoted_user_id}`)) {
                                     cssRuleExists = true;
                                     break
                                 }
                             }
                             if (!cssRuleExists) {
-                                document.styleSheets[document.styleSheets.length - 1].addRule(".quote.user-" + quoteuser, quoteMatch);
+                                // Add the CSS for the user if the CSS rule doesn't exist
+                                document.styleSheets[document.styleSheets.length - 1].addRule(`.quote.user-${quoted_user}`, quote_css);
                             }
 
-                            if (quoteStart < linkStart && quoteEnd > linkEnd) { // Link inside quote
-                                new_message_body.append($("<span>").text(message.substring(0, quoteStart)));
-                                new_message_body.append(quoteSpan);
-                                if (linkEnd > quoteEnd) {
-                                    new_message_body.append($("<span>").text(message.substring(quoteEnd, linkStart)));
+                            //#endregion
 
-                                    for (let r = 0; r < linkNum; r++) {
-                                        oldLinkEnd = linkStart + (linkMatch[r].length);
-                                        linkStart = message.search(linkMatch[r]);
-                                        linkEnd = linkStart + (linkMatch[r].length);
-                                        nextLinkStart = message.search(linkMatch[r + 1]);
+                            convertedMDstart = quoteMatch.index;
+                            convertedMDend = quoteMatch.index + quoteSpan[0].outerHTML.length;
 
-                                        let linkSpan = $('<a>').attr('target', '_blank').attr('href', linkMatch[r]).text(linkMatch[r]);
-                                        new_message_body.append(linkSpan);
+                            messageHTML = messageHTML.replace(quoteMatch[0], quoteSpan[0].outerHTML)
+                        }
 
-                                        if (r + 1 == linkNum) {
-                                            new_message_body.append($("<span>").text(message.substring(linkEnd)));
-                                        } else {
-                                            new_message_body.append($("<span>").text(message.substring(linkEnd, nextLinkStart)));
+                        //We're going to replace the string before & after the convertedMD
+                        let message_first_replace = messageHTML.substr(0, convertedMDstart);
+                        let message_second_replace = messageHTML.substr(convertedMDend, messageHTML.length);
+                        let message_fisrt_MD = MDtoHTML(message_first_replace);
+                        let message_second_MD = MDtoHTML(message_second_replace);
+                        messageHTML = messageHTML.replace(message_first_replace, message_fisrt_MD);
+                        messageHTML = messageHTML.replace(message_second_replace, message_second_MD);
+                        //console.log(messageHTML);
+                        let m_body_element = $('<span id="m-body">').html(messageHTML);
+                        
+                        // find the links
+                        let linkREGEX = /([\w\d]+):\/\/([\w\d\.-]+)\.([\w\d]+)\/?([\w\d-@:%_\+.~#?&/=]*)/g;
+                        function replaceLinks(html_element){
+                            for (let node of html_element.childNodes){
+                                if(node.childNodes.length == 0){ // If the element doesn't have children:
+                                    let content = node.nodeValue; // get the elements text
+                                    let last_change_index = -1; // We use this so that we don't override the href property in the HTML
+                                    // Find every link in the content
+                                    while (match = linkREGEX.exec(content)) {
+                                        // if its past the last edit
+                                        if (match.index > last_change_index) {
+                                            let link = match[0] // get the whole link
+                                            let link_jquery = $(`<a class="MD-link" href="${link}">`).text(link) // replace it with an actual link
+                                            content = content.replaceIndex(match.index, match.index+match[0].length, link_jquery[0].outerHTML) // replace the current link found with the HTML generated
+
+                                            last_change_index = match.index + link_jquery[0].outerHTML.length; // Update the last edit index
                                         }
+                                        
                                     }
-
-                                    new_message_body.append($("<span>").text(message.substring(linkEnd)));
-                                }
-                            } else if (quoteEnd < linkStart) { // Link after quote
-                                new_message_body.append($("<span>").text(message.substring(0, quoteStart)));
-                                new_message_body.append(quoteSpan);
-                                if (linkEnd > quoteEnd) {
-                                    new_message_body.append($("<span>").text(message.substring(quoteEnd, linkStart)));
-
-                                    for (let r = 0; r < linkNum; r++) {
-                                        oldLinkEnd = linkStart + (linkMatch[r].length);
-                                        linkStart = message.search(linkMatch[r]);
-                                        linkEnd = linkStart + (linkMatch[r].length);
-                                        nextLinkStart = message.search(linkMatch[r + 1]);
-
-                                        let linkSpan = $('<a>').attr('target', '_blank').attr('href', linkMatch[r]).text(linkMatch[r]);
-                                        new_message_body.append(linkSpan);
-
-                                        if (r + 1 == linkNum) {
-                                            new_message_body.append($("<span>").text(message.substring(linkEnd)));
-                                        } else {
-                                            new_message_body.append($("<span>").text(message.substring(linkEnd, nextLinkStart)));
-                                        }
-                                    }
-
-                                    new_message_body.append($("<span>").text(message.substring(linkEnd)));
-                                }
-                            } else if (linkStart < quoteStart) { // Link before quote
-                                new_message_body.append($("<span>").text(message.substring(0, linkStart)));
-                                for (let r = 0; r < linkNum; r++) {
-                                    oldLinkEnd = linkStart + (linkMatch[r].length);
-                                    linkStart = message.search(linkMatch[r]);
-                                    linkEnd = linkStart + (linkMatch[r].length);
-                                    nextLinkStart = message.search(linkMatch[r + 1]);
-
-                                    let linkSpan = $('<a>').attr('target', '_blank').attr('href', linkMatch[r]).text(linkMatch[r]);
-                                    new_message_body.append(linkSpan);
-
-                                    if (r + 1 == linkNum) new_message_body.append($("<span>").text(message.substring(linkEnd, quoteStart)));
-
-                                    else new_message_body.append($("<span>").text(message.substring(linkEnd, nextLinkStart)));
-                                }
-
-                                new_message_body.append($("<span>").text(message.substring(linkEnd, quoteStart)));
-                                new_message_body.append(quoteSpan);
-                                new_message_body.append($("<span>").text(message.substring(quoteEnd)));
-                            }
-
-                        } else if (linkMatch) { // Only link in message
-                            linkNum = linkMatch.length;
-                            new_message_body.append($("<span>").text(message.substring(0, message.search(linkMatch[0]))));
-
-                            for (let r = 0; r < linkNum; r++) {
-                                linkStart = message.search(linkMatch[r]);
-                                linkEnd = linkStart + (linkMatch[r].length);
-                                nextLinkStart = message.search(linkMatch[r + 1]);
-
-                                let linkSpan = $('<a>').attr('target', '_blank').attr('href', linkMatch[r]).text(linkMatch[r]);
-                                new_message_body.append(linkSpan);
-                                if (r + 1 == linkNum) {
-                                    new_message_body.append($("<span>").text(message.substring(linkEnd)));
-                                } else {
-                                    new_message_body.append($("<span>").text(message.substring(linkEnd, nextLinkStart)));
+                                    html_element.replaceChild(toFragment(content), node) // Replace the current element with a list(Fragment) of the elements generated in HTML
+                                    
+                                }else{
+                                    replaceLinks(node); // If it has more than of child, apply this function
                                 }
                             }
+                        }
+                        replaceLinks(m_body_element[0]);
+                        new_message_body.append(m_body_element);
 
-                        } else if (quoteMatch) { // Only quote in message
-                            let quoteSpan = $("<span>").text(quoteMatch[0].substring(1, quoteMatch[0].length - 1)).attr("class", "quote user-" + quoteuser);
-                            let cssRuleExists = false;
-                            for (let r = 0; r < document.styleSheets[document.styleSheets.length - 1].rules; r++) {
-                                if (document.styleSheets[document.styleSheets.length - 1].rules[r].selectorText.includes('user-' + quoteuser)) {
-                                    cssRuleExists = true;
-                                    break
-                                }
-                            }
-                            if (!cssRuleExists) {
-                                document.styleSheets[document.styleSheets.length - 1].addRule(".quote.user-" + quoteuser, quotecss);
-                            }
-
-                            quoteStart = message.search(escapeRegExp(quoteMatch[0]));
-                            quoteEnd = quoteStart + (quoteMatch[0].length);
-                            new_message_body.append($("<span>").text(message.substring(0, quoteStart)));
-                            new_message_body.append(quoteSpan);
-                            new_message_body.append($("<span>").text(message.substring(quoteEnd)));
-                        } else { // No links or quotes in message
-                            /*//TODO Make it so that it can be decoded back into markdown
-                            let markdown_list=[
-                                {"start":"[$0]($1)","end":"","tag":"<a href='https://$1' target='_blank'>$0</a>","params":"true"}, // Not working properly, try for yourselves
-                                {"start":"**","end":"**","tag":"<b>"},
-                                {"start":"*","end":"*","tag":"<i>"},
-                                {"start":"~~","end":"~~","tag":"<strike>"},
-                                {"start":"","end":"","tag":""}
-                            ];
-                            let markdown_message=parseMarkdown(markdown_list,message);
-
-                            // console.log(markdown_message[0])
-                            if($(markdown_message).text()==""){
-                                new_message_body.append($("<span>").text(message));
-                            }else{
-                                new_message_body.append(markdown_message);
-                            }*/
-                            new_message_body.append($("<span>").html(MDtoHTML(message)));
-                        };
 
                         if (username != getCookie('hermes_username') && !first_load && last_message_timestamp_notified < last_message_timestamp) {
                             sendNotifiaction("New message from " + username, username + ": " + message, 'data:image/png;base64,' + users[username].image);
@@ -517,119 +448,3 @@ $(window).on('load', function () {
     });
 
 });
-/*
-function parseMarkdown(markdown_list, message) {
-    if (message.match("<(.+)>|</(.+)>")) return;
-    if (message.includes(" ")) {
-        let res = $("<span>"), parts = message.split(" ");
-        let start = message.substring(0, message.match(/\w+/).index);
-        let end = message.substring(message.length - start.length, message.length);
-        for (part in parts) {
-            if (start == end.split("").reverse().join("")) {
-                res.append(parseMarkdown(markdown_list, start + parts[part].match(/\w+/)[0] + end));
-            } else {
-                res.append(parseMarkdown(markdown_list, parts[part]));
-            }
-            res.append(" ");
-        }
-        return res;
-    }
-    let markdown_message = $("<span>");
-    let markdown_text = message, last_starts = "", last_ends = "", in_message = "";
-    for (symbol in markdown_list) {
-        symbol = parseInt(symbol);
-        if (markdown_text.substring(markdown_text.indexOf(" ")) != "") {
-            if (last_starts != "" && last_ends != "") {
-                markdown_text = message.replace(new RegExp(escapeRegExp(last_starts) + "(.+)" + escapeRegExp(last_ends)), "");
-                last_starts = "";
-                last_ends = "";
-            }
-            if (symbol == markdown_list.length - 1)
-                break;
-        }
-        let obj = markdown_list[symbol];
-        let start = obj["start"];
-        let has_params = obj["params"] == "true" ? true : false;
-        let params = [];
-        if (has_params) {
-            let param_regex = start.replace(new RegExp("(\\[|\\]|\\(|\\))", "g"), "\\$1").replace(/\$\d+/g, "(.+)");
-            let msg_param_match = markdown_text.match(param_regex);
-
-            if (msg_param_match != null) {
-                // console.log(msg_param_match)
-                for (let param = 1; param < msg_param_match.length; param++) {
-                    // console.log(param)
-                    params.push(msg_param_match[param]);
-                }
-            }
-        }
-        // console.log(params)
-
-        let end = obj["end"];
-        let tag = obj["tag"];
-
-        let next_obj = markdown_list[symbol + 1 >= markdown_list.length - 1 ? markdown_list.length - 1 : symbol + 1];
-        let next_start = next_obj["start"];
-        let next_end = next_obj["end"];
-
-        let symb_regex = new RegExp(escapeRegExp(start) + "(.+)" + escapeRegExp(end));
-        let next_symb_regex = new RegExp(escapeRegExp(next_start) + "(.+)" + escapeRegExp(next_end));
-        if (markdown_text.match(symb_regex) && !has_params) {
-            //console.log(markdown_text);
-            let match = markdown_text.match(symb_regex);
-            if (match != null) {
-                last_starts += start;
-                last_ends = last_starts.split("").reverse().join("");
-                //console.log(last_starts, last_ends)
-                markdown_text = markdown_text.replace(start, "");
-                markdown_text = markdown_text.replace(end, "");
-                //console.log("md_txt = " + markdown_text, symbol)
-                let last_child = $(markdown_message).find(":last-child");
-
-                if (last_child.length == 0) {
-                    $(markdown_message).append($(tag).append(parseMarkdown(markdown_list, match[1])));
-                    markdown_text.replace($(markdown_message).text(), "");
-                    //console.log("md_msg (l-c=0) = " + $(markdown_message).text());
-                } else if (last_child.length > 0) {
-                    let txt = $(last_child[last_child.length - 1]).text();
-                    $(last_child[last_child.length - 1]).text("");
-                    $(last_child[last_child.length - 1]).append($(tag).append(txt + parseMarkdown(match[1])));
-                    markdown_text.replace($(last_child[last_child.length - 1]).text(), "");
-                    //console.log("md_msg (l-c>0) = " + $(last_child[last_child.length - 1]).text());
-                }
-                // console.log($(markdown_message)[0],markdown_text);
-            }
-        } else if (has_params && params.length > 0) {
-            let last_child = $(markdown_message).find(":last-child");
-            if (last_child.length == 0) {
-                let paramtag = tag;
-                for (param in params) {
-                    paramtag = paramtag.replace(new RegExp("\\$" + param, "g"), params[param]);
-                }
-                $(markdown_message).append(paramtag);
-                markdown_text = "";
-            } else if (last_child.length > 0) {
-                $(last_child[last_child.length - 1]).text("");
-                let paramtag = tag;
-                for (param in params) {
-                    paramtag = paramtag.replace(new RegExp("\\$" + param, "g"), params[param]);
-                }
-                $(last_child[last_child.length - 1]).append(paramtag);
-                markdown_text = "";
-            }
-        }
-        
-        // if (JSON.stringify(next_obj) == JSON.stringify(obj) || markdown_text.match(next_symb_regex) == null) {
-        //     // console.log(JSON.stringify(next_obj)==JSON.stringify(obj),markdown_text.match(next_symb_regex)==null,symbol)
-        //     // symbol++;
-        // }
-        
-    }
-
-    if (markdown_text != "") {
-        markdown_message.append(markdown_text);
-    }
-
-    return markdown_message;
-}
-*/

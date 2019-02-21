@@ -16,10 +16,10 @@ const HTML_RULES = [
     { tag: 'strike', class: 'MD-strike', md: '~$TEXT~' },
     { tag: 'a', class: 'MD-link', md: '[$TEXT]($HREF)' },
     { tag: 'code', class: 'MD-code', md: '`$TEXT`' },
+    { tag: 'span', class: 'quote', md: '*quote*' }, //Make the MD parser remove quotes
 ]
 
 /**
- * Internal Markdown function, DO NOT USE.
  * @param {String} HTML representing any number of sibling elements
  * @return {NodeList} 
  */
@@ -145,7 +145,7 @@ function MDtoHTML(MD_String) {
 }
 
 function HTMLtoMD(html) {
-    console.log('HTML --> MD:', html);
+    //console.log('HTML --> MD:', html);
     let nodes = htmlToElements(html);
     let md = '';
     for (node of nodes) {
