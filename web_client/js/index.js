@@ -40,6 +40,10 @@ $(window).on('load', function () {
         });
 
         $("#quote").click(function () {
+
+            let msg = $("#m").val()
+            msg = msg.replace(/"([^:]*): *(.+)"/, '') // Delete any quotes already in the message
+
             $("li").each(function (i) {
 
                 if (i != $('li').length - 1) {
@@ -51,13 +55,13 @@ $(window).on('load', function () {
                     if (click > start && click < next) {
 
                         let res = parseQuote($(this))
-                        $("#m").val(res + $("#m").val())
+                        $("#m").val(res + msg)
 
                         return false;
                     }
                 } else {
                     let res = parseQuote($(this))
-                    $("#m").val(res + $("#m").val())
+                    $("#m").val(res + msg)
                 }
             })
         });
