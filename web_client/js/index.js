@@ -26,7 +26,7 @@ $(window).on('load', function () {
         username = res;
         $('#user').text(username + ':');
 
-        $("#m").width($(window).width() - $("#user").width() - 175)
+        if ($(window).width() > 400) $("#m").width($(window).width() - 175 - $("#user").width())
 
         $('#message_send_form').submit(() => {
             msg = $('#m').val();
@@ -248,6 +248,9 @@ $(window).on('load', function () {
                         let quoteuser = "";
                         if (quoteMatch) {
                             quotecss = "border-left: 3px  " + users[quoteMatch[1]].color + " solid; background-color: " + users[quoteMatch[1]].color + "50;";
+
+                            if (getCookie('hermes_style') == 'dark') quotecss += "color: #fff;"
+
                             quoteuser = quoteMatch[1]
                                 .replace(/[ ]/g, "space")
                                 .replace(/[:]/g, "colon")
@@ -401,7 +404,9 @@ $(window).on('load', function () {
                             sendNotifiaction("New message from " + username, username + ": " + message, 'data:image/png;base64,' + users[username].image);
                             last_message_timestamp_notified = last_message_timestamp;
                         }
-                        let time_el = $("<span class='time'>").text(hour);
+                        let time_el = $("<span class='time'>")
+
+                        $(window).width() > 400 ? time_el.text(hour) : time_el.text(hour.substring(0, 5))
 
                         if (username == name) {
                             time_el.attr('class', 'myTime')
@@ -478,7 +483,7 @@ $(window).on('load', function () {
             $(this).height($(this).find(".message_body").height());
         });
 
-        $("#m").width($(window).width() - 175 - $("#user").width())
+        if ($(window).width() > 400) $("#m").width($(window).width() - 175 - $("#user").width())
     });
 
 });
