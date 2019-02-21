@@ -42,7 +42,7 @@ $(window).on('load', function () {
         $("#quote").click(function () {
 
             let msg = $("#m").val()
-            msg = msg.replace(/"([^:]*): *(.+)"/, '') // Delete any quotes already in the message
+            msg = msg.replace(/"([^:]*): *(.+)" /, '') // Delete any quotes already in the message
 
             $("li").each(function (i) {
 
