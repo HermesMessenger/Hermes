@@ -389,7 +389,7 @@ $(window).on('load', function () {
                             new_message_body.append(quoteSpan);
                             new_message_body.append($("<span>").text(message.substring(quoteEnd)));
                         } else { // No links or quotes in message
-                            //TODO Make it so that it can be decoded back into markdown
+                            /*//TODO Make it so that it can be decoded back into markdown
                             let markdown_list=[
                                 {"start":"[$0]($1)","end":"","tag":"<a href='https://$1' target='_blank'>$0</a>","params":"true"}, // Not working properly, try for yourselves
                                 {"start":"**","end":"**","tag":"<b>"},
@@ -404,7 +404,8 @@ $(window).on('load', function () {
                                 new_message_body.append($("<span>").text(message));
                             }else{
                                 new_message_body.append(markdown_message);
-                            }
+                            }*/
+                            new_message_body.append($("<span>").html(MDtoHTML(message)));
                         };
 
                         if (username != getCookie('hermes_username') && !first_load && last_message_timestamp_notified < last_message_timestamp) {
@@ -516,7 +517,7 @@ $(window).on('load', function () {
     });
 
 });
-
+/*
 function parseMarkdown(markdown_list, message) {
     if (message.match("<(.+)>|</(.+)>")) return;
     if (message.includes(" ")) {
@@ -617,12 +618,12 @@ function parseMarkdown(markdown_list, message) {
                 markdown_text = "";
             }
         }
-        /*
-        if (JSON.stringify(next_obj) == JSON.stringify(obj) || markdown_text.match(next_symb_regex) == null) {
-            // console.log(JSON.stringify(next_obj)==JSON.stringify(obj),markdown_text.match(next_symb_regex)==null,symbol)
-            // symbol++;
-        }
-        */
+        
+        // if (JSON.stringify(next_obj) == JSON.stringify(obj) || markdown_text.match(next_symb_regex) == null) {
+        //     // console.log(JSON.stringify(next_obj)==JSON.stringify(obj),markdown_text.match(next_symb_regex)==null,symbol)
+        //     // symbol++;
+        // }
+        
     }
 
     if (markdown_text != "") {
@@ -631,3 +632,4 @@ function parseMarkdown(markdown_list, message) {
 
     return markdown_message;
 }
+*/

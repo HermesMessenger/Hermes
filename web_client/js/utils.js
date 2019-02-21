@@ -72,19 +72,20 @@ function getCookie(cname) { // From W3Schools
 }
 
 function parseQuote(context) {
-    if (context.find(".quote").length >= 1) { //Testeo si hay quote en el mensaje
-        return ("\"" +
-            context.find("b").text() +
-            context.find("b").next().text() +
-            // No ponemos el quote
-            context.find("b").next().next().next().text() + "\" ");
+    let quote_content = '';
+    if (context.find(".quote").length >= 1) { //Test if there's a qoute in the messge
+        quote_content = context.find("b").text() +
+                    context.find("b").next().html() +
+                    // Skip qoute
+                    context.find("b").next().next().next().html();
     } else {
-        return ("\"" +
-            context.find("b").text() +
-            context.find("b").next().text() +
-            context.find("b").next().next().text() +
-            context.find("b").next().next().next().text() + "\" ");
+        quote_content = context.find("b").text() +
+                    context.find("b").next().html() +
+                    context.find("b").next().next().html() +
+                    context.find("b").next().next().next().html();
     }
+    console.log(context.html())
+    return '"' + HTMLtoMD(quote_content) + '"'
 }
 
 /**

@@ -19,6 +19,7 @@ const HTML_RULES = [
 ]
 
 /**
+ * Internal Markdown function, DO NOT USE.
  * @param {String} HTML representing any number of sibling elements
  * @return {NodeList} 
  */
@@ -37,7 +38,9 @@ String.prototype.replaceAll = function(search, replacement) {
     return target.split(search).join(replacement);
 };
 
-
+/**
+ * Internal Markdown function, DO NOT USE.
+ */
 function convertHTML(html) {
     let r = html;
     for (let rule of HTML_ESCAPE_RULES){
@@ -45,7 +48,9 @@ function convertHTML(html) {
     }
     return r;
 }
-
+/**
+ * Internal Markdown function, DO NOT USE.
+ */
 function deconvertHTML(html) {
     let r = html;
     for (let rule of HTML_ESCAPE_RULES){
@@ -55,6 +60,7 @@ function deconvertHTML(html) {
 }
 
 /**
+ * Internal Markdown function, DO NOT USE.
  * This function removes all the HTML whose class is not one of the rules classes
  */
 
