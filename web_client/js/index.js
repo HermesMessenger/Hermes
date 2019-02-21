@@ -216,8 +216,9 @@ $(window).on('load', function () {
                         let day = time.getDate() + '/' + (time.getMonth() + 1) + '/' + time.getFullYear();
                         let hour = padNumber(time.getHours()) + ':' + padNumber(time.getMinutes()) + ':' + padNumber(time.getSeconds());
                         let prev_day = prev_time.getDate() + '/' + (prev_time.getMonth() + 1) + '/' + prev_time.getFullYear();
-                        if (day != prev_day) {
-                            let date_message = $('<li>').attr("class", "date").append(day);
+
+                        if ((day != prev_day) && ($("#" + day.replace(/\//g, '\\/')).length == 0)) {
+                            let date_message = $('<li>').attr("class", "date").attr("id", day).append(day);
                             $("#messages").append(date_message);
                         }
 
