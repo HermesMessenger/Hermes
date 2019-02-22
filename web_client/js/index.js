@@ -26,7 +26,7 @@ $(window).on('load', function () {
         username = res;
         $('#user').text(username + ':');
 
-        $("#m").width($(window).width() - $("#user").width() - 175)
+        if ($(window).width() > 600) $("#m").width($(window).width() - 175 - $("#user").width())
 
         $('#message_send_form').submit(() => {
             msg = $('#m').val();
@@ -178,8 +178,9 @@ $(window).on('load', function () {
                         let day = time.getDate() + '/' + (time.getMonth() + 1) + '/' + time.getFullYear();
                         let hour = padNumber(time.getHours()) + ':' + padNumber(time.getMinutes()) + ':' + padNumber(time.getSeconds());
                         let prev_day = prev_time.getDate() + '/' + (prev_time.getMonth() + 1) + '/' + prev_time.getFullYear();
-                        if (day != prev_day) {
-                            let date_message = $('<li>').attr("class", "date").append(day);
+
+                        if ((day != prev_day) && ($("#" + day.replace(/\//g, '\\/')).length == 0)) {
+                            let date_message = $('<li>').attr("class", "date").attr("id", day).append(day);
                             $("#messages").append(date_message);
                         }
 
@@ -293,7 +294,9 @@ $(window).on('load', function () {
                             sendNotifiaction("New message from " + username, username + ": " + message, 'data:image/png;base64,' + users[username].image);
                             last_message_timestamp_notified = last_message_timestamp;
                         }
-                        let time_el = $("<span class='time'>").text(hour);
+                        let time_el = $("<span class='time'>")
+
+                        $(window).width() > 600 ? time_el.text(hour) : time_el.text(hour.substring(0, 5))
 
                         if (username == name) {
                             time_el.attr('class', 'myTime')
@@ -394,7 +397,7 @@ $(window).on('load', function () {
             $(this).height($(this).find(".message_body").height());
         });
 
-        $("#m").width($(window).width() - 175 - $("#user").width())
+        if ($(window).width() > 600) $("#m").width($(window).width() - 175 - $("#user").width())
     });
 
 });
