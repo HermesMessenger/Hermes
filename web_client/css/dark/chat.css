@@ -449,7 +449,7 @@ span {
     }
 }
 
-@media only screen and (max-width: 400px) {
+@media only screen and (max-width: 600px) {
 
     span.message_body {
         width: calc(100vw - 140px)

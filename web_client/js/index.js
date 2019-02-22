@@ -26,7 +26,7 @@ $(window).on('load', function () {
         username = res;
         $('#user').text(username + ':');
 
-        if ($(window).width() > 400) $("#m").width($(window).width() - 175 - $("#user").width())
+        if ($(window).width() > 600) $("#m").width($(window).width() - 175 - $("#user").width())
 
         $('#message_send_form').submit(() => {
             msg = $('#m').val();
@@ -406,7 +406,7 @@ $(window).on('load', function () {
                         }
                         let time_el = $("<span class='time'>")
 
-                        $(window).width() > 400 ? time_el.text(hour) : time_el.text(hour.substring(0, 5))
+                        $(window).width() > 600 ? time_el.text(hour) : time_el.text(hour.substring(0, 5))
 
                         if (username == name) {
                             time_el.attr('class', 'myTime')
@@ -483,7 +483,7 @@ $(window).on('load', function () {
             $(this).height($(this).find(".message_body").height());
         });
 
-        if ($(window).width() > 400) $("#m").width($(window).width() - 175 - $("#user").width())
+        if ($(window).width() > 600) $("#m").width($(window).width() - 175 - $("#user").width())
     });
 
 });
