@@ -91,80 +91,43 @@ $(window).on('load', function () {
         });
 
         var edit_header = uuid_header;
-        edit_header.message = $(this).find('b').next().text();
-        var is_editing = false;
-        $("#edit").click(function () { // TODO: update
-            $("li").each(function (i) {
-                if (i != $('li').length - 1) {
+        let EDIT_HTML_RULES = getCustomRules(HTML_RULES, { tag: 'span', class: 'quote', md: '"$TEXT"' })
+        edit_header.message = HTMLtoMD($(this).find('b').next().html(), EDIT_HTML_RULES);
 
+        var is_editing = false;
+        function setup_edit(ctx, username_element) {
+            edit_header.message = HTMLtoMD(username_element.next().html(), EDIT_HTML_RULES);
+            edit_header.message_uuid = $(ctx).attr('id').substr(8);
+            is_editing = true;
+            let input = $('<textarea id="editing">').val(edit_header['message']);
+            username_element.next().remove();
+            username_element.parent().append(input);
+            input.attr('rows', countTextareaLines(input[0]) + '');
+            input.parent().parent().height(input.height() + 20);
+            input.bind('input propertychange', function () {
+
+                input.attr('rows', countTextareaLines(input[0]) + '');
+                input.parent().parent().height(input.height() + 20);
+            });
+            username_element.next().focus();
+            editing_message_val = username_element.next().val();
+        }
+        $("#edit").click(function () { // TODO: update
+            $("#messages").find("li").each(function (i) {
+                let username_element = $(this).find('#m-username');
+                let sender = username_element.text()
+                sender = sender.substr(0, sender.length - 2);
+                if (i != $("#messages").find("li").length - 1) {
                     let click = $("#rightclick").position().top
                     let start = $(this).offset().top
-                    let next = $('li').eq(i + 1).offset().top
-
-                    let sender = $(this).find('b').text()
-                    sender = sender.substr(0, sender.length - 2);
-
-
+                    let next = $("#messages").find("li").eq(i + 1).offset().top
                     if (click > start && click < next) {
-
                         if (!is_editing && username == sender) {
-                            edit_header.message = $(this).find('b').next().text();
-                            edit_header.message_uuid = $(this).attr('id').substr(8);
-
-                            is_editing = true;
-
-                            prev_html = $('#messages').html();
-                            let input = $('<textarea>').val(edit_header['message']);
-                            input.attr('id', 'editing');
-
-                            $(this).find('b').next().remove();
-                            $(this).find('b').parent().append(input);
-                            input.attr('rows', countTextareaLines(input[0]) + '');
-                            input.parent().parent().height(input.height() + 20);
-
-                            //input.width($(window).width() - input.offset().left - $(this).find('b').width() - 120);
-                            input.bind('input propertychange', function () {
-
-                                input.attr('rows', countTextareaLines(input[0]) + '');
-                                input.parent().parent().height(input.height() + 20);
-                            });
-                            $(this).find('b').next().focus();
-                            editing_message_val = $(this).find('b').next().val();
+                            setup_edit(this, username_element);
                         }
-
-                        return false;
-
                     }
-
                 } else {
-
-                    let sender = $(this).find('b').text()
-                    sender = sender.substr(0, sender.length - 2);
-
-                    if (!is_editing && username == sender) {
-                        edit_header.message = $(this).find('b').next().text();
-                        edit_header.message_uuid = $(this).attr('id').substr(8);
-
-                        is_editing = true;
-
-                        prev_html = $('#messages').html();
-                        let input = $('<textarea>').val(edit_header['message']);
-                        input.attr('id', 'editing');
-
-                        $(this).find('b').next().remove();
-                        $(this).find('b').parent().append(input);
-                        input.attr('rows', countTextareaLines(input[0]) + '');
-                        input.parent().parent().height(input.height() + 20);
-
-                        //input.width($(window).width() - input.offset().left - $(this).find('b').width() - 120);
-                        input.bind('input propertychange', function () {
-
-                            input.attr('rows', countTextareaLines(input[0]) + '');
-                            input.parent().parent().height(input.height() + 20);
-                        });
-                        $(this).find('b').next().focus();
-                        editing_message_val = $(this).find('b').next().val();
-                    }
+                    setup_edit(this, username_element);
                 }
             });
         });
@@ -240,7 +203,7 @@ $(window).on('load', function () {
                         let new_message_body = $('<span>');
                         new_message_body.append($('<b id="m-username">').text(username + ': ').css("color", color));
 
-                        
+
                         let quoteREGEX = /(\"(.+): (.+)\")/;
 
                         let messageHTML = message;
@@ -255,25 +218,12 @@ $(window).on('load', function () {
                             let quoted_message = `${quoted_user}: ${quoteMatch[3]}`
                             //Create the css for the quote
                             let quote_css =
-                            `
-                            border-left: 3px ${users[quoted_user].color} solid;
-                            background-color: ${users[quoted_user].color}50;
-                            `
-
+                                `
+                                border-left: 3px ${users[quoted_user].color} solid;
+                                background-color: ${users[quoted_user].color}50;
+                                `
                             // Replace all the unvalid charaters in css IDs
-                            let quoted_user_id = quoted_user
-                                .replace(/[ ]/g, "space")
-                                .replace(/[:]/g, "colon")
-                                .replace(/[.]/g, "dot")
-                                .replace(/[#]/g, "hashtag")
-                                .replace(/[{]/g, "openkey")
-                                .replace(/[}]/g, "closekey")
-                                .replace(/\[/g, "openbracket")
-                                .replace(/\]/g, "closebracket")
-                                .replace(/\$/g, "dollarsign")
-                                .replace(/[@]/g, "at")
-                                .replace(/[;]/g, "semicolon")
-                                .replace(/[!]/g, "exclamation");
+                            let quoted_user_id = escapeStringForCSS(quoted_user);
 
                             //Create the quote span
                             let quoteSpan = $(`<span class="quote user-${quoted_user_id}">`).append(MDtoHTML(quoted_message));
@@ -308,29 +258,29 @@ $(window).on('load', function () {
                         messageHTML = messageHTML.replace(message_second_replace, message_second_MD);
                         //console.log(messageHTML);
                         let m_body_element = $('<span id="m-body">').html(messageHTML);
-                        
+
                         // find the links
                         let linkREGEX = /([\w\d]+):\/\/([\w\d\.-]+)\.([\w\d]+)\/?([\w\d-@:%_\+.~#?&/=]*)/g;
-                        function replaceLinks(html_element){
-                            for (let node of html_element.childNodes){
-                                if(node.childNodes.length == 0){ // If the element doesn't have children:
+                        function replaceLinks(html_element) {
+                            for (let node of html_element.childNodes) {
+                                if (node.childNodes.length == 0) { // If the element doesn't have children:
                                     let content = node.nodeValue; // get the elements text
                                     let last_change_index = -1; // We use this so that we don't override the href property in the HTML
                                     // Find every link in the content
                                     while (match = linkREGEX.exec(content)) {
-                                        // if its past the last edit
-                                        if (match.index > last_change_index) {
+                                        // if its past the last edit && it's not a MD-link or MD-link-explicit
+                                        if (match.index > last_change_index && !html_element.classList.contains('MD-link') && !html_element.classList.contains('MD-link-explicit')) {
                                             let link = match[0] // get the whole link
-                                            let link_jquery = $(`<a class="MD-link" href="${link}">`).text(link) // replace it with an actual link
-                                            content = content.replaceIndex(match.index, match.index+match[0].length, link_jquery[0].outerHTML) // replace the current link found with the HTML generated
+                                            let link_jquery = $(`<a class="MD-link-explicit" href="${link}">`).text(link) // replace it with an actual link
+                                            content = content.replaceIndex(match.index, match.index + match[0].length, link_jquery[0].outerHTML) // replace the current link found with the HTML generated
 
                                             last_change_index = match.index + link_jquery[0].outerHTML.length; // Update the last edit index
                                         }
-                                        
+
                                     }
                                     html_element.replaceChild(toFragment(content), node) // Replace the current element with a list(Fragment) of the elements generated in HTML
-                                    
-                                }else{
+
+                                } else {
                                     replaceLinks(node); // If it has more than of child, apply this function
                                 }
                             }

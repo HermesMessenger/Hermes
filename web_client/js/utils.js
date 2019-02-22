@@ -71,27 +71,29 @@ function getCookie(cname) { // From W3Schools
     return "";
 }
 
+function escapeStringForCSS(string){
+    return string
+        .replace(/[ ]/g, "space")
+        .replace(/[:]/g, "colon")
+        .replace(/[.]/g, "dot")
+        .replace(/[#]/g, "hashtag")
+        .replace(/[{]/g, "openkey")
+        .replace(/[}]/g, "closekey")
+        .replace(/\[/g, "openbracket")
+        .replace(/\]/g, "closebracket")
+        .replace(/\$/g, "dollarsign")
+        .replace(/[@]/g, "at")
+        .replace(/[;]/g, "semicolon")
+        .replace(/[!]/g, "exclamation");
+}
+
 function parseQuote(context) {
-    console.log(context.html())
     let b = context.find("#m-username")
     let message_body = context.find("#m-body");
-    console.log(message_body.html())
     let res = b.text() + message_body.html();
-    // TODO remake after remaking quotes
-    /*if (context.find(".quote").length >= 1) { // Check if message has a quote
-        res = b.text() +
-            b.next().html() +
-            // Skip the quote
-            b.next().next().next().html()
-    } else {
-        res = b.text() +
-            b.next().html() +
-            b.next().next().html() +
-            b.next().next().next().html()
-    }*/
 
     res = res.replace(/"([^:]+):  "/, '')
-    return `"${HTMLtoMD(res)}"`
+    return ` "${HTMLtoMD(res)}" `
 }
 
 /**
