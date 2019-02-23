@@ -20,6 +20,14 @@ function quoteOnClick(message_id){
     });
 }
 
+swipe_right_handler = () => {
+    $("#sidebarbtn").click();
+}
+
+swipe_left_handler = () => {
+    $("#darkoverlay").click();
+}
+
 
 $(window).on('load', function () {
     const uuid_header = {

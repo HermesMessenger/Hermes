@@ -243,3 +243,55 @@ Array.prototype.remove = function() {
     }
     return this;
 };
+
+document.addEventListener('touchstart', handleTouchStart, false);        
+document.addEventListener('touchmove', handleTouchMove, false);
+
+var swipe_right_handler = ()=>{}
+var swipe_left_handler = ()=>{}
+
+var swipe_up_handler = ()=>{}
+var swipe_down_handler = ()=>{}
+
+var xDown = null;                                                        
+var yDown = null;
+
+function getTouches(evt) {
+  return evt.touches ||             // browser API
+         evt.originalEvent.touches; // jQuery
+}                                                     
+
+function handleTouchStart(evt) {
+    const firstTouch = getTouches(evt)[0];                                      
+    xDown = firstTouch.clientX;                                      
+    yDown = firstTouch.clientY;                                      
+};                                                
+
+function handleTouchMove(evt) {
+    if ( ! xDown || ! yDown ) {
+        return;
+    }
+
+    var xUp = evt.touches[0].clientX;                                    
+    var yUp = evt.touches[0].clientY;
+
+    var xDiff = xDown - xUp;
+    var yDiff = yDown - yUp;
+
+    if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
+        if ( xDiff > 0 ) {
+            swipe_left_handler();
+        } else {
+            swipe_right_handler();
+        }                       
+    } else {
+        if ( yDiff > 0 ) {
+            swipe_up_handler();
+        } else { 
+            swipe_down_handler();
+        }                                                                 
+    }
+    /* reset values */
+    xDown = null;
+    yDown = null;                                             
+};
