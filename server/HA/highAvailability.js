@@ -11,7 +11,7 @@ const ServerObject = types.ServerObject;
 const Connection = types.Connection;
 const FORCE_CONNECT = config.forceHAConnect;
 
-
+// This should mostly be replaced with Cassandra Nodes (With repliaction)
 let connectedIPs = [];
 let serverStatus = -1; // 0 -> I'm the server; 1 -> I'm not the server
 let connection = undefined;

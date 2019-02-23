@@ -2,10 +2,24 @@ var notifications_supported = true;
 var notifications_allowed = false;
 
 if (isElectron()) window.sendUUID(getCookie('hermes_uuid'));
-
+const chat_stylesheet = $('#hermes_style');
 if (getCookie('hermes_style') == 'dark') {
-    $('#hermes_style').attr('href', 'css/dark/chat.css');
+    chat_stylesheet.attr('href', 'css/dark/chat.css');
 }
+
+function quoteOnClick(message_id){
+    let message = document.getElementById(message_id);
+    if($(document).scrollTop() + $('#menutop').height() > $(message).offset().top){
+        window.scroll({top: $(message).offset().top - $(message).height() - $('#menutop').height(), left:0, behavior: 'smooth'});
+    }
+    let background = $(message).css("background-color");
+    $(message).toggleClass("highlight_message");
+    $(message).animate({backgroundColor: background, queue: false}, 400, function(){
+        $(message).css("background-color", '');
+        $(message).toggleClass("highlight_message");
+    });
+}
+
 
 $(window).on('load', function () {
     const uuid_header = {
@@ -189,15 +203,15 @@ $(window).on('load', function () {
                             users[username] = JSON.parse(response);
                         }
                         let color = users[username].color;
-                        let new_message = $('<li id=message-' + last_message_uuid + '>');
+                        let new_message = $(`<li id="message-${last_message_uuid}" class="message" >`);
 
                         let name = $("#message_send_form").find('p').text()
                         name = name.substr(0, name.length - 1);
 
                         if (username == name) {
-                            new_message.attr('class', 'myMessage')
+                            new_message.addClass('myMessage')
                         } else {
-                            new_message.attr('class', 'theirMessage')
+                            new_message.addClass('theirMessage')
                         }
 
                         new_message.append($('<img>').attr('src', IMG_URL_HEADER + users[username].image).attr("id", "chat_prof_pic")); //.css("display", 'inline_block').css("width", '2%').css("height", '2%'));
@@ -217,37 +231,45 @@ $(window).on('load', function () {
                             //#region create a quote
                             let quoted_user = quoteMatch[2]
                             let quoted_message = `${quoted_user}: ${quoteMatch[3]}`
-                            //Create the css for the quote
-                            let quote_css =
-                                `
-                                border-left: 3px ${users[quoted_user].color} solid;
-                                background-color: ${users[quoted_user].color}50;
-                                `
-                            // Replace all the unvalid charaters in css IDs
-                            let quoted_user_id = escapeStringForCSS(quoted_user);
-
-                            //Create the quote span
-                            let quoteSpan = $(`<span class="quote user-${quoted_user_id}">`).append(MDtoHTML(quoted_message));
-
-                            //Check if the CSS for the current user already exists
-                            let cssRuleExists = false;
-                            for (var r = 0; r < document.styleSheets[document.styleSheets.length - 1].rules; r++) {
-                                if (document.styleSheets[document.styleSheets.length - 1].rules[r].selectorText.includes(`user-${quoted_user_id}`)) {
-                                    cssRuleExists = true;
-                                    break
+                            let message_id;
+                            $('#messages').find('.message').each(function(i){
+                                if($(this).find('#m-username').text() == quoted_user+': ' && HTMLtoMD($(this).find('#m-body').html())==quoteMatch[3]){
+                                    message_id = $(this).attr('id');
                                 }
+                                //console.log($(this).find('#m-username')[0], $(this).find('#m-body')[0])
+                            })
+                            if(message_id){
+                                //Create the css for the quote
+                                let quote_css =
+                                    `
+                                    border-left: 3px ${users[quoted_user].color} solid;
+                                    background-color: ${users[quoted_user].color}50;
+                                    `
+                                // Replace all the unvalid charaters in css IDs
+                                let quoted_user_id = escapeStringForCSS(quoted_user);
+                                //Create the quote span
+                                let quoteSpan = $(`<span class="quote user-${quoted_user_id}" onclick="quoteOnClick('${message_id}')" >`).append(MDtoHTML(quoted_message));
+                                
+                                //Check if the CSS for the current user already exists
+                                let cssRuleExists = false;
+                                for (var r = 0; r < document.styleSheets[document.styleSheets.length - 1].rules; r++) {
+                                    if (document.styleSheets[document.styleSheets.length - 1].rules[r].selectorText.includes(`user-${quoted_user_id}`)) {
+                                        cssRuleExists = true;
+                                        break
+                                    }
+                                }
+                                if (!cssRuleExists) {
+                                    // Add the CSS for the user if the CSS rule doesn't exist
+                                    document.styleSheets[document.styleSheets.length - 1].addRule(`.quote.user-${quoted_user}`, quote_css);
+                                }
+
+                                //#endregion
+
+                                convertedMDstart = quoteMatch.index;
+                                convertedMDend = quoteMatch.index + quoteSpan[0].outerHTML.length;
+
+                                messageHTML = messageHTML.replace(quoteMatch[0], quoteSpan[0].outerHTML)
                             }
-                            if (!cssRuleExists) {
-                                // Add the CSS for the user if the CSS rule doesn't exist
-                                document.styleSheets[document.styleSheets.length - 1].addRule(`.quote.user-${quoted_user}`, quote_css);
-                            }
-
-                            //#endregion
-
-                            convertedMDstart = quoteMatch.index;
-                            convertedMDend = quoteMatch.index + quoteSpan[0].outerHTML.length;
-
-                            messageHTML = messageHTML.replace(quoteMatch[0], quoteSpan[0].outerHTML)
                         }
 
                         //We're going to replace the string before & after the convertedMD
@@ -324,7 +346,7 @@ $(window).on('load', function () {
                         if (first_load) $(document).scrollTop($("#separator").offset().top)
                         else if (!message_json.edited) {
                             var scroll = $(document).height() - $(window).height() - $(window).scrollTop() - new_message.outerHeight();
-                            if (scroll <= 35) $(document).scrollTop($("#separator").offset().top)
+                            if (scroll <= 100) window.scroll({top: $("#separator").offset().top, left: 0, behavior: 'smooth'})
                         }
                         prev_json = message_json;
                     }

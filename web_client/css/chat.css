@@ -425,6 +425,10 @@ span {
     word-wrap: break-word;
 }
 
+.highlight_message {
+    background-color: #ffff00;
+}
+
 @keyframes slideIn {
     from {
         bottom: -300px;

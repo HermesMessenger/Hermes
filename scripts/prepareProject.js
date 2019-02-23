@@ -38,6 +38,7 @@ fileExists('config.json',(err,exists) => {
             console.log('config.json is correct');
         }
     }else{
+        console.log('config.json is misssing');
         writeJSON();
     }
 });
