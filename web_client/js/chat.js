@@ -166,27 +166,19 @@ $(window).on('load', function () {
         window.setInterval(function () {
             $("#messages").find("li:not(.date)").each(function () {
                 $(this).unbind("contextmenu"); // Unbind to prevent multiple callbacks
-                if ($(this).hasClass("myMessage")) {
-                    $(this).bind("contextmenu", function (event) { // Capture Right Click Event
-                        $("#rightclick").hide();
-                        $("#theirRightclick").hide(100);
-                        event.preventDefault();
-                        $("#rightclick").show(100).css({ // Show #rightclick at cursor position
-                            top: event.pageY + "px",
-                            left: event.pageX + "px"
-                        })
-                    });
-                } else if ($(this).hasClass("theirMessage")) {
-                    $(this).bind("contextmenu", function (event) { // Capture Right Click Event
-                        $("#theirRightclick").hide();
-                        $("#rightclick").hide(100);
-                        event.preventDefault();
-                        $("#theirRightclick").show(100).css({ // Show #theirRightclick at cursor position
-                            top: event.pageY + "px",
-                            left: event.pageX + "px"
-                        })
-                    });
-                }
+                $(this).bind("contextmenu", function (event) { // Capture Right Click Event
+                    $("#rightclick").hide();
+                    event.preventDefault();
+
+                    $("#delete, #edit").show()
+
+                    if ($(this).hasClass("theirMessage")) $("#delete, #edit").hide()
+
+                    $("#rightclick").show(100).css({ // Show #rightclick at cursor position
+                        top: event.pageY + "px",
+                        left: event.pageX + "px"
+                    })
+                });
             })
 
             editing_message_val = $('#editing').val();

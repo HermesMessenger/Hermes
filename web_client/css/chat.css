@@ -181,43 +181,20 @@ input, button, textarea {
     z-index: 1000;
     position: absolute;
     overflow: hidden;
-    border: 1px solid #CCC;
+    border: 2px solid #000;
     white-space: nowrap;
     background: #FFF;
-    color: #333;
-    padding: 3px 0;
-    border-radius: 3px;
+    color: #000;
+    border-radius: 8px;
 }
 
 #rightclick li {
-    padding: 5px 8px;
+    padding: 6px 8px;
     cursor: pointer;
 }
 
 #rightclick li:hover {
-    background-color: #DEF;
-}
-
-#theirRightclick {
-    display: none;
-    z-index: 1000;
-    position: absolute;
-    overflow: hidden;
-    border: 1px solid #CCC;
-    white-space: nowrap;
-    background: #FFF;
-    color: #333;
-    padding: 3px 0;
-    border-radius: 3px;
-}
-
-#theirRightclick li {
-    padding: 5px 8px;
-    cursor: pointer;
-}
-
-#theirRightclick li:hover {
-    background-color: #DEF;
+    background-color: #E8F5E9;
 }
 
 .quote {
