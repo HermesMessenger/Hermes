@@ -9,6 +9,15 @@ body {
     background: #E8F5E9;
 }
 
+#loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -moz-transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
+}
+
 #space {
     height: 50px;
 }
@@ -57,7 +66,14 @@ body {
     right: 64px;
 }
 
-#separator {
+#separator-top {
+    height: 48px;
+    position: fixed;
+    top: 0;
+    width: 100%
+}
+
+#separator-bottom {
     bottom: 0;
     height: 64px;
 }
@@ -434,33 +450,28 @@ span {
 
 #sidebarbtn {
     display: inline-block;
-    width: 8%;
-    background: #428142;
+    background: url(/images/menu.png) no-repeat;
+    background-size: 30px;
     z-index: 8;
-    height: 100%;
-    margin: 0 1%;
+    height: 36px;
+    width: 30px;
+    margin: 6px 12px;
+    transition: all .2s ease-in-out;
 }
 
 #sidebarbtn:hover {
-    background: #305c30;
-}
-
-.bar {
-    width: 50%;
-    max-width: 35px;
-    height: 15%;
-    background: #000;
-    margin: 5px 0;
+    background-color: #4CAF50;
+    transition: all .2s ease-in-out;
 }
 
 #menutop {
-    height: 6%;
-    background: #428142;
+    height: 48px;
+    background: #81C784;
     position: fixed;
     top: 0;
     width: 100%;
-    /*height: 40px;*/
     z-index: 1;
+    border-bottom: 3px solid #000;
 }
 
 
@@ -468,24 +479,24 @@ span {
     position: absolute;
     display: inline-block;
     width: 90%;
-    top: 0;
-    min-height: 100%;
-    
-    /*font-size: 2rem;*/
-    /*text-align: center;*/
+    top: 4px;
+    left: 10vw;
+    text-align: center;
 }
 
 #chatimg {
     display: inline-block;
-    width: 2.5vw;
-    height: 2.5vw;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
+    border: 2px solid #000;
     vertical-align: middle;
-    margin: 5px 0;
+    margin: 4px 8px;
+    padding: 1px;
 }
 
 #chatname {
-    color: #fff;
+    color: #000;
     display: inline-block;
     vertical-align: middle;
 }
@@ -493,31 +504,33 @@ span {
 /* The side navigation menu */
 
 #sidebar {
+    border-right: 0px solid #000;
     height: 100%;
     width: 0;
     position: fixed;
     z-index: 1002;
     top: 0;
     left: 0;
-    background: #1d661d;
+    background: #81C784;
     overflow-x: hidden;
     padding-top: 60px;
     transition: all .2s ease-in-out;
 }
 
 #darkoverlay {
-    z-index: -999;
+    display: none;
+    z-index: 1001;
     background: rgba(0, 0, 0, 0.4);
     position: fixed;
     top: 0;
     height: 100%;
     width: 100%;
-    opacity: 0;
+    opacity: 1;
     transition: opacity .2s ease-in-out;
 }
 
 .chatselect {
-    background: #1d661d;
+    background: #81C784;
     transition: all .2s ease-in-out;
     padding: 6px;
     font-size: 25px;
@@ -526,7 +539,7 @@ span {
 }
 
 .chatselect:hover {
-    background: #093309;
+    background: #4CAF50;
 }
 
 @keyframes slideIn {
@@ -558,30 +571,18 @@ span {
 }
 
 @media only screen and (max-width: 600px) {
-    #sidebarbtn {
-        width: 15%;
-    }
-
-    #chatimg {
-        width: 8%;
-        height: 8%;
-    }
 
     span.message_body {
-        width: calc(100vw - 140px)
-    }
-
-    #chat_prof_pic {
-        margin-left: 0
+        width: calc(100vw - 120px)
     }
 
     #message_send_form {
         border: 3px solid #000000;
-        width: 90%
+        width: calc(100vw - 24px)
     }
 
     #m {
-        width: 87%
+        width: calc(100vw - 72px)
     }
 
     #send {

@@ -68,10 +68,7 @@ module.exports.request = async function (method, location, formData) {
         }
     } catch (err) {
         if (err.name == 'RequestError') {
-            throw new Error('Error: Can\'t connect to IP. \nEnsure you are connected to the Internet. ' + location + '\n\n')
-
-        } else if (err == 'Error: Invalid token') {
-            throw new Error('Error: Invalid bot token: ' + this.BotUUID + '\n\n')
+            console.error("Error: Can't connect to IP. ")
         }
     }
 

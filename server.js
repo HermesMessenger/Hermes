@@ -13,6 +13,7 @@ const config = require('./config.json')
 const web_client_path = __dirname + '/web_client/';
 const html_path = web_client_path + 'html/';
 const js_path = web_client_path + 'js/';
+const js_lib_path = js_path + 'lib/';
 const css_path = web_client_path + 'css/';
 const img_path = web_client_path + 'images/';
 
@@ -62,6 +63,16 @@ app.get('/js/:file', function (req, res) {
     fileExists(js_path + req.params.file, function (err, exists) {
         if (exists) {
             res.sendFile(js_path + req.params.file);
+        } else {
+            res.sendStatus(404);
+        }
+    });
+});
+
+app.get('/js/lib/:file', function (req, res) {
+    fileExists(js_lib_path + req.params.file, function (err, exists) {
+        if (exists) {
+            res.sendFile(js_lib_path + req.params.file);
         } else {
             res.sendStatus(404);
         }

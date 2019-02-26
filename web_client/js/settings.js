@@ -8,7 +8,7 @@ let image_used = undefined;
 let lastTheme = 'light';
 let lastColor = '';
 var changed = false;
-let animate_out = () => {};
+let animate_out = function () {};
 
 function loadSettingsJS() {
 
@@ -31,8 +31,8 @@ function loadSettingsJS() {
     }
 
     function loadSettingsFromDB() {
-        httpPostAsync("/api/getSettings", uuid_header, (response) => {
-            let json_reponse = JSON.parse(response);
+        httpPostAsync("/api/getSettings", uuid_header, function (res) {
+            let json_reponse = JSON.parse(res);
             image_used = json_reponse.image;
             document.getElementById("image").src = IMG_URL_HEADER + json_reponse.image;
             $("input#color")[0].jscolor.fromString(json_reponse.color)
@@ -55,8 +55,8 @@ function loadSettingsJS() {
     }
 
     function loadThemeFromSettings() {
-        httpPostAsync("/api/getSettings", uuid_header, (response) => {
-            let json_reponse = JSON.parse(response);
+        httpPostAsync("/api/getSettings", uuid_header, function (res) {
+            let json_reponse = JSON.parse(res);
             let theme = json_reponse.dark ? 'dark' : 'light';
             if (getCookie('hermes_style') != theme) {
                 setTheme(theme);
@@ -122,7 +122,7 @@ function loadSettingsJS() {
 
 
     document.querySelector('input[type=file]').onchange = function () {
-        loadPictureAsURL(() => {});
+        loadPictureAsURL();
     }
 
     loadThemeFromSettings();
@@ -135,9 +135,9 @@ function loadPictureAsURL(callback) {
 
     reader.onloadend = function () {
         let picURL = reader.result;
-        resizeImage(picURL, IMG_WIDTH, IMG_HEIGHT, (picURL) => {
+        resizeImage(picURL, IMG_WIDTH, IMG_HEIGHT, function(picURL) {
             document.getElementById("image").src = picURL;
-            callback(picURL);
+            if (callback) callback(picURL);
         });
     }
     if (file) {
@@ -169,16 +169,14 @@ function updatePassword() {
         old_password: $('#old').val(),
         new_password: $('#new').val(),
         new_password_repeat: $('#repeat').val()
-    }, (text, status)=>{
+    }, function (text, status) {
         console.log('PASSWORD STATUS:', status);
     });
 }
 
 function saveRegularSettings() {
-
-    console.log('dsdasd')
-
-    loadPictureAsURL(PicURL => {
+    
+    loadPictureAsURL(function (PicURL) {
         let pic_regex = /data:image\/\w+;base64,(.+)/;
         let picture_b64 = encodeURIComponent(PicURL ? pic_regex.exec(PicURL)[1] : image_used);
         if (PicURL) changed = true;
@@ -204,7 +202,7 @@ function saveRegularSettings() {
             notifications: notifications,
             dark: dark_theme, 
             image_b64: picture_b64
-        }, ()=>{});
+        });
         if ($("#old").val() != '') updatePassword();
     });
 }
