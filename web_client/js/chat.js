@@ -120,15 +120,27 @@ $(window).on('load', function () {
         });
 
         var edit_header = uuid_header;
-        let EDIT_HTML_RULES = getCustomRules(HTML_RULES, {
-            tag: 'span',
-            class: 'quote',
-            md: '"$TEXT"'
-        })
+        let EDIT_HTML_RULES = getCustomRules(HTML_RULES, { tag: 'span', class: 'quote', md: '"$TEXT"' })
         edit_header.message = HTMLtoMD($(this).find('b').next().html(), EDIT_HTML_RULES);
 
         var is_editing = false;
+        function setup_edit(ctx, username_element) {
+            edit_header.message = HTMLtoMD(username_element.next().html(), EDIT_HTML_RULES);
+            edit_header.message_uuid = $(ctx).attr('id').substr(8);
+            is_editing = true;
+            let input = $('<textarea id="editing">').val(edit_header['message']);
+            username_element.next().remove();
+            username_element.parent().append(input);
+            input.attr('rows', countTextareaLines(input[0]) + '');
+            input.parent().parent().height(input.height() + 20);
+            input.bind('input propertychange', function () {
 
+                input.attr('rows', countTextareaLines(input[0]) + '');
+                input.parent().parent().height(input.height() + 20);
+            });
+            username_element.next().focus();
+            editing_message_val = username_element.next().val();
+        }
         $("#edit").click(function () { // TODO: update
             $("#messages").find("li").each(function (i) {
                 let username_element = $(this).find('#m-username');
@@ -141,6 +153,7 @@ $(window).on('load', function () {
                     if (click > start && click < next) {
                         if (!is_editing && username == sender) {
                             setup_edit(this, username_element);
+                            return false;
                         }
                     }
                 } else {
@@ -196,6 +209,7 @@ $(window).on('load', function () {
                     }
                 }
             });
+
             $("#sidebarbtn").click(function () {
                 $("#sidebar").css("width", "250px");
                 $("#sidebar").css("border-right-width", "3px");

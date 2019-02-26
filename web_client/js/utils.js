@@ -142,24 +142,6 @@ function replaceLinks(html_element) {
     }
 }
 
-function setup_edit(ctx, username_element) {
-    edit_header.message = HTMLtoMD(username_element.next().html(), EDIT_HTML_RULES);
-    edit_header.message_uuid = $(ctx).attr('id').substr(8);
-    is_editing = true;
-    let input = $('<textarea id="editing">').val(edit_header['message']);
-    username_element.next().remove();
-    username_element.parent().append(input);
-    input.attr('rows', countTextareaLines(input[0]) + '');
-    input.parent().parent().height(input.height() + 20);
-    input.bind('input propertychange', function () {
-
-        input.attr('rows', countTextareaLines(input[0]) + '');
-        input.parent().parent().height(input.height() + 20);
-    });
-    username_element.next().focus();
-    editing_message_val = username_element.next().val();
-}
-
 /**
  * A function that makes a GET request to a url
  *  @param {String} theUrl: the url to make the GET request to
