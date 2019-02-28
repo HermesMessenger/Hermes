@@ -133,7 +133,6 @@ $(window).on('load', function () {
                 input.parent().parent().height(input.height() + 20);
             });
             username_element.next().focus();
-            editing_message_val = username_element.next().val();
         }
         $("#edit").click(function () { // TODO: update
             $("#messages").find("li").each(function (i) {
@@ -166,56 +165,61 @@ $(window).on('load', function () {
             });
         }
 
+        document.addEventListener('contextmenu', function(e) {
+            $("#rightclick").hide();
+            e.preventDefault(); // Prevent the default menu
+            let chat_message = undefined;
+            for(let element of e.composedPath()){
+                if(element.classList && element.classList.contains('message')){
+                    chat_message = element;
+                    break;
+                }
+
+            }
+            if(chat_message){
+                
+                // Load certain context menu items depending on the message
+                if(chat_message.classList.contains('theirMessage'))
+                    $("#delete, #edit").hide();
+                else
+                    $("#delete, #edit").show();
+                
+                $("#rightclick").show(100).css({ // Show #rightclick at cursor position
+                    top: event.pageY + "px",
+                    left: event.pageX + "px"
+                })
+            }
+        }, false);
+
+        $('#editing').keypress(function (e) {
+            if (e.keyCode == 13 && is_editing) {
+                if ($(this).val() != '') {
+                    edit_header['newmessage'] = $(this).val();
+                    httpPostAsync('/api/editmessage/', edit_header);
+                    editing_message_timestamp = 0;
+                    is_editing = false;
+                } else {
+                    httpPostAsync('/api/deletemessage/', edit_header);
+                    is_editing = false;
+                }
+            }
+        });
+
+        $("#sidebarbtn").click(function () {
+            $("#sidebar").css("width", "250px");
+            $("#sidebar").css("border-right-width", "3px");
+            $("#darkoverlay").fadeIn(100);
+        });
+
+        $("#darkoverlay").click(function () {
+            $("#sidebar").css("width", "0");
+            $("#sidebar").css("border-right-width", "0");
+            $("#darkoverlay").fadeOut(100);
+        });
+
         window.sessionStorage.clear();
 
         loadMessages();
-
-        window.setInterval(function () {
-            $("#messages").find("li:not(.date)").each(function () {
-                $(this).unbind("contextmenu"); // Unbind to prevent multiple callbacks
-                $(this).bind("contextmenu", function (event) { // Capture Right Click Event
-                    $("#rightclick").hide();
-                    event.preventDefault();
-
-                    $("#delete, #edit").show()
-
-                    if ($(this).hasClass("theirMessage")) $("#delete, #edit").hide()
-
-                    $("#rightclick").show(100).css({ // Show #rightclick at cursor position
-                        top: event.pageY + "px",
-                        left: event.pageX + "px"
-                    })
-                });
-            })
-
-            editing_message_val = $('#editing').val();
-            $('#editing').keypress(function (e) {
-                if (e.keyCode == 13 && is_editing) {
-                    if ($(this).val() != '') {
-                        edit_header['newmessage'] = $(this).val();
-                        httpPostAsync('/api/editmessage/', edit_header);
-                        editing_message_timestamp = 0;
-                        editing_message_val = '';
-                        is_editing = false;
-                    } else {
-                        httpPostAsync('/api/deletemessage/', edit_header);
-                        is_editing = false;
-                    }
-                }
-            });
-
-            $("#sidebarbtn").click(function () {
-                $("#sidebar").css("width", "250px");
-                $("#sidebar").css("border-right-width", "3px");
-                $("#darkoverlay").fadeIn(100);
-            });
-
-            $("#darkoverlay").click(function () {
-                $("#sidebar").css("width", "0");
-                $("#sidebar").css("border-right-width", "0");
-                $("#darkoverlay").fadeOut(100);
-            });
-        }, 10)
     });
 
 
