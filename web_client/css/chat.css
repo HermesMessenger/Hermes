@@ -9,15 +9,6 @@ body {
     background: #E8F5E9;
 }
 
-#loading {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    -moz-transform: translateX(-50%) translateY(-50%);
-    -webkit-transform: translateX(-50%) translateY(-50%);
-    transform: translateX(-50%) translateY(-50%);
-}
-
 #space {
     height: 50px;
 }
@@ -422,7 +413,6 @@ span {
     background-color: #ffff00;
 }
 
-
 /*Top bar and Sidebar*/
 
 #sidebarbtn {
@@ -450,7 +440,6 @@ span {
     z-index: 1;
     border-bottom: 3px solid #000;
 }
-
 
 #title {
     position: absolute;
@@ -519,6 +508,52 @@ span {
     background: #4CAF50;
 }
 
+#loading, #loading:after {
+    border-radius: 50%;
+    width: 10em;
+    height: 10em;
+    position: absolute;
+    top: calc(50vh - 10em);
+    left: calc(50vw - 10em);
+}
+
+#loading {
+    margin: 60px auto;
+    font-size: 10px;
+    text-indent: -9999em;
+    border-top: 1.1em solid rgba(121, 121, 121, 0.2);
+    border-right: 1.1em solid rgba(121, 121, 121, 0.2);
+    border-bottom: 1.1em solid rgba(121, 121, 121, 0.2);
+    border-left: 1.1em solid #000000;
+    -webkit-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-animation: load8 1.1s infinite linear;
+    animation: load8 1.1s infinite linear;
+}
+
+@-webkit-keyframes load8 {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes load8 {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
 @keyframes slideIn {
     from {
         bottom: -300px;
@@ -548,43 +583,35 @@ span {
 }
 
 @media only screen and (max-width: 600px) {
-
     span.message_body {
         width: calc(100vw - 120px)
     }
-
     #message_send_form {
         border: 3px solid #000000;
         width: calc(100vw - 24px)
     }
-
     #m {
         width: calc(100vw - 72px)
     }
-
     #send {
         width: 16px;
         height: 16px;
         background-size: 16px;
         margin-top: 2px
     }
-
     #user, #settings {
         display: none;
     }
-
     .myMessage {
         font: 15px Ubuntu Mono, monospace;
         margin: 8px 8px 0px 32px;
         border-radius: 12px 4px 12px 12px;
     }
-    
     .theirMessage {
         font: 14px Ubuntu Mono, monospace;
         margin: 8px 32px 0px 8px;
         border-radius: 4px 12px 12px 12px;
     }
-    
     .myTime {
         position: absolute;
         right: 0;
@@ -595,7 +622,6 @@ span {
         color: #000;
         font-size: 14px;
     }
-    
     .theirTime {
         position: absolute;
         right: 0;
