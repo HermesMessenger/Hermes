@@ -114,10 +114,15 @@ $(window).on('load', function () {
         });
 
         var edit_header = uuid_header;
-        let EDIT_HTML_RULES = getCustomRules(HTML_RULES, { tag: 'span', class: 'quote', md: '"$TEXT"' })
+        let EDIT_HTML_RULES = getCustomRules(HTML_RULES, {
+            tag: 'span',
+            class: 'quote',
+            md: '"$TEXT"'
+        })
         edit_header.message = HTMLtoMD($(this).find('b').next().html(), EDIT_HTML_RULES);
 
         var is_editing = false;
+
         function setup_edit(ctx, username_element) {
             edit_header.message = HTMLtoMD(username_element.next().html(), EDIT_HTML_RULES);
             edit_header.message_uuid = $(ctx).attr('id').substr(8);
@@ -178,25 +183,25 @@ $(window).on('load', function () {
             });
         }
 
-        document.addEventListener('contextmenu', function(e) {
+        document.addEventListener('contextmenu', function (e) {
             $("#rightclick").hide();
             e.preventDefault(); // Prevent the default menu
             let chat_message = undefined;
-            for(let element of e.composedPath()){
-                if(element.classList && element.classList.contains('message')){
+            for (let element of e.composedPath()) {
+                if (element.classList && element.classList.contains('message')) {
                     chat_message = element;
                     break;
                 }
 
             }
-            if(chat_message){
-                
+            if (chat_message) {
+
                 // Load certain context menu items depending on the message
-                if(chat_message.classList.contains('theirMessage'))
+                if (chat_message.classList.contains('theirMessage'))
                     $("#delete, #edit").hide();
                 else
                     $("#delete, #edit").show();
-                
+
                 $("#rightclick").show(100).css({ // Show #rightclick at cursor position
                     top: event.pageY + "px",
                     left: event.pageX + "px"
@@ -373,8 +378,8 @@ function printMessages(messages) {
 
         $(window).width() > 600 ? time_el.text(hour) : time_el.text(hour.substring(0, 5)) // Hide seconds from time if on mobile
 
-        if (username == name)  time_el.attr('class', 'myTime')
-        else  time_el.attr('class', 'theirTime')
+        if (username == name) time_el.attr('class', 'myTime')
+        else time_el.attr('class', 'theirTime')
 
         new_message_body.attr('class', 'message_body');
 
