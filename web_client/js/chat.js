@@ -123,6 +123,19 @@ $(window).on('load', function () {
             edit_header.message_uuid = $(ctx).attr('id').substr(8);
             is_editing = true;
             let input = $('<textarea id="editing">').val(edit_header['message']);
+            input.keypress(function (e) { // Add an event listener for this input
+                if (e.keyCode == 13 && is_editing) {
+                    if ($(this).val() != '') {
+                        edit_header['newmessage'] = $(this).val();
+                        httpPostAsync('/api/editmessage/', edit_header);
+                        editing_message_timestamp = 0;
+                        is_editing = false;
+                    } else {
+                        httpPostAsync('/api/deletemessage/', edit_header);
+                        is_editing = false;
+                    }
+                }
+            });
             username_element.next().remove();
             username_element.parent().append(input);
             input.attr('rows', countTextareaLines(input[0]) + '');
@@ -190,20 +203,6 @@ $(window).on('load', function () {
                 })
             }
         }, false);
-
-        $('#editing').keypress(function (e) {
-            if (e.keyCode == 13 && is_editing) {
-                if ($(this).val() != '') {
-                    edit_header['newmessage'] = $(this).val();
-                    httpPostAsync('/api/editmessage/', edit_header);
-                    editing_message_timestamp = 0;
-                    is_editing = false;
-                } else {
-                    httpPostAsync('/api/deletemessage/', edit_header);
-                    is_editing = false;
-                }
-            }
-        });
 
         $("#sidebarbtn").click(function () {
             $("#sidebar").css("width", "250px");
