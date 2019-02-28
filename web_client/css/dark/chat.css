@@ -622,7 +622,11 @@ span {
 @media only screen and (max-width: 600px) {
 
     span.message_body {
-        width: calc(100vw - 120px)
+        width: calc(100vw - 130px)
+    }
+
+    #chat_prof_pic {
+        margin-left: 0
     }
 
     #message_send_form {
@@ -631,7 +635,7 @@ span {
     }
 
     #m {
-        width: calc(100vw - 72px)
+        width: calc(100vw - 64px)
     }
 
     #send {

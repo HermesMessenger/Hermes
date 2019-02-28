@@ -584,7 +584,7 @@ span {
 
 @media only screen and (max-width: 600px) {
     span.message_body {
-        width: calc(100vw - 120px)
+        width: calc(100vw - 130px)
     }
     #message_send_form {
         border: 3px solid #000000;
