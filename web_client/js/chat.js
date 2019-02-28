@@ -24,12 +24,6 @@ swipe_left_handler = function () {
     else(console.log('hidden, we should quote'))
 }
 
-$('#loading').ready(function () {
-    if (getCookie('hermes_style') == 'dark') {
-        $("#loading").attr('src', 'images/loading-dark.gif');
-    }
-})
-
 
 $(window).on('load', function () {
     const uuid_header = {
