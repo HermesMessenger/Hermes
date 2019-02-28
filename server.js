@@ -7,11 +7,13 @@ const cookieParser = require('cookie-parser'); // Cookies
 const favicon = require('express-favicon'); // Favicon
 const fileExists = require('file-exists');
 const path = require('path');
-const HA = require('./server/highAvailability.js');
+const HA = require('./server/HA/highAvailability.js');
+const config = require('./config.json')
 
 const web_client_path = __dirname + '/web_client/';
 const html_path = web_client_path + 'html/';
 const js_path = web_client_path + 'js/';
+const js_lib_path = js_path + 'lib/';
 const css_path = web_client_path + 'css/';
 const img_path = web_client_path + 'images/';
 
@@ -61,6 +63,16 @@ app.get('/js/:file', function (req, res) {
     fileExists(js_path + req.params.file, function (err, exists) {
         if (exists) {
             res.sendFile(js_path + req.params.file);
+        } else {
+            res.sendStatus(404);
+        }
+    });
+});
+
+app.get('/js/lib/:file', function (req, res) {
+    fileExists(js_lib_path + req.params.file, function (err, exists) {
+        if (exists) {
+            res.sendFile(js_lib_path + req.params.file);
         } else {
             res.sendStatus(404);
         }
@@ -218,6 +230,25 @@ app.get('*', function (req, res) {
     res.redirect('/');
 });
 
-app.listen(8080, function () {
-    console.log('listening on *:8080');
+let server = app.listen(config.port, function () {
+    console.log('listening on *:'+config.port);
+    HA.startChecking()
 });
+
+let closing = false;
+function close(){
+    if(!closing){
+        closing = true;
+        console.log('Exiting process');
+        HA.close();
+        server.close();
+        console.log('------------------------------------------');
+    }
+}
+
+//catches ctrl+c event
+process.on('SIGINT', close);
+
+// catches "kill pid" (for example: nodemon restart)
+process.on('SIGUSR1', close);
+process.on('SIGUSR2', close);
