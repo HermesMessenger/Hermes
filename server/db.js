@@ -41,318 +41,412 @@ function createColor() {
 module.exports = class {
     constructor() {
         this.client = new cassandra.Client({ contactPoints: ['127.0.0.1:9042'], keyspace: 'hermes' })
+        this.closed = false;
     }
 
     // TODO: Make multiple channels (for now 'general' is always used)
     addMessage(user, message) {
-
-        const query = 'INSERT INTO Messages (UUID, Channel, Username, Message) values(?,?,?,?);';
-        let message_uuid = new cassandra.types.TimeUuid();
-        let data = [message_uuid, 'general', user, message];
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, data, { prepare: true }).then(result => {
-                resolve(message_uuid);
-            }).catch(err => {
-                reject(err);
+        if (!this.closed) {
+            const query = 'INSERT INTO Messages (UUID, Channel, Username, Message) values(?,?,?,?);';
+            let message_uuid = new cassandra.types.TimeUuid();
+            let data = [message_uuid, 'general', user, message];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    resolve(message_uuid);
+                }).catch(err => {
+                    reject(err);
+                });
             });
-        });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
     }
     // TODO: Make multiple channels (for now 'general' is always used)
     deleteMessage(uuid) {
-        const query = 'DELETE FROM Messages WHERE channel=? and UUID=?;';
-        let data = ['general', uuid];
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, data, { prepare: true }).then(result => {
-                resolve(uuid);
-            }).catch(err => {
-                reject(err);
+        if (!this.closed) {
+            const query = 'DELETE FROM Messages WHERE channel=? and UUID=?;';
+            let data = ['general', uuid];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    resolve(uuid);
+                }).catch(err => {
+                    reject(err);
+                });
             });
-        });
-
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
 
     }
 
     // TODO: Make multiple channels (for now 'general' is always used)
     editMessage(uuid, newmessage) {
-        const query = 'UPDATE Messages SET message=? WHERE channel=? and UUID=?;';
-        let data = [newmessage, 'general', uuid];
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, data, { prepare: true }).then(result => {
-                resolve();
-            }).catch(err => {
-                reject(err);
+        if (!this.closed) {
+            const query = 'UPDATE Messages SET message=? WHERE channel=? and UUID=?;';
+            let data = [newmessage, 'general', uuid];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    resolve();
+                }).catch(err => {
+                    reject(err);
+                });
             });
-        });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
     }
 
     getSingleMessage(uuid) {
-        const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE UUID = ? ALLOW FILTERING;';
-        let data = [uuid];
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, data,  { prepare: true }).then(result => {
-                resolve(result.rows[0]);
-            }).catch(err => {
-                reject(err);
+        if (!this.closed) {
+            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE UUID = ? ALLOW FILTERING;';
+            let data = [uuid];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    resolve(result.rows[0]);
+                }).catch(err => {
+                    reject(err);
+                });
             });
-        });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
     }
 
     getMessages() {
-        const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=\'general\' ORDER BY UUID;';
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, { prepare: true }).then(result => {
-                resolve(result.rows);
-            }).catch(err => {
-                reject(err);
+        if (!this.closed) {
+            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=\'general\' ORDER BY UUID;';
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, { prepare: true }).then(result => {
+                    resolve(result.rows);
+                }).catch(err => {
+                    reject(err);
+                });
             });
-        });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
     }
 
     getMessageSender(message_uuid) {
-        const query = 'SELECT Username FROM Messages WHERE channel=\'general\' AND UUID=?;';
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, [message_uuid], { prepare: true }).then(result => {
-                let res = result.first();
-                if(res){
-                    resolve(res.username);
-                }else{
-                    reject(new Error('Message not found'));
-                }
-            }).catch(err => {
-                reject(err);
+        if (!this.closed) {
+            const query = 'SELECT Username FROM Messages WHERE channel=\'general\' AND UUID=?;';
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, [message_uuid], { prepare: true }).then(result => {
+                    let res = result.first();
+                    if (res) {
+                        resolve(res.username);
+                    } else {
+                        reject(new Error('Message not found'));
+                    }
+                }).catch(err => {
+                    reject(err);
+                });
             });
-        });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
     }
 
     getMessagesFrom(uuid) {
-        const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=\'general\' and UUID>? ORDER BY UUID;';
-        return new Promise((resolve, reject) => {
-            let data = [uuid];
-            this.client.execute(query, data, { prepare: true }).then(result => {
-                resolve(result.rows);
-            }).catch(err => {
-                reject(err);
+        if (!this.closed) {
+            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=\'general\' and UUID>? ORDER BY UUID;';
+            return new Promise((resolve, reject) => {
+                let data = [uuid];
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    resolve(result.rows);
+                }).catch(err => {
+                    reject(err);
+                });
             });
-        });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
     }
 
     registerUser(user, passwordHash) {
-        const query = 'INSERT INTO Users (UUID, Username, PasswordHash) values(?,?,?) IF NOT EXISTS;';
-        let uuid = new cassandra.types.TimeUuid();
-        let data = [uuid, user, passwordHash];
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, data, { prepare: true }).then(result => {
-                this.saveSettingWithUsername(user, createColor()).then(result => resolve(uuid)).catch(err => reject(err));
-            }).catch(err => reject(err));
-        });
+        if (!this.closed) {
+            const query = 'INSERT INTO Users (UUID, Username, PasswordHash) values(?,?,?) IF NOT EXISTS;';
+            let uuid = new cassandra.types.TimeUuid();
+            let data = [uuid, user, passwordHash];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    this.saveSettingWithUsername(user, createColor()).then(result => resolve(uuid)).catch(err => reject(err));
+                }).catch(err => reject(err));
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
     }
 
     registerBot(bot, passwordHash) {
-        const query = 'INSERT INTO Users (UUID, Username, PasswordHash) values(now(),?,?) IF NOT EXISTS;';
-        let data = [bot, passwordHash];
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, data, { prepare: true }).then(result => {
-                this.saveSettingWithUsername(bot, createColor(), NOTIFICATIONS_OFF, DEFAULT_IMAGE_BOT)
-                    .then(result => resolve()).catch(err => reject(err));
-            }).catch(err => reject(err));
-        });
+        if (!this.closed) {
+            const query = 'INSERT INTO Users (UUID, Username, PasswordHash) values(now(),?,?) IF NOT EXISTS;';
+            let data = [bot, passwordHash];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    this.saveSettingWithUsername(bot, createColor(), NOTIFICATIONS_OFF, DEFAULT_IMAGE_BOT)
+                        .then(result => resolve()).catch(err => reject(err));
+                }).catch(err => reject(err));
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
     }
 
     updatePasswordHash(user, passwordHash) {
-        const query = 'SELECT UUID from Users where Username = ? ALLOW FILTERING;';
-        let data = [user];
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, data, { prepare: true }).then(result => {
-                let hashRow = result.first();
-                if (hashRow) {
-                    const newquery = 'UPDATE Users SET passwordHash=? WHERE UUID=? AND Username=?;';
-                    let newdata = [passwordHash, hashRow.uuid, user];
-                    this.client.execute(newquery, newdata, { prepare: true }).then(result => resolve()).catch(err => reject(err));
-                } else {
-                    reject(USER_NOT_FOUND_ERROR);
-                }
-            }).catch(err => reject(err));
-        });
-
+        if (!this.closed) {
+            const query = 'SELECT UUID from Users where Username = ? ALLOW FILTERING;';
+            let data = [user];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    let hashRow = result.first();
+                    if (hashRow) {
+                        const newquery = 'UPDATE Users SET passwordHash=? WHERE UUID=? AND Username=?;';
+                        let newdata = [passwordHash, hashRow.uuid, user];
+                        this.client.execute(newquery, newdata, { prepare: true }).then(result => resolve()).catch(err => reject(err));
+                    } else {
+                        reject(USER_NOT_FOUND_ERROR);
+                    }
+                }).catch(err => reject(err));
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
     }
 
     getPasswordHash(user) {
-        const query = 'SELECT PasswordHash from Users where Username = ? ALLOW FILTERING;';
-        let data = [user];
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, data, { prepare: true }).then(result => {
-                let hashRow = result.first();
-                if (hashRow) {
-                    resolve(hashRow.passwordhash);
-                } else {
-                    reject(USER_NOT_FOUND_ERROR);
-                }
-            }).catch(err => reject(err));
-        });
+        if (!this.closed) {
+            const query = 'SELECT PasswordHash from Users where Username = ? ALLOW FILTERING;';
+            let data = [user];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    let hashRow = result.first();
+                    if (hashRow) {
+                        resolve(hashRow.passwordhash);
+                    } else {
+                        reject(USER_NOT_FOUND_ERROR);
+                    }
+                }).catch(err => reject(err));
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
     }
 
     isntAlreadyRegistered(user) {
-        const query = 'SELECT COUNT (*) as count from Users where Username = ? ALLOW FILTERING;';
-        let data = [user];
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, data, { prepare: true }).then(result => {
-                resolve(result.first().count.low == 0);
-            }).catch(err => reject(err));
-        });
+        if (!this.closed) {
+            const query = 'SELECT COUNT (*) as count from Users where Username = ? ALLOW FILTERING;';
+            let data = [user];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    resolve(result.first().count.low == 0);
+                }).catch(err => reject(err));
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
     }
 
     isntBotAlreadyRegistered(bot) {
-        const query = 'SELECT COUNT (*) as count from Users where Username = ? ALLOW FILTERING;';
-        let data = [bot];
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, data, { prepare: true }).then(result => {
-                resolve(result.first().count.low == 0);
-            }).catch(err => reject(err));
-        });
+        if (!this.closed) {
+            const query = 'SELECT COUNT (*) as count from Users where Username = ? ALLOW FILTERING;';
+            let data = [bot];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    resolve(result.first().count.low == 0);
+                }).catch(err => reject(err));
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
     }
 
     loginUser(user) {
-        // FIXME: check if user is already logged in, to update it
-        const query = 'INSERT INTO Sessions (UUID, Username) values(now(),?) IF NOT EXISTS USING TTL ?;';
-        const uuid_query = 'SELECT UUID FROM Sessions WHERE Username = ? ALLOW FILTERING;';
-        //let user_uuid = uuidv1();
-        let data = [user, SESSION_TIMEOUT];
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, data, { prepare: true }).then(result => {
-                this.client.execute(uuid_query, [user], { prepare: true }).then(result => {
-                    resolve(result.first().uuid.toString());
+        if (!this.closed) {
+            // FIXME: check if user is already logged in, to update it
+            const query = 'INSERT INTO Sessions (UUID, Username) values(now(),?) IF NOT EXISTS USING TTL ?;';
+            const uuid_query = 'SELECT UUID FROM Sessions WHERE Username = ? ALLOW FILTERING;';
+            //let user_uuid = uuidv1();
+            let data = [user, SESSION_TIMEOUT];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    this.client.execute(uuid_query, [user], { prepare: true }).then(result => {
+                        resolve(result.first().uuid.toString());
+                    }).catch(err => reject(err));
                 }).catch(err => reject(err));
-            }).catch(err => reject(err));
-        });
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
     }
 
     loginHA(user, session_uuid) {
-        const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) IF NOT EXISTS USING TTL ?;';
-        //const uuid_query = 'SELECT UUID FROM Sessions WHERE Username = ? ALLOW FILTERING;';
-        //let user_uuid = uuidv1();
-        let data = [user, session_uuid,SESSION_TIMEOUT];
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, data, { prepare: true }).then(result => {
-                resolve();
-            }).catch(err => reject(err));
-        });
-    }
-
-    loginBot(bot) {
-        // FIXME: check if bot is already logged in, to update it
-        const query = 'INSERT INTO Sessions (UUID, Username) values(now(),?) IF NOT EXISTS USING TTL ?;';
-        const uuid_query = 'SELECT UUID FROM Sessions WHERE Username = ? ALLOW FILTERING;';
-        //let user_uuid = uuidv1();
-        let data = [bot, BOT_SESSION_TIMEOUT];
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, data, { prepare: true }).then(result => {
-                this.client.execute(uuid_query, [bot], { prepare: true }).then(result => {
-                    resolve(result.first().uuid.toString());
-                }).catch(err => reject(err));
-            }).catch(err => reject(err));
-        });
-    }
-
-    getUserForUUID(uuid) {
-        const query = 'SELECT Username FROM Sessions WHERE UUID=?';
-        let data = [uuid];
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, data, { prepare: true }).then(result => {
-                let userRow = result.first();
-                if (userRow) {
-                    resolve(userRow.username);
-                } else {
-                    reject(USER_NOT_LOGGED_IN_ERROR);
-                }
-            }).catch(err => reject(err));
-        });
-    }
-
-    updateLoggedInUser(uuid) {
-        const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) USING TTL ?';
-        return new Promise((resolve, reject) => {
-            this.getUserForUUID(uuid).then(user => {
-                let data = [uuid, user, SESSION_TIMEOUT];
+        if (!this.closed) {
+            const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) IF NOT EXISTS USING TTL ?;';
+            //const uuid_query = 'SELECT UUID FROM Sessions WHERE Username = ? ALLOW FILTERING;';
+            //let user_uuid = uuidv1();
+            let data = [user, session_uuid, SESSION_TIMEOUT];
+            return new Promise((resolve, reject) => {
                 this.client.execute(query, data, { prepare: true }).then(result => {
                     resolve();
                 }).catch(err => reject(err));
-            }).catch(err => reject(err));
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
+    }
 
-        });
+    loginBot(bot) {
+        if (!this.closed) {
+            // FIXME: check if bot is already logged in, to update it
+            const query = 'INSERT INTO Sessions (UUID, Username) values(now(),?) IF NOT EXISTS USING TTL ?;';
+            const uuid_query = 'SELECT UUID FROM Sessions WHERE Username = ? ALLOW FILTERING;';
+            //let user_uuid = uuidv1();
+            let data = [bot, BOT_SESSION_TIMEOUT];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    this.client.execute(uuid_query, [bot], { prepare: true }).then(result => {
+                        resolve(result.first().uuid.toString());
+                    }).catch(err => reject(err));
+                }).catch(err => reject(err));
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
+    }
+
+    getUserForUUID(uuid) {
+        if (!this.closed) {
+            const query = 'SELECT Username FROM Sessions WHERE UUID=?';
+            let data = [uuid];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    let userRow = result.first();
+                    if (userRow) {
+                        resolve(userRow.username);
+                    } else {
+                        reject(USER_NOT_LOGGED_IN_ERROR);
+                    }
+                }).catch(err => reject(err));
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
+    }
+
+    updateLoggedInUser(uuid) {
+        if (!this.closed) {
+            const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) USING TTL ?';
+            return new Promise((resolve, reject) => {
+                this.getUserForUUID(uuid).then(user => {
+                    let data = [uuid, user, SESSION_TIMEOUT];
+                    this.client.execute(query, data, { prepare: true }).then(result => {
+                        resolve();
+                    }).catch(err => reject(err));
+                }).catch(err => reject(err));
+
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
     }
 
     checkLoggedInUser(uuid) {
-        const query = 'SELECT UUID FROM sessions WHERE UUID=?;';
-        let data = [uuid];
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, data, { prepare: true }).then(result => {
-                let uuidRow = result.first();
-                if (uuidRow) {
-                    resolve(uuidRow.uuid);
-                } else {
-                    reject(USER_NOT_LOGGED_IN_ERROR);
-                }
-            }).catch(err => reject(err));
-        });
+        if (!this.closed) {
+            const query = 'SELECT UUID FROM sessions WHERE UUID=?;';
+            let data = [uuid];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    let uuidRow = result.first();
+                    if (uuidRow) {
+                        resolve(uuidRow.uuid);
+                    } else {
+                        reject(USER_NOT_LOGGED_IN_ERROR);
+                    }
+                }).catch(err => reject(err));
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
     }
 
     logoutUser(uuid) {
-        const query = 'DELETE FROM Sessions WHERE UUID=?;';
-        let data = [uuid];
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, data, { prepare: true }).then(result => resolve()).catch(err => reject(err));
-        });
+        if (!this.closed) {
+            const query = 'DELETE FROM Sessions WHERE UUID=?;';
+            let data = [uuid];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => resolve()).catch(err => reject(err));
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
     }
 
     clear(table) {
-        const query = 'TRUNCATE ' + escapeCQL(table) + ';';
-        return new Promise((resolve, reject) => {
-            this.client.execute(query).then(result => resolve()).catch(err => reject(err));
-        });
+        if (!this.closed) {
+            const query = 'TRUNCATE ' + escapeCQL(table) + ';';
+            return new Promise((resolve, reject) => {
+                this.client.execute(query).then(result => resolve()).catch(err => reject(err));
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
     }
 
     saveSettingWithUsername(username, color, notifications = NOTIFICATIONS_ON, image_b64 = DEFAULT_IMAGE, dark = false) {
-        const query = 'SELECT UUID FROM Users WHERE Username=? allow filtering;';
-        let data = [username];
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, data, { prepare: true }).then(result => {
-                let uuidRow = result.first();
-                if (uuidRow) {
-                    this.saveSetting(uuidRow.uuid, username, color, notifications, image_b64, dark).then(() => {
-                        resolve();
-                    }).catch(err => reject(err));
-                } else {
-                    reject(USER_NOT_FOUND_ERROR);
-                }
-            }).catch(err => reject(err));
-        });
+        if (!this.closed) {
+            const query = 'SELECT UUID FROM Users WHERE Username=? allow filtering;';
+            let data = [username];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    let uuidRow = result.first();
+                    if (uuidRow) {
+                        this.saveSetting(uuidRow.uuid, username, color, notifications, image_b64, dark).then(() => {
+                            resolve();
+                        }).catch(err => reject(err));
+                    } else {
+                        reject(USER_NOT_FOUND_ERROR);
+                    }
+                }).catch(err => reject(err));
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
     }
 
     saveSettingWithUUID(uuid, color, notifications = NOTIFICATIONS_ON, image_b64 = DEFAULT_IMAGE, dark = false) {
-        const query = 'SELECT Username FROM Users WHERE UUID=?;';
-        let data = [uuid];
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, data, { prepare: true }).then(result => {
-                let userRow = result.first();
-                if (userRow) {
-                    this.saveSetting(uuid, userRow.username, color, notifications, image_b64, dark).then(() => {
-                        resolve();
-                    }).catch(err => reject(err));
-                } else {
-                    reject(USER_NOT_LOGGED_IN_ERROR);
-                }
-            }).catch(err => reject(err));
-        });
+        if (!this.closed) {
+            const query = 'SELECT Username FROM Users WHERE UUID=?;';
+            let data = [uuid];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    let userRow = result.first();
+                    if (userRow) {
+                        this.saveSetting(uuid, userRow.username, color, notifications, image_b64, dark).then(() => {
+                            resolve();
+                        }).catch(err => reject(err));
+                    } else {
+                        reject(USER_NOT_LOGGED_IN_ERROR);
+                    }
+                }).catch(err => reject(err));
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
     }
 
     saveSetting(uuid, username, color, notifications = NOTIFICATIONS_ON, image_b64 = DEFAULT_IMAGE, dark = false) {
-        const query = 'INSERT INTO Settings (UUID, Username, Color, Notifications, Image, dark) values(?,?,?,?,textAsBlob(?),?);';
-        return new Promise((resolve, reject) => {
-            let data = [uuid, username, color, notifications, image_b64, dark];
-            this.client.execute(query, data, { prepare: true }).then(result => {
-                resolve();
-            }).catch(err => reject(err));
-        });
+        if (!this.closed) {
+            const query = 'INSERT INTO Settings (UUID, Username, Color, Notifications, Image, dark) values(?,?,?,?,textAsBlob(?),?);';
+            return new Promise((resolve, reject) => {
+                let data = [uuid, username, color, notifications, image_b64, dark];
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    resolve();
+                }).catch(err => reject(err));
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
     }
 
     getSettingUUID(uuid) {
@@ -364,51 +458,65 @@ module.exports = class {
     }
 
     getSetting(uuid = undefined, username = undefined) {
-        if (uuid) {
-            const query = 'SELECT color, notifications, blobAsText(image) as image, dark FROM Settings WHERE uuid=?;';
-            return new Promise((resolve, reject) => {
-                let data = [uuid];
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    let userRow = result.first();
-                    if (userRow) {
-                        resolve([userRow.color, userRow.notifications, userRow.image, userRow.dark]);
-                    } else {
-                        reject(USER_NOT_FOUND_ERROR);
-                    }
-                }).catch(err => reject(err));
-            });
-        } else if (username) {
-            const query = 'SELECT color, notifications, blobAsText(image) as image, dark FROM Settings WHERE username=? ALLOW FILTERING;';
-            return new Promise((resolve, reject) => {
-                let data = [username];
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    let userRow = result.first();
-                    if (userRow) {
-                        resolve([userRow.color, userRow.notifications, userRow.image, userRow.dark]);
-                    } else {
-                        reject(USER_NOT_FOUND_ERROR);
-                    }
-                }).catch(err => reject(err));
-            });
+        if (!this.closed) {
+            if (uuid) {
+                const query = 'SELECT color, notifications, blobAsText(image) as image, dark FROM Settings WHERE uuid=?;';
+                return new Promise((resolve, reject) => {
+                    let data = [uuid];
+                    this.client.execute(query, data, { prepare: true }).then(result => {
+                        let userRow = result.first();
+                        if (userRow) {
+                            resolve([userRow.color, userRow.notifications, userRow.image, userRow.dark]);
+                        } else {
+                            reject(USER_NOT_FOUND_ERROR);
+                        }
+                    }).catch(err => reject(err));
+                });
+            } else if (username) {
+                const query = 'SELECT color, notifications, blobAsText(image) as image, dark FROM Settings WHERE username=? ALLOW FILTERING;';
+                return new Promise((resolve, reject) => {
+                    let data = [username];
+                    this.client.execute(query, data, { prepare: true }).then(result => {
+                        let userRow = result.first();
+                        if (userRow) {
+                            resolve([userRow.color, userRow.notifications, userRow.image, userRow.dark]);
+                        } else {
+                            reject(USER_NOT_FOUND_ERROR);
+                        }
+                    }).catch(err => reject(err));
+                });
+            } else {
+                return new Promise((resolve, reject) => {
+                    reject(FIELD_REQUIRED_ERROR);
+                });
+            }
+
         } else {
-            return new Promise((resolve, reject) => {
-                reject(FIELD_REQUIRED_ERROR);
-            });
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
         }
     }
 
     checkToken(token) {
-        const query = 'SELECT COUNT (*) AS count FROM tokens WHERE UUID=?;';
-        let data = [token];
-        return new Promise((resolve, reject) => {
-            this.client.execute(query, data, { prepare: true }).then(result => {
-                if (result.first().count.low > 0) {
-                    resolve();
-                } else {
-                    reject(TOKEN_INVALID_ERROR);
-                }
+        if (!this.closed) {
+            const query = 'SELECT COUNT (*) AS count FROM tokens WHERE UUID=?;';
+            let data = [token];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    if (result.first().count.low > 0) {
+                        resolve();
+                    } else {
+                        reject(TOKEN_INVALID_ERROR);
+                    }
 
-            }).catch(err => reject(err));
-        });
+                }).catch(err => reject(err));
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
+    }
+
+    close(calback = () => { }) {
+        this.closed = true;
+        this.client.shutdown(calback);
     }
 }

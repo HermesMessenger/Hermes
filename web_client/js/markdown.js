@@ -5,7 +5,7 @@ let MD_RULES = [
     { regex: /(\*\*(.+?)\*\*)/, text_group: 1, tag: '<b class="MD-bold">', replace_group: 0 }, // This one has to go first beacause it overides the latter
     { regex: /(?:[^*]|^)(\*([^*](?:.*?[^*])?)\*)(?:[^*]|$)/, text_group: 1, tag: '<i class="MD-italics">', replace_group: 0 },
     { regex: /~(.+?)~/, text_group: 0, tag: '<strike class="MD-strike">' },
-    { regex: /\[(.+?)\]\(((?:http:\/\/|https:\/\/).+?)\)/, text_group: 0, tag: '<a class="MD-link" href="$1">' },
+    { regex: /\[(.+?)\]\(((?:http:\/\/|https:\/\/).+?)\)/, text_group: 0, tag: '<a class="MD-link" href="$1" target="_blank">' },
     { regex: /`(.+?)`/, text_group: 0, tag: '<code class="MD-code">', escapeMD: true },
 ]
 

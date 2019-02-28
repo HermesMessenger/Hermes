@@ -8,7 +8,7 @@ const favicon = require('express-favicon'); // Favicon
 const fileExists = require('file-exists');
 const path = require('path');
 const HA = require('./server/HA/highAvailability.js');
-const config = require('./config.json')
+const config = require('./config.json');
 
 const web_client_path = __dirname + '/web_client/';
 const html_path = web_client_path + 'html/';
@@ -232,7 +232,7 @@ app.get('*', function (req, res) {
 
 let server = app.listen(config.port, function () {
     console.log('listening on *:'+config.port);
-    HA.startChecking()
+    //HA.startChecking()
 });
 
 let closing = false;
@@ -240,9 +240,9 @@ function close(){
     if(!closing){
         closing = true;
         console.log('Exiting process');
-        HA.close();
-        server.close();
+        //This is so that any closing needed will be made
         console.log('------------------------------------------');
+        process.exit(0);
     }
 }
 

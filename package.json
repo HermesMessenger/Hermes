@@ -20,6 +20,7 @@
     "prepare_project": "node scripts/prepareProject.js",
     "test": "node server.js",
     "start": "node server.js",
+    "debug": "node --inspect server.js",
     "prestart": "npm run prepare_project",
     "postinstall": "npm run prepare_project"
   },
