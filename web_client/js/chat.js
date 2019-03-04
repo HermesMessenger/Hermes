@@ -306,7 +306,7 @@ function printMessages(messages) {
 
         let quoteREGEX = /(\"(.+): (.+)\")/;
 
-        let messageHTML = message;
+        let messageHTML = convertHTML(message);
 
         let quoteMatch = message.match(quoteREGEX);
         // So that we dont parse the MD in the quote
@@ -362,12 +362,12 @@ function printMessages(messages) {
         let message_second_MD = MDtoHTML(message_second_replace);
         messageHTML = messageHTML.replace(message_first_replace, message_fisrt_MD);
         messageHTML = messageHTML.replace(message_second_replace, message_second_MD);
-        //console.log(messageHTML);
+        
         let m_body_element = $('<span id="m-body">').html(messageHTML);
 
         // find the links
         replaceLinks(m_body_element[0]);
-        new_message_body.append(m_body_element);
+        new_message_body.append(deconvertHTML(m_body_element[0].outerHTML));
 
 
         if (username != getCookie('hermes_username') && !first_load && last_message_timestamp_notified < last_message_timestamp) {

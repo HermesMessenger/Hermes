@@ -184,7 +184,7 @@ function MDtoHTML(MD_String, rules = MD_RULES, html_rules = HTML_RULES) {
             }
         }
     }
-    return deconvertHTML(r);
+    return r;
 }
 
 function HTMLtoMD(html, rules = HTML_RULES) {
