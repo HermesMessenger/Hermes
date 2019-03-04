@@ -26,6 +26,8 @@ swipe_left_handler = function () {
 
 
 $(window).on('load', function () {
+    setupSeparators();
+
     const uuid_header = {
         uuid: getCookie('hermes_uuid')
     };
@@ -233,6 +235,8 @@ $(window).on('load', function () {
         });
 
         if ($(window).width() > 600) $("#m").width($(window).width() - 175 - $("#user").width())
+
+        setupSeparators();
     });
 
 });
@@ -409,4 +413,13 @@ function printMessages(messages) {
         }
         prev_json = message_json;
     }
+}
+
+function setupSeparators(){
+    $('#separatot-top').height($('#menutop').height());
+    updateBottomSeparator();
+}
+
+function updateBottomSeparator(){
+    $('#separator-bottom').height($('#message_send_form').outerHeight(true));
 }
