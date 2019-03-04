@@ -21,7 +21,7 @@ swipe_right_handler = function () {
 swipe_left_handler = function () {
     if ($("#darkoverlay").css("opacity") != 0) $("#darkoverlay").click();
 
-    else(console.log('hidden, we should quote'))
+    else (console.log('hidden, we should quote'))
 }
 
 
@@ -273,7 +273,8 @@ function printMessages(messages) {
     for (let i = 0; i < messages.length; i++) {
         let message_json = messages[i];
         let username = message_json.username;
-        let message = message_json.message;
+        let message = convertHTML(message_json.message);
+
 
         let time = new Date(message_json.time);
         let day = time.getDate() + '/' + (time.getMonth() + 1) + '/' + time.getFullYear();
@@ -310,7 +311,7 @@ function printMessages(messages) {
 
         let quoteREGEX = /(\"(.+): (.+)\")/;
 
-        let messageHTML = convertHTML(message);
+        let messageHTML = message;
 
         let quoteMatch = message.match(quoteREGEX);
         // So that we dont parse the MD in the quote
@@ -322,8 +323,11 @@ function printMessages(messages) {
             let quoted_message = `${quoted_user}: ${quoteMatch[3]}`
             let message_id;
             $('#messages').find('.message').each(function (i) {
-                if ($(this).find('#m-username').text() == quoted_user + ': ' && HTMLtoMD($(this).find('#m-body').html()) == quoteMatch[3]) {
+
+                if ($(this).find('#m-username').text() == quoted_user + ': ' && convertHTML(HTMLtoMD($(this).find('#m-body').html())) == quoteMatch[3]) {
+
                     message_id = $(this).attr('id');
+
                 }
             })
             if (message_id) {
@@ -337,7 +341,7 @@ function printMessages(messages) {
                 let quoted_user_id = escapeStringForCSS(quoted_user);
                 //Create the quote span
                 let quoteSpan = $(`<span class="quote user-${quoted_user_id}" onclick="quoteOnClick('${message_id}')" >`).append(MDtoHTML(quoted_message));
-
+                
                 //Check if the CSS for the current user already exists
                 let cssRuleExists = false;
                 let css = document.styleSheets;
@@ -356,6 +360,7 @@ function printMessages(messages) {
                 convertedMDend = quoteMatch.index + quoteSpan[0].outerHTML.length;
 
                 messageHTML = messageHTML.replace(quoteMatch[0], quoteSpan[0].outerHTML)
+
             }
         }
 
@@ -366,7 +371,7 @@ function printMessages(messages) {
         let message_second_MD = MDtoHTML(message_second_replace);
         messageHTML = messageHTML.replace(message_first_replace, message_fisrt_MD);
         messageHTML = messageHTML.replace(message_second_replace, message_second_MD);
-        
+
         let m_body_element = $('<span id="m-body">').html(messageHTML);
 
         // find the links
@@ -415,11 +420,11 @@ function printMessages(messages) {
     }
 }
 
-function setupSeparators(){
+function setupSeparators() {
     $('#separatot-top').height($('#menutop').height());
     updateBottomSeparator();
 }
 
-function updateBottomSeparator(){
+function updateBottomSeparator() {
     $('#separator-bottom').height($('#message_send_form').outerHeight(true));
 }
