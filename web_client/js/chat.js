@@ -281,7 +281,7 @@ function printMessages(messages) {
         last_message_timestamp = message_json.time;
         last_message_uuid = message_json.uuid;
 
-        if ((day != prev_day)) {
+        if ((day != prev_day) && $("#messages").find(`#${day.replaceAll(/\//g, '\\/')}`).length == 0) {
             let date_message = $('<li>').attr("class", "date").attr("id", day).append(day);
             $("#messages").append(date_message);
         }
