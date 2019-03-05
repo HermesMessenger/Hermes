@@ -378,9 +378,20 @@ function printMessages(messages) {
 
         // find the links
         replaceLinks(m_body_element[0]);
+
+        try {
+            let mention_regex = /(@([^ ]+))/g
+
+            let match
+            while (match = mention_regex.exec(message)) {
+                let mention = $('<b>').css('color', users[match[2]].color).text(match[1])[0].outerHTML
+                m_body_element[0].innerHTML = m_body_element[0].innerHTML.replace(match[1], mention)
+            }
+        } catch (err) {} // Don't do anything, the mention was invalid so just don't parse it 
+
         new_message_body.append(deconvertHTML(m_body_element[0].outerHTML));
 
-
+        
         if (username != getCookie('hermes_username') && !first_load && last_message_timestamp_notified < last_message_timestamp) {
             sendNotifiaction("New message from " + username, username + ": " + message, 'data:image/png;base64,' + users[username].image);
             last_message_timestamp_notified = last_message_timestamp;
