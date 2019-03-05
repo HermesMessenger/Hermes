@@ -17,7 +17,8 @@ let HTML_RULES = [
     { tag: 'a', class: 'MD-link', md: '[$TEXT]($HREF)' },
     { tag: 'code', class: 'MD-code', md: '`$TEXT`' },
     { tag: 'span', class: 'quote', md: '*quote*' }, //Make the MD parser remove quotes (For editing it's changed)
-    { tag: 'a', class: 'MD-link-explicit', md: '$TEXT' },
+    { tag: 'a', class: 'MD-link-explicit', md: '$TEXT' }, // Ignore links
+    { tag: 'b', class: 'mention', md: '$TEXT' }, // Ignore mentions
 ]
 
 function getCustomRules(original, changed) {

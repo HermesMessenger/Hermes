@@ -295,9 +295,9 @@ function printMessages(messages) {
 
         if (!Object.keys(users).includes(username)) {
             let response = httpGetSync("/api/getSettings/" + encodeURIComponent(username));
-            users[username] = JSON.parse(response);
+            users[username.toLowerCase()] = JSON.parse(response);
         }
-        let color = users[username].color;
+        let color = users[username.toLowerCase()].color;
         let new_message = $(`<li id="message-${last_message_uuid}" class="message" >`);
 
         let name = $("#message_send_form").find('p').text()
@@ -306,7 +306,7 @@ function printMessages(messages) {
         if (username == name) new_message.addClass('myMessage')
         else new_message.addClass('theirMessage')
 
-        new_message.append($('<img>').attr('src', IMG_URL_HEADER + users[username].image).attr("id", "chat_prof_pic"));
+        new_message.append($('<img>').attr('src', IMG_URL_HEADER + users[username.toLowerCase()].image).attr("id", "chat_prof_pic"));
         let new_message_body = $('<span>');
         new_message_body.append($('<b id="m-username">').text(username + ': ').css("color", color));
 
@@ -336,8 +336,8 @@ function printMessages(messages) {
                 //Create the css for the quote
                 let quote_css =
                     `
-                    border-left: 3px ${users[quoted_user].color} solid;
-                    background-color: ${users[quoted_user].color}50;
+                    border-left: 3px ${users[quoted_user.toLowerCase()].color} solid;
+                    background-color: ${users[quoted_user.toLowerCase()].color}50;
                     `
                 // Replace all the unvalid charaters in css IDs
                 let quoted_user_id = escapeStringForCSS(quoted_user);
@@ -384,7 +384,7 @@ function printMessages(messages) {
 
             let match
             while (match = mention_regex.exec(message)) {
-                let mention = $('<b>').css('color', users[match[2]].color).text(match[1])[0].outerHTML
+                let mention = $('<b class="mention">').css('color', users[match[2].toLowerCase()].color).text(match[1])[0].outerHTML
                 m_body_element[0].innerHTML = m_body_element[0].innerHTML.replace(match[1], mention)
             }
         } catch (err) {} // Don't do anything, the mention was invalid so just don't parse it 
