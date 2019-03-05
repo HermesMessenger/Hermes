@@ -38,13 +38,15 @@ $(window).on('load', function () {
     });
     $("#myModal").load("settings", function () {
         $('#logout_uuid').val(getCookie('hermes_uuid'));
-        loadSettingsJS();
     });
 
     var username;
-    httpPostAsync('/api/getusername', uuid_header, function (res) {
-        username = res;
+    httpPostAsync('/api/getSettings', uuid_header, function (res) {
+        res = JSON.parse(res)
+        username = res.username;
         $('#user').text(username + ':');
+
+        loadSettingsJS(res);
 
         if ($(window).width() > 600) { // Run only if app is using the mobile layout 
             $("#m").width($(window).width() - 175 - $("#user").width())

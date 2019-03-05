@@ -194,23 +194,6 @@ module.exports = function (app, db, bcrypt, utils, HA) {
         res.sendStatus(401);
     });
 
-    app.post('/api/getusername', function (req, res) {
-        db.getUserForUUID(req.body.uuid).then(user => {
-            res.send(user);
-        }).catch(err => {
-            if (err == USER_NOT_FOUND_ERROR) {
-                res.sendStatus(401); // Unauthorized
-            } else {
-                console.error('ERROR:', err);
-                res.sendStatus(500);
-            }
-        });
-    });
-
-    app.get('/api/getusername', function (req, res) {
-        res.sendStatus(405); // Bad method (GET instead of POST)
-    });
-
     app.post('/api/login', function (req, res) {
         username = req.body.username;
         password = req.body.password;
@@ -402,16 +385,12 @@ module.exports = function (app, db, bcrypt, utils, HA) {
         let uuid = req.body.uuid;
         db.getUserForUUID(uuid).then(user => {
             db.getSettingUsername(user).then((data) => {
-                let color = data[0];
-                let notifications = data[1];
-                let image_b64 = data[2];
-                let dark = data[3];
-                console.log(user, 'got its settings:', '#' + color, notifications, dark);
                 res.status(200).send({
-                    color: '#' + color,
-                    notifications: notifications,
-                    image: image_b64,
-                    dark: dark
+                    username: user,
+                    color: '#' + data[0],
+                    notifications: data[1],
+                    image: data[2],
+                    dark: data[3]
                 });
             }).catch(err => {
                 if (err == FIELD_REQUIRED_ERROR) {

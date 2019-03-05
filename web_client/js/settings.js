@@ -10,7 +10,7 @@ let lastColor = '';
 var changed = false;
 let animate_out = function () {};
 
-function loadSettingsJS() {
+function loadSettingsJS(res) {
 
     var acc = document.getElementsByClassName("accordion");
     var i;
@@ -31,37 +31,31 @@ function loadSettingsJS() {
     }
 
     function loadSettingsFromDB() {
-        httpPostAsync("/api/getSettings", uuid_header, function (res) {
-            let json_reponse = JSON.parse(res);
-            image_used = json_reponse.image;
-            document.getElementById("image").src = IMG_URL_HEADER + json_reponse.image;
-            $("input#color")[0].jscolor.fromString(json_reponse.color)
-            lastColor = json_reponse.color;
-            switch (json_reponse.notifications) {
-                case 0:
-                    $("#notselect").val('always');
-                    break;
-                case 1:
-                    $("#notselect").val('tagged');
-                    break;
-                case 2:
-                    $("#notselect").val('never');
-                    break;
-            }
-            startColor();
-            lastTheme = json_reponse.dark ? 'dark' : 'light';
-            document.getElementById("dark_theme_box").checked = json_reponse.dark;
-        });
+        image_used = res.image;
+        document.getElementById("image").src = IMG_URL_HEADER + res.image;
+        $("input#color")[0].jscolor.fromString(res.color)
+        lastColor = res.color;
+        switch (res.notifications) {
+            case 0:
+                $("#notselect").val('always');
+                break;
+            case 1:
+                $("#notselect").val('tagged');
+                break;
+            case 2:
+                $("#notselect").val('never');
+                break;
+        }
+        startColor();
+        lastTheme = res.dark ? 'dark' : 'light';
+        document.getElementById("dark_theme_box").checked = res.dark;
     }
 
     function loadThemeFromSettings() {
-        httpPostAsync("/api/getSettings", uuid_header, function (res) {
-            let json_reponse = JSON.parse(res);
-            let theme = json_reponse.dark ? 'dark' : 'light';
-            if (getCookie('hermes_style') != theme) {
-                setTheme(theme);
-            }
-        });
+        let theme = res.dark ? 'dark' : 'light';
+        if (getCookie('hermes_style') != theme) {
+            setTheme(theme);
+        }
     }
 
     startColor();
