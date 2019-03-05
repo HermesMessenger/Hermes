@@ -4,7 +4,7 @@ var last_message_timestamp_notified = 0;
 let prev_json = {};
 var first_load = true;
 
-const users = {};
+var users = {};
 
 var notifications_supported = true;
 var notifications_allowed = false;
@@ -293,7 +293,7 @@ function printMessages(messages) {
             $("#messages").append(date_message);
         }
 
-        if (!Object.keys(users).includes(username)) {
+        if (!Object.keys(users).includes(username.toLowerCase())) {
             let response = httpGetSync("/api/getSettings/" + encodeURIComponent(username));
             users[username.toLowerCase()] = JSON.parse(response);
         }
