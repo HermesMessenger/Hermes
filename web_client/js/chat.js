@@ -393,7 +393,7 @@ function printMessages(messages) {
 
         
         if (username != getCookie('hermes_username') && !first_load && last_message_timestamp_notified < last_message_timestamp) {
-            sendNotifiaction("New message from " + username, username + ": " + message, 'data:image/png;base64,' + users[username].image);
+            sendNotifiaction("New message from " + username, username + ": " + message, 'data:image/png;base64,' + users[username.toLowerCase()].image);
             last_message_timestamp_notified = last_message_timestamp;
         }
         let time_el = $("<span class='time'>")
