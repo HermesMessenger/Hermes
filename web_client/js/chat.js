@@ -136,7 +136,7 @@ $(window).on('load', function () {
             input.keypress(function (e) { // Add an event listener for this input
                 if (e.keyCode == 13 && is_editing) {
                     if ($(this).val() != '') {
-                        edit_header['newmessage'] = $(this).val();
+                        edit_header['newmessage'] = (input.parent().parent().find(".quote").length!=0 ? "\""+HTMLtoMD(input.parent().parent().find(".quote").html())+"\" " : "") + $(this).val();
                         httpPostAsync('/api/editmessage/', edit_header);
                         editing_message_timestamp = 0;
                         is_editing = false;
@@ -149,11 +149,11 @@ $(window).on('load', function () {
             username_element.next().remove();
             username_element.parent().append(input);
             input.attr('rows', countTextareaLines(input[0]) + '');
-            input.parent().parent().height(input.height() + 16);
+            input.parent().parent().height(input.height() + 16 + (input.parent().parent().find(".quote").length!=0 ? input.parent().parent().find(".quote").height()+10 : 0));
             input.bind('input propertychange', function () {
 
                 input.attr('rows', countTextareaLines(input[0]) + '');
-                input.parent().parent().height(input.height() + 16);
+                input.parent().parent().height(input.height() + 16 + (input.parent().parent().find(".quote").length!=0 ? input.parent().parent().find(".quote").height()+10 : 0));
             });
             username_element.next().focus();
         }
@@ -232,7 +232,7 @@ $(window).on('load', function () {
 
     $(window).resize(function () {
         $("#messages").find("li").each(function () {
-            $(this).height($(this).find(".message_body").height());
+            $(this).height($(this).find(".message_body").height()+($(this).find(".quote").length!=0 ? $(this).find(".quote").height()+10 : 0)); //Change resizing to cover the quote on top
         });
 
         if ($(window).width() > 600) $("#m").width($(window).width() - 175 - $("#user").width())
@@ -408,6 +408,9 @@ function printMessages(messages) {
         new_message.append(new_message_body);
         new_message.append(time_el);
 
+        //Insert the quote after the image, this has to be done with all the message created
+        new_message.find(".quote").insertBefore(new_message.find("img")).css("display","block");
+
         if (message_json.edited) { // It's an edited message
             $('li#message-' + message_json.uuid).replaceWith(new_message);
             message_with_body = $('li#message-' + message_json.uuid);
@@ -418,7 +421,7 @@ function printMessages(messages) {
             }
         }
 
-        new_message.height(new_message_body.height());
+        new_message.height(new_message_body.height()+(new_message.find(".quote").length!=0 ? new_message.find(".quote").height()+10 : 0)); //Change message height to cover the quote on top
 
         if (first_load) $(document).scrollTop($("#separator-bottom").offset().top)
         else if (!message_json.edited) {
