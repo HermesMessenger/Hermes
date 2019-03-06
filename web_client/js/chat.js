@@ -4,7 +4,7 @@ var last_message_timestamp_notified = 0;
 let prev_json = {};
 var first_load = true;
 
-var users = {};
+const users = {};
 
 var notifications_supported = true;
 var notifications_allowed = false;
@@ -48,11 +48,12 @@ $(window).on('load', function () {
 
         loadSettingsJS(res);
 
-        if ($(window).width() > 600) { // Run only if app is using the mobile layout 
+        if ($(window).width() > 600) {  // Run only if app is using the desktop layout 
             $("#m").width($(window).width() - 175 - $("#user").width())
-            $("#color").focus(function () {
-                $(this).blur();
-            });
+
+        } else {  // Run only if app is using the mobile layout 
+            $("#color").focus(() => $(this).blur()); // Prevent color from being an input field
+            
         }
 
         $('#message_send_form').submit(function () {
@@ -148,11 +149,11 @@ $(window).on('load', function () {
             username_element.next().remove();
             username_element.parent().append(input);
             input.attr('rows', countTextareaLines(input[0]) + '');
-            input.parent().parent().height(input.height() + 20);
+            input.parent().parent().height(input.height() + 16);
             input.bind('input propertychange', function () {
 
                 input.attr('rows', countTextareaLines(input[0]) + '');
-                input.parent().parent().height(input.height() + 20);
+                input.parent().parent().height(input.height() + 16);
             });
             username_element.next().focus();
         }
@@ -214,15 +215,13 @@ $(window).on('load', function () {
         }, false);
 
         $("#sidebarbtn").click(function () {
-            $("#sidebar").css("width", "250px");
-            $("#sidebar").css("border-right-width", "3px");
-            $("#darkoverlay").fadeIn(100);
+            $("#darkoverlay").fadeIn(200);
+            $("#sidebar").css("left", "0px");
         });
 
         $("#darkoverlay").click(function () {
-            $("#sidebar").css("width", "0");
-            $("#sidebar").css("border-right-width", "0");
-            $("#darkoverlay").fadeOut(100);
+            $("#darkoverlay").fadeOut(200);
+            $("#sidebar").css("left", "-300px");
         });
 
         window.sessionStorage.clear();
@@ -256,7 +255,7 @@ function loadMessages() {
             res = JSON.parse(res);
             let messages = res.newmessages;
             let delm = res.deletedmessages;
-            delm.forEach(function (message) {
+            delm.forEach(message => {
                 $('li#message-' + message.uuid).remove();
                 last_message_uuid = message.time_uuid;
             });
@@ -379,6 +378,7 @@ function printMessages(messages) {
         // find the links
         replaceLinks(m_body_element[0]);
 
+        // Mentions
         try {
             let mention_regex = /(@([^ ]+))/g
 
