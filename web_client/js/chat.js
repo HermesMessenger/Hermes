@@ -232,7 +232,7 @@ $(window).on('load', function () {
 
     $(window).resize(function () {
         $("#messages").find("li").each(function () {
-            $(this).height($(this).find(".message_body").height()+($(this).find(".quote").length!=0 ? $(this).find(".quote").height()+10 : 0)); //Change resizing to cover the quote on top
+            $(this).height($(this).find(".message_body").height()+($(this).find(".quote").length!=0 ? $(this).find(".quote").height() + 16 : 0)); //Change resizing to cover the quote on top
         });
 
         if ($(window).width() > 600) $("#m").width($(window).width() - 175 - $("#user").width())
@@ -335,7 +335,7 @@ function printMessages(messages) {
                 //Create the css for the quote
                 let quote_css =
                     `
-                    border-left: 3px ${users[quoted_user.toLowerCase()].color} solid;
+                    border-left: 4px ${users[quoted_user.toLowerCase()].color} solid;
                     background-color: ${users[quoted_user.toLowerCase()].color}50;
                     `
                 // Replace all the unvalid charaters in css IDs
@@ -421,7 +421,7 @@ function printMessages(messages) {
             }
         }
 
-        new_message.height(new_message_body.height()+(new_message.find(".quote").length!=0 ? new_message.find(".quote").height()+10 : 0)); //Change message height to cover the quote on top
+        new_message.height(new_message_body.height() + (new_message.find(".quote").length != 0 ? new_message.find(".quote").height() + 16 : 0)); //Change message height to cover the quote on top
 
         if (first_load) $(document).scrollTop($("#separator-bottom").offset().top)
         else if (!message_json.edited) {

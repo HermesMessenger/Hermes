@@ -78,7 +78,9 @@ body {
     margin-left: 4px
 }
 
-input, button, textarea {
+input,
+button,
+textarea {
     outline: none;
 }
 
@@ -119,28 +121,25 @@ input, button, textarea {
     list-style-type: none;
 }
 
-.myMessage {
+.message {
     font: 16px Ubuntu Mono, monospace;
-    margin: 12px 24px 0px 128px;
     padding: 8px;
     border: 2px solid #000;
-    border-radius: 16px 4px 16px 16px;
-    background: #C8E6C9;
     white-space: pre-wrap;
     min-height: 36px;
     overflow: hidden;
 }
 
+.myMessage {
+    margin: 12px 24px 0px 128px;
+    border-radius: 16px 4px 16px 16px;
+    background: #C8E6C9;
+}
+
 .theirMessage {
-    font: 16px Ubuntu Mono, monospace;
     margin: 12px 128px 0px 24px;
-    padding: 8px;
-    border: 2px solid #000;
     border-radius: 4px 16px 16px 16px;
     background: #FFF;
-    white-space: pre-wrap;
-    min-height: 36px;
-    overflow: hidden;
 }
 
 .myTime {
@@ -190,7 +189,8 @@ input, button, textarea {
     padding: 1px 2px;
     color: #000000;
     display: block;
-    margin: 4px 0px;
+    margin: 2px;
+    margin-bottom: 12px;
 }
 
 .modal {
@@ -237,7 +237,8 @@ input, button, textarea {
     transition: color 0.3s ease;
 }
 
-.close:hover, .close:focus {
+.close:hover, 
+.close:focus {
     color: #EF5350;
     text-decoration: none;
     cursor: pointer;
@@ -298,7 +299,15 @@ input, button, textarea {
     height: 500px;
 }
 
-article, aside, figure, footer, header, hgroup, menu, nav, section {
+article,
+aside,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
     display: block;
 }
 
@@ -486,9 +495,9 @@ span {
 
 #sidebar-header {
     text-align: center;
-    color:rgb(0, 0, 0);
-    padding-top:48px;
-    padding-bottom:16px;
+    color: rgb(0, 0, 0);
+    padding-top: 48px;
+    padding-bottom: 16px;
 }
 
 #darkoverlay {
@@ -516,7 +525,8 @@ span {
     background: #4CAF50;
 }
 
-#loading, #loading:after {
+#loading,
+#loading:after {
     border-radius: 50%;
     width: 10em;
     height: 10em;
@@ -543,6 +553,7 @@ span {
         -webkit-transform: rotate(0deg);
         transform: rotate(0deg);
     }
+
     100% {
         -webkit-transform: rotate(360deg);
         transform: rotate(360deg);
@@ -554,6 +565,7 @@ span {
         -webkit-transform: rotate(0deg);
         transform: rotate(0deg);
     }
+
     100% {
         -webkit-transform: rotate(360deg);
         transform: rotate(360deg);
@@ -565,6 +577,7 @@ span {
         bottom: -300px;
         opacity: 0
     }
+
     to {
         bottom: 0;
         opacity: 1
@@ -576,6 +589,7 @@ span {
         bottom: 0;
         opacity: 1
     }
+
     to {
         bottom: -300px;
         opacity: 0
@@ -592,32 +606,42 @@ span {
     span.message_body {
         width: calc(100vw - 130px)
     }
+
     #message_send_form {
         border: 3px solid #000000;
         width: calc(100vw - 24px)
     }
+
     #m {
         width: calc(100vw - 72px)
     }
+
     #send {
         width: 16px;
         height: 16px;
         background-size: 16px;
         margin-top: 2px
     }
-    #user, #settings {
+
+    #user,
+    #settings {
         display: none;
     }
-    .myMessage {
+
+    .message {
         font: 15px Ubuntu Mono, monospace;
+    }
+
+    .myMessage {
         margin: 8px 8px 0px 32px;
         border-radius: 12px 4px 12px 12px;
     }
+
     .theirMessage {
-        font: 14px Ubuntu Mono, monospace;
         margin: 8px 32px 0px 8px;
         border-radius: 4px 12px 12px 12px;
     }
+
     .myTime {
         position: absolute;
         right: 0;
@@ -628,6 +652,7 @@ span {
         color: #000;
         font-size: 14px;
     }
+
     .theirTime {
         position: absolute;
         right: 0;
