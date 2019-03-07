@@ -226,6 +226,17 @@ app.get('/setTheme/:theme', function (req, res) {
     res.redirect('/');
 });
 
+// For PWA
+app.get('/.well-known/assetlinks.json', function (req, res) { 
+    fileExists(web_client_path + 'assetLinks.json', function (err, exists) {
+        if (exists) {
+            res.sendFile(web_client_path + 'assetLinks.json');
+        } else {
+            res.sendStatus(404);
+        }
+    });
+});
+
 app.get('*', function (req, res) {
     res.redirect('/');
 });
