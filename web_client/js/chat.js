@@ -310,7 +310,7 @@ function printMessages(messages) {
         new_message_body.append($('<b id="m-username">').text(username + ': ').css("color", color));
 
 
-        let quoteREGEX = /(\"(.+?): (.+)\")/;
+        let quoteREGEX = /("(.+?): (.+)") /;
 
         let messageHTML = message;
 

@@ -93,7 +93,7 @@ function parseQuote(context) {
     let res = b.text() + message_body.html();
 
     res = res.replace(/"([^:]+):  "/, '')
-    return ` "${HTMLtoMD(res)}" `
+    return `"${HTMLtoMD(res)}" `
 }
 
 function quoteOnClick(message_id) {
