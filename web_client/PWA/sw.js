@@ -1,12 +1,13 @@
 //Install stage sets up the offline page in the cache and opens a new cache
 self.addEventListener('install', event => {
-    var offlinePage = new Request('offline.html');
+    console.log('PWA installed')
+/*    var offlinePage = new Request('offline.html');
     event.waitUntil(
         fetch(offlinePage).then(async res => {
             const cache = await caches.open('pwabuilder-offline');
             console.log('[PWA Builder] Cached offline page during Install' + res.url);
             return cache.put(offlinePage, res);
-        }));
+        }));*/
 });
 
 //If any fetch fails, it will show the offline page.

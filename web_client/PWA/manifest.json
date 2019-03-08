@@ -1,27 +1,16 @@
 {
-    "dir": "ltr",
-    "lang": "en",
-    "name": "Hermes Messenger Testing",
-    "scope": "*",
-    "serviceworker": {
-        "src": "sw.js",
-        "scope": "/",
-        "update_via_cache": "none"
-    },
-    "display": "standalone",
-    "start_url": "/",
+    "name": "Hermes Messenger",
     "short_name": "Hermes",
-    "description": "A decentralized messaging network",
-    "orientation": "portrait",
-    "background_color": "#E8F5E9", 
+    "lang": "en-US",
+    "start_url": "/",
+    "display": "standalone",
     "theme_color": "#81C784",
-    "related_applications": [],
-    "prefer_related_applications": false,
     "icons": [
-        {
-            "src": "/images/favicon.png",
-            "type": "image/png",
-            "sizes": "1000x1000"
-        }
-    ]
-}
+      {
+        "src": "/images/favicon.png",
+        "sizes": "1000x1000",
+        "type": "image/png"
+      }
+    ],
+    "background_color": "#E8F5E9"
+  }
