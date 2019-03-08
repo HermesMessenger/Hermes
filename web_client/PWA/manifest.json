@@ -1,0 +1,27 @@
+{
+    "dir": "ltr",
+    "lang": "en",
+    "name": "Hermes Messenger Testing",
+    "scope": "/",
+    "display": "standalone",
+    "start_url": "https://hermesmessenger-testing.duckdns.org/",
+    "short_name": "Hermes",
+    "description": "A decentralized messaging network",
+    "orientation": "portrait",
+    "background_color": "#E8F5E9", 
+    "theme_color": "#81C784",
+    "related_applications": [],
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "/images/favicon.png",
+            "type": "image/png",
+            "sizes": "1000x1000"
+        },
+        {
+            "src": "/images/favicon.png",
+            "type": "image/png",
+            "sizes": "1000x1000"
+        }
+    ]
+}

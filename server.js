@@ -16,6 +16,7 @@ const js_path = web_client_path + 'js/';
 const js_lib_path = js_path + 'lib/';
 const css_path = web_client_path + 'css/';
 const img_path = web_client_path + 'images/';
+const pwa_path = web_client_path + 'PWA/';
 
 console.log('------------------------------------------');
 
@@ -227,14 +228,21 @@ app.get('/setTheme/:theme', function (req, res) {
 });
 
 // For PWA
+
+app.get('/manifest.json', function (req, res) { 
+    res.sendFile(pwa_path + 'manifest.json');
+});
+
 app.get('/.well-known/assetlinks.json', function (req, res) { 
-    fileExists(web_client_path + 'assetLinks.json', function (err, exists) {
-        if (exists) {
-            res.sendFile(web_client_path + 'assetLinks.json');
-        } else {
-            res.sendStatus(404);
-        }
-    });
+    res.sendFile(pwa_path + 'assetLinks.json');
+});
+
+app.get('/sw-register.js', function (req, res) { 
+    res.sendFile(pwa_path + 'sw-register.js');
+});
+
+app.get('/sw.js', function (req, res) { 
+    res.sendFile(pwa_path + 'sw.js');
 });
 
 app.get('*', function (req, res) {
