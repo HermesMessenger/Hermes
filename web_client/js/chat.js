@@ -248,7 +248,6 @@ $(window).on('load', function () {
 // ---------------------
 
 function loadMessages() {
-    prev_html = $('#messages').html();
     httpPostAsync('/api/loadmessages/' + last_message_uuid, uuid_header, function (res) {
         if (res !== '[]') {
 
@@ -262,8 +261,10 @@ function loadMessages() {
 
             printMessages(messages);
 
-            $("#loading").hide()
-            first_load = false;
+            if (first_load) {
+                $("#loading").hide()
+                first_load = false;
+            }
         }
     });
     setTimeout(loadMessages, 500)
