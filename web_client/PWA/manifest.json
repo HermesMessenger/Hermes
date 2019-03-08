@@ -2,9 +2,14 @@
     "dir": "ltr",
     "lang": "en",
     "name": "Hermes Messenger Testing",
-    "scope": "/",
+    "scope": "*",
+    "serviceworker": {
+        "src": "sw.js",
+        "scope": "/",
+        "update_via_cache": "none"
+    },
     "display": "standalone",
-    "start_url": "https://hermesmessenger-testing.duckdns.org/",
+    "start_url": "/",
     "short_name": "Hermes",
     "description": "A decentralized messaging network",
     "orientation": "portrait",
@@ -13,11 +18,6 @@
     "related_applications": [],
     "prefer_related_applications": false,
     "icons": [
-        {
-            "src": "/images/favicon.png",
-            "type": "image/png",
-            "sizes": "1000x1000"
-        },
         {
             "src": "/images/favicon.png",
             "type": "image/png",
