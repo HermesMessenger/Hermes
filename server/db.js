@@ -96,10 +96,10 @@ module.exports = class {
         }
     }
 
-    getSingleMessage(uuid) {
+    getSingleMessage(channel, uuid) {
         if (!this.closed) {
-            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE UUID = ? ALLOW FILTERING;';
-            let data = [uuid];
+            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=? and UUID=?;';
+            let data = [channel, uuid];
             return new Promise((resolve, reject) => {
                 this.client.execute(query, data, { prepare: true }).then(result => {
                     resolve(result.rows[0]);
@@ -277,15 +277,13 @@ module.exports = class {
     loginUser(user) {
         if (!this.closed) {
             // FIXME: check if user is already logged in, to update it
-            const query = 'INSERT INTO Sessions (UUID, Username) values(now(),?) IF NOT EXISTS USING TTL ?;';
-            const uuid_query = 'SELECT UUID FROM Sessions WHERE Username = ? ALLOW FILTERING;';
-            //let user_uuid = uuidv1();
-            let data = [user, SESSION_TIMEOUT];
+
+            const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) IF NOT EXISTS USING TTL ?;';
+            let uuid = new cassandra.types.TimeUuid();
+            let data = [uuid, user, SESSION_TIMEOUT];
             return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    this.client.execute(uuid_query, [user], { prepare: true }).then(result => {
-                        resolve(result.first().uuid.toString());
-                    }).catch(err => reject(err));
+                this.client.execute(query, data, { prepare: true }).then(() => {
+                    resolve(uuid.toString());
                 }).catch(err => reject(err));
             });
         } else {
@@ -296,11 +294,9 @@ module.exports = class {
     loginHA(user, session_uuid) {
         if (!this.closed) {
             const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) IF NOT EXISTS USING TTL ?;';
-            //const uuid_query = 'SELECT UUID FROM Sessions WHERE Username = ? ALLOW FILTERING;';
-            //let user_uuid = uuidv1();
             let data = [user, session_uuid, SESSION_TIMEOUT];
             return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
+                this.client.execute(query, data, { prepare: true }).then(() => {
                     resolve();
                 }).catch(err => reject(err));
             });
@@ -312,15 +308,12 @@ module.exports = class {
     loginBot(bot) {
         if (!this.closed) {
             // FIXME: check if bot is already logged in, to update it
-            const query = 'INSERT INTO Sessions (UUID, Username) values(now(),?) IF NOT EXISTS USING TTL ?;';
-            const uuid_query = 'SELECT UUID FROM Sessions WHERE Username = ? ALLOW FILTERING;';
-            //let user_uuid = uuidv1();
-            let data = [bot, BOT_SESSION_TIMEOUT];
+            const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) IF NOT EXISTS USING TTL ?;';
+            let uuid = new cassandra.types.TimeUuid();
+            let data = [uuid, bot, BOT_SESSION_TIMEOUT];
             return new Promise((resolve, reject) => {
                 this.client.execute(query, data, { prepare: true }).then(result => {
-                    this.client.execute(uuid_query, [bot], { prepare: true }).then(result => {
-                        resolve(result.first().uuid.toString());
-                    }).catch(err => reject(err));
+                    resolve(uuid.toString());
                 }).catch(err => reject(err));
             });
         } else {
