@@ -484,7 +484,7 @@ span {
 }
 
 #chatname {
-    color: #000;
+    color: #fff;
     display: inline-block;
     vertical-align: middle;
 }
@@ -551,8 +551,8 @@ span {
     margin: 60px auto;
     font-size: 10px;
     text-indent: -9999em;
-    border: 1.3em solid #242e2432;
-    border-left: 1.3em solid #525852;
+    border: 1.3em solid #74757432;
+    border-left: 1.3em solid #747574;
     -webkit-transform: translateZ(0);
     -ms-transform: translateZ(0);
     transform: translateZ(0);
@@ -565,10 +565,12 @@ span {
     position: static;
     width: 5em;
     height: 5em;
+    border: 1em solid #74757432;
+    border-left: 1em solid #747574;
     left: calc(50% - 2.5em);
 }
 #loading-oldmessages{
-    margin: 2px auto;
+    margin: 24px auto;
     font-size: 10px;
 }
 

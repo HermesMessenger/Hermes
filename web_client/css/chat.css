@@ -543,10 +543,12 @@ span {
     position: static;
     width: 5em;
     height: 5em;
+    border: 1em solid #66bb6a32;
+    border-left: 1em solid #66bb6a;
     left: calc(50% - 2.5em);
 }
 #loading-oldmessages{
-    margin: 2px auto;
+    margin: 24px auto;
     font-size: 10px;
 }
 
