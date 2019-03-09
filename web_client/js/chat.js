@@ -289,8 +289,8 @@ function loadLast100Messages(callback=()=>{}) {
             res = JSON.parse(res);
             if(res.length != 100) hasLoadedEveryMessage = true;
             printMessages(res, true);
-            $("#loading").hide()
         }
+        $("#loading").hide()
         callback();
     });
 };

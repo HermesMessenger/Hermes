@@ -537,8 +537,8 @@ span {
     background: rgb(49, 90, 49);
 }
 
-#loading,
-#loading:after {
+.loader,
+.loader:after {
     border-radius: 50%;
     width: 10em;
     height: 10em;
@@ -547,7 +547,7 @@ span {
     left: calc(50% - 5em);
 }
 
-#loading {
+.loader {
     margin: 60px auto;
     font-size: 10px;
     text-indent: -9999em;
@@ -558,6 +558,18 @@ span {
     transform: translateZ(0);
     -webkit-animation: load8 1.3s infinite linear;
     animation: load8 1.3s infinite linear;
+}
+
+#loading-oldmessages,
+#loading-oldmessages:after {
+    position: static;
+    width: 5em;
+    height: 5em;
+    left: calc(50% - 2.5em);
+}
+#loading-oldmessages{
+    margin: 2px auto;
+    font-size: 10px;
 }
 
 @-webkit-keyframes load8 {
