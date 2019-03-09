@@ -127,7 +127,7 @@ module.exports = function (app, db, bcrypt, utils, HA) {
 
     app.post('/api/deletemessage/', function (req, res) {
         db.getUserForUUID(req.body.uuid).then(user => {
-            db.getSingleMessage(req.body.message_uuid).then(message => {
+            db.getSingleMessage('general', req.body.message_uuid).then(message => {
                 if (user == message.username) {
                     db.deleteMessage(req.body.message_uuid);
                     deleted_messages.push({

@@ -1,10 +1,12 @@
-CREATE KEYSPACE Hermes WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'}  AND durable_writes = true;
+CREATE KEYSPACE Hermes WITH replication = {
+    'class': 'SimpleStrategy', 
+    'replication_factor': '1'
+} AND durable_writes = true;
 
 CREATE TABLE Hermes.Users (
-    User_low TEXT,
+    User_low TEXT PRIMARY KEY,
     Username TEXT,
-    PasswordHash TEXT,
-    PRIMARY KEY(User_low)
+    PasswordHash TEXT
 );
 
 CREATE TABLE Hermes.Messages (
@@ -22,16 +24,15 @@ CREATE TABLE Hermes.Sessions (
 );
 
 CREATE TABLE Hermes.Settings (
-    Username TEXT,
+    Username TEXT PRIMARY KEY,
     Notifications TINYINT,
     Dark BOOLEAN,
     Color TEXT,
-    Image BLOB,
-    PRIMARY KEY(Username)
+    Image BLOB
 );
 
-CREATE TABLE Hermes.TOKENS (
+CREATE TABLE Hermes.Tokens (
     UUID UUID PRIMARY KEY
 );
 
-INSERT INTO Hermes.TOKENS (UUID) values(uuid());
+INSERT INTO Hermes.Tokens (UUID) values(uuid());
