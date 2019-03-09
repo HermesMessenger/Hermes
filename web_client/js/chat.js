@@ -226,7 +226,11 @@ $(window).on('load', function () {
 
         window.sessionStorage.clear();
 
-        loadMessages();
+        
+        loadLast100Messages(()=>{
+            first_load = false;
+            loadMessages();
+        });
     });
 
 
@@ -239,6 +243,13 @@ $(window).on('load', function () {
 
         setupSeparators();
     });
+
+    $('body,html').bind('wheel',()=>{
+        if($('body,html').scrollTop() == 0 && $("#loading-oldmessages").css('display') == 'none' && !hasLoadedEveryMessage){
+            $("#loading-oldmessages").show();
+            loadNext100Messages($('#messages').find('.message').first().attr('id').substr(8));
+        }
+    })
 
 });
 
@@ -270,7 +281,38 @@ function loadMessages() {
     setTimeout(loadMessages, 500)
 };
 
-function printMessages(messages) {
+let hasLoadedEveryMessage = false;
+
+function loadLast100Messages(callback=()=>{}) {
+    httpPostAsync('/api/load100messages/', uuid_header, function (res) {
+        if (res !== '[]') {
+            res = JSON.parse(res);
+            if(res.length != 100) hasLoadedEveryMessage = true;
+            printMessages(res, true);
+            $("#loading").hide()
+        }
+        callback();
+    });
+};
+
+function loadNext100Messages(uuid, callback=()=>{}) { // TODO make this method be called when the user scrolls up
+    httpPostAsync('/api/load100messages/'+uuid, uuid_header, function (res) {
+        if (res !== '[]') {
+            res = JSON.parse(res);
+            let messages = res.newmessages;
+            if(messages.length != 100) hasLoadedEveryMessage = true;
+            let old_first_message = $('#messages').children().first();
+            
+            printMessages(messages, true);
+            $("#loading-oldmessages").hide()
+            $(document).scrollTop(old_first_message.offset().top+$('#separator-top').outerHeight());
+            
+        }
+        callback();
+    });
+};
+
+function printMessages(messages, prepend=false) {
 
     for (let i = 0; i < messages.length; i++) {
         let message_json = messages[i];
@@ -288,9 +330,14 @@ function printMessages(messages) {
         last_message_timestamp = message_json.time;
         last_message_uuid = message_json.uuid;
 
-        if ((day != prev_day) && $("#messages").find(`#${day.replaceAll(/\//g, '\\/')}`).length == 0) {
+        if (day != prev_day && $("#messages").children().length != 0 && $("#messages").find(`#${day.replaceAll(/\//g, '\\/')}`).length == 0) {
             let date_message = $('<li>').attr("class", "date").attr("id", day).append(day);
-            $("#messages").append(date_message);
+            //$("#messages").append(date_message);
+            if(prepend){
+                $('#messages').prepend(date_message);
+            }else{
+                $('#messages').append(date_message);
+            }
         }
 
         if (!Object.keys(users).includes(username.toLowerCase())) {
@@ -418,15 +465,20 @@ function printMessages(messages) {
             last_message_uuid = message_json.time_uuid;
         } else {
             if ($('#messages').find('li#message-' + message_json.uuid).length == 0) {
-                $('#messages').append(new_message);
+                if(prepend){
+                    $('#messages').prepend(new_message);
+                }else{
+                    $('#messages').append(new_message);
+                }
             }
         }
 
         new_message.height(new_message_body.height() + (new_message.find(".quote").length != 0 ? new_message.find(".quote").height() + 16 : 0)); //Change message height to cover the quote on top
 
+        
         if (first_load) $(document).scrollTop($("#separator-bottom").offset().top)
         else if (!message_json.edited) {
-            var scroll = $(document).height() - $(window).height() - $(window).scrollTop() - new_message.outerHeight();
+            var scroll = $(document).height() - $(window).height() - $(window).scrollTop() - $('#messages').children().last().outerHeight();
             if (scroll <= 100) window.scroll({
                 top: $("#separator-bottom").offset().top,
                 left: 0,
@@ -438,7 +490,7 @@ function printMessages(messages) {
 }
 
 function setupSeparators() {
-    $('#separatot-top').height($('#menutop').height());
+    $('#separator-top').height($('#menutop').height());
     updateBottomSeparator();
 }
 

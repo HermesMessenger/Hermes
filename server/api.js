@@ -24,7 +24,85 @@ let edited_messages = []
 
 module.exports = function (app, db, bcrypt, utils, HA) {
 
-    app.post('/api/loadmessages', function (req, res) {
+    app.post('/api/load100messages/:message_uuid', function (req, res) {
+        db.checkLoggedInUser(req.body.uuid).then(ok => {
+            if (ok) {
+                db.get100Messages(req.params.message_uuid).then(result => {
+
+                    let newm = [];
+                    for (let i = 0; i < result.length; i++) {
+                        let json_data = {};
+                        json_data.uuid = result[i].uuid;
+                        json_data.username = result[i].username;
+                        json_data.message = result[i].message;
+                        json_data.time = result[i].timesent.getTime();
+                        json_data.edited = false;
+                        newm.push(json_data);
+                    }
+                    let from_date = TimeUUID.fromString(req.params.message_uuid).getDate().getTime();
+                    let delm = [];
+                    deleted_messages.forEach((message) => {
+                        if (message.del_time > from_date) {
+                            delm.push({
+                                uuid: message.uuid,
+                                del_time: message.del_time,
+                                time_uuid: message.time_uuid,
+                                original_message: message.original_message
+                            });
+                        }
+                    });
+
+                    edited_messages.forEach((message) => {
+                        if (message.edit_time > from_date) {
+                            newm.push({
+                                uuid: message.uuid,
+                                message: message.message,
+                                time_uuid: message.time_uuid,
+                                time: message.time,
+                                username: message.username,
+                                edited: true,
+                            });
+                        }
+                    });
+                    res.json({ newmessages: newm, deletedmessages: delm });
+                }).catch(err => console.error('ERROR:', err));
+            } else {
+                res.sendStatus(401); // Unauthorized
+
+            }
+        }).catch(err => {
+            console.error('ERROR:', err);
+            res.sendStatus(500); // Internal Server Error
+        });
+    });
+
+    app.post('/api/load100messages/', function (req, res) {
+        db.checkLoggedInUser(req.body.uuid).then(ok => {
+            if (ok) {
+                db.get100Messages().then(result => {
+                    let newm = [];
+                    for (let i = 0; i < result.length; i++) {
+                        let json_data = {};
+                        json_data.uuid = result[i].uuid;
+                        json_data.username = result[i].username;
+                        json_data.message = result[i].message;
+                        json_data.time = result[i].timesent.getTime();
+                        json_data.edited = false;
+                        newm.push(json_data);
+                    }
+                    res.json(newm);
+                }).catch(err => console.error('ERROR:', err));
+            } else {
+                res.sendStatus(401); // Unauthorized
+
+            }
+        }).catch(err => {
+            console.error('ERROR:', err);
+            res.sendStatus(500); // Internal Server Error
+        });
+    });
+
+    app.post('/api/loadmessages', function (req, res) { // TODO: remove
         db.checkLoggedInUser(req.body.uuid).then(ok => {
             if (ok) {
                 db.getMessages().then(result => {
