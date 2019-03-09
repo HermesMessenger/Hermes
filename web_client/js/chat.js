@@ -36,7 +36,7 @@ $(window).on('load', function () {
     $(document).click(function () {
         $("#rightclick").hide(100); //Hide on click outside
     });
-    
+
 
     var username;
     httpPostAsync('/api/getSettings', uuid_header, function (res) {
@@ -53,7 +53,7 @@ $(window).on('load', function () {
 
         } else {  // Run only if app is using the mobile layout 
             $("#color").focus(() => $(this).blur()); // Prevent color from being an input field
-            
+
         }
 
         $('#message_send_form').submit(function () {
@@ -136,7 +136,7 @@ $(window).on('load', function () {
             input.keypress(function (e) { // Add an event listener for this input
                 if (e.keyCode == 13 && is_editing) {
                     if ($(this).val() != '') {
-                        edit_header['newmessage'] = (input.parent().parent().find(".quote").length!=0 ? "\""+HTMLtoMD(input.parent().parent().find(".quote").html())+"\" " : "") + $(this).val();
+                        edit_header['newmessage'] = (input.parent().parent().find(".quote").length != 0 ? "\"" + HTMLtoMD(input.parent().parent().find(".quote").html()) + "\" " : "") + $(this).val();
                         httpPostAsync('/api/editmessage/', edit_header);
                         editing_message_timestamp = 0;
                         is_editing = false;
@@ -149,11 +149,11 @@ $(window).on('load', function () {
             username_element.next().remove();
             username_element.parent().append(input);
             input.attr('rows', countTextareaLines(input[0]) + '');
-            input.parent().parent().height(input.height() + 16 + (input.parent().parent().find(".quote").length!=0 ? input.parent().parent().find(".quote").height()+10 : 0));
+            input.parent().parent().height(input.height() + 16 + (input.parent().parent().find(".quote").length != 0 ? input.parent().parent().find(".quote").height() + 10 : 0));
             input.bind('input propertychange', function () {
 
                 input.attr('rows', countTextareaLines(input[0]) + '');
-                input.parent().parent().height(input.height() + 16 + (input.parent().parent().find(".quote").length!=0 ? input.parent().parent().find(".quote").height()+10 : 0));
+                input.parent().parent().height(input.height() + 16 + (input.parent().parent().find(".quote").length != 0 ? input.parent().parent().find(".quote").height() + 10 : 0));
             });
             username_element.next().focus();
         }
@@ -226,8 +226,8 @@ $(window).on('load', function () {
 
         window.sessionStorage.clear();
 
-        
-        loadLast100Messages(()=>{
+
+        loadLast100Messages(() => {
             first_load = false;
             loadMessages();
         });
@@ -236,7 +236,7 @@ $(window).on('load', function () {
 
     $(window).resize(function () {
         $("#messages").find("li").each(function () {
-            $(this).height($(this).find(".message_body").height()+($(this).find(".quote").length!=0 ? $(this).find(".quote").height() + 16 : 0)); //Change resizing to cover the quote on top
+            $(this).height($(this).find(".message_body").height() + ($(this).find(".quote").length != 0 ? $(this).find(".quote").height() + 16 : 0)); //Change resizing to cover the quote on top
         });
 
         if ($(window).width() > 600) $("#m").width($(window).width() - 175 - $("#user").width())
@@ -244,8 +244,8 @@ $(window).on('load', function () {
         setupSeparators();
     });
 
-    $('body,html').bind('wheel',()=>{
-        if($('body,html').scrollTop() == 0 && $("#loading-oldmessages").css('display') == 'none' && !hasLoadedEveryMessage){
+    $('body,html').bind('wheel', () => {
+        if ($('body,html').scrollTop() == 0 && $("#loading-oldmessages").css('display') == 'none' && !hasLoadedEveryMessage) {
             $("#loading-oldmessages").show();
             loadNext100Messages($('#messages').find('.message').first().attr('id').substr(8));
         }
@@ -283,11 +283,11 @@ function loadMessages() {
 
 let hasLoadedEveryMessage = false;
 
-function loadLast100Messages(callback=()=>{}) {
+function loadLast100Messages(callback = () => { }) {
     httpPostAsync('/api/load100messages/', uuid_header, function (res) {
         if (res !== '[]') {
             res = JSON.parse(res);
-            if(res.length != 100) hasLoadedEveryMessage = true;
+            if (res.length != 100) hasLoadedEveryMessage = true;
             printMessages(res, true);
         }
         $("#loading").hide()
@@ -295,24 +295,24 @@ function loadLast100Messages(callback=()=>{}) {
     });
 };
 
-function loadNext100Messages(uuid, callback=()=>{}) { // TODO make this method be called when the user scrolls up
-    httpPostAsync('/api/load100messages/'+uuid, uuid_header, function (res) {
+function loadNext100Messages(uuid, callback = () => { }) { // TODO make this method be called when the user scrolls up
+    httpPostAsync('/api/load100messages/' + uuid, uuid_header, function (res) {
         if (res !== '[]') {
             res = JSON.parse(res);
             let messages = res.newmessages;
-            if(messages.length != 100) hasLoadedEveryMessage = true;
+            if (messages.length != 100) hasLoadedEveryMessage = true;
             let old_first_message = $('#messages').children().first();
-            
+
             printMessages(messages, true);
             $("#loading-oldmessages").hide()
-            $(document).scrollTop(old_first_message.offset().top+$('#separator-top').outerHeight());
-            
+            $(document).scrollTop(old_first_message.offset().top + $('#separator-top').outerHeight());
+
         }
         callback();
     });
 };
 
-function printMessages(messages, prepend=false) {
+function printMessages(messages, prepend = false) {
 
     for (let i = 0; i < messages.length; i++) {
         let message_json = messages[i];
@@ -330,20 +330,16 @@ function printMessages(messages, prepend=false) {
         last_message_timestamp = message_json.time;
         last_message_uuid = message_json.uuid;
 
-        if (day != prev_day && $("#messages").children().length != 0 && $("#messages").find(`#${day.replaceAll(/\//g, '\\/')}`).length == 0) {
+        if ($("#messages").find(`#${day.replaceAll(/\//g, '\\/')}`).length == 0 && !prepend && day != prev_day) {
             let date_message = $('<li>').attr("class", "date").attr("id", day).append(day);
-            //$("#messages").append(date_message);
-            if(prepend){
-                $('#messages').prepend(date_message);
-            }else{
-                $('#messages').append(date_message);
-            }
+            $('#messages').append(date_message);
         }
 
         if (!Object.keys(users).includes(username.toLowerCase())) {
             let response = httpGetSync("/api/getSettings/" + encodeURIComponent(username));
             users[username.toLowerCase()] = JSON.parse(response);
         }
+
         let color = users[username.toLowerCase()].color;
         let new_message = $(`<li id="message-${last_message_uuid}" class="message" >`);
 
@@ -390,7 +386,7 @@ function printMessages(messages, prepend=false) {
                 let quoted_user_id = escapeStringForCSS(quoted_user);
                 //Create the quote span
                 let quoteSpan = $(`<span class="quote user-${quoted_user_id}" onclick="quoteOnClick('${message_id}')" >`).append(MDtoHTML(quoted_message));
-                
+
                 //Check if the CSS for the current user already exists
                 let cssRuleExists = false;
                 let css = document.styleSheets;
@@ -435,11 +431,11 @@ function printMessages(messages, prepend=false) {
                 let mention = $('<b class="mention">').css('color', users[match[2].toLowerCase()].color).text(match[1])[0].outerHTML
                 m_body_element[0].innerHTML = m_body_element[0].innerHTML.replace(match[1], mention)
             }
-        } catch (err) {} // Don't do anything, the mention was invalid so just don't parse it 
+        } catch (err) { } // Don't do anything, the mention was invalid so just don't parse it 
 
         new_message_body.append(deconvertHTML(m_body_element[0].outerHTML));
 
-        
+
         if (username != getCookie('hermes_username') && !first_load && last_message_timestamp_notified < last_message_timestamp) {
             sendNotifiaction("New message from " + username, username + ": " + message, 'data:image/png;base64,' + users[username.toLowerCase()].image);
             last_message_timestamp_notified = last_message_timestamp;
@@ -457,7 +453,7 @@ function printMessages(messages, prepend=false) {
         new_message.append(time_el);
 
         //Insert the quote after the image, this has to be done with all the message created
-        new_message.find(".quote").insertBefore(new_message.find("img")).css("display","block");
+        new_message.find(".quote").insertBefore(new_message.find("img")).css("display", "block");
 
         if (message_json.edited) { // It's an edited message
             $('li#message-' + message_json.uuid).replaceWith(new_message);
@@ -465,9 +461,9 @@ function printMessages(messages, prepend=false) {
             last_message_uuid = message_json.time_uuid;
         } else {
             if ($('#messages').find('li#message-' + message_json.uuid).length == 0) {
-                if(prepend){
+                if (prepend) {
                     $('#messages').prepend(new_message);
-                }else{
+                } else {
                     $('#messages').append(new_message);
                 }
             }
@@ -475,7 +471,7 @@ function printMessages(messages, prepend=false) {
 
         new_message.height(new_message_body.height() + (new_message.find(".quote").length != 0 ? new_message.find(".quote").height() + 16 : 0)); //Change message height to cover the quote on top
 
-        
+
         if (first_load) $(document).scrollTop($("#separator-bottom").offset().top)
         else if (!message_json.edited) {
             var scroll = $(document).height() - $(window).height() - $(window).scrollTop() - $('#messages').children().last().outerHeight();
@@ -486,6 +482,13 @@ function printMessages(messages, prepend=false) {
             })
         }
         prev_json = message_json;
+        if ($("#messages").find(`#${day.replaceAll(/\//g, '\\/')}`).length == 0 && prepend && messages[i + 1]) {
+            let next_time = new Date(messages[i + 1].time);
+            if (day != next_time.getDate() + '/' + (next_time.getMonth() + 1) + '/' + next_time.getFullYear()) {
+                let date_message = $('<li>').attr("class", "date").attr("id", day).append(day);
+                $('#messages').prepend(date_message);
+            }
+        }
     }
 }
 
