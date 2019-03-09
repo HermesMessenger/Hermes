@@ -165,12 +165,11 @@ module.exports = class {
 
     registerUser(user, passwordHash) {
         if (!this.closed) {
-            const query = 'INSERT INTO Users (UUID, Username, PasswordHash) values(?,?,?) IF NOT EXISTS;';
-            let uuid = new cassandra.types.TimeUuid();
-            let data = [uuid, user, passwordHash];
+            const query = 'INSERT INTO Users (User_low, Username, PasswordHash) values(?,?,?) IF NOT EXISTS;';
+            let data = [user.toLowerCase(), user, passwordHash];
             return new Promise((resolve, reject) => {
                 this.client.execute(query, data, { prepare: true }).then(result => {
-                    this.saveSettingWithUsername(user, createColor()).then(result => resolve(uuid)).catch(err => reject(err));
+                    this.saveSetting(user, createColor()).then(result => resolve()).catch(err => reject(err));
                 }).catch(err => reject(err));
             });
         } else {
@@ -180,11 +179,11 @@ module.exports = class {
 
     registerBot(bot, passwordHash) {
         if (!this.closed) {
-            const query = 'INSERT INTO Users (UUID, Username, PasswordHash) values(now(),?,?) IF NOT EXISTS;';
-            let data = [bot, passwordHash];
+            const query = 'INSERT INTO Users (User_low, Username, PasswordHash) values(?,?,?) IF NOT EXISTS;';
+            let data = [bot.toLowerCase(), bot, passwordHash];
             return new Promise((resolve, reject) => {
                 this.client.execute(query, data, { prepare: true }).then(result => {
-                    this.saveSettingWithUsername(bot, createColor(), NOTIFICATIONS_OFF, DEFAULT_IMAGE_BOT)
+                    this.saveSetting(bot, createColor(), NOTIFICATIONS_OFF, DEFAULT_IMAGE_BOT)
                         .then(result => resolve()).catch(err => reject(err));
                 }).catch(err => reject(err));
             });
@@ -195,20 +194,11 @@ module.exports = class {
 
     updatePasswordHash(user, passwordHash) {
         if (!this.closed) {
-            const query = 'SELECT UUID from Users where Username = ? ALLOW FILTERING;';
-            let data = [user];
+            const query = 'UPDATE Users SET passwordHash=? WHERE User_low=?;';
             return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    let hashRow = result.first();
-                    if (hashRow) {
-                        const newquery = 'UPDATE Users SET passwordHash=? WHERE UUID=? AND Username=?;';
-                        let newdata = [passwordHash, hashRow.uuid, user];
-                        this.client.execute(newquery, newdata, { prepare: true }).then(result => resolve()).catch(err => reject(err));
-                    } else {
-                        reject(USER_NOT_FOUND_ERROR);
-                    }
-                }).catch(err => reject(err));
-            });
+                let newdata = [passwordHash, user.toLowerCase()];
+                this.client.execute(query, newdata, { prepare: true }).then(result => resolve()).catch(err => reject(err));
+            }).catch(err => reject(err));
         } else {
             return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
         }
@@ -216,8 +206,8 @@ module.exports = class {
 
     getPasswordHash(user) {
         if (!this.closed) {
-            const query = 'SELECT PasswordHash from Users where Username = ? ALLOW FILTERING;';
-            let data = [user];
+            const query = 'SELECT PasswordHash from Users where User_low = ?;';
+            let data = [user.toLowerCase()];
             return new Promise((resolve, reject) => {
                 this.client.execute(query, data, { prepare: true }).then(result => {
                     let hashRow = result.first();
@@ -235,8 +225,8 @@ module.exports = class {
 
     isntAlreadyRegistered(user) {
         if (!this.closed) {
-            const query = 'SELECT COUNT (*) as count from Users where Username = ? ALLOW FILTERING;';
-            let data = [user];
+            const query = 'SELECT COUNT (*) as count from Users where User_low = ?;';
+            let data = [user.toLowerCase()];
             return new Promise((resolve, reject) => {
                 this.client.execute(query, data, { prepare: true }).then(result => {
                     resolve(result.first().count.low == 0);
@@ -249,8 +239,8 @@ module.exports = class {
 
     isntBotAlreadyRegistered(bot) {
         if (!this.closed) {
-            const query = 'SELECT COUNT (*) as count from Users where Username = ? ALLOW FILTERING;';
-            let data = [bot];
+            const query = 'SELECT COUNT(*) as count from Users where User_low = ?;';
+            let data = [bot.toLowerCase()];
             return new Promise((resolve, reject) => {
                 this.client.execute(query, data, { prepare: true }).then(result => {
                     resolve(result.first().count.low == 0);
@@ -393,53 +383,11 @@ module.exports = class {
         }
     }
 
-    saveSettingWithUsername(username, color, notifications = NOTIFICATIONS_ON, image_b64 = DEFAULT_IMAGE, dark = false) {
+    saveSetting(username, color, notifications = NOTIFICATIONS_ON, image_b64 = DEFAULT_IMAGE, dark = false) {
         if (!this.closed) {
-            const query = 'SELECT UUID FROM Users WHERE Username=? allow filtering;';
-            let data = [username];
+            const query = 'INSERT INTO Settings(Username,Notifications,Dark,Color,Image) values(?,?,?,?,textAsBlob(?));';
+            let data = [username, notifications, dark, color, image_b64];
             return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    let uuidRow = result.first();
-                    if (uuidRow) {
-                        this.saveSetting(uuidRow.uuid, username, color, notifications, image_b64, dark).then(() => {
-                            resolve();
-                        }).catch(err => reject(err));
-                    } else {
-                        reject(USER_NOT_FOUND_ERROR);
-                    }
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
-    }
-
-    saveSettingWithUUID(uuid, color, notifications = NOTIFICATIONS_ON, image_b64 = DEFAULT_IMAGE, dark = false) {
-        if (!this.closed) {
-            const query = 'SELECT Username FROM Users WHERE UUID=?;';
-            let data = [uuid];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    let userRow = result.first();
-                    if (userRow) {
-                        this.saveSetting(uuid, userRow.username, color, notifications, image_b64, dark).then(() => {
-                            resolve();
-                        }).catch(err => reject(err));
-                    } else {
-                        reject(USER_NOT_LOGGED_IN_ERROR);
-                    }
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
-    }
-
-    saveSetting(uuid, username, color, notifications = NOTIFICATIONS_ON, image_b64 = DEFAULT_IMAGE, dark = false) {
-        if (!this.closed) {
-            const query = 'INSERT INTO Settings (UUID, Username, Color, Notifications, Image, dark) values(?,?,?,?,textAsBlob(?),?);';
-            return new Promise((resolve, reject) => {
-                let data = [uuid, username, color, notifications, image_b64, dark];
                 this.client.execute(query, data, { prepare: true }).then(result => {
                     resolve();
                 }).catch(err => reject(err));
@@ -449,48 +397,20 @@ module.exports = class {
         }
     }
 
-    getSettingUUID(uuid) {
-        return this.getSetting(uuid);
-    }
-
-    getSettingUsername(username) {
-        return this.getSetting(undefined, username);
-    }
-
-    getSetting(uuid = undefined, username = undefined) {
+    getSetting(username) {
         if (!this.closed) {
-            if (uuid) {
-                const query = 'SELECT color, notifications, blobAsText(image) as image, dark FROM Settings WHERE uuid=?;';
-                return new Promise((resolve, reject) => {
-                    let data = [uuid];
-                    this.client.execute(query, data, { prepare: true }).then(result => {
-                        let userRow = result.first();
-                        if (userRow) {
-                            resolve([userRow.color, userRow.notifications, userRow.image, userRow.dark]);
-                        } else {
-                            reject(USER_NOT_FOUND_ERROR);
-                        }
-                    }).catch(err => reject(err));
-                });
-            } else if (username) {
-                const query = 'SELECT color, notifications, blobAsText(image) as image, dark FROM Settings WHERE username=? ALLOW FILTERING;';
-                return new Promise((resolve, reject) => {
-                    let data = [username];
-                    this.client.execute(query, data, { prepare: true }).then(result => {
-                        let userRow = result.first();
-                        if (userRow) {
-                            resolve([userRow.color, userRow.notifications, userRow.image, userRow.dark]);
-                        } else {
-                            reject(USER_NOT_FOUND_ERROR);
-                        }
-                    }).catch(err => reject(err));
-                });
-            } else {
-                return new Promise((resolve, reject) => {
-                    reject(FIELD_REQUIRED_ERROR);
-                });
-            }
-
+            const query = 'SELECT color, notifications, blobAsText(image) as image, dark FROM Settings WHERE username=?;';
+            return new Promise((resolve, reject) => {
+                let data = [username];
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    let userRow = result.first();
+                    if (userRow) {
+                        resolve([userRow.color, userRow.notifications, userRow.image, userRow.dark]);
+                    } else {
+                        reject(USER_NOT_FOUND_ERROR);
+                    }
+                }).catch(err => reject(err));
+            });
         } else {
             return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
         }

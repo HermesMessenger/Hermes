@@ -11,7 +11,6 @@ var changed = false;
 let animate_out = function () {};
 
 function loadSettingsJS(res) {
-
     var acc = document.getElementsByClassName("accordion");
     var i;
     var modal = document.getElementById('myModal');

@@ -36,17 +36,17 @@ $(window).on('load', function () {
     $(document).click(function () {
         $("#rightclick").hide(100); //Hide on click outside
     });
-    $("#myModal").load("settings", function () {
-        $('#logout_uuid').val(getCookie('hermes_uuid'));
-    });
+    
 
     var username;
     httpPostAsync('/api/getSettings', uuid_header, function (res) {
         res = JSON.parse(res)
         username = res.username;
         $('#user').text(username + ':');
-
-        loadSettingsJS(res);
+        $("#myModal").load("settings", function () {
+            $('#logout_uuid').val(getCookie('hermes_uuid'));
+            loadSettingsJS(res);
+        });
 
         if ($(window).width() > 600) {  // Run only if app is using the desktop layout 
             $("#m").width($(window).width() - 175 - $("#user").width())

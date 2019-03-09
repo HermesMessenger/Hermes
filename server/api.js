@@ -241,7 +241,6 @@ module.exports = function (app, db, bcrypt, utils, HA) {
                             db.loginUser(username).then(session_uuid => {
                                 res.status(200).send(session_uuid);
                                 eventManager.callRegisterUserHandler([username]);
-                                HA.register(req.body, user_uuid, session_uuid);
                             }).catch(err => res.sendStatus(500)) // Server Error
                         }).catch(err => res.sendStatus(500)) // Server Error
                     } else res.sendStatus(409) // Conflict
@@ -339,7 +338,7 @@ module.exports = function (app, db, bcrypt, utils, HA) {
 
         db.getUserForUUID(uuid).then(user => {
             console.log('Saving settings for', user + ':', '#' + color, parseInt(notifications), dark);
-            db.saveSettingWithUsername(user, color, parseInt(notifications), image_b64, dark).then(() => {
+            db.saveSetting(user, color, parseInt(notifications), image_b64, dark).then(() => {
                 res.sendStatus(200);
                 HA.saveSettings(req.body);
             }).catch(err => {
@@ -361,7 +360,7 @@ module.exports = function (app, db, bcrypt, utils, HA) {
     });
 
     app.get('/api/getSettings/:username', function (req, res) { // Only for chat (Color & image only)
-        db.getSettingUsername(decodeURIComponent(req.params.username)).then((data) => {
+        db.getSetting(decodeURIComponent(req.params.username)).then((data) => {
             let color = data[0];
             let image_b64 = data[2];
             console.log(decodeURIComponent(req.params.username), 'got its chat settings:', '#' + color);
@@ -384,7 +383,7 @@ module.exports = function (app, db, bcrypt, utils, HA) {
     app.post('/api/getSettings/', function (req, res) {
         let uuid = req.body.uuid;
         db.getUserForUUID(uuid).then(user => {
-            db.getSettingUsername(user).then((data) => {
+            db.getSetting(user).then((data) => {
                 res.status(200).send({
                     username: user,
                     color: '#' + data[0],

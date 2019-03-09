@@ -147,7 +147,10 @@ app.post('/register', function (req, res) {
                     }).catch(err => {
                         res.sendFile(html_path + 'LoginPages/FailSignup.html');
                     });
-                }).catch(err => res.sendFile(html_path + 'LoginPages/FailSignup.html'))
+                }).catch(err => {
+                    console.log(err);
+                    res.sendFile(html_path + 'LoginPages/FailSignup.html');
+                })
             } else {
                 res.sendFile(html_path + 'LoginPages/UserExists.html');
             }
