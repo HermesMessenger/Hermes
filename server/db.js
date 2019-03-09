@@ -163,6 +163,29 @@ module.exports = class {
         }
     }
 
+    get100Messages(uuid=undefined) {
+        if(uuid){
+            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=\'general\' AND UUID<? ORDER BY UUID DESC LIMIT 100;';
+            let data = [uuid];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    resolve(result.rows); // They come in from last to first
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        }else{
+            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=\'general\' ORDER BY UUID DESC LIMIT 100;';
+            return new Promise((resolve, reject) => {
+                this.client.execute(query).then(result => {
+                    resolve(result.rows); // They come in from last to first
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        }
+    }
+
     registerUser(user, passwordHash) {
         if (!this.closed) {
             const query = 'INSERT INTO Users (User_low, Username, PasswordHash) values(?,?,?) IF NOT EXISTS;';
