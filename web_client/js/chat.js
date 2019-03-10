@@ -24,7 +24,6 @@ swipe_left_handler = function () {
     else (console.log('hidden, we should quote'))
 }
 
-
 $(window).on('load', function () {
     setupSeparators();
 
@@ -244,13 +243,14 @@ $(window).on('load', function () {
         setupSeparators();
     });
 
-    $('body,html').bind('wheel', () => {
+    $(document).on('scroll mousedown wheel DOMMouseScroll mousewheel keyup', function (evt) {
+        // detect only user initiated, not by an .animate though
         if ($('body,html').scrollTop() == 0 && $("#loading-oldmessages").css('display') == 'none' && !hasLoadedEveryMessage) {
             $("#loading-oldmessages").show();
             loadNext100Messages($('#messages').find('.message').first().attr('id').substr(8));
         }
-    })
-
+        
+    });
 });
 
 
@@ -354,7 +354,7 @@ function printMessages(messages, prepend = false) {
         new_message_body.append($('<b id="m-username">').text(username + ': ').css("color", color));
 
 
-        let quoteREGEX = /("(.+?): (.+)") /;
+        let quoteREGEX = /("(.+?): (.+)") /; // New regex /("message-[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}")/
 
         let messageHTML = message;
 
