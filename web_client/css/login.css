@@ -1,156 +1,185 @@
 @import url(https://fonts.googleapis.com/css?family=Ubuntu:300);
-@import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono);
 
 .login-page {
-  width: 360px;
-  padding: 8% 0 0;
-  margin: auto;
+    width: 360px;
+    padding: 8% 0 0;
+    margin: auto;
 }
+
 .success {
-  position: relative;
-  background: #4CAF50;
-  max-width: 300px;
-  height: 50px;
-  margin: 0 auto 100px;
-  padding: 5px;
-  text-align: center;
-  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 25px 0 rgba(0, 0, 0, 0.24);
+    position: relative;
+    background: #4CAF50;
+    max-width: 300px;
+    height: 50px;
+    margin: 0 auto 100px;
+    padding: 5px;
+    text-align: center;
+    border-radius: 16px;
+    border: 3px solid #000000;
 }
+
 .error {
-  position: relative;
-  background: #ef9a9a;
-  max-width: 300px;
-  height: 50px;
-  margin: 0 auto 100px;
-  padding: 5px;
-  text-align: center;
-  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 25px 0 rgba(0, 0, 0, 0.24);
+    position: relative;
+    background: #ef9a9a;
+    max-width: 300px;
+    height: 50px;
+    margin: 0 auto 100px;
+    padding: 5px;
+    text-align: center;
+    border-radius: 16px;
+    border: 3px solid #000000;
 }
 
 .error_2lines {
-  position: relative;
-  background: #ef9a9a;
-  max-width: 300px;
-  height: 70px;
-  margin: 0 auto 100px;
-  padding: 5px;
-  text-align: center;
-  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 25px 0 rgba(0, 0, 0, 0.24);
+    position: relative;
+    background: #ef9a9a;
+    max-width: 300px;
+    height: 70px;
+    margin: 0 auto 100px;
+    padding: 5px;
+    text-align: center;
+    border-radius: 16px;
+    border: 3px solid #000000;
 }
 
 .form {
-  position: relative;
-  background: #FFFFFF;
-  max-width: 360px;
-  margin: 0 auto 100px;
-  padding: 33px;
-  text-align: center;
-  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 25px 0 rgba(0, 0, 0, 0.24); 
+    position: absolute;
+    background: #A5D6A7;
+    max-width: 300px;
+    padding: 32px 32px 18px 32px;
+    text-align: center;
+    border-radius: 24px;
+    border: 3px solid #000000;
 }
+
 .form input {
-  font-family: "Ubuntu", sans-serif;
-  outline: 0;
-  background: #f2f2f2;
-  width: 100%;
-  border: 0;
-  margin: 0 0 15px;
-  padding: 15px;
-  box-sizing: border-box;
-  font-size: 15px;
+    font-family: "Ubuntu", sans-serif;
+    outline: 0;
+    background: #fff;
+    width: 100%;
+    border: 0;
+    margin: 0 0 8px;
+    padding: 16px;
+    box-sizing: border-box;
+    font-size: 15px;
+    border-radius: 16px;
+    border: 2px solid #000000;
 }
-.form button {
-  font-family: "Ubuntu", sans-serif;
-  text-transform: uppercase;
-  outline: 0;
-  background: #4CAF50;
-  width: 100%;
-  border: 0;
-  padding: 15px;
-  color: #FFFFFF;
-  font-size: 16px;
-  -webkit-transition: all 0.3 ease;
-  transition: all 0.3 ease;
-  cursor: pointer;
+
+button {
+    font-family: "Ubuntu", sans-serif;
+    text-transform: uppercase;
+    outline: 0;
+    background: #4CAF50;
+    width: 100%;
+    padding: 15px;
+    color: #000;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 16px 0 0;
+    -webkit-transition: all 0.3 ease;
+    transition: all 0.3 ease;
+    cursor: pointer;
+    border-radius: 16px;
+    border: 2px solid #000000;
 }
-.form button:hover,.form button:active,.form button:focus {
-  background: #43A047;
+
+button:hover,
+button:active,
+button:focus {
+    background: #43A047;
 }
+
 .success .message {
-  margin: 15px 0 0;
-  color: #000000;
-  font-size: 18px;
+    margin: 15px 0 0;
+    color: #000000;
+    font-size: 18px;
 }
+
 .error .message {
-  margin: 15px 0 0;
-  color: #000000;
-  font-size: 18px;
+    margin: 15px 0 0;
+    color: #000000;
+    font-size: 18px;
 }
 
 .error_2lines .message {
-  margin: 15px 0 0;
-  color: #000000;
-  font-size: 18px;
+    margin: 15px 0 0;
+    color: #000000;
+    font-size: 18px;
 }
 
 .error_2lines .message a {
-  margin: 15px 0 0;
-  font-size: 18px;
-  color: rgb(0, 89, 255);
-  text-decoration: none;
+    margin: 15px 0 0;
+    font-size: 18px;
+    color: rgb(0, 89, 255);
+    text-decoration: none;
 }
 
 .form .message {
-  margin: 15px 0 0;
-  color: #b3b3b3;
-  font-size: 16px;
+    margin: 15px 0 0;
+    color: #000;
+    font-size: 16px;
+    font-weight: 600;
 }
+
 .form .message a {
-  color: #179C3B;
-  text-decoration: none;
+    color: #179C3B;
+    text-decoration: none;
 }
+
 .form .register-form {
-  display: none;
+    display: none;
 }
+
 .container {
-  position: relative;
-  z-index: 1;
-  max-width: 300px;
-  margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    max-width: 300px;
+    margin: 0 auto;
 }
-.container:before, .container:after {
-  content: "";
-  display: block;
-  clear: both;
+
+.container:before,
+.container:after {
+    content: "";
+    display: block;
+    clear: both;
 }
+
 .container .info {
-  margin: 50px auto;
-  text-align: center;
+    margin: 50px auto;
+    text-align: center;
 }
+
 .container .info h1 {
-  margin: 0 0 15px;
-  padding: 0;
-  font-size: 36px;
-  font-weight: 300;
-  color: #1a1a1a;
+    margin: 0 0 15px;
+    padding: 0;
+    font-size: 36px;
+    font-weight: 300;
+    color: #1a1a1a;
 }
+
 .container .info span {
-  color: #4d4d4d;
-  font-size: 12px;
+    color: #4d4d4d;
+    font-size: 12px;
 }
+
 .container .info span a {
-  color: #000000;
-  text-decoration: none;
+    color: #000000;
+    text-decoration: none;
 }
+
 .container .info span .fa {
-  color: #EF3B3A;
+    color: #EF3B3A;
 }
+
 .token {
-  font-family: "Ubuntu Mono", sans-serif;
-  font-size: 1em;
+    font-family: "Ubuntu Mono", sans-serif;
+    font-size: 1em;
 }
+
 body {
-  background: #8DC26F;
-  font-family: "Ubuntu", sans-serif;
+    font: 15px Ubuntu, monospace;
+    background: #E8F5E9;
 }
 
 .cookie-notice {
@@ -159,30 +188,32 @@ body {
     left: 0%;
     background-color: #FFFFFF;
     width: 100%;
-    height: 10%;
+    height: auto;
     display: table;
+    vertical-align: middle;
 }
 
 .cookie-notice-content {
-    vertical-align: middle;
+    border-top: 3px solid #000;
     display: table-cell;
-    text-align: center;
+    padding-left: 16px;
+    vertical-align: middle;
+
 }
 
 .cookie-notice-content button {
     display: inline-block;
-    right: 2%;
-    bottom: 2%;
+    right: 32px;
+    bottom: 16px;
     position: fixed;
-    width: 10%;
-    height: 6%;
-    background-color: #8DC26F;
-    border: none;
-    font-family: "Ubuntu", sans-serif;
-    font-weight: 1000;
-    font-size: 14px;
-    color: white;
-    overflow: hidden;
+    width: 128px;
+    height: 48px;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.cookie-notice-content p {
+    width: calc(100vw - 110px)
 }
 
 .cookie-notice-content #cookie-n-text {
@@ -197,4 +228,32 @@ body {
 #cookie-n-text span {
     vertical-align: middle;
     display: table-cell;
+}
+
+@media only screen and (max-width: 850px) {
+    .cookie-notice-content button {
+        right: 18px;
+        vertical-align: middle;
+        width: 64px;
+    }
+}
+
+@media only screen and (max-width: 400px) {
+    .cookie-notice-content button {
+        right: 18px;
+        bottom: 8px;
+        vertical-align: middle;
+        width: 64px;
+    }
+
+    .form {
+        padding: 32px 24px 12px 24px;
+        left: 16px;
+        right: 16px;
+        width: auto;
+    }
+
+    #desc {
+        display: none;
+    }
 }

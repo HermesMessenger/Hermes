@@ -1,5 +1,5 @@
-if(getCookie('hermes_style')=='dark'){
-    $('#hermes_style').attr('href', 'css/dark/style.css');
+if (getCookie('hermes_style') == 'dark'){
+    $('#hermes_style').attr('href', 'css/dark/login.css');
 }
 
 $('.message a').click(function(){
