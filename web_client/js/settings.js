@@ -29,6 +29,19 @@ function loadSettingsJS(res) {
         }
     }
 
+    function loadElectronSettings() {
+        let res = window.getSettings()
+        console.log(res)
+
+        document.getElementById("id_launch_at_boot").checked = res.launch_at_boot;
+        document.getElementById("id_stay_logged_in").checked = res.stay_logged_in;
+        document.getElementById("id_use_testing").checked = res.testing;
+        document.getElementById("id_minimize").checked = res.minimize;
+        document.getElementById("id_check_updates").checked = res.check_updates;
+    }
+
+    if (isElectron()) loadElectronSettings()
+
     function loadSettingsFromDB() {
         image_used = res.image;
         document.getElementById("image").src = IMG_URL_HEADER + res.image;
@@ -201,19 +214,20 @@ function saveRegularSettings() {
 }
 
 function saveElectronSettings() {
-    console.log('Saving electron settings');
-    console.log("Electron settings are not implemented");
+    let settings = {
+        launch_at_boot: $("#id_launch_at_boot").is(':checked'), 
+        stay_logged_in: $("#id_stay_logged_in").is(':checked'), 
+        use_testing: $("#id_use_testing").is(':checked'), 
+        minimize: $("#id_minimize").is(':checked'), 
+        check_updates: $("#id_check_updates").is(':checked'), 
+    }
+
+    window.sendSettings(settings)
 }
 
-function saveSettings(type) {
-    switch (type) {
-        case 'regular':
-            saveRegularSettings();
-            break;
-        case 'electron':
-            saveRegularSettings();
-            saveElectronSettings();
-            break;
-    }
+function saveSettings() {
+    saveRegularSettings();
+    if (isElectron()) saveElectronSettings();
+
     animate_out();
 }
