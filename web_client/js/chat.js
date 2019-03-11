@@ -243,13 +243,12 @@ $(window).on('load', function () {
         setupSeparators();
     });
 
-    $(document).on('scroll mousedown wheel DOMMouseScroll mousewheel keyup', function (evt) {
+    $(document).on('scroll mousedown wheel DOMMouseScroll mousewheel', function (evt) {
         // detect only user initiated, not by an .animate though
         if ($('body,html').scrollTop() == 0 && $("#loading-oldmessages").css('display') == 'none' && !hasLoadedEveryMessage) {
             $("#loading-oldmessages").show();
             loadNext100Messages($('#messages').find('.message').first().attr('id').substr(8));
         }
-        
     });
 });
 
@@ -437,7 +436,7 @@ function printMessages(messages, prepend = false) {
 
 
         if (username != getCookie('hermes_username') && !first_load && last_message_timestamp_notified < last_message_timestamp) {
-            sendNotifiaction("New message from " + username, username + ": " + message, 'data:image/png;base64,' + users[username.toLowerCase()].image);
+            sendNotifiaction("New message from " + username, username + ": " + removeFormatting(message), 'data:image/png;base64,' + users[username.toLowerCase()].image);
             last_message_timestamp_notified = last_message_timestamp;
         }
         let time_el = $("<span class='time'>")

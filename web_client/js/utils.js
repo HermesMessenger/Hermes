@@ -40,6 +40,17 @@ function sendNotifiaction(user, message, image) {
     }
 }
 
+function removeFormatting(message) {
+    return message
+        .replace(/("(.+?): (.+)") /g, '')
+        .replace(/(\*\*(.+?)\*\*)/g, '$2')
+        .replace(/(\*(.+?)\*)/g, '$2')
+        .replace(/(?:[^*]|^)(\*([^*](?:.*?[^*])?)\*)(?:[^*]|$)/g, '$2')
+        .replace(/~(.+?)~/g, '$2')
+        .replace(/\[(.+?)\]\(((?:http:\/\/|https:\/\/).+?)\)/g, '$1')
+        .replace(/`(.+?)`/g, '$2')
+}
+
 function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
