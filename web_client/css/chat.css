@@ -274,13 +274,13 @@ textarea {
 }
 
 .desk {
-    float: right;
+    float: left;
     width: 50%;
 }
 
 .web {
     float: left;
-    width: 49%;
+    width: 48%;
 }
 
 .space {
@@ -317,14 +317,17 @@ option[value="never"] {
     font: 24px Ubuntu Mono, monospace;
     color: #FFF;
     float: left;
-    width: 40%;
+    width: 47%;
     margin-top: 4px;
     margin-left: 48px;
 }
 
 .two {
-    float: right;
+    font: 24px Ubuntu Mono, monospace;
+    color: #FFF;
+    float: left;
     width: 40%;
+    margin-top: 4px;
 }
 
 #notselect {
@@ -603,6 +606,14 @@ span {
 @media only screen and (max-width: 1000px) {
     .web {
         width: 100%;
+    }
+
+    .desk {
+        display: none;
+    }
+
+    .two {
+        display: none;
     }
 }
 

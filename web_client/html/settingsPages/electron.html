@@ -1,90 +1,61 @@
-<div class="modal-content" id="modal-content-id">
+<div id="modal-content">
     <div class="modal-header">
+        <h2 class="one">Settings</h2>
+        <h2 class="two">Desktop Settings</h2>
         <span class="close">&times;</span>
-        <div class="one">
-            <h2>Hermes Settings</h2>
-        </div>
-        <div class="two">
-            <h2>Hermes Desktop Settings</h2>
-        </div>
     </div>
     <div class="modal-body">
         <div class="web">
-            <div class="tnot">
-                <h4>Notifications</h4>
-            </div>
-            <div class="not">
-                <select id="notselect">
-                    <option value="always">Always</option>
-                    <option value="tagged">Only when tagged</option>
-                    <option value="never">Never</option>
-                </select>
-            </div>
-            <div class="tcol">
-                <h4>Choose your color</h4>
-            </div>
-            <div class="col"><input type="color" name="favcolor" value="#5cb85c"></div>
-            <div class="tpic">
-                <h4>Choose your picture</h4>
-            </div>
-            <div class="pic">
-                <input type='file' accept="image/*" />
-                <img id="img_element" width=25 height=25 style="display: inline-block">
-            </div>
-            <div class="tchp">
-                <h4>Change password</h4>
-            </div>
-            <div class="chp">
-                <input id="old" type="password" placeholder="Old password"><input type="checkbox" id="old_pwd_box"><br>
-                <input id="new" type="password" placeholder="New password"><input type="checkbox" id="new_pwd_box"><br>
-                <input id="repeat" type="password" placeholder="Repeat password">
-            </div>
-            <div class="slo">
-                <div class="sse">
-                    <div id="save_form">
-                        <button id="save" onclick="saveSettings('electron')"><b>Save changes</b></button>
-                    </div>
-                </div>
-                <div class="lou">
-                    <form method="POST" action="logout" id="logout_form">
-                        <button id="logout" type="submit"><b>Log out</b></button>
-                        <input type="hidden" name="uuid" id="logout_uuid">
-                    </form>
-                </div>
-            </div>
-            <div>
-                <div id="Dth">
-                    <h4 class="Dth">Use Dark Theme</h4>
-                </div>
-                <div id="tik"><input type="checkbox" id="dark_theme_box"></div>
-            </div>
+            <p class="setting">Notifications</p>
+            <select id="notselect">
+                <option value="always">Always</option>
+                <option value="tagged">Only when quoted</option>
+                <option value="never">Never</option>
+            </select>
+
+            <br>
+
+            <p class="setting">Choose your color</p>
+            <input class="jscolor {hash:true, shadow:false}" id="color">
+
+            <br>
+
+            <p class="setting">Choose your picture</p>
+            <input id="image_select" type='file' accept="image/*" hidden/>
+            <img id="image" width=30 height=30 onclick="$('#image_select').click();">
+
+            <br>
+
+            <input class="pswd" id="old" type="password" placeholder="Old password">
+            <input class="pswd" id="new" type="password" placeholder="New password">
+            <input class="pswd" id="repeat" type="password" placeholder="Repeat password">
+
+            <p class="setting" id="chpswd">Change password</p>
+
+            <p class="setting">Use Dark Theme</p>
+            <input type="checkbox" id="dark_theme_box">
+
+            <button id="save" onclick="saveSettings()">Save changes</button>
+            <form method="POST" action="logout">
+                <button id="logout" type="submit">Log out</button>
+                <input type="hidden" name="uuid" id="logout_uuid">
+            </form>
         </div>
-        <div class="space"></div>
         <div class="desk">
-            <div>
-                <div id="Dth">
-                    <h4 class="Dth">Launch app at boot?</h4>
-                </div>
-                <div id="tik"><input type="checkbox" id="id_launch_at_boot"></div>
-            </div><br><br>
-            <div>
-                <div id="Dth">
-                    <h4 class="Dth">Stay logged in after the app restarts?</h4>
-                </div>
-                <div id="tik"><input type="checkbox" id="id_stay_logged_in"></div>
-            </div><br><br>
-            <div>
-                <div id="Dth">
-                    <h4 class="Dth">Use testing server?</h4>
-                </div>
-                <div id="tik"><input type="checkbox" id="id_use_testing"></div>
-            </div><br><br>
-            <div>
-                <div id="Dth">
-                    <h4 class="Dth">Minimize app instead of closing it?</h4>
-                </div>
-                <div id="tik"><input type="checkbox" id="id_minimize"></div>
-            </div><br><br>
+            <p class="setting">Launch app at boot?</p>
+            <input type="checkbox" id="id_launch_at_boot">
+            <br>
+            <p class="setting">Stay logged in after restarting app?</p>
+            <input type="checkbox" id="id_stay_logged_in">
+            <br>
+            <p class="setting">Use testing server?</p>
+            <input type="checkbox" id="id_use_testing">
+            <br>
+            <p class="setting">Minimize app to tray?</p>
+            <input type="checkbox" id="id_minimize">
+            <br>
+            <p class="setting">Check for updates?</p>
+            <input type="checkbox" id="id_minimize">
         </div>
     </div>
-</div>
+<script src="js/lib/jscolor.js" type="text/javascript"></script>
