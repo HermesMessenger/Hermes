@@ -18,10 +18,18 @@ swipe_right_handler = function () {
     $("#sidebarbtn").click();
 }
 
-swipe_left_handler = function () {
-    if ($("#darkoverlay").css("opacity") != 0) $("#darkoverlay").click();
+swipe_left_handler = function (x, y) {
+    console.log(x, y)
 
-    else (console.log('hidden, we should quote'))
+    if ($("#darkoverlay").css("opacity") != 0) {
+        $("#darkoverlay").click();
+
+    } else { // Quote the message that was replied to 
+
+        let id = getMessageAtPosition(y)
+        console.log('hidden, we should quote message', id)
+        parseQuote($(id))
+    }
 }
 
 $(window).on('load', function () {
@@ -70,51 +78,17 @@ $(window).on('load', function () {
             let msg = $("#m").val()
             msg = msg.replace(/"([^:]*): *(.+)" /, '') // Delete any quotes already in the message
 
-            let messages_li = $("#messages").find("li");
-            messages_li.each(function (i) {
-                if (i != messages_li.length - 1) {
-                    let click = $("#rightclick").position().top
-                    let start = $(this).offset().top
-                    let next = messages_li.eq(i + 1).offset().top
-
-                    if (click > start && click < next) {
-
-                        let res = parseQuote($(this))
-                        $("#m").val(res + msg)
-
-                        return false;
-                    }
-                } else {
-                    let res = parseQuote($(this))
-                    $("#m").val(res + msg)
-                }
-            })
+            let id = getMessageAtPosition($("#rightclick").position().top)
+            let res = parseQuote($(id))
+            $("#m").val(res + msg)
         });
 
         $("#delete").click(function () {
-            let messages_li = $("#messages").find("li");
-            messages_li.each(function (i) {
+            let id = getMessageAtPosition($("#rightclick").position().top)
 
-                if (i != messages_li.length - 1) {
-
-                    let click = $("#rightclick").position().top
-                    let start = $(this).offset().top
-                    let next = messages_li.eq(i + 1).offset().top
-
-                    if (click > start && click < next) {
-
-                        let header = uuid_header;
-                        header.message_uuid = $(this).attr('id').substr(8);
-                        httpPostAsync('/api/deletemessage/', header);
-
-                        return false;
-                    }
-                } else {
-                    let header = uuid_header;
-                    header.message_uuid = $(this).attr('id').substr(8);
-                    httpPostAsync('/api/deletemessage/', header);
-                }
-            })
+            let header = uuid_header;
+            header.message_uuid = id.substr(9);
+            httpPostAsync('/api/deletemessage/', header);
         });
 
         var edit_header = uuid_header;
@@ -190,7 +164,7 @@ $(window).on('load', function () {
         document.addEventListener('contextmenu', function (e) {
             $("#rightclick").hide();
             e.preventDefault(); // Prevent the default menu
-            let chat_message = undefined;
+            let chat_message;
             for (let element of e.composedPath()) {
                 if (element.classList && element.classList.contains('message')) {
                     chat_message = element;
@@ -207,8 +181,8 @@ $(window).on('load', function () {
                     $("#delete, #edit").show();
 
                 $("#rightclick").show(100).css({ // Show #rightclick at cursor position
-                    top: event.pageY + "px",
-                    left: event.pageX + "px"
+                    top: e.pageY + "px",
+                    left: e.pageX + "px"
                 })
             }
         }, false);
@@ -235,7 +209,7 @@ $(window).on('load', function () {
 
     $(window).resize(function () {
         $("#messages").find("li").each(function () {
-            $(this).height($(this).find(".message_body").height() + ($(this).find(".quote").length != 0 ? $(this).find(".quote").height() + 16 : 0)); //Change resizing to cover the quote on top
+            $(this).height($(this).find(".message_body").height() + ($(this).find(".quote").length != 0 ? $(this).find(".quote").height() + 16 : 0));
         });
 
         if ($(window).width() > 600) $("#m").width($(window).width() - 175 - $("#user").width())
@@ -282,7 +256,7 @@ function loadMessages() {
 
 let hasLoadedEveryMessage = false;
 
-function loadLast100Messages(callback = () => { }) {
+function loadLast100Messages(callback) {
     httpPostAsync('/api/load100messages/', uuid_header, function (res) {
         if (res !== '[]') {
             res = JSON.parse(res);
@@ -290,11 +264,11 @@ function loadLast100Messages(callback = () => { }) {
             printMessages(res, true);
         }
         $("#loading").hide()
-        callback();
+        if (callback) callback();
     });
 };
 
-function loadNext100Messages(uuid, callback = () => { }) { // TODO make this method be called when the user scrolls up
+function loadNext100Messages(uuid, callback) {
     httpPostAsync('/api/load100messages/' + uuid, uuid_header, function (res) {
         if (res !== '[]') {
             res = JSON.parse(res);
@@ -307,11 +281,11 @@ function loadNext100Messages(uuid, callback = () => { }) { // TODO make this met
             $(document).scrollTop(old_first_message.offset().top + $('#separator-top').outerHeight());
 
         }
-        callback();
+        if (callback) callback();
     });
 };
 
-function printMessages(messages, prepend = false) {
+function printMessages(messages, prepend) {
 
     for (let i = 0; i < messages.length; i++) {
         let message_json = messages[i];

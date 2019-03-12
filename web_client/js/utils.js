@@ -107,10 +107,33 @@ function parseQuote(context) {
     return `"${HTMLtoMD(res)}" `
 }
 
+/**
+ * Get the ID of the message at Y position
+ * @param {Number} y The height to check for
+ * @returns {String} The message ID (Prefixed with '#' for JQuery)
+ */
+function getMessageAtPosition(y) {
+    let messages_li = $("#messages").find("li");
+    messages_li.each(function (i) {
+        if (i != messages_li.length - 1) {
+            let start = $(this).offset().top
+            let next = messages_li.eq(i + 1).offset().top
+
+            if (y > start && y < next) {
+                res = ($(this).attr('id'))
+                return false
+            }
+        } else {
+            res = $(this).attr('id');
+        }
+    })
+    return '#' + res
+}
+
 function quoteOnClick(message_id) {
     let message = document.getElementById(message_id);
     window.scroll({
-        top: $(message).offset().top - $(message).height() - $('#menutop').height(),
+        top: $(message).offset().top - $(message).height() - $('#menutop').height() + 2,
         left: 0,
         behavior: 'smooth',
         speed: 'slow'
@@ -339,15 +362,15 @@ function handleTouchMove(evt) {
     if (Math.abs(xDiff) > Math.abs(yDiff)) {
         /*most significant*/
         if (xDiff > 0) {
-            swipe_left_handler();
+            swipe_left_handler(xUp, yUp);
         } else {
-            swipe_right_handler();
+            swipe_right_handler(xUp, yUp);
         }
     } else {
         if (yDiff > 0) {
-            swipe_up_handler();
+            swipe_up_handler(xUp, yUp);
         } else {
-            swipe_down_handler();
+            swipe_down_handler(xUp, yUp);
         }
     }
     /* reset values */
