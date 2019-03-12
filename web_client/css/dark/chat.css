@@ -70,14 +70,15 @@ body {
 }
 
 #user {
+    top: 0;
     overflow: hidden;
     white-space: nowrap;
     font: 18px Ubuntu Mono, monospace;
     color: #fff;
     display: inline;
     font-weight: bold;
-    margin-left: 4px
-}
+    vertical-align: top;
+    margin-left: 4px;}
 
 input,
 button,
@@ -99,22 +100,25 @@ textarea#editing {
 
 #m {
     background: rgb(100, 100, 100);
-    display: table-cell;
-    white-space: nowrap;
     font: 18px Ubuntu Mono, monospace;
     border: none;
     color: #fff;
     width: calc(100vw - 180px);
+    resize: none;
+    height: 24px;
+    line-height: 18px;
+    bottom: 0
 }
 
 #send {
     display: table-cell;
+    position: absolute;
     white-space: nowrap;
     font: 16px Ubuntu Mono, monospace;
-    float: right;
     width: 20px;
     height: 20px;
-    right: 0px;
+    right: 8px;
+    bottom: 8px;
     background: url(/images/send.png) no-repeat;
     background-size: 20px;
     background-position: center;

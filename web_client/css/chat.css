@@ -69,13 +69,15 @@ body {
 }
 
 #user {
+    top: 0;
     overflow: hidden;
     white-space: nowrap;
     font: 18px Ubuntu Mono, monospace;
     color: #000;
     display: inline;
     font-weight: bold;
-    margin-left: 4px
+    vertical-align: top;
+    margin-left: 4px;
 }
 
 input,
@@ -85,21 +87,24 @@ textarea {
 }
 
 #m {
-    display: table-cell;
-    white-space: nowrap;
+    resize: none;
     font: 18px Ubuntu Mono, monospace;
     border: none;
     width: calc(100vw - 180px);
+    height: 24px;
+    line-height: 18px;
+    bottom: 0
 }
 
 #send {
     display: table-cell;
+    position: absolute;
     white-space: nowrap;
     font: 16px Ubuntu Mono, monospace;
-    float: right;
     width: 20px;
     height: 20px;
-    right: 0px;
+    right: 8px;
+    bottom: 8px;
     background: url(/images/send.png) no-repeat;
     background-color: #fff;
     background-size: 20px;

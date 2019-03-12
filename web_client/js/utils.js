@@ -107,6 +107,17 @@ function parseQuote(context) {
     return `"${HTMLtoMD(res)}" `
 }
 
+function sendMessage() {
+    msg = $('#m').val();
+    if (!msg.match(/^\s*$/)) {
+        var header = uuid_header;
+        header['message'] = msg;
+        httpPostAsync('/api/sendmessage/', header);
+        $('#m').val('');
+    }
+    $('#m, #message_send_form').height(18) // Reset height to default 
+}
+
 /**
  * Get the ID of the message at Y position
  * @param {Number} y The height to check for

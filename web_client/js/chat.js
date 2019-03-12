@@ -56,7 +56,7 @@ $(window).on('load', function () {
         });
 
         if ($(window).width() > 600) {  // Run only if app is using the desktop layout 
-            $("#m").width($(window).width() - 175 - $("#user").width())
+            $("#m").width($(window).width() - 170 - $("#user").width())
 
         } else {  // Run only if app is using the mobile layout 
             $("#color").focus(() => $(this).blur()); // Prevent color from being an input field
@@ -64,15 +64,17 @@ $(window).on('load', function () {
         }
 
         $('#message_send_form').submit(function () {
-            msg = $('#m').val();
-            if (!msg.match(/^\s*$/)) {
-                var header = uuid_header;
-                header['message'] = msg;
-                httpPostAsync('/api/sendmessage/', header);
-                $('#m').val('');
-            }
+            sendMessage()
             return false;
         });
+
+        document.onkeydown = e => {
+            let evtobj = window.event ? event : e
+            let modifier = evtobj.ctrlKey || evtobj.metaKey; // Ctrl on Windows, Cmd on Mac
+            if (evtobj.keyCode == 13 && modifier) { // Ctrl/Cmd + enter to send the message
+                sendMessage()
+            }
+        }
 
         $("#quote").click(function () {
             let msg = $("#m").val()
@@ -106,9 +108,11 @@ $(window).on('load', function () {
             edit_header.message_uuid = $(ctx).attr('id').substr(8);
             is_editing = true;
             let input = $('<textarea id="editing">').val(edit_header['message']);
-            input.keypress(function (e) { // Add an event listener for this input
-                if (e.keyCode == 13 && is_editing) {
-                    if ($(this).val() != '') {
+            input.keydown(function (e) { // Add an event listener for this input
+                let evtobj = window.event ? event : e
+                let modifier = evtobj.ctrlKey || evtobj.metaKey; // Ctrl on Windows, Cmd on Mac
+                if (evtobj.keyCode == 13 && modifier) { // Ctrl/Cmd + enter to send the message
+                        if ($(this).val() != '') {
                         edit_header['newmessage'] = (input.parent().parent().find(".quote").length != 0 ? "\"" + HTMLtoMD(input.parent().parent().find(".quote").html()) + "\" " : "") + $(this).val();
                         httpPostAsync('/api/editmessage/', edit_header);
                         editing_message_timestamp = 0;
@@ -209,7 +213,7 @@ $(window).on('load', function () {
 
     $(window).resize(function () {
         $("#messages").find("li").each(function () {
-            $(this).height($(this).find(".message_body").height() + ($(this).find(".quote").length != 0 ? $(this).find(".quote").height() + 16 : 0));
+            $(this).height($(this).find(".message_body").height() + ($(this).find(".quote").length ? $(this).find(".quote").height() + 16 : 0));
         });
 
         if ($(window).width() > 600) $("#m").width($(window).width() - 175 - $("#user").width())
@@ -223,6 +227,12 @@ $(window).on('load', function () {
             $("#loading-oldmessages").show();
             loadNext100Messages($('#messages').find('.message').first().attr('id').substr(8));
         }
+    });
+
+    $('#m').on('input propertychange', function () {
+        let height = countTextareaLines($('#m')[0]) * 18
+
+        $('#m, #message_send_form').height(height)
     });
 });
 
