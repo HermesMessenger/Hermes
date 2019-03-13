@@ -14,7 +14,6 @@ module.exports = check_domain_func = function(domain) {
         dns.lookup(domain, function(err, main_ip) {
             if(err){reject(err);return}
             utils.request('GET', 'http://myexternalip.com/raw').then(my_ip => {
-                console.log(main_ip, my_ip);
                 if(main_ip == my_ip) resolve({status: 0}); // I'm the server
                 else {
                     ping.sys.probe(main_ip, function(isAlive){
