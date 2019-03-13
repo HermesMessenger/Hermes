@@ -104,8 +104,14 @@ function parseQuote(context) {
     let res = b.text() + message_body.html();
 
     res = res.replace(/"([^:]+):  "/, '')
-    return `"${HTMLtoMD(res)}" `
+    return `"${HTMLtoMD(res)}"\n\n`
 }
+
+function resizeInput() {
+    let height = countTextareaLines($('#m')[0]) * 18
+
+    $('#m, #message_send_form').height(height)
+};
 
 function sendMessage() {
     msg = $('#m').val();

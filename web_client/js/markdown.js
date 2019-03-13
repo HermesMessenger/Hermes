@@ -161,9 +161,9 @@ function MDtoHTML(MD_String, rules = MD_RULES, html_rules = HTML_RULES) {
     let r = convertHTML(MD_String);
     for (let current_rule of rules) {
         let current_regex = current_rule.regex;
-        let current_regex_global = new RegExp(current_regex.source, 'g'); // Set to global to find all matches
+        let current_regex_global = new RegExp(current_regex.source, 'gm'); // Set to global to find all matches
         let all_matching_strings = r.match(current_regex_global);
-        let current_regex_not_global = new RegExp(current_regex.source, ''); // Set to not global to find the groups in each match
+        let current_regex_not_global = new RegExp(current_regex.source, 'm'); // Set to not global to find the groups in each match
         if (all_matching_strings) {
             for (let m_str of all_matching_strings) {
 

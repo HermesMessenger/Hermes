@@ -78,11 +78,13 @@ $(window).on('load', function () {
 
         $("#quote").click(function () {
             let msg = $("#m").val()
-            msg = msg.replace(/"([^:]*): *(.+)" /, '') // Delete any quotes already in the message
+            msg = msg.replace(/"([^:]*): *(.+)"\n\n/m, '') // Delete any quotes already in the message
 
             let id = getMessageAtPosition($("#rightclick").position().top)
             let res = parseQuote($(id))
             $("#m").val(res + msg)
+            resizeInput()
+            $("#m").focus()
         });
 
         $("#delete").click(function () {
@@ -112,7 +114,7 @@ $(window).on('load', function () {
                 let evtobj = window.event ? event : e
                 let modifier = evtobj.ctrlKey || evtobj.metaKey; // Ctrl on Windows, Cmd on Mac
                 if (evtobj.keyCode == 13 && modifier) { // Ctrl/Cmd + enter to send the message
-                        if ($(this).val() != '') {
+                    if ($(this).val() != '') {
                         edit_header['newmessage'] = (input.parent().parent().find(".quote").length != 0 ? "\"" + HTMLtoMD(input.parent().parent().find(".quote").html()) + "\" " : "") + $(this).val();
                         httpPostAsync('/api/editmessage/', edit_header);
                         editing_message_timestamp = 0;
@@ -219,6 +221,7 @@ $(window).on('load', function () {
         if ($(window).width() > 600) $("#m").width($(window).width() - 175 - $("#user").width())
 
         setupSeparators();
+        resizeInput()
     });
 
     $(document).on('scroll mousedown wheel DOMMouseScroll mousewheel', function (evt) {
@@ -229,11 +232,7 @@ $(window).on('load', function () {
         }
     });
 
-    $('#m').on('input propertychange', function () {
-        let height = countTextareaLines($('#m')[0]) * 18
-
-        $('#m, #message_send_form').height(height)
-    });
+    $('#m').on('input propertychange', resizeInput)
 });
 
 
@@ -337,7 +336,7 @@ function printMessages(messages, prepend) {
         new_message_body.append($('<b id="m-username">').text(username + ': ').css("color", color));
 
 
-        let quoteREGEX = /("(.+?): (.+)") /; // New regex /("message-[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}")/
+        let quoteREGEX = /("(.+?): (.+)") /m; // New regex /("message-[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}")/
 
         let messageHTML = message;
 
