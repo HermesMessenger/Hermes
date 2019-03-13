@@ -98,6 +98,16 @@ function escapeStringForCSS(string) {
         .replace(/[!]/g, "exclamation");
 }
 
+function quote(id) {
+    let msg = $("#m").val()
+    msg = msg.replace(/"([^:]*): *(.+)"\n\n/m, '') // Delete any quotes already in the message
+
+    let res = parseQuote($(id))
+    $("#m").val(res + msg)
+    resizeInput()
+    $("#m").focus()
+}
+
 function parseQuote(context) {
     let b = context.find("#m-username")
     let message_body = context.find("#m-body");
@@ -120,8 +130,10 @@ function sendMessage() {
         header['message'] = msg;
         httpPostAsync('/api/sendmessage/', header);
         $('#m').val('');
-    }
+        $('#m, #message_send_form').height(18) // Reset height to default 
     $('#m, #message_send_form').height(18) // Reset height to default 
+        $('#m, #message_send_form').height(18) // Reset height to default 
+    }
 }
 
 /**
@@ -269,8 +281,6 @@ function httpPostStatusAsync(theUrl, jsonData, callback) {
     xmlHttp.send(JSON.stringify(jsonData));
 }
 
-//#region Textarea Lines
-/** @type {HTMLTextAreaElement} */
 var _buffer;
 
 /**
@@ -315,11 +325,11 @@ function countTextareaLines(textarea) {
     // Copy value.
     _buffer.value = textarea.value;
 
-    var result = Math.floor(_buffer.scrollHeight / lh);
+    var result = Math.round(_buffer.scrollHeight / lh);
     if (result == 0) result = 1;
     return result;
 }
-//#endregion
+
 function toFragment(html) {
     var temp = document.createElement('template');
     temp.innerHTML = html;

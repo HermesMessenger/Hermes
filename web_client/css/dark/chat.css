@@ -66,7 +66,7 @@ body {
 
 #separator-bottom {
     bottom: 0;
-    height: 64px;
+    height: 60px;
 }
 
 #user {
@@ -137,6 +137,7 @@ textarea#editing {
     white-space: pre-wrap;
     min-height: 36px;
     overflow: hidden;
+    transition: all .1s ease-in-out;
 }
 
 .myMessage {
@@ -146,6 +147,10 @@ textarea#editing {
     color: #fff;
 }
 
+.myMessageLeft {
+    margin: 12px 88px 0px 64px;
+}
+
 .theirMessage {
     margin: 12px 128px 0px 24px;
     border-radius: 4px 16px 16px 16px;
@@ -153,17 +158,13 @@ textarea#editing {
     color: #fff;
 }
 
-.myTime {
-    position: absolute;
-    right: 0;
-    margin: 0px 32px 0px 4px;
-    color: #fff;
+.theirMessageLeft {
+    margin: 12px 64px 0px -40px;
 }
 
-.theirTime {
-    position: absolute;
-    right: 0;
-    margin: 0px 140px 0px 4px;
+.time {
+    position: relative;
+    float: right;
     color: #fff;
 }
 
@@ -673,35 +674,27 @@ span {
         font: 15px Ubuntu Mono, monospace;
     }
 
-
     .myMessage {
         margin: 8px 8px 0px 32px;
         border-radius: 12px 4px 12px 12px;
     }
 
+    .myMessageLeft {
+        margin: 8px 40px 0px 0px;
+    }
+    
     .theirMessage {
         margin: 8px 32px 0px 8px;
         border-radius: 4px 12px 12px 12px;
     }
 
-    .myTime {
-        position: absolute;
-        right: 0;
-        margin: 0px 12px 0px 4px;
-        width: 38px;
-        height: 16px;
-        overflow: hidden;
-        color: #000;
-        font-size: 14px;
+    .theirMessageLeft {
+        margin: 8px 64px 0px -24px;
     }
 
-    .theirTime {
-        position: absolute;
-        right: 0;
-        margin: 0px 36px 0px 4px;
+    .time {
         width: 38px;
         height: 16px;
         overflow: hidden;
-        color: #000;
     }
 }

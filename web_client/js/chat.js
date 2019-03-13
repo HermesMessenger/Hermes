@@ -19,21 +19,31 @@ swipe_right_handler = function () {
 }
 
 swipe_left_handler = function (x, y) {
-    console.log(x, y)
 
-    if ($("#darkoverlay").css("opacity") != 0) {
+    if ($("#darkoverlay").is(":visible")) {
         $("#darkoverlay").click();
 
     } else { // Quote the message that was replied to 
 
-        let id = getMessageAtPosition(y)
-        console.log('hidden, we should quote message', id)
-        parseQuote($(id))
+        let id = getMessageAtPosition(y + window.scrollY)
+
+        quote(id)
+
+        if ($(id).hasClass('myMessage')) {
+            $(id).toggleClass('myMessageLeft')
+            setTimeout(() => {
+                $(id).toggleClass('myMessageLeft')
+            }, 100)
+        } else {
+            $(id).toggleClass('theirMessageLeft')
+            setTimeout(() => {
+                $(id).toggleClass('theirMessageLeft')
+            }, 100)
+        }
     }
 }
 
 $(window).on('load', function () {
-    setupSeparators();
 
     const uuid_header = {
         uuid: getCookie('hermes_uuid')
@@ -77,14 +87,9 @@ $(window).on('load', function () {
         }
 
         $("#quote").click(function () {
-            let msg = $("#m").val()
-            msg = msg.replace(/"([^:]*): *(.+)"\n\n/m, '') // Delete any quotes already in the message
-
             let id = getMessageAtPosition($("#rightclick").position().top)
-            let res = parseQuote($(id))
-            $("#m").val(res + msg)
-            resizeInput()
-            $("#m").focus()
+            quote(id)
+
         });
 
         $("#delete").click(function () {
@@ -220,7 +225,6 @@ $(window).on('load', function () {
 
         if ($(window).width() > 600) $("#m").width($(window).width() - 175 - $("#user").width())
 
-        setupSeparators();
         resizeInput()
     });
 
@@ -426,9 +430,6 @@ function printMessages(messages, prepend) {
 
         $(window).width() > 600 ? time_el.text(hour) : time_el.text(hour.substring(0, 5)) // Hide seconds from time if on mobile
 
-        if (username == name) time_el.attr('class', 'myTime')
-        else time_el.attr('class', 'theirTime')
-
         new_message_body.attr('class', 'message_body');
 
         new_message.append(new_message_body);
@@ -472,13 +473,4 @@ function printMessages(messages, prepend) {
             }
         }
     }
-}
-
-function setupSeparators() {
-    $('#separator-top').height($('#menutop').height());
-    updateBottomSeparator();
-}
-
-function updateBottomSeparator() {
-    $('#separator-bottom').height($('#message_send_form').outerHeight(true));
 }
