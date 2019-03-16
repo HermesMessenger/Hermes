@@ -76,7 +76,8 @@ function htmlToElements(html) {
 }
 
 const HTML_ESCAPE_RULES = [
-    { char: '<', escape: '$ESCAPED_LT', html_escape: '&lt;' }
+    { char: '<', escape: '$ESCAPED_LT', html_escape: '&lt;' },
+    { char: '&', escape: '$ESCAPED_AMP', html_escape: '&amp;' }
 ]
 
 String.prototype.replaceAll = function (search, replacement) {
