@@ -120,7 +120,7 @@ $(window).on('load', function () {
                 let modifier = evtobj.ctrlKey || evtobj.metaKey; // Ctrl on Windows, Cmd on Mac
                 if (evtobj.keyCode == 13 && modifier) { // Ctrl/Cmd + enter to send the message
                     if ($(this).val() != '') {
-                        edit_header['newmessage'] = (input.parent().parent().find(".quote").length != 0 ? "\"" + HTMLtoMD(input.parent().parent().find(".quote").html()) + "\" " : "") + $(this).val();
+                        edit_header['newmessage'] = (input.parent().parent().find(".quote").length != 0 ? "\"" + input.parent().parent().find(".quote").attr('data-quoted-id') + "\"" : "") + $(this).val();
                         httpPostAsync('/api/editmessage/', edit_header);
                         editing_message_timestamp = 0;
                         is_editing = false;

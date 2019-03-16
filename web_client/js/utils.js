@@ -128,7 +128,7 @@ function createQuoteHTML(message_id, loadedMessages = undefined) {
         // Replace all the unvalid charaters in css IDs
         let quoted_user_id = escapeStringForCSS(quoted_user);
         //Create the quote span
-        let quoteSpan = $(`<span class="quote user-${quoted_user_id}" onclick="quoteOnClick('${message_id}')" >`).append(MDtoHTML(quoted_message));
+        let quoteSpan = $(`<span class="quote user-${quoted_user_id}" onclick="quoteOnClick('${message_id}')" data-quoted-id="${message_id}" >`).append(MDtoHTML(quoted_message));
 
         //Check if the CSS for the current user already exists
         let cssRuleExists = false;
