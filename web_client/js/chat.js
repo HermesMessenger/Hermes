@@ -285,11 +285,10 @@ function loadNext100Messages(uuid, callback) {
     httpPostAsync('/api/load100messages/' + uuid, uuid_header, function (res) {
         if (res !== '[]') {
             res = JSON.parse(res);
-            let messages = res.newmessages;
-            if (messages.length != 100) hasLoadedEveryMessage = true;
+            if (res.length != 100) hasLoadedEveryMessage = true;
             let old_first_message = $('#messages').children().first();
 
-            printMessages(messages, true);
+            printMessages(res, true);
             $("#loading-oldmessages").hide()
             $(document).scrollTop(old_first_message.offset().top + $('#separator-top').outerHeight());
 
@@ -299,8 +298,11 @@ function loadNext100Messages(uuid, callback) {
 };
 
 function printMessages(messages, prepend) {
-
+    let loadedMessages = $('<div>');
+    let prev_day = '';
+    $("#messages").append(loadedMessages);
     for (let i = 0; i < messages.length; i++) {
+        
         let message_json = messages[i];
         let username = message_json.username;
         let message = convertHTML(message_json.message);
@@ -310,15 +312,12 @@ function printMessages(messages, prepend) {
         let day = time.getDate() + '/' + (time.getMonth() + 1) + '/' + time.getFullYear();
         let hour = padNumber(time.getHours()) + ':' + padNumber(time.getMinutes()) + ':' + padNumber(time.getSeconds());
 
-        let prev_time = new Date(prev_json.time);
-        let prev_day = prev_time.getDate() + '/' + (prev_time.getMonth() + 1) + '/' + prev_time.getFullYear();
-
         last_message_timestamp = message_json.time;
         last_message_uuid = message_json.uuid;
 
-        if ($("#messages").find(`#${day.replaceAll(/\//g, '\\/')}`).length == 0 && !prepend && day != prev_day) {
+        if ($("#messages").find(`#${day.replaceAll(/\//g, '\\/')}`).length == 0 && day != prev_day) {
             let date_message = $('<li>').attr("class", "date").attr("id", day).append(day);
-            $('#messages').append(date_message);
+            loadedMessages.append(date_message);
         }
 
         if (!Object.keys(users).includes(username.toLowerCase())) {
@@ -444,13 +443,10 @@ function printMessages(messages, prepend) {
             last_message_uuid = message_json.time_uuid;
         } else {
             if ($('#messages').find('li#message-' + message_json.uuid).length == 0) {
-                if (prepend) {
-                    $('#messages').prepend(new_message);
-                } else {
-                    $('#messages').append(new_message);
-                }
+                loadedMessages.append(new_message);
             }
         }
+
 
         new_message.height(new_message_body.height() + (new_message.find(".quote").length != 0 ? new_message.find(".quote").height() + 16 : 0)); //Change message height to cover the quote on top
 
@@ -464,13 +460,14 @@ function printMessages(messages, prepend) {
                 behavior: 'smooth'
             })
         }
-        prev_json = message_json;
-        if ($("#messages").find(`#${day.replaceAll(/\//g, '\\/')}`).length == 0 && prepend && messages[i + 1]) {
-            let next_time = new Date(messages[i + 1].time);
-            if (day != next_time.getDate() + '/' + (next_time.getMonth() + 1) + '/' + next_time.getFullYear()) {
-                let date_message = $('<li>').attr("class", "date").attr("id", day).append(day);
-                $('#messages').prepend(date_message);
-            }
-        }
+        prev_day = day;
+    }
+    let lmessagesHTML = loadedMessages.html();
+
+    loadedMessages.remove();
+    if(prepend){
+        $('#messages').prepend(lmessagesHTML);
+    }else{
+        $('#messages').append(lmessagesHTML);
     }
 }
