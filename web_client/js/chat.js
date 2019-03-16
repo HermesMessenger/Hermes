@@ -23,9 +23,9 @@ swipe_left_handler = function (x, y) {
     if ($("#darkoverlay").is(":visible")) {
         $("#darkoverlay").click();
 
-    } else { // Quote the message that was replied to 
+    } else { // Quote the message that was swipted left on 
 
-        let id = getMessageAtPosition(y + window.scrollY)
+        let id = '#' + getMessageAtPosition(y + window.scrollY)
 
         quote(id)
 
@@ -39,7 +39,7 @@ swipe_left_handler = function (x, y) {
             setTimeout(() => {
                 $(id).toggleClass('theirMessageLeft')
             }, 100)
-        }
+        } // Animation to move the message to the left and back
     }
 }
 
@@ -93,7 +93,7 @@ $(window).on('load', function () {
         });
 
         $("#delete").click(function () {
-            let id = getMessageAtPosition($("#rightclick").position().top)
+            let id = '#' + getMessageAtPosition($("#rightclick").position().top)
 
             let header = uuid_header;
             header.message_uuid = id.substr(9);
