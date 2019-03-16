@@ -338,9 +338,6 @@ function printMessages(messages, prepend) {
         let new_message_body = $('<span>');
         new_message_body.append($('<b id="m-username">').text(username + ': ').css("color", color));
 
-
-        let quoteREGEX = /("(.+?): (.+)") /m; // New regex /("message-[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}")/
-
         let messageHTML = message;
 
         let quoteMatch = message.match(quoteREGEX);
@@ -349,18 +346,27 @@ function printMessages(messages, prepend) {
         let convertedMDend = 0;
         if (quoteMatch) {
             //#region create a quote
-            let quoted_user = quoteMatch[2]
-            let quoted_message = `${quoted_user}: ${quoteMatch[3]}`
-            let message_id;
-            $('#messages').find('.message').each(function (i) {
 
-                if ($(this).find('#m-username').text() == quoted_user + ': ' && convertHTML(HTMLtoMD($(this).find('#m-body').html())) == quoteMatch[3]) {
-
-                    message_id = $(this).attr('id');
-
-                }
+            let quoted_user;
+            let quoted_message;
+            let message_id = quoteMatch[1];
+            let message_quuid = quoteMatch[2];
+            let messageFound = false;
+            $('#messages').find('#'+message_id).each(function (i) {
+                messageFound = true;
+                quoted_user = $(this).find('#m-username').text();
+                quoted_message = `${quoted_user}${$(this).find('#m-body').text()}`
+                quoted_user = quoted_user.substring(0, quoted_user.length-2)
             })
-            if (message_id) {
+            if(!messageFound){
+                loadedMessages.find('#'+message_id).each(function (i) {
+                    messageFound = true;
+                    quoted_user = $(this).find('#m-username').text();
+                    quoted_message = `${quoted_user}: ${$(this).find('#m-body').text()}`
+                })
+            }
+            // TODO get the message from the server
+            if (messageFound) {
                 //Create the css for the quote
                 let quote_css =
                     `

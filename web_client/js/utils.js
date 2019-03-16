@@ -1,3 +1,5 @@
+const quoteREGEX = /"(message-([0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}))"/
+
 /**
  * A function that converts a TimeUUID to a timestamp
  * @param {String} UUID The UUID
@@ -100,21 +102,11 @@ function escapeStringForCSS(string) {
 
 function quote(id) {
     let msg = $("#m").val()
-    msg = msg.replace(/"([^:]*): *(.+)"\n\n/m, '') // Delete any quotes already in the message
-
-    let res = parseQuote($(id))
-    $("#m").val(res + msg)
+    msg = msg.replace(quoteREGEX, '') // Delete any quotes already in the message
+    //TODO Add the quote above the message
+    $("#m").val(`"${id}"` + msg)
     resizeInput()
     $("#m").focus()
-}
-
-function parseQuote(context) {
-    let b = context.find("#m-username")
-    let message_body = context.find("#m-body");
-    let res = b.text() + message_body.html();
-
-    res = res.replace(/"([^:]+):  "/, '')
-    return `"${HTMLtoMD(res)}"\n\n`
 }
 
 function resizeInput() {
@@ -156,7 +148,7 @@ function getMessageAtPosition(y) {
             res = $(this).attr('id');
         }
     })
-    return '#' + res
+    return res
 }
 
 function quoteOnClick(message_id) {
