@@ -44,7 +44,7 @@ function sendNotifiaction(user, message, image) {
 
 function removeFormatting(message) {
     return message
-        .replace(/("(.+?): (.+)") /g, '')
+        .replace(quoteREGEX, '')
         .replace(/(\*\*(.+?)\*\*)/g, '$2')
         .replace(/(\*(.+?)\*)/g, '$2')
         .replace(/(?:[^*]|^)(\*([^*](?:.*?[^*])?)\*)(?:[^*]|$)/g, '$2')
