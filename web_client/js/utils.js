@@ -100,30 +100,106 @@ function escapeStringForCSS(string) {
         .replace(/[!]/g, "exclamation");
 }
 
+function createQuoteHTML(message_id, loadedMessages = undefined) {
+    let quoted_user;
+    let quoted_message;
+    let messageFound = false;
+    $('#messages').find('#' + message_id).each(function (i) {
+        messageFound = true;
+        quoted_user = $(this).find('#m-username').text();
+        quoted_message = `${quoted_user}${$(this).find('#m-body').text()}`
+        quoted_user = quoted_user.substring(0, quoted_user.length - 2)
+    })
+    if (!messageFound && loadedMessages !== undefined) {
+        loadedMessages.find('#' + message_id).each(function (i) {
+            messageFound = true;
+            quoted_user = $(this).find('#m-username').text();
+            quoted_message = `${quoted_user}: ${$(this).find('#m-body').text()}`
+        })
+    }
+    // TODO get the message from the server
+    if (messageFound) {
+        //Create the css for the quote
+        let quote_css =
+            `
+            border-left: 4px ${users[quoted_user.toLowerCase()].color} solid;
+            background-color: ${users[quoted_user.toLowerCase()].color}50;
+            `
+        // Replace all the unvalid charaters in css IDs
+        let quoted_user_id = escapeStringForCSS(quoted_user);
+        //Create the quote span
+        let quoteSpan = $(`<span class="quote user-${quoted_user_id}" onclick="quoteOnClick('${message_id}')" >`).append(MDtoHTML(quoted_message));
+
+        //Check if the CSS for the current user already exists
+        let cssRuleExists = false;
+        let css = document.styleSheets;
+
+        for (var r = 0; r < css[css.length - 1].rules; r++) {
+            if (css[css.length - 1].rules[r].selectorText.includes(`user-${quoted_user_id}`)) {
+                cssRuleExists = true;
+                break
+            }
+        }
+        if (!cssRuleExists) {
+            css[css.length - 1].addRule(`.quote.user-${quoted_user}`, quote_css);
+        }
+
+        return quoteSpan[0];
+
+    }
+    return undefined;
+}
+
 function quote(id) {
-    let msg = $("#m").val()
-    msg = msg.replace(quoteREGEX, '') // Delete any quotes already in the message
-    //TODO Add the quote above the message
-    $("#m").val(`"${id}"` + msg)
-    resizeInput()
+    removeSQuote();
+    addSQuote(id);
     $("#m").focus()
+}
+
+function removeSQuote() {
+    $('#s-quote').text('')
+    $('#s-quote').attr('data-quoted-id', '')
+    $('#s-quote').hide()
+    resizeInput()
+    for (let cls of $('#s-quote')[0].classList) {
+        if (cls.startsWith('user-')) {
+            $('#s-quote').removeClass(cls)
+        }
+    }
+}
+
+function addSQuote(id) {
+    let q = createQuoteHTML(id)
+    if(q){
+        
+        for (let cls of q.classList) {
+            if (cls.startsWith('user-')) {
+                $('#s-quote').addClass(cls)
+            }
+        }
+        $('#s-quote').html(deconvertHTML(q.innerHTML))
+        $('#s-quote').attr('data-quoted-id', id)
+        $('#s-quote').show()
+        resizeInput();
+    }
 }
 
 function resizeInput() {
     let height = countTextareaLines($('#m')[0]) * 18
-
-    $('#m, #message_send_form').height(height)
+    $('#message_send_form').height(height + (($('#s-quote:hidden').length == 0) ? $('#s-quote').outerHeight(true) : 0))
+    $('#m').height(height)
 };
 
 function sendMessage() {
     msg = $('#m').val();
     if (!msg.match(/^\s*$/)) {
         var header = uuid_header;
-        header['message'] = msg;
+        header['message'] = (($('#s-quote:hidden').length == 0) ?`"${$('#s-quote').attr('data-quoted-id')}"`:'')+msg;
         httpPostAsync('/api/sendmessage/', header);
         $('#m').val('');
+        removeSQuote();
         $('#m, #message_send_form').height(18) // Reset height to default 
-    $('#m, #message_send_form').height(18) // Reset height to default 
+        $('#m, #message_send_form').height(18) // Reset height to default 
         $('#m, #message_send_form').height(18) // Reset height to default 
     }
 }
@@ -348,11 +424,11 @@ Array.prototype.remove = function () {
 document.addEventListener('touchstart', handleTouchStart, false);
 document.addEventListener('touchmove', handleTouchMove, false);
 
-var swipe_right_handler = function () {}
-var swipe_left_handler = function () {}
+var swipe_right_handler = function () { }
+var swipe_left_handler = function () { }
 
-var swipe_up_handler = function () {}
-var swipe_down_handler = function () {}
+var swipe_up_handler = function () { }
+var swipe_down_handler = function () { }
 
 var xDown = null;
 var yDown = null;

@@ -302,7 +302,7 @@ function printMessages(messages, prepend) {
     let prev_day = '';
     $("#messages").append(loadedMessages);
     for (let i = 0; i < messages.length; i++) {
-        
+
         let message_json = messages[i];
         let username = message_json.username;
         let message = convertHTML(message_json.message);
@@ -345,58 +345,12 @@ function printMessages(messages, prepend) {
         let convertedMDstart = 0;
         let convertedMDend = 0;
         if (quoteMatch) {
-            //#region create a quote
-
-            let quoted_user;
-            let quoted_message;
-            let message_id = quoteMatch[1];
-            let message_quuid = quoteMatch[2];
-            let messageFound = false;
-            $('#messages').find('#'+message_id).each(function (i) {
-                messageFound = true;
-                quoted_user = $(this).find('#m-username').text();
-                quoted_message = `${quoted_user}${$(this).find('#m-body').text()}`
-                quoted_user = quoted_user.substring(0, quoted_user.length-2)
-            })
-            if(!messageFound){
-                loadedMessages.find('#'+message_id).each(function (i) {
-                    messageFound = true;
-                    quoted_user = $(this).find('#m-username').text();
-                    quoted_message = `${quoted_user}: ${$(this).find('#m-body').text()}`
-                })
-            }
-            // TODO get the message from the server
-            if (messageFound) {
-                //Create the css for the quote
-                let quote_css =
-                    `
-                    border-left: 4px ${users[quoted_user.toLowerCase()].color} solid;
-                    background-color: ${users[quoted_user.toLowerCase()].color}50;
-                    `
-                // Replace all the unvalid charaters in css IDs
-                let quoted_user_id = escapeStringForCSS(quoted_user);
-                //Create the quote span
-                let quoteSpan = $(`<span class="quote user-${quoted_user_id}" onclick="quoteOnClick('${message_id}')" >`).append(MDtoHTML(quoted_message));
-
-                //Check if the CSS for the current user already exists
-                let cssRuleExists = false;
-                let css = document.styleSheets;
-
-                for (var r = 0; r < css[css.length - 1].rules; r++) {
-                    if (css[css.length - 1].rules[r].selectorText.includes(`user-${quoted_user_id}`)) {
-                        cssRuleExists = true;
-                        break
-                    }
-                }
-                if (!cssRuleExists) {
-                    css[css.length - 1].addRule(`.quote.user-${quoted_user}`, quote_css);
-                }
-
+            let quote = createQuoteHTML(quoteMatch[1], loadedMessages);
+            if (quote) {
+                quote = quote.outerHTML;
                 convertedMDstart = quoteMatch.index;
-                convertedMDend = quoteMatch.index + quoteSpan[0].outerHTML.length;
-
-                messageHTML = messageHTML.replace(quoteMatch[0], quoteSpan[0].outerHTML)
-
+                convertedMDend = quoteMatch.index + quote.length;
+                messageHTML = messageHTML.replace(quoteMatch[0], quote)
             }
         }
 
@@ -471,9 +425,9 @@ function printMessages(messages, prepend) {
     let lmessagesHTML = loadedMessages.html();
 
     loadedMessages.remove();
-    if(prepend){
+    if (prepend) {
         $('#messages').prepend(lmessagesHTML);
-    }else{
+    } else {
         $('#messages').append(lmessagesHTML);
     }
 }
