@@ -40,7 +40,7 @@ function createColor() {
 
 module.exports = class {
     constructor() {
-        this.client = new cassandra.Client({ contactPoints: ['127.0.0.1:9042'], keyspace: 'hermes' })
+        this.client = new cassandra.Client({ contactPoints: ['127.0.0.1:9042'], localDataCenter: 'datacenter1', keyspace: 'hermes' })
         this.closed = false;
     }
 
