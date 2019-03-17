@@ -2,15 +2,14 @@
 
 const CACHE = "pwabuilder-page";
 
-// TODO: replace the following with the correct offline fallback page i.e.: const offlineFallbackPage = "offline.html";
 const offlineFallbackPage = "offline.html";
 
 // Install stage sets up the offline page in the cache and opens a new cache
-self.addEventListener("install", function (event) {
+self.addEventListener("install", event => {
   console.log("[PWA Builder] Install Event processing");
 
   event.waitUntil(
-    caches.open(CACHE).then(function (cache) {
+    caches.open(CACHE).then(cache => {
       console.log("[PWA Builder] Cached offline page during install");
 
       return cache.add(offlineFallbackPage);
@@ -19,21 +18,18 @@ self.addEventListener("install", function (event) {
 });
 
 // If any fetch fails, it will show the offline page.
-self.addEventListener("fetch", function (event) {
+self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
 
   event.respondWith(
-    fetch(event.request).catch(function (error) {
+    fetch(event.request).catch(err => {
       // The following validates that the request was for a navigation to a new document
-      if (
-        event.request.destination !== "document" ||
-        event.request.mode !== "navigate"
-      ) {
+      if (event.request.destination !== "document" || event.request.mode !== "navigate") {
         return;
       }
 
-      console.error("[PWA Builder] Network request Failed. Serving offline page " + error);
-      return caches.open(CACHE).then(function (cache) {
+      console.error("[PWA Builder] Network request Failed. Serving offline page " + err);
+      return caches.open(CACHE).then(cache => {
         return cache.match(offlineFallbackPage);
       });
     })
@@ -44,10 +40,10 @@ self.addEventListener("fetch", function (event) {
 self.addEventListener("refreshOffline", function () {
   const offlinePageRequest = new Request(offlineFallbackPage);
 
-  return fetch(offlineFallbackPage).then(function (response) {
-    return caches.open(CACHE).then(function (cache) {
-      console.log("[PWA Builder] Offline page updated from refreshOffline event: " + response.url);
-      return cache.put(offlinePageRequest, response);
+  return fetch(offlineFallbackPage).then(res => {
+    return caches.open(CACHE).then(cache => {
+      console.log("[PWA Builder] Offline page updated from refreshOffline event: " + res.url);
+      return cache.put(offlinePageRequest, res);
     });
   });
 });
