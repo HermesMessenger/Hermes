@@ -232,6 +232,10 @@ app.get('/setTheme/:theme', function (req, res) {
 
 // For PWA
 
+app.get('/offline.html', function (req, res) { 
+    res.sendFile(html_path + 'offline.html');
+});
+
 app.get('/manifest.json', function (req, res) { 
     res.sendFile(pwa_path + 'manifest.json');
 });

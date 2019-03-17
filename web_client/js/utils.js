@@ -258,7 +258,7 @@ function replaceLinks(html_element) {
                 // if its past the last edit && it's not a MD-link or MD-link-explicit
                 if (match.index > last_change_index && !html_element.classList.contains('MD-link') && !html_element.classList.contains('MD-link-explicit')) {
                     let link = match[0] // get the whole link
-                    let link_jquery = $(`<a class="MD-link-explicit" href="${link}" target="_blank">`).text(link) // replace it with an actual link
+                    let link_jquery = $(`<a class="MD-link-explicit" href="${link}" target="_blank" rel="noopener">`).text(link) // replace it with an actual link
                     content = content.replaceIndex(match.index, match.index + match[0].length, link_jquery[0].outerHTML) // replace the current link found with the HTML generated
 
                     last_change_index = match.index + link_jquery[0].outerHTML.length; // Update the last edit index

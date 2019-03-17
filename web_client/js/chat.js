@@ -228,13 +228,21 @@ $(window).on('load', function () {
         resizeInput()
     });
 
-    $(document).on('scroll mousedown wheel DOMMouseScroll mousewheel', function (evt) {
-        // detect only user initiated, not by an .animate though
-        if ($('body,html').scrollTop() == 0 && $("#loading-oldmessages").css('display') == 'none' && !hasLoadedEveryMessage) {
-            $("#loading-oldmessages").show();
-            loadNext100Messages($('#messages').find('.message').first().attr('id').substr(8));
-        }
+    let scrolling = false
+    $(document).on('scroll mousedown wheel DOMMouseScroll mousewheel', evt => {
+        scrolling = true
     });
+
+    setInterval(function () { // Use interval instead of scroll event for better performance
+        if (scrolling) {
+            // detect only user initiated, not by an .animate though
+            if ($('body,html').scrollTop() == 0 && $("#loading-oldmessages").css('display') == 'none' && !hasLoadedEveryMessage) {
+                $("#loading-oldmessages").show();
+                loadNext100Messages($('#messages').find('.message').first().attr('id').substr(8));
+            }
+            scrolling = false
+        }
+    }, 200) 
 
     $('#m').on('input propertychange', resizeInput)
 });
