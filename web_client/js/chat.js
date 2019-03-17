@@ -23,11 +23,13 @@ swipe_left_handler = function (x, y) {
     if ($("#darkoverlay").is(":visible")) {
         $("#darkoverlay").click();
 
-    } else { // Quote the message that was swipted left on 
+    } else { // Quote the message that was swiped left on 
 
-        let id = '#' + getMessageAtPosition(y + window.scrollY)
+        let id = getMessageAtPosition(y + window.scrollY)
 
         quote(id)
+
+        id = '#' + id
 
         if ($(id).hasClass('myMessage')) {
             $(id).toggleClass('myMessageLeft')
