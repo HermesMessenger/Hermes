@@ -1,49 +1,98 @@
-// This is the "Offline page" service worker
-
-const CACHE = "pwabuilder-page";
-
-const offlineFallbackPage = "offline.html";
+const CACHE = "cache";
+const offlinePage = "offline.html";
 
 // Install stage sets up the offline page in the cache and opens a new cache
 self.addEventListener("install", event => {
-  console.log("[PWA Builder] Install Event processing");
-
-  event.waitUntil(
-    caches.open(CACHE).then(cache => {
-      console.log("[PWA Builder] Cached offline page during install");
-
-      return cache.add(offlineFallbackPage);
-    })
-  );
+    event.waitUntil(
+        caches.open(CACHE).then(cache => {
+            return cache.add(offlinePage);
+        })
+    );
 });
+
+// TODO Replace offline page with cached version of the messages
 
 // If any fetch fails, it will show the offline page.
 self.addEventListener("fetch", event => {
-  if (event.request.method !== "GET") return;
+    if (event.request.method !== "GET") return;
 
-  event.respondWith(
-    fetch(event.request).catch(err => {
-      // The following validates that the request was for a navigation to a new document
-      if (event.request.destination !== "document" || event.request.mode !== "navigate") {
-        return;
-      }
+    event.respondWith(
+        fetch(event.request).catch(async err => {
+            // The following validates that the request was for a navigation to a new document
+            if (event.request.destination !== "document" || event.request.mode !== "navigate") {
+                return;
+            }
 
-      console.error("[PWA Builder] Network request Failed. Serving offline page " + err);
-      return caches.open(CACHE).then(cache => {
-        return cache.match(offlineFallbackPage);
-      });
-    })
-  );
+            const cache = await caches.open(CACHE);
+            return cache.match(offlinePage);
+        })
+    );
 });
 
 // This is an event that can be fired from your page to tell the SW to update the offline page
-self.addEventListener("refreshOffline", function () {
-  const offlinePageRequest = new Request(offlineFallbackPage);
+self.addEventListener("refreshOffline", async function () {
+    const offlinePageRequest = new Request(offlinePage);
 
-  return fetch(offlineFallbackPage).then(res => {
-    return caches.open(CACHE).then(cache => {
-      console.log("[PWA Builder] Offline page updated from refreshOffline event: " + res.url);
-      return cache.put(offlinePageRequest, res);
-    });
-  });
+    const res = await fetch(offlinePage);
+    const cache = await caches.open(CACHE);
+
+    return cache.put(offlinePageRequest, res);
 });
+
+self.addEventListener("push", event => {
+    const promiseChain = isClientFocused().then(isFocused => {
+        if (isFocused) {
+            return // Don't show a notification if the app is focused
+        }
+
+        // TODO Find a better way to send the user and message
+        const payload = event.data.text().split(String.fromCharCode(0x0))
+        const sender = payload[0]
+        const message = payload[1]
+
+        // TODO Check if message sender is the same as current user
+        return self.registration.showNotification('New message from ' + sender, {
+            body: message
+            // TODO Show user's profile picture
+        })
+    });
+
+    event.waitUntil(promiseChain);
+});
+
+
+// ---------------------
+//       Functions
+// ---------------------
+
+function isClientFocused() {
+    return clients.matchAll({
+        type: 'window',
+        includeUncontrolled: true
+    }).then(res => {
+        let clientIsFocused = false;
+
+        for (let i = 0; i < res.length; i++) {
+            const windowClient = res[i];
+            if (windowClient.focused) {
+                clientIsFocused = true;
+                break;
+            }
+        }
+
+        return clientIsFocused;
+    });
+}
+
+const quoteREGEX = /"(message-([0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}))"/
+function removeFormatting(message) {
+    return message
+        .replace(quoteREGEX, '')
+        .replace(/(\*\*(.+?)\*\*)/g, '$2')
+        .replace(/(\*(.+?)\*)/g, '$2')
+        .replace(/(?:[^*]|^)(\*([^*](?:.*?[^*])?)\*)(?:[^*]|$)/g, '$2')
+        .replace(/~(.+?)~/g, '$2')
+        .replace(/\[(.+?)\]\(((?:http:\/\/|https:\/\/).+?)\)/g, '$1')
+        .replace(/`(.+?)`/g, '$2')
+}
+

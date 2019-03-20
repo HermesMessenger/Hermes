@@ -22,7 +22,7 @@ let eventManager = new EventManager();
 let deleted_messages = []
 let edited_messages = []
 
-module.exports = function (app, db, bcrypt, utils, HA) {
+module.exports = function (app, db, bcrypt, webPush, utils, HA) {
 
     app.post('/api/load100messages/:message_uuid', function (req, res) {
         db.checkLoggedInUser(req.body.uuid).then(ok => {
@@ -168,6 +168,17 @@ module.exports = function (app, db, bcrypt, utils, HA) {
                 console.error('ERROR:', err);
                 res.sendStatus(500); // Internal Server Error
             });
+
+            // TODO Find a better way to send the user and message
+            const message = user + String.fromCharCode(0x0) + req.body.message
+            const subs = webPush.getSubscriptions()
+
+            for (const sub in subs) {
+                if (sub !== req.body.uuid) {
+                    webPush.sendNotifiaction(subs[sub], message)
+                }
+            }
+
         }).catch(err => {
             console.error('ERROR:', err);
             res.sendStatus(500); // Internal Server Error
@@ -416,7 +427,7 @@ module.exports = function (app, db, bcrypt, utils, HA) {
         db.getSetting(decodeURIComponent(req.params.username)).then((data) => {
             let color = data[0];
             let image_b64 = data[2];
-            console.log(decodeURIComponent(req.params.username), 'got its chat settings:', '#' + color);
+
             res.status(200).send({
                 color: '#' + color,
                 image: image_b64

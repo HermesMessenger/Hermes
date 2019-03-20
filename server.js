@@ -1,6 +1,7 @@
 const app = require('express')();
-const db = new (require('./server/db'))();
-const bcrypt = new (require('./server/bcrypt'))(db);
+const db = new(require('./server/db'))();
+const bcrypt = new(require('./server/bcrypt'))(db);
+const webPush = require('./server/web-push');
 const utils = require('./server/utils');
 const bodyParser = require('body-parser'); // Peticiones POST
 const cookieParser = require('cookie-parser'); // Cookies
@@ -18,9 +19,6 @@ const css_path = web_client_path + 'css/';
 const img_path = web_client_path + 'images/';
 const pwa_path = web_client_path + 'PWA/';
 
-console.log('------------------------------------------');
-
-
 let USER_NOT_FOUND_ERROR = new Error('User not found');
 USER_NOT_FOUND_ERROR.code = 10000;
 let USER_NOT_LOGGED_IN_ERROR = new Error('User not found or not logged in');
@@ -35,10 +33,11 @@ app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x
 app.use(cookieParser()); // for parsing cookies
 app.use(favicon(path.join(__dirname, '/logos/HermesMessengerLogoV2.png')));
 
-require('./server/api')(app, db, bcrypt, utils, HA); // API Abstraction
+require('./server/api')(app, db, bcrypt, webPush, utils, HA); // API Abstraction
+
+console.log('------------------------------------------');
 
 app.get('/', function (req, res) {
-    //res.cookie('hermes_style', 'dark');
     if (req.cookies.hermes_uuid) {
         res.redirect('/chat');
     } else {
@@ -143,7 +142,7 @@ app.post('/register', function (req, res) {
                     db.loginUser(username).then(session_uuid => {
                         res.cookie('hermes_uuid', session_uuid);
                         res.redirect('/chat');
-                        HA.register(req.body,user_uuid,session_uuid);
+                        HA.register(req.body, user_uuid, session_uuid);
                     }).catch(err => {
                         res.sendFile(html_path + 'LoginPages/FailSignup.html');
                     });
@@ -173,7 +172,6 @@ app.post('/createBot', function (req, res) {
         db.isntBotAlreadyRegistered(botname).then(result => {
             if (result) {
                 console.log('New bot: ', botname);
-                //TODO Add bot registration
                 bcrypt.saveBot(botname, password1);
                 db.loginBot(botname).then(result => {
                     res.cookie('bot_uuid', result);
@@ -207,7 +205,6 @@ app.post('/login', function (req, res) {
                     res.redirect('/chat');
                     HA.login(req.body, user_uuid);
                 }).catch(err => {
-                    //console.log(err);
                     res.sendFile(html_path + 'LoginPages/IncorrectPassword.html');
                 });
             } else {
@@ -232,23 +229,32 @@ app.get('/setTheme/:theme', function (req, res) {
 
 // For PWA
 
-app.get('/offline.html', function (req, res) { 
+app.get('/vapidPublicKey', function(req, res) {
+    res.send(webPush.getPubKey());
+});
+
+app.post('/registerWebPush', function(req, res) {
+    webPush.addSubscription(req.body.uuid, req.body.subscription)
+    res.sendStatus(200);
+});
+
+app.get('/offline.html', function (req, res) {
     res.sendFile(html_path + 'offline.html');
 });
 
-app.get('/manifest.json', function (req, res) { 
+app.get('/manifest.json', function (req, res) {
     res.sendFile(pwa_path + 'manifest.json');
 });
 
-app.get('/.well-known/assetlinks.json', function (req, res) { 
+app.get('/.well-known/assetlinks.json', function (req, res) {
     res.sendFile(pwa_path + 'assetLinks.json');
 });
 
-app.get('/sw-register.js', function (req, res) { 
+app.get('/sw-register.js', function (req, res) {
     res.sendFile(pwa_path + 'sw-register.js');
 });
 
-app.get('/sw.js', function (req, res) { 
+app.get('/sw.js', function (req, res) {
     res.sendFile(pwa_path + 'sw.js');
 });
 
@@ -257,22 +263,23 @@ app.get('*', function (req, res) {
 });
 
 let server = app.listen(config.port, function () {
-    console.log('listening on *:'+config.port);
-    //HA.startChecking()
+    console.log('listening on *:' + config.port);
+    // HA.startChecking()
 });
 
 let closing = false;
-function close(){
-    if(!closing){
+
+function close() {
+    if (!closing) {
         closing = true;
         console.log('Exiting process');
-        //This is so that any closing needed will be made
+        // This is so that any closing needed will be made
         console.log('------------------------------------------');
         process.exit(0);
     }
 }
 
-//catches ctrl+c event
+// catches ctrl+c event
 process.on('SIGINT', close);
 
 // catches "kill pid" (for example: nodemon restart)

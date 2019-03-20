@@ -205,6 +205,27 @@ function sendMessage() {
 }
 
 /**
+ * urlBase64ToUint8Array
+ * 
+ * @param {string} base64String a public vavid key
+ * @returns {Uint8Array} The array
+ */
+function urlBase64ToUint8Array(base64String) {
+    var padding = '='.repeat((4 - base64String.length % 4) % 4);
+    var base64 = (base64String + padding)
+        .replace(/\-/g, '+')
+        .replace(/_/g, '/');
+
+    var rawData = window.atob(base64);
+    var outputArray = new Uint8Array(rawData.length);
+
+    for (var i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
+/**
  * Get the ID of the message at Y position
  * @param {Number} y The height to check for
  * @returns {String} The message ID (Prefixed with '#' for JQuery)
