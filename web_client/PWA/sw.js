@@ -52,7 +52,7 @@ self.addEventListener("push", event => {
 
         // TODO Check if message sender is the same as current user
         return self.registration.showNotification('New message from ' + sender, {
-            body: message
+            body: removeFormatting(message)
             // TODO Show user's profile picture
         })
     });
