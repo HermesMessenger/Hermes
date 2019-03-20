@@ -1,13 +1,9 @@
 var last_message_timestamp = 0;
 var last_message_uuid = '13814000-1dd2-11b2-8080-808080808080'; // Smallest posible UUID for timestamp 0 (1/1/1970 00:00:00)
-var last_message_timestamp_notified = 0;
 let prev_json = {};
 var first_load = true;
 
 const users = {};
-
-var notifications_supported = true;
-var notifications_allowed = false;
 
 if (isElectron()) window.sendUUID(getCookie('hermes_uuid'));
 if (getCookie('hermes_style') == 'dark') {
@@ -163,16 +159,6 @@ $(window).on('load', function () {
                 }
             });
         });
-
-        if (!("Notification" in window)) {
-            alert("This browser does not support desktop notifications");
-            notifications_supported = false;
-        }
-        if (notifications_supported) {
-            Notification.requestPermission(function () {
-                notifications_allowed = (Notification.permission == 'granted');
-            });
-        }
 
         document.addEventListener('contextmenu', function (e) {
             $("#rightclick").hide();
@@ -390,11 +376,6 @@ function printMessages(messages, prepend) {
 
         new_message_body.append(deconvertHTML(m_body_element[0].outerHTML));
 
-
-        if (username != getCookie('hermes_username') && !first_load && last_message_timestamp_notified < last_message_timestamp) {
-            sendNotifiaction("New message from " + username, username + ": " + removeFormatting(message), 'data:image/png;base64,' + users[username.toLowerCase()].image);
-            last_message_timestamp_notified = last_message_timestamp;
-        }
         let time_el = $("<span class='time'>")
 
         $(window).width() > 600 ? time_el.text(hour) : time_el.text(hour.substring(0, 5)) // Hide seconds from time if on mobile
