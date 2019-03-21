@@ -112,25 +112,28 @@ function createQuoteHTML(message_id, loadedMessages = undefined) {
 
         // Replace all the unvalid charaters in css IDs
         let quoted_user_id = escapeStringForCSS(quoted_user);
-
+        
         let quote_css =
         `.quote.user-${quoted_user_id.toLowerCase()} {
             border-left: 4px ${users[quoted_user.toLowerCase()].color} solid;
             background-color: ${users[quoted_user.toLowerCase()].color}50;
         }`
         // Create the quote span
-        let quoteSpan = $(`<span class="quote user-${quoted_user_id}" onclick="quoteOnClick('${message_id}')" data-quoted-id="${message_id}" >`).append(MDtoHTML(quoted_message));
+        let quoteSpan = $(`<span class="quote user-${quoted_user_id.toLowerCase()}" onclick="quoteOnClick('${message_id}')" data-quoted-id="${message_id}" >`).append(MDtoHTML(quoted_message));
 
         // Check if the CSS for the current user already exists
         let cssRuleExists = false;
         let css = document.styleSheets[1];
 
-        for (var r = 0; r < css.rules; r++) {
-            if (css.rules[r].selectorText.includes(`user-${quoted_user_id}`)) {
-                cssRuleExists = true;
-                break
+        for (var r = 0; r < css.rules.length; r++) {
+            if (css.rules[r].selectorText) {
+                if (css.rules[r].selectorText.includes(`.user-${quoted_user_id.toLowerCase()}`)) {
+                    cssRuleExists = true;
+                    break
+                }
             }
         }
+        
         if (!cssRuleExists) {
             css.insertRule(quote_css);
         }
