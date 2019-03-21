@@ -224,7 +224,10 @@ $(window).on('load', function () {
     setInterval(function () { // Use interval instead of scroll event for better performance
         if (scrolling) {
             // detect only user initiated, not by an .animate though
-            if ($('body,html').scrollTop() == 0 && $("#loading-oldmessages").css('display') == 'none' && !hasLoadedEveryMessage) {
+
+            let scrollTop = Math.max($('html').scrollTop(), $('body').scrollTop())
+
+            if (scrollTop == 0 && $("#loading-oldmessages").css('display') == 'none' && !hasLoadedEveryMessage) {
                 $("#loading-oldmessages").show();
                 loadNext100Messages($('#messages').find('.message').first().attr('id').substr(8));
             }

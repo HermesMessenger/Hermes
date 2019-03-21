@@ -125,9 +125,9 @@ function createQuoteHTML(message_id, loadedMessages = undefined) {
         let cssRuleExists = false;
         let css = document.styleSheets[1];
 
-        for (var r = 0; r < css.rules.length; r++) {
-            if (css.rules[r].selectorText) {
-                if (css.rules[r].selectorText.includes(`.user-${quoted_user_id.toLowerCase()}`)) {
+        for (var r = 0; r < css.cssRules.length; r++) {
+            if (css.cssRules[r].selectorText) {
+                if (css.cssRules[r].selectorText.includes(`.user-${quoted_user_id.toLowerCase()}`)) {
                     cssRuleExists = true;
                     break
                 }
