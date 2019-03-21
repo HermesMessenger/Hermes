@@ -91,8 +91,8 @@ function removeFormatting(message) {
         .replace(/(\*\*(.+?)\*\*)/g, '$2')
         .replace(/(\*(.+?)\*)/g, '$2')
         .replace(/(?:[^*]|^)(\*([^*](?:.*?[^*])?)\*)(?:[^*]|$)/g, '$2')
-        .replace(/~(.+?)~/g, '$2')
+        .replace(/~(.+?)~/g, '$1')
         .replace(/\[(.+?)\]\(((?:http:\/\/|https:\/\/).+?)\)/g, '$1')
-        .replace(/`(.+?)`/g, '$2')
+        .replace(/`(.+?)`/g, '$1')
 }
 
