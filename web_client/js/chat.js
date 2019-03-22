@@ -80,6 +80,7 @@ $(window).on('load', function () {
             let evtobj = window.event ? event : e
             let modifier = evtobj.ctrlKey || evtobj.metaKey; // Ctrl on Windows, Cmd on Mac
             if (evtobj.keyCode == 13 && modifier) { // Ctrl/Cmd + enter to send the message
+                e.preventDefault() // This is so a newline isn't added on Edge
                 sendMessage()
             }
         }
@@ -408,11 +409,10 @@ function printMessages(messages, prepend) {
         if (first_load) $(document).scrollTop($("#separator-bottom").offset().top)
         else if (!message_json.edited) {
             var scroll = $(document).height() - $(window).height() - $(window).scrollTop() - $('#messages').children().last().outerHeight();
-            if (scroll <= 100) window.scroll({
-                top: $("#separator-bottom").offset().top,
-                left: 0,
-                behavior: 'smooth'
-            })
+            if (scroll <= 100) {
+                let bottom = $(document).height() - $(window).height();
+                $("HTML, BODY").animate({ scrollTop: bottom }, 200);
+            }
         }
         prev_day = day;
     }

@@ -22,6 +22,54 @@ function getRandomRGBPart() {
 }
 
 /**
+ * A function that converts a color to rgb() or rgba()
+ * @param {String} color The color to convert
+ * @returns {String} The converted RGB(A) string 
+ */
+function hexToRGB(color) {
+
+    if (color.charAt(0) === '#') color = color.substring(1)
+
+    if (color.length == 3) { // RGB colors
+        let match = color.match(/.{1}/g)
+        let r = parseInt(match[0] + match[0], 16) // RGB is short for RRGGBB,
+        let g = parseInt(match[1] + match[1], 16) // so duplicate each char. 
+        let b = parseInt(match[2] + match[2], 16)
+
+        return 'rgb(' + r + ', ' + g + ', ' + b + ')'
+
+    } else if (color.length == 4) { // RGBA
+        let match = color.match(/.{1}/g)
+        let r = parseInt(match[0] + match[0], 16)
+        let g = parseInt(match[1] + match[1], 16)
+        let b = parseInt(match[2] + match[2], 16)
+        let a = parseInt(match[3] + match[3], 16) / 255 // The a value is from 0 to 1
+
+        return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a + ')'
+
+    } else if (color.length == 6) { // RRGGBB
+        let match = color.match(/.{2}/g)
+        let r = parseInt(match[0], 16)
+        let g = parseInt(match[1], 16)
+        let b = parseInt(match[2], 16)
+
+        return 'rgb(' + r + ', ' + g + ', ' + b + ')'
+
+    } else if (color.length == 8) { // RRGGBBAA
+        let match = color.match(/.{2}/g)
+        let r = parseInt(match[0], 16)
+        let g = parseInt(match[1], 16)
+        let b = parseInt(match[2], 16)
+        let a = parseInt(match[3], 16) / 255
+
+        return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a + ')'
+
+    } else {
+        return "" // Invalid color
+    }
+}
+
+/**
  * A function that pads a number to have a zero if it is below ten
  * @param {Number} n The number to pad
  * @returns {String} The padded number
@@ -95,14 +143,14 @@ function createQuoteHTML(message_id, loadedMessages = undefined) {
     let messageFound = false;
     $('#messages').find('#' + message_id).each(function (i) {
         messageFound = true;
-        quoted_user = $(this).find('#m-username').text();
+        quoted_user = $(this).find('#m-username').text().toLowerCase();
         quoted_message = `${quoted_user}${$(this).find('#m-body').text()}`
         quoted_user = quoted_user.substring(0, quoted_user.length - 2)
     })
     if (!messageFound && loadedMessages !== undefined) {
         loadedMessages.find('#' + message_id).each(function (i) {
             messageFound = true;
-            quoted_user = $(this).find('#m-username').text();
+            quoted_user = $(this).find('#m-username').text().toLowerCase();
             quoted_message = `${quoted_user}: ${$(this).find('#m-body').text()}`
         })
     }
@@ -114,12 +162,12 @@ function createQuoteHTML(message_id, loadedMessages = undefined) {
         let quoted_user_id = escapeStringForCSS(quoted_user);
         
         let quote_css =
-        `.quote.user-${quoted_user_id.toLowerCase()} {
-            border-left: 4px ${users[quoted_user.toLowerCase()].color} solid;
-            background-color: ${users[quoted_user.toLowerCase()].color}50;
+        `.quote.user-${quoted_user_id} {
+            border-left: 4px ${users[quoted_user].color} solid;
+            background-color: ${hexToRGB(users[quoted_user].color + 50)};
         }`
         // Create the quote span
-        let quoteSpan = $(`<span class="quote user-${quoted_user_id.toLowerCase()}" onclick="quoteOnClick('${message_id}')" data-quoted-id="${message_id}" >`).append(MDtoHTML(quoted_message));
+        let quoteSpan = $(`<span class="quote user-${quoted_user_id}" onclick="quoteOnClick('${message_id}')" data-quoted-id="${message_id}" >`).append(MDtoHTML(quoted_message));
 
         // Check if the CSS for the current user already exists
         let cssRuleExists = false;

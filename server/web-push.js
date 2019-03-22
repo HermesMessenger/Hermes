@@ -1,13 +1,13 @@
 const webPush = require('web-push')
 const config = require('../config.json')
 
+const subscriptions = {}
+
 webPush.setVapidDetails(
     config.mainIP,
     config.webPush.publicKey,
     config.webPush.privateKey
 );
-
-const subscriptions = {}
 
 module.exports = {
     getPubKey() {
@@ -24,8 +24,14 @@ module.exports = {
         }
     },
 
+    deleteSubscription(uuid) {
+        if (subscriptions[uuid]) {
+            delete subscriptions[uuid]
+        }
+    },
+
     sendNotifiaction(subscription, message) {
-        return webPush.sendNotification(subscription, message)
+        return webPush.sendNotification(subscription, message, { TTL: 60 * 60 })
 
     }
 }

@@ -45,10 +45,9 @@ self.addEventListener("push", event => {
             return // Don't show a notification if the app is focused
         }
 
-        // TODO Find a better way to send the user and message
-        const payload = event.data.text().split(String.fromCharCode(0x0))
-        const sender = payload[0]
-        const message = payload[1]
+        const payload = event.data.json()
+        const sender = payload.sender
+        const message = payload.message
 
         // TODO Check if message sender is the same as current user
         return self.registration.showNotification('New message from ' + sender, {

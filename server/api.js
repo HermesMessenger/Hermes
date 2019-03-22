@@ -169,13 +169,15 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
                 res.sendStatus(500); // Internal Server Error
             });
 
-            // TODO Find a better way to send the user and message
-            const message = user + String.fromCharCode(0x0) + req.body.message
             const subs = webPush.getSubscriptions()
+            const pushMessage = {
+                sender: user, 
+                message: req.body.message
+            }
 
             for (const sub in subs) {
                 if (sub !== req.body.uuid) {
-                    webPush.sendNotifiaction(subs[sub], message)
+                    webPush.sendNotifiaction(subs[sub], JSON.stringify(pushMessage)).catch(err => webPush.deleteSubscription(sub))
                 }
             }
 
