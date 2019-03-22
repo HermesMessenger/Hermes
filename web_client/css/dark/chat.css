@@ -1,3 +1,7 @@
+:root {
+    --main-text-color: #fff;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -26,7 +30,7 @@ body {
     background-size: 24px;
     background-position: center;
     background-color: rgb(155, 155, 155);
-    color: #fff;
+    color: var(--main-text-color);
     border-radius: 16px;
     border: 3px solid #fff;
     margin: 8px;
@@ -42,7 +46,7 @@ body {
     position: fixed;
     font: 18px Ubuntu Mono, monospace;
     background: rgb(100, 100, 100);
-    color: #fff;
+    color: var(--main-text-color);
     border-radius: 16px;
     border: 3px solid #000;
     margin: 8px;
@@ -74,7 +78,7 @@ body {
     overflow: hidden;
     white-space: nowrap;
     font: 18px Ubuntu Mono, monospace;
-    color: #fff;
+    color: var(--main-text-color);
     display: inline;
     font-weight: bold;
     vertical-align: top;
@@ -88,7 +92,7 @@ textarea {
 
 textarea#editing {
     border: none;
-    color: #fff;
+    color: var(--main-text-color);
     font: italic 15px Ubuntu Mono, monospace;
     border: none;
     width: calc(95vw - 180px);
@@ -102,7 +106,7 @@ textarea#editing {
     background: rgb(100, 100, 100);
     font: 18px Ubuntu Mono, monospace;
     border: none;
-    color: #fff;
+    color: var(--main-text-color);
     width: calc(100vw - 180px);
     resize: none;
     height: 24px;
@@ -144,7 +148,7 @@ textarea#editing {
     margin: 12px 24px 0px 128px;
     border-radius: 16px 4px 16px 16px;
     background: rgb(66, 95, 67);
-    color: #fff;
+    color: var(--main-text-color);
 }
 
 .myMessageLeft {
@@ -155,7 +159,7 @@ textarea#editing {
     margin: 12px 128px 0px 24px;
     border-radius: 4px 16px 16px 16px;
     background: rgb(100, 100, 100);
-    color: #fff;
+    color: var(--main-text-color);
 }
 
 .theirMessageLeft {
@@ -165,7 +169,7 @@ textarea#editing {
 .time {
     position: relative;
     float: right;
-    color: #fff;
+    color: var(--main-text-color);
 }
 
 #messages li.date {
@@ -174,7 +178,7 @@ textarea#editing {
     border: 0;
     background: 0;
     text-align: center;
-    color: #fff;
+    color: var(--main-text-color);
 }
 
 #rightclick {
@@ -185,7 +189,7 @@ textarea#editing {
     border: 2px solid #000;
     white-space: nowrap;
     background: rgb(80, 80, 80);
-    color: #fff;
+    color: var(--main-text-color);
     border-radius: 8px;
 }
 
@@ -241,7 +245,7 @@ textarea#editing {
 }
 
 .close {
-    color: #fff;
+    color: var(--main-text-color);
     float: right;
     font-size: 36px;
     font-weight: bold;
@@ -338,7 +342,7 @@ option[value="never"] {
 
 .one {
     font: 24px Ubuntu Mono, monospace;
-    color: #FFF;
+    color: var(--main-text-color);
     float: left;
     width: 47%;
     margin-top: 4px;
@@ -347,7 +351,7 @@ option[value="never"] {
 
 .two {
     font: 24px Ubuntu Mono, monospace;
-    color: #FFF;
+    color: var(--main-text-color);
     float: left;
     width: 40%;
     margin-top: 4px;
@@ -366,7 +370,7 @@ option[value="never"] {
     display: inline-block;
     margin: 32px;
     font-weight: bold;
-    color: #fff
+    color: var(--main-text-color)
 }
 
 .space2 {
@@ -408,7 +412,7 @@ option[value="never"] {
     width: 150px;
     height: 32px;
     margin: 0 16px 8px 240px;
-    color: #FFF;
+    color: var(--main-text-color);
     background-color: rgb(50, 50, 50);
 }
 
@@ -492,7 +496,7 @@ span {
 }
 
 #chatname {
-    color: #fff;
+    color: var(--main-text-color);
     display: inline-block;
     vertical-align: middle;
 }
@@ -515,7 +519,7 @@ span {
 
 #sidebar-header {
     text-align: center;
-    color: #fff;
+    color: var(--main-text-color);
     padding-top: 48px;
     padding-bottom: 16px;
 }
@@ -580,6 +584,19 @@ span {
 #loading-oldmessages{
     margin: 24px auto;
     font-size: 10px;
+}
+
+.MD-spoiler {
+    padding: 1px;
+    border-radius: 4px;
+    display: inline-block;
+}
+.spoiler-hidden {
+    background: var(--main-text-color);
+}
+
+.spoiler-seen {
+    background: inherit;
 }
 
 @-webkit-keyframes load8 {

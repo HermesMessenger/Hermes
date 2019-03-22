@@ -7,6 +7,7 @@ let MD_RULES = [
     { regex: /~([\S\s]+?)~/, text_group: 0, tag: '<strike class="MD-strike">' },
     { regex: /\[([\S\s]+?)\]\(((?:http:\/\/|https:\/\/).+?)\)/, text_group: 0, tag: '<a class="MD-link" href="$1" target="_blank" rel="noopener">' },
     { regex: /`([\S\s]+?)`/, text_group: 0, tag: '<code class="MD-code">', escapeMD: true },
+    { regex: /\|\|([\S\s]+?)\|\|/, text_group: 0, tag: '<div class="MD-spoiler spoiler-hidden" onclick="spoilerOnClick(this)">'},
 ]
 
 // ### RULES FOR THE HTML -> MD PARSER ### //
@@ -16,6 +17,7 @@ let HTML_RULES = [
     { tag: 'strike', class: 'MD-strike', md: '~$TEXT~' },
     { tag: 'a', class: 'MD-link', md: '[$TEXT]($HREF)' },
     { tag: 'code', class: 'MD-code', md: '`$TEXT`' },
+    { tag: 'div', class: 'MD-spoiler', md: '||$TEXT||' },
     { tag: 'span', class: 'quote', md: '*quote*' }, //Make the MD parser remove quotes (For editing it's changed)
     { tag: 'a', class: 'MD-link-explicit', md: '$TEXT' }, // Ignore links
     { tag: 'b', class: 'mention', md: '$TEXT' }, // Ignore mentions

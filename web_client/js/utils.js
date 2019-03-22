@@ -309,6 +309,11 @@ function quoteOnClick(message_id) {
     });
 }
 
+function spoilerOnClick(t){
+    t.classList.replace('spoiler-hidden','spoiler-seen');
+    t.onClick = undefined;
+}
+
 function replaceLinks(html_element) {
     const linkREGEX = /([\w\d]+):\/\/([\w\d\.-]+)\.([\w\d]+)\/?([\w\d-@:%_\+.~#?&/=]*)/g;
 
