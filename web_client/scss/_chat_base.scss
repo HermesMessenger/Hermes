@@ -587,6 +587,20 @@ span {
     font-size: 10px;
 }
 
+.MD-spoiler {
+    padding: 1px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.spoiler-hidden {
+    background: $text-color;
+}
+
+.spoiler-seen {
+    background: inherit;
+}
+
 @-webkit-keyframes load8 {
     0% {
         -webkit-transform: rotate(0deg);

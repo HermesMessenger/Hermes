@@ -242,6 +242,11 @@ function getMessageAtPosition(y) {
     return res
 }
 
+function spoilerOnClick(t){
+    t.classList.replace('spoiler-hidden','spoiler-seen');
+    t.onClick = undefined;
+}
+
 function quoteOnClick(message_id) {
     let message = document.getElementById(message_id);
     window.scroll({
