@@ -171,7 +171,7 @@ function addSQuote(id) {
                 $('#s-quote').addClass(cls)
             }
         }
-        $('#s-quote').html(deconvertHTML(q.innerHTML)+'<span id="closeQuote">&times;</span>')
+        $('#s-quote').html(deconvertHTML(q.innerHTML)+'<span id="closeQuote" onclick="removeSQuote()">&times;</span>')
         $('#s-quote').attr('data-quoted-id', id)
         $('#s-quote').show()
         resizeInput();
