@@ -25,10 +25,16 @@ body {
     background: url(/images/settings.png) no-repeat;
     background-size: 24px;
     background-position: center;
-    background-color: $form-color;
+    background-color: $their-message-color;
     color: $text-color;
     border-radius: 16px;
     border: 3px solid $border-color;
+    @if $invert-images != 'auto' {
+        filter: invert(100%);
+        border-color: invert($border-color);
+        background-color: invert($their-message-color);
+        color: invert($text-color);
+    }
     margin: 8px;
     width: 44px;
     height: 44px;
@@ -40,7 +46,7 @@ body {
     display: block;
     position: fixed;
     font: 18px Ubuntu Mono, monospace;
-    background: $form-color;
+    background: $their-message-color;
     color: $text-color;
     border-radius: 16px;
     border: 3px solid $border-color;
@@ -93,7 +99,9 @@ textarea {
     width: calc(100vw - 180px);
     height: 24px;
     line-height: 18px;
-    bottom: 0
+    bottom: 0;
+    background: inherit;
+    color: $text-color;
 }
 
 #send {
@@ -106,7 +114,11 @@ textarea {
     right: 8px;
     bottom: 8px;
     background: url(/images/send.png) no-repeat;
-    background-color: $alt-text-color;
+    background-color: $their-message-color;
+    @if $invert-images != 'auto' {
+        filter: invert(100%);
+        background-color: invert($their-message-color);
+    }
     background-size: 20px;
     background-position: center;
     border: none;
@@ -120,6 +132,7 @@ textarea {
     font: 16px Ubuntu Mono, monospace;
     padding: 8px;
     border: 2px solid $border-color;
+    color: $text-color;
     white-space: pre-wrap;
     min-height: 36px;
     overflow: hidden;
@@ -158,6 +171,7 @@ textarea {
     border: 0;
     background: 0;
     text-align: center;
+    color: $text-color;
 }
 
 #rightclick {
@@ -167,7 +181,7 @@ textarea {
     overflow: hidden;
     border: 2px solid $border-color;
     white-space: nowrap;
-    background: $form-color;
+    background: $their-message-color;
     color: $text-color;
     border-radius: 8px;
 }
@@ -439,11 +453,17 @@ span {
     padding: 0 3px;
     transition: all .2s ease-in-out;
     border-radius: 50%;
+    @if $invert-images != 'auto' {
+        filter: invert(100%);
+    }
 }
 
 #sidebarbtn:hover {
     background-color: darken($menu-color, 10%);
     transition: all .2s ease-in-out;
+    @if $invert-images != 'auto' {
+        background-color: invert(darken($menu-color, 10%));
+    }
 }
 
 #menutop {

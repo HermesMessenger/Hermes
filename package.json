@@ -25,7 +25,7 @@
     "debug": "node --inspect server.js",
     "prestart": "npm run prepare_project",
     "postinstall": "npm run prepare_project",
-    "watch": "sass --watch --no-source-map web_client/scss/:web_client/css/"
+    "watch": "sass --watch web_client/scss/:web_client/css/"
   },
   "repository": {
     "type": "git",

@@ -1,7 +1,4 @@
-if (getCookie('hermes_style') == 'dark') {
-    $('#hermes_style').attr('href', 'css/dark/login.css');
-}
-
+// No themes for login
 $(document).ready(() => {
 
     $('.message a').click(() => {
