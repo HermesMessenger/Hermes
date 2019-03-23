@@ -99,6 +99,16 @@ app.get('/css/:file', function (req, res) {
     });
 });
 
+app.get('/css/light/:file', function (req, res) {
+    fileExists(css_path + 'light/' + req.params.file, function (err, exists) {
+        if (exists) {
+            res.sendFile(css_path + 'light/' + req.params.file);
+        } else {
+            res.sendStatus(404)
+        }
+    });
+});
+
 app.get('/css/dark/:file', function (req, res) {
     fileExists(css_path + 'dark/' + req.params.file, function (err, exists) {
         if (exists) {

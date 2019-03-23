@@ -14,16 +14,18 @@
     "ipaddr.js": "^1.9.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
+    "sass": "^1.17.3",
     "web-push": "^3.3.3"
   },
   "devDependencies": {},
   "scripts": {
-    "prepare_project": "node scripts/prepareProject.js",
+    "prepare_project": "node scripts/prepareProject.js; sass --no-source-map web_client/scss/:web_client/css/",
     "test": "node server.js",
     "start": "node server.js",
     "debug": "node --inspect server.js",
     "prestart": "npm run prepare_project",
-    "postinstall": "npm run prepare_project"
+    "postinstall": "npm run prepare_project",
+    "watch": "sass --watch web_client/scss/:web_client/css/"
   },
   "repository": {
     "type": "git",
