@@ -80,7 +80,6 @@ $(window).on('load', function () {
             let evtobj = window.event ? event : e
             let modifier = evtobj.ctrlKey || evtobj.metaKey; // Ctrl on Windows, Cmd on Mac
             if (evtobj.keyCode == 13 && modifier) { // Ctrl/Cmd + enter to send the message
-                e.preventDefault() // This is so a newline isn't added on Edge
                 sendMessage()
             }
         }
@@ -89,6 +88,16 @@ $(window).on('load', function () {
             let id = getMessageAtPosition($("#rightclick").position().top)
             quote(id)
 
+        });
+        
+        $("#s-quote").on("click","#closeQuote",function(){
+            $("#s-quote").hide();
+            resizeInput();
+        });
+
+        $(".quote").on("click","#closeQuote",function(){
+            console.log(this);
+            $(this).hide();
         });
 
         $("#delete").click(function () {
@@ -119,10 +128,11 @@ $(window).on('load', function () {
                 let modifier = evtobj.ctrlKey || evtobj.metaKey; // Ctrl on Windows, Cmd on Mac
                 if (evtobj.keyCode == 13 && modifier) { // Ctrl/Cmd + enter to send the message
                     if ($(this).val() != '') {
-                        edit_header['newmessage'] = (input.parent().parent().find(".quote").length != 0 ? "\"" + input.parent().parent().find(".quote").attr('data-quoted-id') + "\"" : "") + $(this).val();
+                        edit_header['newmessage'] = (input.parent().parent().find(".quote:not(:hidden)").length != 0 ? "\"" + input.parent().parent().find(".quote:not(:hidden)").attr('data-quoted-id') + "\"" : "") + $(this).val();
                         httpPostAsync('/api/editmessage/', edit_header);
                         editing_message_timestamp = 0;
                         is_editing = false;
+                        quote.remove("#closeQuote");
                     } else {
                         httpPostAsync('/api/deletemessage/', edit_header);
                         is_editing = false;
@@ -225,10 +235,7 @@ $(window).on('load', function () {
     setInterval(function () { // Use interval instead of scroll event for better performance
         if (scrolling) {
             // detect only user initiated, not by an .animate though
-
-            let scrollTop = Math.max($('html').scrollTop(), $('body').scrollTop())
-
-            if (scrollTop == 0 && $("#loading-oldmessages").css('display') == 'none' && !hasLoadedEveryMessage) {
+            if ($('body,html').scrollTop() == 0 && $("#loading-oldmessages").css('display') == 'none' && !hasLoadedEveryMessage) {
                 $("#loading-oldmessages").show();
                 loadNext100Messages($('#messages').find('.message').first().attr('id').substr(8));
             }
@@ -409,10 +416,11 @@ function printMessages(messages, prepend) {
         if (first_load) $(document).scrollTop($("#separator-bottom").offset().top)
         else if (!message_json.edited) {
             var scroll = $(document).height() - $(window).height() - $(window).scrollTop() - $('#messages').children().last().outerHeight();
-            if (scroll <= 100) {
-                let bottom = $(document).height() - $(window).height();
-                $("HTML, BODY").animate({ scrollTop: bottom }, 200);
-            }
+            if (scroll <= 100) window.scroll({
+                top: $("#separator-bottom").offset().top,
+                left: 0,
+                behavior: 'smooth'
+            })
         }
         prev_day = day;
     }
