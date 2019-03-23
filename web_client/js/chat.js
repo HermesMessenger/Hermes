@@ -48,8 +48,10 @@ $(window).on('load', function () {
     };
 
     $("#rightclick").hide();
-    $(document).click(function () {
-        $("#rightclick").hide(100); //Hide on click outside
+    $(document).click(function (e) {
+        if(e.which == 1){
+            $("#rightclick").hide(100); //Hide on click outside
+        }
     });
 
 
@@ -162,10 +164,10 @@ $(window).on('load', function () {
         });
 
         document.addEventListener('contextmenu', function (e) {
-            $("#rightclick").hide();
             e.preventDefault(); // Prevent the default menu
+            $("#rightclick").hide();
             let chat_message;
-            for (let element of e.composedPath()) {
+            for (let element of $(e.target).parents()) {
                 if (element.classList && element.classList.contains('message')) {
                     chat_message = element;
                     break;
@@ -173,17 +175,17 @@ $(window).on('load', function () {
 
             }
             if (chat_message) {
-
                 // Load certain context menu items depending on the message
                 if (chat_message.classList.contains('theirMessage'))
                     $("#delete, #edit").hide();
                 else
                     $("#delete, #edit").show();
 
-                $("#rightclick").show(100).css({ // Show #rightclick at cursor position
+                
+                $("#rightclick").css({ // Show #rightclick at cursor position
                     top: e.pageY + "px",
                     left: e.pageX + "px"
-                })
+                }).show(100)
             }
         }, false);
 
