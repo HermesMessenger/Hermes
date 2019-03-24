@@ -66,13 +66,13 @@ function jsChange(e, f){
 function scssChange(e, f){
     console.log('>> Running SASS compiler');
     let sass = spawnSync('npm', ['run', 'build-css-source-map'], {'encoding': 'utf8', 'windowsHide': true});
-    if(sass != null && sass != undefined && sass.stdout.length > 0){
+    if(sass.stdout != null && sass.stdout != undefined && sass.stdout.length > 0){
         if(last_p != 'SO')
             console.log('\x1b[32m[SASS OUT]')
         console.log((last_p == 'SO'?'\x1b[32m':'')+sass.stdout.trim()+'\x1b[0m');
         last_p = 'SO';
     }
-    if(sass != null && sass != undefined && sass.stderr.length > 0){
+    if(sass.stderr != null && sass.stderr != undefined && sass.stderr.length > 0){
         if(last_p != 'SE')
             console.log('\x1b[31m[SASS ERR]')
         console.log((last_p == 'SE'?'\x1b[31m':'')+sass.stderr.trim()+'\x1b[0m');
