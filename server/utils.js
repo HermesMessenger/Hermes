@@ -73,3 +73,23 @@ module.exports.request = async function (method, location, formData) {
     }
 
 }
+
+module.exports.getThemes = function(){
+    const fs = require('fs');
+    let themes = [];
+    let base_path = 'web_client/scss/themes';
+    let files = fs.readdirSync(base_path);
+    for(let file of files){
+        if(file.endsWith('.scss')){
+            let first_line = fs.readFileSync(`${base_path}/${file}`, {encoding: 'utf8'}).split('\n')[0].trim();
+            if(/^\/\/.+/.test(first_line)){
+                let n_theme = {
+                    theme_name: file.replace(/\.scss$/,''),
+                    display_name: first_line.substring(2).trim()
+                }
+                themes.push(n_theme);
+            }
+        }
+    }
+    return themes;
+}

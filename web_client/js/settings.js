@@ -8,7 +8,9 @@ let image_used = undefined;
 let lastTheme = 'light';
 let lastColor = '';
 var changed = false;
-let animate_out = function () {};
+let animate_out = function () { };
+let theme_map = {}
+let r_theme_map = {}
 
 function loadSettingsJS(res) {
     var acc = document.getElementsByClassName("accordion");
@@ -18,121 +20,126 @@ function loadSettingsJS(res) {
     var btn = document.getElementById("settings");
     var span = document.getElementsByClassName("close")[0];
     var notselect = document.getElementById("notselect");
-
-    function startColor() {
-        if (notselect.value == "always") {
-            notselect.style.background = "#88ff88";
-        } else if (notselect.value == "tagged") {
-            notselect.style.background = "#edff88";
-        } else if (notselect.value == "never") {
-            notselect.style.background = "#ff8888";
+    httpGetAsync('/api/getThemes', (data) => {
+        let themes = JSON.parse(data);
+        for (let theme of themes) {
+            $('#theme').prepend($(`<option data="${theme.theme_name}">`).text(theme.display_name))
+            theme_map[theme.theme_name] = theme.display_name;
+            r_theme_map[theme.display_name] = theme.theme_name;
         }
-    }
 
-    function loadElectronSettings() {
-        let res = window.getSettings()
-        console.log(res)
-
-        document.getElementById("id_launch_at_boot").checked = res.launch_at_boot;
-        document.getElementById("id_stay_logged_in").checked = res.stay_logged_in;
-        document.getElementById("id_use_testing").checked = res.testing;
-        document.getElementById("id_minimize").checked = res.minimize;
-        document.getElementById("id_check_updates").checked = res.check_updates;
-    }
-
-    if (isElectron()) loadElectronSettings()
-
-    function loadSettingsFromDB() {
-        console.log(res)
-        image_used = res.image;
-        document.getElementById("image").src = IMG_URL_HEADER + res.image;
-        $("input#color")[0].jscolor.fromString(res.color)
-        lastColor = res.color;
-        switch (res.notifications) {
-            case 0:
-                $("#notselect").val('always');
-                break;
-            case 1:
-                $("#notselect").val('tagged');
-                break;
-            case 2:
-                $("#notselect").val('never');
-                break;
+        function startColor() {
+            if (notselect.value == "always") {
+                notselect.style.background = "#88ff88";
+            } else if (notselect.value == "tagged") {
+                notselect.style.background = "#edff88";
+            } else if (notselect.value == "never") {
+                notselect.style.background = "#ff8888";
+            }
         }
+
+        function loadElectronSettings() {
+            let res = window.getSettings()
+
+            document.getElementById("id_launch_at_boot").checked = res.launch_at_boot;
+            document.getElementById("id_stay_logged_in").checked = res.stay_logged_in;
+            document.getElementById("id_use_testing").checked = res.testing;
+            document.getElementById("id_minimize").checked = res.minimize;
+            document.getElementById("id_check_updates").checked = res.check_updates;
+        }
+
+        if (isElectron()) loadElectronSettings()
+
+        function loadSettingsFromDB() {
+            image_used = res.image;
+            document.getElementById("image").src = IMG_URL_HEADER + res.image;
+            $("input#color")[0].jscolor.fromString(res.color)
+            lastColor = res.color;
+            switch (res.notifications) {
+                case 0:
+                    $("#notselect").val('always');
+                    break;
+                case 1:
+                    $("#notselect").val('tagged');
+                    break;
+                case 2:
+                    $("#notselect").val('never');
+                    break;
+            }
+            startColor();
+            $("#theme").val(theme_map[res.theme]);
+        }
+
+        function loadThemeFromSettings() {
+            let theme = res.theme;
+            if (getCookie('hermes_theme') != theme) {
+                setTheme(theme);
+            }
+        }
+
         startColor();
-        $("#theme").val(res.theme);
-    }
 
-    function loadThemeFromSettings() {
-        let theme = res.theme;
-        console.log(getCookie('hermes_theme'), theme)
-        if (getCookie('hermes_theme') != theme) {
-            setTheme(theme);
+        for (i = 0; i < acc.length; i++) {
+            acc[i].addEventListener("click", function () {
+                this.classList.toggle("active");
+                var panel = this.nextElementSibling;
+                if (panel.style.maxHeight) {
+                    panel.style.maxHeight = null;
+                } else {
+                    panel.style.maxHeight = panel.scrollHeight + "px";
+                }
+            });
         }
-    }
 
-    startColor();
+        btn.onclick = function () {
+            loadSettingsFromDB();
+            modal.style.display = "block";
+            modal.style.animationName = "fadeIn";
+            modalContent.style.animationName = "slideIn";
 
-    for (i = 0; i < acc.length; i++) {
-        acc[i].addEventListener("click", function () {
-            this.classList.toggle("active");
-            var panel = this.nextElementSibling;
-            if (panel.style.maxHeight) {
-                panel.style.maxHeight = null;
-            } else {
-                panel.style.maxHeight = panel.scrollHeight + "px";
-            }
-        });
-    }
-
-    btn.onclick = function () {
-        loadSettingsFromDB();
-        modal.style.display = "block";
-        modal.style.animationName = "fadeIn";
-        modalContent.style.animationName = "slideIn";
-
-    }
-
-    function slideSettingsOut() {
-        modal.style.animationName = "fadeOut";
-        modalContent.style.animationName = "slideOut";
-        setTimeout(function () {
-            modal.style.display = "None";
-        }, 400);
-    }
-
-    function slideSettingsOutReloading() {
-        modal.style.animationName = "fadeOut";
-        modalContent.style.animationName = "slideOut";
-        setTimeout(function () {
-            modal.style.display = "None";
-            let newTheme = $("#theme").val();
-            if (lastTheme != newTheme) {
-                lastTheme = newTheme;
-                setTheme(newTheme);
-            } else {
-                if (changed) location.reload();
-            }
-        }, 400);
-    }
-    animate_out = slideSettingsOutReloading;
-
-    span.onclick = slideSettingsOut;
-
-    window.onclick = function (event) {
-        if (event.target == modal) {
-            slideSettingsOut();
         }
-    }
 
-    notselect.onchange = startColor;
+        function slideSettingsOut() {
+            modal.style.animationName = "fadeOut";
+            modalContent.style.animationName = "slideOut";
+            setTimeout(function () {
+                modal.style.display = "None";
+            }, 400);
+        }
+
+        function slideSettingsOutReloading() {
+            modal.style.animationName = "fadeOut";
+            modalContent.style.animationName = "slideOut";
+            setTimeout(function () {
+                modal.style.display = "None";
+                let newTheme = $("#theme").val();
+                if (lastTheme != newTheme) {
+                    lastTheme = newTheme;
+                    setTheme(newTheme);
+                } else {
+                    if (changed) location.reload();
+                }
+            }, 400);
+        }
+        animate_out = slideSettingsOutReloading;
+
+        span.onclick = slideSettingsOut;
+
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                slideSettingsOut();
+            }
+        }
+
+        notselect.onchange = startColor;
 
 
-    document.querySelector('input[type=file]').onchange = function () {
-        loadPictureAsURL();
-    }
+        document.querySelector('input[type=file]').onchange = function () {
+            loadPictureAsURL();
+        }
 
-    loadThemeFromSettings();
+        loadThemeFromSettings();
+    })
 
 }
 
@@ -142,7 +149,7 @@ function loadPictureAsURL(callback) {
 
     reader.onloadend = function () {
         let picURL = reader.result;
-        resizeImage(picURL, IMG_WIDTH, IMG_HEIGHT, function(picURL) {
+        resizeImage(picURL, IMG_WIDTH, IMG_HEIGHT, function (picURL) {
             document.getElementById("image").src = picURL;
             if (callback) callback(picURL);
         });
@@ -171,7 +178,7 @@ function resizeImage(URL, width, height, callback) {
 }
 
 function updatePassword() {
-    httpPostStatusAsync('/api/updatePassword',{
+    httpPostStatusAsync('/api/updatePassword', {
         uuid: uuid_header.uuid,
         old_password: $('#old').val(),
         new_password: $('#new').val(),
@@ -182,7 +189,7 @@ function updatePassword() {
 }
 
 function saveRegularSettings() {
-    
+
     loadPictureAsURL(function (PicURL) {
         let pic_regex = /data:image\/\w+;base64,(.+)/;
         let picture_b64 = encodeURIComponent(PicURL ? pic_regex.exec(PicURL)[1] : image_used);
@@ -202,12 +209,12 @@ function saveRegularSettings() {
         let color = $("#color").val();
         if (color != lastColor) changed = true;
         let clean_color = color.substring(1);
-        let theme = $("#theme").val();
+        let theme = r_theme_map[$("#theme").val()];
         httpPostAsync("/api/saveSettings", {
-            uuid: uuid_header.uuid, 
-            color: clean_color, 
+            uuid: uuid_header.uuid,
+            color: clean_color,
             notifications: notifications,
-            theme: theme, 
+            theme: theme,
             image_b64: picture_b64
         });
         if ($("#old").val() != '') updatePassword();
@@ -216,11 +223,11 @@ function saveRegularSettings() {
 
 function saveElectronSettings() {
     let settings = {
-        launch_at_boot: $("#id_launch_at_boot").is(':checked'), 
-        stay_logged_in: $("#id_stay_logged_in").is(':checked'), 
-        use_testing: $("#id_use_testing").is(':checked'), 
-        minimize: $("#id_minimize").is(':checked'), 
-        check_updates: $("#id_check_updates").is(':checked'), 
+        launch_at_boot: $("#id_launch_at_boot").is(':checked'),
+        stay_logged_in: $("#id_stay_logged_in").is(':checked'),
+        use_testing: $("#id_use_testing").is(':checked'),
+        minimize: $("#id_minimize").is(':checked'),
+        check_updates: $("#id_check_updates").is(':checked'),
     }
 
     window.sendSettings(settings)

@@ -512,6 +512,10 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
         eventManager.callTeapotHandler([]);
     });
 
+    app.get('/api/getThemes', function (req, res) {
+        res.json(utils.getThemes());
+    });
+
     HA.init(app, db,bcrypt, utils);
 
     app.get('/api/*', function (req, res) {
