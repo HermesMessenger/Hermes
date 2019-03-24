@@ -17,6 +17,7 @@
     "sass": "^1.17.3",
     "web-push": "^3.3.3"
   },
+  "devDependencies": {},
   "scripts": {
     "build-css": "sass --no-source-map web_client/scss/:web_client/css/",
     "prepare-project": "node scripts/prepareProject.js; npm run build-css",
