@@ -17,7 +17,9 @@
     "sass": "^1.17.3",
     "web-push": "^3.3.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "nodemon": "^1.18.10"
+  },
   "scripts": {
     "prepare_project": "node scripts/prepareProject.js; sass --no-source-map web_client/scss/:web_client/css/",
     "test": "node server.js",
@@ -25,7 +27,9 @@
     "debug": "node --inspect server.js",
     "prestart": "npm run prepare_project",
     "postinstall": "npm run prepare_project",
-    "watch": "sass --watch web_client/scss/:web_client/css/"
+    "watch-css": "sass --watch --no-source-map web_client/scss/:web_client/css/",
+    "watch-server": "nodemon --ignore web_client/ .",
+    "watch": "npm run prepare_project && npm run watch-css & npm run watch-server && fg"
   },
   "repository": {
     "type": "git",

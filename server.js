@@ -99,20 +99,10 @@ app.get('/css/:file', function (req, res) {
     });
 });
 
-app.get('/css/light/:file', function (req, res) {
-    fileExists(css_path + 'light/' + req.params.file, function (err, exists) {
+app.get('/css/themes/:file', function (req, res) {
+    fileExists(css_path + 'themes/' + req.params.file, function (err, exists) {
         if (exists) {
-            res.sendFile(css_path + 'light/' + req.params.file);
-        } else {
-            res.sendStatus(404)
-        }
-    });
-});
-
-app.get('/css/dark/:file', function (req, res) {
-    fileExists(css_path + 'dark/' + req.params.file, function (err, exists) {
-        if (exists) {
-            res.sendFile(css_path + 'dark/' + req.params.file);
+            res.sendFile(css_path + 'themes/' + req.params.file);
         } else {
             res.sendStatus(404)
         }
@@ -233,7 +223,7 @@ app.get('/setCookie/:uuid/:theme', function (req, res) {
 });
 
 app.get('/setTheme/:theme', function (req, res) {
-    res.cookie('hermes_style', req.params.theme);
+    res.cookie('hermes_theme', req.params.theme);
     res.redirect('/');
 });
 

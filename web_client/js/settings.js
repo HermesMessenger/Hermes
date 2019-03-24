@@ -43,6 +43,7 @@ function loadSettingsJS(res) {
     if (isElectron()) loadElectronSettings()
 
     function loadSettingsFromDB() {
+        console.log(res)
         image_used = res.image;
         document.getElementById("image").src = IMG_URL_HEADER + res.image;
         $("input#color")[0].jscolor.fromString(res.color)
@@ -59,13 +60,13 @@ function loadSettingsJS(res) {
                 break;
         }
         startColor();
-        lastTheme = res.dark ? 'dark' : 'light';
-        document.getElementById("dark_theme_box").checked = res.dark;
+        $("#theme").val(res.theme);
     }
 
     function loadThemeFromSettings() {
-        let theme = res.dark ? 'dark' : 'light';
-        if (getCookie('hermes_style') != theme) {
+        let theme = res.theme;
+        console.log(getCookie('hermes_theme'), theme)
+        if (getCookie('hermes_theme') != theme) {
             setTheme(theme);
         }
     }
@@ -105,7 +106,7 @@ function loadSettingsJS(res) {
         modalContent.style.animationName = "slideOut";
         setTimeout(function () {
             modal.style.display = "None";
-            let newTheme = $("#dark_theme_box").is(":checked") ? 'dark' : 'light';
+            let newTheme = $("#theme").val();
             if (lastTheme != newTheme) {
                 lastTheme = newTheme;
                 setTheme(newTheme);
@@ -201,12 +202,12 @@ function saveRegularSettings() {
         let color = $("#color").val();
         if (color != lastColor) changed = true;
         let clean_color = color.substring(1);
-        let dark_theme = $("#dark_theme_box").is(":checked");
+        let theme = $("#theme").val();
         httpPostAsync("/api/saveSettings", {
             uuid: uuid_header.uuid, 
             color: clean_color, 
             notifications: notifications,
-            dark: dark_theme, 
+            theme: theme, 
             image_b64: picture_b64
         });
         if ($("#old").val() != '') updatePassword();

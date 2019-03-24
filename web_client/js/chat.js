@@ -6,8 +6,9 @@ var first_load = true;
 const users = {};
 
 if (isElectron()) window.sendUUID(getCookie('hermes_uuid'));
-if (getCookie('hermes_style') == 'dark') {
-    $('#hermes_style').attr('href', 'css/dark/chat.css');
+
+if (getCookie('hermes_theme')) {
+    $('#hermes_style').attr('href', 'css/themes/' + getCookie('hermes_theme') + '.css');
 }
 
 swipe_right_handler = function () {

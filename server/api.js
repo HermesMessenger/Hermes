@@ -397,14 +397,14 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
 
     app.post('/api/saveSettings', function (req, res) {
         let color = req.body.color;
-        let dark = req.body.dark;
+        let theme = req.body.theme;
         let notifications = req.body.notifications;
         let image_b64 = decodeURIComponent(req.body.image_b64);
         let uuid = req.body.uuid;
 
         db.getUserForUUID(uuid).then(user => {
-            console.log('Saving settings for', user + ':', '#' + color, parseInt(notifications), dark);
-            db.saveSetting(user, color, parseInt(notifications), image_b64, dark).then(() => {
+            console.log('Saving settings for', user + ':', '#' + color, parseInt(notifications), theme);
+            db.saveSetting(user, color, parseInt(notifications), image_b64, theme).then(() => {
                 res.sendStatus(200);
                 HA.saveSettings(req.body);
             }).catch(err => {
@@ -455,7 +455,7 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
                     color: '#' + data[0],
                     notifications: data[1],
                     image: data[2],
-                    dark: data[3]
+                    theme: data[3]
                 });
             }).catch(err => {
                 if (err == FIELD_REQUIRED_ERROR) {

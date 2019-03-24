@@ -399,10 +399,10 @@ module.exports = class {
         }
     }
 
-    saveSetting(username, color, notifications = NOTIFICATIONS_ON, image_b64 = DEFAULT_IMAGE, dark = false) {
+    saveSetting(username, color, notifications = NOTIFICATIONS_ON, image_b64 = DEFAULT_IMAGE, theme = 'hermes') {
         if (!this.closed) {
-            const query = 'INSERT INTO Settings(Username,Notifications,Dark,Color,Image) values(?,?,?,?,textAsBlob(?));';
-            let data = [username, notifications, dark, color, image_b64];
+            const query = 'INSERT INTO Settings(Username,Notifications,Theme,Color,Image) values(?,?,?,?,textAsBlob(?));';
+            let data = [username, notifications, theme, color, image_b64];
             return new Promise((resolve, reject) => {
                 this.client.execute(query, data, { prepare: true }).then(result => {
                     resolve();
@@ -415,13 +415,13 @@ module.exports = class {
 
     getSetting(username) {
         if (!this.closed) {
-            const query = 'SELECT color, notifications, blobAsText(image) as image, dark FROM Settings WHERE username=?;';
+            const query = 'SELECT color, notifications, blobAsText(image) as image, theme FROM Settings WHERE username=?;';
             return new Promise((resolve, reject) => {
                 let data = [username];
                 this.client.execute(query, data, { prepare: true }).then(result => {
                     let userRow = result.first();
                     if (userRow) {
-                        resolve([userRow.color, userRow.notifications, userRow.image, userRow.dark]);
+                        resolve([userRow.color, userRow.notifications, userRow.image, userRow.theme]);
                     } else {
                         reject(USER_NOT_FOUND_ERROR);
                     }

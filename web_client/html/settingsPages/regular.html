@@ -31,9 +31,12 @@
 
             <p class="setting" id="chpswd">Change password</p>
 
-            <p class="setting">Use Dark Theme</p>
-            <input type="checkbox" id="dark_theme_box">
-
+            <p class="setting">Choose Theme</p>
+            <select id="theme">
+                <option value="hermes">Hermes (Default)</option>
+                <option value="hermes-dark">Hermes Dark</option>
+            </select>
+            
             <button id="save" onclick="saveSettings()">Save changes</button>
             <form method="POST" action="logout">
                 <button id="logout" type="submit">Log out</button>

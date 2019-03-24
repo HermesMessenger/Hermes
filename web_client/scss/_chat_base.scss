@@ -365,6 +365,15 @@ option[value="never"] {
     font: 16px Ubuntu Mono, monospace;
 }
 
+#theme {
+    width: 160px;
+    height: 32px;
+    margin: 5px 0 0 72px;
+    border: 2px solid $border-color;
+    border-radius: 8px;
+    font: 16px Ubuntu Mono, monospace;
+}
+
 .setting {
     display: inline-block;
     margin: 32px;
@@ -407,7 +416,7 @@ option[value="never"] {
     font: 16px Ubuntu Mono, monospace;
     border: 2px solid $border-color;
     border-radius: 8px;
-    width: 150px;
+    width: 160px;
     height: 32px;
     margin: 0 16px 8px 240px;
 }

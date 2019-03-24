@@ -26,7 +26,7 @@ CREATE TABLE Hermes.Sessions (
 CREATE TABLE Hermes.Settings (
     Username TEXT PRIMARY KEY,
     Notifications TINYINT,
-    Dark BOOLEAN,
+    Theme TEXT,
     Color TEXT,
     Image BLOB
 );
