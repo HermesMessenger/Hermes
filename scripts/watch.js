@@ -28,7 +28,7 @@ BgCyan = "\x1b[46m"
 BgWhite = "\x1b[47m"
 
 function startNode(){
-    return spawn('npm', ['run', 'start-no-css']);
+    return spawn('npm', ['run', 'start-no-css'], {windowsHide: true});
 }
 
 function killNode(){
@@ -65,14 +65,14 @@ function jsChange(e, f){
 
 function scssChange(e, f){
     console.log('>> Running SASS compiler');
-    let sass = spawnSync('npm', ['run', 'build-css'], {'encoding': 'utf8'});
-    if(sass.stdout.length > 0){
+    let sass = spawnSync('npm', ['run', 'build-css-source-map'], {'encoding': 'utf8', 'windowsHide': true});
+    if(sass != null && sass != undefined && sass.stdout.length > 0){
         if(last_p != 'SO')
             console.log('\x1b[32m[SASS OUT]')
         console.log((last_p == 'SO'?'\x1b[32m':'')+sass.stdout.trim()+'\x1b[0m');
         last_p = 'SO';
     }
-    if(sass.stderr.length > 0){
+    if(sass != null && sass != undefined && sass.stderr.length > 0){
         if(last_p != 'SE')
             console.log('\x1b[31m[SASS ERR]')
         console.log((last_p == 'SE'?'\x1b[31m':'')+sass.stderr.trim()+'\x1b[0m');
@@ -85,9 +85,9 @@ jsChange('start', '*');
 
 
 fs.watch('server.js', jsChange);
-fs.watch('server/', jsChange);
+fs.watch('server/', {recursive: true}, jsChange);
 
-fs.watch('web_client/scss/', scssChange);
+fs.watch('web_client/scss/', {recursive: true}, scssChange);
 
 function close(){
     killNode();
