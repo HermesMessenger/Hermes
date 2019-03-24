@@ -431,6 +431,7 @@ textarea#editing {
     border: none;
     width: calc(95vw - 180px);
     background: $my-message-color;
+    color: $text-color;
     word-wrap: break-word;
     word-break: break-all;
     resize: none;
