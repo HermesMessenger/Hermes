@@ -372,6 +372,8 @@ option[value="never"] {
     border: 2px solid $border-color;
     border-radius: 8px;
     font: 16px Ubuntu Mono, monospace;
+    background-color: $their-message-color;
+    color: $text-color;
 }
 
 .setting {
@@ -419,6 +421,8 @@ option[value="never"] {
     width: 160px;
     height: 32px;
     margin: 0 16px 8px 240px;
+    background-color: $their-message-color;
+    color: $text-color;
 }
 
 textarea#editing {
