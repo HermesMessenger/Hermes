@@ -19,13 +19,17 @@
   },
   "devDependencies": {},
   "scripts": {
-    "prepare_project": "node scripts/prepareProject.js; sass --no-source-map web_client/scss/:web_client/css/",
+    "build-css": "sass --no-source-map web_client/scss/:web_client/css/",
+    "prepare-project": "node scripts/prepareProject.js; npm run build-css",
+    "prepare-project-no-css": "node scripts/prepareProject.js",
     "test": "node server.js",
     "start": "node server.js",
+    "start-no-css": "node server.js",
     "debug": "node --inspect server.js",
-    "prestart": "npm run prepare_project",
-    "postinstall": "npm run prepare_project",
-    "watch": "sass --watch web_client/scss/:web_client/css/"
+    "prestart": "npm run prepare-project",
+    "prestart-no-css": "npm run prepare-project-no-css",
+    "postinstall": "npm run prepare-project",
+    "watch": "node scripts/watch.js"
   },
   "repository": {
     "type": "git",
