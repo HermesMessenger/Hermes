@@ -29,14 +29,19 @@ self.addEventListener("fetch", event => {
     );
 });
 
-// This is an event that can be fired from your page to tell the SW to update the offline page
-self.addEventListener("refreshOffline", async function () {
-    const offlinePageRequest = new Request(offlinePage);
+self.addEventListener('fetch', event => {
+    if (event.request.method !== "GET") return;
 
-    const res = await fetch(offlinePage);
-    const cache = await caches.open(CACHE);
-
-    return cache.put(offlinePageRequest, res);
+    event.respondWith(
+        caches.open(CACHE).then(async cache => {
+            return cache.match(event.request).then(res => {
+                return res || fetch(event.request).then(res => {
+                    cache.put(event.request, res.clone());
+                    return res;
+                })
+            });
+        })
+    );
 });
 
 self.addEventListener("push", event => {
@@ -84,6 +89,7 @@ function isClientFocused() {
 }
 
 const quoteREGEX = /"(message-([0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}))"/
+
 function removeFormatting(message) {
     return message
         .replace(quoteREGEX, '')
@@ -94,4 +100,3 @@ function removeFormatting(message) {
         .replace(/\[(.+?)\]\(((?:http:\/\/|https:\/\/).+?)\)/g, '$1')
         .replace(/`(.+?)`/g, '$1')
 }
-
