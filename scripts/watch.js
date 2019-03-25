@@ -1,5 +1,6 @@
 const fs = require('fs');
-const { spawn, spawnSync } = require('child_process');
+const { spawn, spawnSync, execSync, exec } = require('child_process');
+const sass = require('sass');
 
 Reset = "\x1b[0m"
 Bright = "\x1b[1m"
@@ -28,7 +29,7 @@ BgCyan = "\x1b[46m"
 BgWhite = "\x1b[47m"
 
 function startNode(){
-    return spawn('npm', ['run', 'start-no-css'], {windowsHide: true});
+    return exec('npm run start-no-css', {windowsHide: true, encoding: 'utf8'});
 }
 
 function killNode(){
@@ -42,41 +43,39 @@ function killNode(){
 
 var node_process;
 var last_p = '';
-
+var jsTimeout = {t: null,f:undefined}
 function jsChange(e, f){
-    killNode();
-    console.log('>> Started new node process');
-    node_process = startNode();
-    node_process.stdout.setEncoding('utf8');
-    node_process.stderr.setEncoding('utf8');
-    node_process.stdout.on('data', (data) => {
-        if(last_p != 'NO')
-            console.log('\x1b[36m[NODE OUT]')
-        console.log((last_p == 'NO'?'\x1b[36m':'')+data.trim()+'\x1b[0m');
-        last_p = 'NO';
-    });
-    node_process.stderr.on('data', (data) => {
-        if(last_p != 'NE')
-            console.log('\x1b[31m[NODE ERR]')
-        console.log((last_p == 'NE'?'\x1b[31m':'')+data.trim()+'\x1b[0m');
-        last_p = 'NE';
-    });
+    if (!jsTimeout.t && f != jsTimeout.f) {
+        jsTimeout.t = setTimeout(function() { jsTimeout.t=null }, 2000) // give 2 seconds for multiple events
+        jsTimeout.f = f;
+        killNode();
+        console.log('>> Started new node process');
+        node_process = startNode();
+        node_process.stdout.on('data', (data) => {
+            if(last_p != 'NO')
+                console.log('\x1b[36m[NODE OUT]')
+            console.log((last_p == 'NO'?'\x1b[36m':'')+data.trim()+'\x1b[0m');
+            last_p = 'NO';
+        });
+        node_process.stderr.on('data', (data) => {
+            if(last_p != 'NE')
+                console.log('\x1b[31m[NODE ERR]')
+            console.log((last_p == 'NE'?'\x1b[31m':'')+data.trim()+'\x1b[0m');
+            last_p = 'NE';
+        });
+    }
 }
-
+var scssTimeout = {t: null,f:undefined}
 function scssChange(e, f){
-    console.log('>> Running SASS compiler');
-    let sass = spawnSync('npm', ['run', 'build-css-source-map'], {'encoding': 'utf8', 'windowsHide': true});
-    if(sass.stdout != null && sass.stdout != undefined && sass.stdout.length > 0){
+    if (!scssTimeout.t && f != scssTimeout.f) {
+        scssTimeout.t = setTimeout(function() { scssTimeout.t=null }, 2000) // give 2 seconds for multiple events
+        scssTimeout.f = f;
+        console.log('>> Running SASS compiler');
+        let sass = execSync('npm run build-css-source-map', {encoding: 'utf8'});
         if(last_p != 'SO')
             console.log('\x1b[32m[SASS OUT]')
-        console.log((last_p == 'SO'?'\x1b[32m':'')+sass.stdout.trim()+'\x1b[0m');
+        console.log((last_p == 'SO'?'\x1b[32m':'')+sass.trim()+'\x1b[0m');
         last_p = 'SO';
-    }
-    if(sass.stderr != null && sass.stderr != undefined && sass.stderr.length > 0){
-        if(last_p != 'SE')
-            console.log('\x1b[31m[SASS ERR]')
-        console.log((last_p == 'SE'?'\x1b[31m':'')+sass.stderr.trim()+'\x1b[0m');
-        last_p = 'SE';
     }
 }
 
