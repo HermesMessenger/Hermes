@@ -460,9 +460,6 @@ Array.prototype.remove = function () {
     return this;
 };
 
-document.addEventListener('touchstart', handleTouchStart, false);
-document.addEventListener('touchmove', handleTouchMove, false);
-
 var swipe_right_handler = function () { }
 var swipe_left_handler = function () { }
 
