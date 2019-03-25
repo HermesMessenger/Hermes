@@ -1,6 +1,8 @@
 const CACHE = "cache";
 const offlinePage = "offline.html";
 
+self.importScripts('js/utils.js'); // Import utils
+
 // Install stage sets up the offline page in the cache and opens a new cache
 self.addEventListener("install", event => {
     event.waitUntil(
@@ -47,39 +49,21 @@ self.addEventListener("push", event => {
     event.waitUntil(promiseChain);
 });
 
+self.addEventListener('notificationclick', event => {
+    event.notification.close();
 
-// ---------------------
-//       Functions
-// ---------------------
-
-function isClientFocused() {
-    return clients.matchAll({
-        type: 'window',
-        includeUncontrolled: true
-    }).then(res => {
-        let clientIsFocused = false;
-
-        for (let i = 0; i < res.length; i++) {
-            const windowClient = res[i];
-            if (windowClient.focused) {
-                clientIsFocused = true;
-                break;
+    event.waitUntil(
+        clients.matchAll({
+            type: "window"
+        }).then(clientList => {
+            for (let i = 0; i < clientList.length; i++) {
+                let client = clientList[i];
+                if (client.url == '/' && 'focus' in client)
+                    return client.focus();
             }
-        }
-
-        return clientIsFocused;
-    });
-}
-
-const quoteREGEX = /"(message-([0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}))"/
-
-function removeFormatting(message) {
-    return message
-        .replace(quoteREGEX, '')
-        .replace(/(\*\*(.+?)\*\*)/g, '$2')
-        .replace(/(\*(.+?)\*)/g, '$2')
-        .replace(/(?:[^*]|^)(\*([^*](?:.*?[^*])?)\*)(?:[^*]|$)/g, '$2')
-        .replace(/~(.+?)~/g, '$1')
-        .replace(/\[(.+?)\]\(((?:http:\/\/|https:\/\/).+?)\)/g, '$1')
-        .replace(/`(.+?)`/g, '$1')
-}
+            if (clients.openWindow) {
+                return clients.openWindow('https://testing.hermesmessenger.chat/');
+            }
+        })
+    );
+});
