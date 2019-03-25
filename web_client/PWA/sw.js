@@ -10,24 +10,7 @@ self.addEventListener("install", event => {
     );
 });
 
-// TODO Replace offline page with cached version of the messages
-
-// If any fetch fails, it will show the offline page.
-self.addEventListener("fetch", event => {
-    if (event.request.method !== "GET") return;
-
-    event.respondWith(
-        fetch(event.request).catch(async err => {
-            // The following validates that the request was for a navigation to a new document
-            if (event.request.destination !== "document" || event.request.mode !== "navigate") {
-                return;
-            }
-
-            const cache = await caches.open(CACHE);
-            return cache.match(offlinePage);
-        })
-    );
-});
+// TODO Cache messages and display them if offline
 
 self.addEventListener('fetch', event => {
     if (event.request.method !== "GET") return;
