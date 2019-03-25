@@ -11,10 +11,10 @@ if (getCookie('hermes_theme')) {
     $('#hermes_style').attr('href', 'css/themes/' + getCookie('hermes_theme') + '.css');
 }
 
-swipe_right_handler = function () {
-    $("#sidebarbtn").click();
-}
+document.addEventListener('touchstart', handleTouchStart);
+document.addEventListener('touchmove', handleTouchMove);
 
+swipe_right_handler = () => $("#sidebarbtn").click();
 swipe_left_handler = function (x, y) {
 
     if ($("#darkoverlay").is(":visible")) {

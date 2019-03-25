@@ -229,6 +229,13 @@ app.get('/setTheme/:theme', function (req, res) {
 
 // For PWA
 
+app.get('/robots.txt', function(req, res) {
+    res.send(
+        `User-agent: *
+         Disallow:`
+    );
+});
+
 app.get('/vapidPublicKey', function(req, res) {
     res.send(webPush.getPubKey());
 });

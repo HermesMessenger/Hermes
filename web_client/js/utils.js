@@ -219,6 +219,25 @@ function urlBase64ToUint8Array(base64String) {
     return outputArray;
 }
 
+function isClientFocused() {
+    return clients.matchAll({
+        type: 'window',
+        includeUncontrolled: true
+    }).then(res => {
+        let clientIsFocused = false;
+
+        for (let i = 0; i < res.length; i++) {
+            const windowClient = res[i];
+            if (windowClient.focused) {
+                clientIsFocused = true;
+                break;
+            }
+        }
+
+        return clientIsFocused;
+    });
+}
+
 /**
  * Get the ID of the message at Y position
  * @param {Number} y The height to check for
@@ -440,9 +459,6 @@ Array.prototype.remove = function () {
     }
     return this;
 };
-
-document.addEventListener('touchstart', handleTouchStart, false);
-document.addEventListener('touchmove', handleTouchMove, false);
 
 var swipe_right_handler = function () { }
 var swipe_left_handler = function () { }
