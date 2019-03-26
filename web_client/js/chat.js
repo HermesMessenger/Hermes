@@ -411,11 +411,7 @@ function printMessages(messages, prepend) {
 
         if (first_load) $(document).scrollTop($("#separator-bottom").offset().top)
         else if (!message_json.edited) {
-            var scroll = $(document).height() - $(window).height() - $(window).scrollTop() - $('#messages').children().last().outerHeight();
-            if (scroll <= 100) {
-                let bottom = $(document).height() - $(window).height();
-                $("HTML, BODY").animate({ scrollTop: bottom }, 200);
-            }
+            if (isAtBottom()) scrollToBottom(true)
         }
         prev_day = day;
     }

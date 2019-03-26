@@ -29,12 +29,14 @@ body {
     color: $text-color;
     border-radius: 16px;
     border: 3px solid $border-color;
-    @if $invert-images != 'auto' {
+
+    @if $invert-images !='auto' {
         filter: invert(100%);
         border-color: invert($border-color);
         background-color: invert($their-message-color);
         color: invert($text-color);
     }
+
     margin: 8px;
     width: 44px;
     height: 44px;
@@ -115,10 +117,12 @@ textarea {
     bottom: 8px;
     background: url(/images/send.png) no-repeat;
     background-color: $their-message-color;
-    @if $invert-images != 'auto' {
+
+    @if $invert-images !='auto' {
         filter: invert(100%);
         background-color: invert($their-message-color);
     }
+
     background-size: 20px;
     background-position: center;
     border: none;
@@ -203,11 +207,13 @@ textarea {
     margin-bottom: 12px;
 }
 
-#closeQuote{
-    position:absolute;
-    left:97%;
-    top:10px;
-    cursor:pointer;
+#closeQuote {
+    position: absolute;
+    float: right;
+    right: 16px;
+    top: 4px;
+    font: 32px $font-family, monospace;
+    cursor: pointer;
 }
 
 .modal {
@@ -253,7 +259,7 @@ textarea {
     transition: color 0.3s ease;
 }
 
-.close:hover, 
+.close:hover,
 .close:focus {
     color: #EF5350;
     text-decoration: none;
@@ -467,7 +473,8 @@ span {
     padding: 0 3px;
     transition: all .2s ease-in-out;
     border-radius: 50%;
-    @if $invert-images != 'auto' {
+
+    @if $invert-images !='auto' {
         filter: invert(100%);
     }
 }
@@ -475,7 +482,8 @@ span {
 #sidebarbtn:hover {
     background-color: darken($menu-color, 10%);
     transition: all .2s ease-in-out;
-    @if $invert-images != 'auto' {
+
+    @if $invert-images !='auto' {
         background-color: invert(darken($menu-color, 10%));
     }
 }
@@ -596,7 +604,8 @@ span {
     border-left: 1em solid $menu-color;
     left: calc(50% - 2.5em);
 }
-#loading-oldmessages{
+
+#loading-oldmessages {
     margin: 24px auto;
     font-size: 10px;
 }
@@ -715,7 +724,7 @@ span {
     .myMessageLeft {
         margin: 8px 40px 0px 0px;
     }
-    
+
     .theirMessage {
         margin: 8px 32px 0px 8px;
         border-radius: 4px 12px 12px 12px;

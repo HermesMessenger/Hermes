@@ -182,6 +182,8 @@ function resizeInput() {
     let height = countTextareaLines($('#m')[0]) * 18
     $('#message_send_form').height(height + (($('#s-quote:hidden').length == 0) ? $('#s-quote').outerHeight(true) : 0))
     $('#m').height(height)
+    $('#separator-bottom').height($('#message_send_form').height() + 42)
+    if (isAtBottom()) scrollToBottom(false)
 };
 
 function sendMessage() {
@@ -259,6 +261,17 @@ function getMessageAtPosition(y) {
         }
     })
     return res
+}
+function isAtBottom() {
+    let scroll = $(document).height() - $(window).height() - $(window).scrollTop() - $('#messages').children().last().outerHeight();
+    if (scroll <= 100) return true
+    return false
+}
+
+function scrollToBottom(animate) {
+    let bottom = $(document).height() - $(window).height();
+    if (animate) $("HTML, BODY").animate({ scrollTop: bottom }, 200);
+    else $("HTML, BODY").animate({ scrollTop: bottom }, 0);
 }
 
 function spoilerOnClick(t){
