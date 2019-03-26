@@ -15,7 +15,12 @@ self.addEventListener("install", event => {
 // TODO Cache messages and display them if offline
 
 self.addEventListener('fetch', event => {
-    if (event.request.method !== "GET") return;
+    if (event.request.method !== "GET") return; // Only process GET requests
+    if (!event.request.url.endsWith(".css")|| 
+        !event.request.url.endsWith(".js") || 
+        !event.request.url.endsWith(".png")) return; // Only cache CSS, JS and PNG files
+
+    if (event.request.url.contains("api/")) return; // Ignore caching API requests
 
     event.respondWith(
         caches.open(CACHE).then(async cache => {

@@ -5,7 +5,7 @@
 }
 
 body {
-    font: 15px Ubuntu Mono, monospace;
+    font: 15px $font-family, monospace;
     background: $bg-color;
 }
 
@@ -21,7 +21,7 @@ body {
 #settings {
     display: inline-block;
     position: fixed;
-    font: 18px Ubuntu Mono, monospace;
+    font: 18px $font-family, monospace;
     background: url(/images/settings.png) no-repeat;
     background-size: 24px;
     background-position: center;
@@ -45,7 +45,7 @@ body {
 #message_send_form {
     display: block;
     position: fixed;
-    font: 18px Ubuntu Mono, monospace;
+    font: 18px $font-family, monospace;
     background: $their-message-color;
     color: $text-color;
     border-radius: 16px;
@@ -78,7 +78,7 @@ body {
     top: 0;
     overflow: hidden;
     white-space: nowrap;
-    font: 18px Ubuntu Mono, monospace;
+    font: 18px $font-family, monospace;
     color: $text-color;
     display: inline;
     font-weight: bold;
@@ -94,7 +94,7 @@ textarea {
 
 #m {
     resize: none;
-    font: 18px Ubuntu Mono, monospace;
+    font: 18px $font-family, monospace;
     border: none;
     width: calc(100vw - 180px);
     height: 24px;
@@ -108,7 +108,7 @@ textarea {
     display: table-cell;
     position: absolute;
     white-space: nowrap;
-    font: 16px Ubuntu Mono, monospace;
+    font: 16px $font-family, monospace;
     width: 20px;
     height: 20px;
     right: 8px;
@@ -129,7 +129,7 @@ textarea {
 }
 
 .message {
-    font: 16px Ubuntu Mono, monospace;
+    font: 16px $font-family, monospace;
     padding: 8px;
     border: 2px solid $border-color;
     color: $text-color;
@@ -211,7 +211,7 @@ textarea {
 }
 
 .modal {
-    font: 16px Ubuntu Mono, monospace;
+    font: 16px $font-family, monospace;
     display: none;
     position: fixed;
     z-index: 1;
@@ -244,7 +244,7 @@ textarea {
 }
 
 .close {
-    color: $alt-text-color;
+    color: $text-color;
     float: right;
     font-size: 36px;
     font-weight: bold;
@@ -277,7 +277,7 @@ textarea {
     width: 150px;
     bottom: 10px;
     position: absolute;
-    font: 16px Ubuntu Mono, monospace;
+    font: 16px $font-family, monospace;
     background: $menu-color;
     border: 2px solid $border-color;
     border-radius: 16px;
@@ -291,7 +291,7 @@ textarea {
     width: 150px;
     bottom: 10px;
     position: absolute;
-    font: 16px Ubuntu Mono, monospace;
+    font: 16px $font-family, monospace;
     background: rgba(255, 89, 89, 0.8);
     border: 2px solid $border-color;
     border-radius: 16px;
@@ -340,8 +340,8 @@ option[value="never"] {
 }
 
 .one {
-    font: 24px Ubuntu Mono, monospace;
-    color: $alt-text-color;
+    font: 24px $font-family, monospace;
+    color: $text-color;
     float: left;
     width: 47%;
     margin-top: 4px;
@@ -349,8 +349,8 @@ option[value="never"] {
 }
 
 .two {
-    font: 24px Ubuntu Mono, monospace;
-    color: $alt-text-color;
+    font: 24px $font-family, monospace;
+    color: $text-color;
     float: left;
     width: 40%;
     margin-top: 4px;
@@ -362,7 +362,7 @@ option[value="never"] {
     margin: 5px 0 0 64px;
     border: 2px solid $border-color;
     border-radius: 8px;
-    font: 16px Ubuntu Mono, monospace;
+    font: 16px $font-family, monospace;
 }
 
 #theme {
@@ -371,7 +371,7 @@ option[value="never"] {
     margin: 5px 0 0 72px;
     border: 2px solid $border-color;
     border-radius: 8px;
-    font: 16px Ubuntu Mono, monospace;
+    font: 16px $font-family, monospace;
     background-color: $their-message-color;
     color: $text-color;
 }
@@ -396,7 +396,7 @@ option[value="never"] {
 
 #color {
     text-align: center;
-    font: 16px Ubuntu Mono, monospace;
+    font: 16px $font-family, monospace;
     border: 2px solid $border-color;
     border-radius: 8px;
     display: inline-block;
@@ -415,7 +415,7 @@ option[value="never"] {
     display: block;
     position: relative;
     padding-left: 8px;
-    font: 16px Ubuntu Mono, monospace;
+    font: 16px $font-family, monospace;
     border: 2px solid $border-color;
     border-radius: 8px;
     width: 160px;
@@ -427,7 +427,7 @@ option[value="never"] {
 
 textarea#editing {
     border: none;
-    font: italic 15px Ubuntu Mono, monospace;
+    font: italic 15px $font-family, monospace;
     border: none;
     width: calc(95vw - 180px);
     background: $my-message-color;
@@ -704,7 +704,7 @@ span {
     }
 
     .message {
-        font: 15px Ubuntu Mono, monospace;
+        font: 15px $font-family, monospace;
     }
 
     .myMessage {
