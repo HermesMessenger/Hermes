@@ -216,6 +216,7 @@ $(window).on('load', function () {
         });
 
         if ($(window).width() > 600) $("#m").width($(window).width() - 175 - $("#user").width())
+        else $("#m").width($(window).width() - 72)
 
         resizeInput()
     });
