@@ -123,7 +123,7 @@ function createQuoteHTML(message_id, loadedMessages = undefined) {
 
         // Check if the CSS for the current user already exists
         let cssRuleExists = false;
-        let css = document.styleSheets[1];
+        let css = $('#hermes_style')[0].sheet;
 
         for (var r = 0; r < css.cssRules.length; r++) {
             if (css.cssRules[r].selectorText) {
