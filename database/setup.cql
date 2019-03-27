@@ -3,18 +3,26 @@ CREATE KEYSPACE Hermes WITH replication = {
     'replication_factor': '1'
 } AND durable_writes = true;
 
+CREATE TABLE Hermes.Channels (
+    UUID TIMEUUID PRIMARY KEY,
+    Name TEXT,
+    Members LIST<TEXT>,
+    Icon BLOB,
+);
+
 CREATE TABLE Hermes.Users (
     User_low TEXT PRIMARY KEY,
     Username TEXT,
-    PasswordHash TEXT
+    PasswordHash TEXT,
+    Channels LIST<TIMEUUID>,
 );
 
 CREATE TABLE Hermes.Messages (
     UUID TIMEUUID,
-    channel TEXT,
+    channel TIMEUUID,
     message TEXT,
     username TEXT,
-    PRIMARY KEY(channel, UUID)
+    PRIMARY KEY((channel, UUID))
 );
 
 CREATE TABLE Hermes.Sessions (
