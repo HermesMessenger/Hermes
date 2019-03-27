@@ -73,6 +73,10 @@ function getCookie(cname) { // From W3Schools
     return "";
 }
 
+function deleteCookie(name) {   
+    document.cookie = name + '=; Max-Age=-99999999;';  
+}
+
 function escapeStringForCSS(string) {
     return string
         .replace(/[ ]/g, "space")

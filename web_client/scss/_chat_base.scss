@@ -15,33 +15,10 @@ body {
 
 #image {
     display: inline-block;
-    margin-left: 16px
-}
-
-#settings {
-    display: inline-block;
-    position: fixed;
-    font: 18px $font-family, monospace;
-    background: url(/images/settings.png) no-repeat;
-    background-size: 24px;
-    background-position: center;
-    background-color: $their-message-color;
-    color: $text-color;
     border-radius: 16px;
-    border: 3px solid $border-color;
-
-    @if $invert-images !='auto' {
-        filter: invert(100%);
-        border-color: invert($border-color);
-        background-color: invert($their-message-color);
-        color: invert($text-color);
-    }
-
-    margin: 8px;
-    width: 44px;
-    height: 44px;
-    bottom: 0;
-    right: 0;
+    border: 2px solid $border-color;
+    vertical-align: middle;
+    margin-left: 64px;
 }
 
 #message_send_form {
@@ -56,13 +33,9 @@ body {
     padding: 10px;
     height: 44px;
     width: auto;
-    bottom: 0%;
-    float: left;
-}
-
-#message_send_form {
-    left: 4px;
-    right: 64px;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
 
 #separator-top {
@@ -250,7 +223,7 @@ textarea {
     -webkit-animation-duration: 0.4s;
     animation-name: slideIn;
     animation-duration: 0.4s;
-    height: 550px;
+    height: 512px;
 }
 
 .close {
@@ -295,26 +268,13 @@ textarea {
     font-weight: bold;
 }
 
-#logout {
-    float: left;
-    left: 272px;
-    width: 150px;
-    bottom: 10px;
-    position: absolute;
-    font: 16px $font-family, monospace;
-    background: rgba(255, 89, 89, 0.8);
-    border: 2px solid $border-color;
-    border-radius: 16px;
-    padding: 8px;
-    font-weight: bold;
-}
-
 .desk {
     float: left;
     width: 50%;
 }
 
 .web {
+    margin-top: 8px;
     float: left;
     width: 48%;
 }
@@ -369,7 +329,6 @@ option[value="never"] {
 #notselect {
     width: 128px;
     height: 32px;
-    margin: 5px 0 0 64px;
     border: 2px solid $border-color;
     border-radius: 8px;
     font: 16px $font-family, monospace;
@@ -378,7 +337,7 @@ option[value="never"] {
 #theme {
     width: 160px;
     height: 32px;
-    margin: 5px 0 0 72px;
+    margin: 5px 0 0 64px;
     border: 2px solid $border-color;
     border-radius: 8px;
     font: 16px $font-family, monospace;
@@ -388,8 +347,9 @@ option[value="never"] {
 
 .setting {
     display: inline-block;
-    margin: 32px;
-    font-weight: bold
+    margin: 24px 32px;
+    font-weight: bold;
+    vertical-align: middle;
 }
 
 .space2 {
@@ -412,12 +372,12 @@ option[value="never"] {
     display: inline-block;
     width: 72px;
     height: 32px;
-    margin-left: 32px;
+    margin-left: 64px;
 }
 
 #chpswd {
     position: absolute;
-    top: 270px;
+    top: 300px;
     left: 16px;
 }
 
@@ -430,7 +390,7 @@ option[value="never"] {
     border-radius: 8px;
     width: 160px;
     height: 32px;
-    margin: 0 16px 8px 240px;
+    margin: 0 16px 8px 177px;
     background-color: $their-message-color;
     color: $text-color;
 }
@@ -549,6 +509,56 @@ span {
     color: $text-color;
     padding-top: 48px;
     padding-bottom: 16px;
+}
+
+#sidebar-footer {
+    position: absolute;
+    margin: 16px 0px;
+    bottom: 0;
+    width: calc(100% - 16px);
+    height: 48px;
+}
+
+#settings {
+    display: inline-block;
+    position: absolute;
+    font: 18px $font-family, monospace;
+    background: url(/images/settings.png) no-repeat;
+    background-size: 24px;
+    background-position: center;
+    background-color: $their-message-color;
+    color: $text-color;
+    border-radius: 16px;
+    border: 3px solid $border-color;
+
+    @if $invert-images !='auto' {
+        filter: invert(100%);
+        border-color: invert($border-color);
+        background-color: invert($their-message-color);
+        color: invert($text-color);
+    }
+
+    margin: 16px;
+    width: 44px;
+    height: 44px;
+    bottom: 0;
+    left: 0;
+}
+
+#logout {
+    display: inline-block;
+    position: absolute;
+    font: 20px $font-family, monospace;
+    font-weight: bold;
+    background: rgba(255, 89, 89, 0.8);
+    color: $text-color;
+    border-radius: 16px;
+    border: 3px solid $border-color;
+    margin: 16px;
+    width: 128px;
+    height: 44px;
+    bottom: 0;
+    left: 60px;
 }
 
 #darkoverlay {
@@ -695,11 +705,6 @@ span {
         width: calc(100vw - 130px)
     }
 
-    #message_send_form {
-        border: 3px solid $border-color;
-        width: calc(100vw - 24px)
-    }
-
     #m {
         width: calc(100vw - 72px)
     }
@@ -711,8 +716,7 @@ span {
         margin-top: 2px
     }
 
-    #user,
-    #settings {
+    #user {
         display: none;
     }
 
@@ -742,5 +746,44 @@ span {
         width: 38px;
         height: 16px;
         overflow: hidden;
+    }
+
+    #modal-content {
+        margin: 60px 24px;
+    }
+
+    .one {
+        margin-left: 24px;
+    }
+
+    .setting {
+        margin: 24px 8px;
+        margin-right: 24px;
+    }
+
+    .pswd {
+        margin-left: 144px;
+    }
+
+}
+
+@media only screen and (max-width: 400px) {
+    #modal-content {
+        margin-left: 16px;
+        margin-right: 16px;
+        width: calc(100vw - 32px)
+    }
+}
+
+@media only screen and (max-width: 375px) {
+    #theme, 
+    .pswd {
+        width: 128px;
+    }
+}
+
+@media only screen and (max-height: 650px) {
+    #modal-content {
+        margin-bottom: 24px;
     }
 }
