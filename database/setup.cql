@@ -22,7 +22,7 @@ CREATE TABLE Hermes.Messages (
     channel TIMEUUID,
     message TEXT,
     username TEXT,
-    PRIMARY KEY((channel, UUID))
+    PRIMARY KEY(channel, UUID)
 );
 
 CREATE TABLE Hermes.Sessions (

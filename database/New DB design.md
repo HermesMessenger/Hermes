@@ -40,6 +40,6 @@ INSERT INTO Users (user_low, username, passwordhash, channels) values('theperkin
 ### Send message
 
 ```cassandra
-INSERT INTO Messages (UUID, Channel, Message, Username) values(now(), ab444690-50b2-11e9-be62-8165917cc8f6, 'Hi GLOBAL', 'ThePerkinrex')
+INSERT INTO Messages (UUID, Channel, Message, Username) values(now(), ab444690-50b2-11e9-be62-8165917cc8f6, 'Hi GLOBAL', 'ThePerkinrex');
 ```
 
