@@ -73,6 +73,10 @@ function getCookie(cname) { // From W3Schools
     return "";
 }
 
+function deleteCookie(name) {   
+    document.cookie = name + '=; Max-Age=-99999999;';  
+}
+
 function escapeStringForCSS(string) {
     return string
         .replace(/[ ]/g, "space")
@@ -87,6 +91,18 @@ function escapeStringForCSS(string) {
         .replace(/[@]/g, "at")
         .replace(/[;]/g, "semicolon")
         .replace(/[!]/g, "exclamation");
+}
+
+function removeFormatting(message) {
+    return message
+        .replace(quoteREGEX, '')
+        .replace(/(\*\*([\S\s]+?)\*\*)/g, '$2')
+        .replace(/(\*([\S\s]+?)\*)/g, '$2')
+        .replace(/(?:[^*]|^)(\*([^*](?:.*?[^*])?)\*)(?:[^*]|$)/g, '$2')
+        .replace(/~([\S\s]+?)~/g, '$1')
+        .replace(/\[([\S\s]+?)\]\(((?:http:\/\/|https:\/\/).+?)\)/g, '$1')
+        .replace(/`([\S\s]+?)`/g, '$1')
+        .replace(/\|\|([\S\s]+?)\|\|/g, '$1')
 }
 
 function createQuoteHTML(message_id, loadedMessages = undefined) {
