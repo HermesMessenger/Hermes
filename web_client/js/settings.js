@@ -96,7 +96,7 @@ function loadSettingsJS(res) {
             modal.style.display = "block";
             modal.style.animationName = "fadeIn";
             modalContent.style.animationName = "slideIn";
-
+            $("#darkoverlay").click()
         }
 
         function slideSettingsOut() {

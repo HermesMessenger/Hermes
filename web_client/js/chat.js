@@ -67,7 +67,7 @@ $(window).on('load', function () {
         });
 
         if ($(window).width() > 600) {  // Run only if app is using the desktop layout 
-            $("#m").width($(window).width() - 170 - $("#user").width())
+            $("#m").width($(window).width() - 100 - $("#user").width())
 
         } else {  // Run only if app is using the mobile layout 
             $("#color").focus(() => $(this).blur()); // Prevent color from being an input field
@@ -88,10 +88,14 @@ $(window).on('load', function () {
             }
         }
 
+        $("#logout").click(function () {
+            deleteCookie('hermes_uuid')
+            location.reload()
+        });
+
         $("#quote").click(function () {
             let id = getMessageAtPosition($("#rightclick").position().top)
             quote(id)
-
         });
 
         $("#delete").click(function () {
@@ -215,7 +219,7 @@ $(window).on('load', function () {
             $(this).height($(this).find(".message_body").height() + ($(this).find(".quote").length ? $(this).find(".quote").height() + 16 : 0));
         });
 
-        if ($(window).width() > 600) $("#m").width($(window).width() - 175 - $("#user").width())
+        if ($(window).width() > 600) $("#m").width($(window).width() - 100 - $("#user").width())
         else $("#m").width($(window).width() - 72)
 
         resizeInput()
