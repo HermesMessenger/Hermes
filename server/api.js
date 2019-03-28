@@ -22,6 +22,7 @@ let eventManager = new EventManager();
 let deleted_messages = []
 let edited_messages = []
 
+// TODO Add channel support
 module.exports = function (app, db, bcrypt, webPush, utils, HA) {
 
     app.post('/api/load100messages/:message_uuid', function (req, res) {

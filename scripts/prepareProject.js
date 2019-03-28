@@ -8,6 +8,7 @@ const configTemplate = {
     mainIP: "localhost:8080",
     port: 8080,
     forceHAConnect: false,
+    global_channel_uuid: 'ab444690-50b2-11e9-be62-8165917cc8f6',
     webPush: webPush.generateVAPIDKeys() // Creates object with publicKey and privateKey 
 };
 
@@ -33,6 +34,9 @@ fileExists('config.json', (err, exists) => {
             if (config[key] == undefined) {
                 console.log(`${key} is missing from config.json`);
                 config_correct = false;
+                if(key == 'global_channel_uuid'){
+                    console.log('Please set the global channel UUID')
+                }
             }
         }
         if (!config_correct) {

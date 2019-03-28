@@ -13,6 +13,9 @@ FIELD_REQUIRED_ERROR.code = 10002;
 let TOKEN_INVALID_ERROR = new Error('Token was invalid');
 TOKEN_INVALID_ERROR.code = 10003;
 
+const config = require('../config.json')
+const global_channel_uuid = config.global_channel_uuid;
+
 const NOTIFICATIONS_ON = 0;
 const NOTIFICATIONS_SOMETIMES = 1;
 const NOTIFICATIONS_OFF = 2;
@@ -42,14 +45,15 @@ module.exports = class {
     constructor() {
         this.client = new cassandra.Client({ contactPoints: ['127.0.0.1:9042'], localDataCenter: 'datacenter1', keyspace: 'hermes' })
         this.closed = false;
+        
     }
 
-    // TODO: Make multiple channels (for now 'general' is always used)
-    addMessage(user, message) {
+    
+    addMessage(channel, user, message) {
         if (!this.closed) {
             const query = 'INSERT INTO Messages (UUID, Channel, Username, Message) values(?,?,?,?);';
             let message_uuid = new cassandra.types.TimeUuid();
-            let data = [message_uuid, 'general', user, message];
+            let data = [message_uuid, channel, user, message];
             return new Promise((resolve, reject) => {
                 this.client.execute(query, data, { prepare: true }).then(result => {
                     resolve(message_uuid);
@@ -61,11 +65,11 @@ module.exports = class {
             return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
         }
     }
-    // TODO: Make multiple channels (for now 'general' is always used)
-    deleteMessage(uuid) {
+    
+    deleteMessage(channel, uuid) {
         if (!this.closed) {
             const query = 'DELETE FROM Messages WHERE channel=? and UUID=?;';
-            let data = ['general', uuid];
+            let data = [channel, uuid];
             return new Promise((resolve, reject) => {
                 this.client.execute(query, data, { prepare: true }).then(result => {
                     resolve(uuid);
@@ -79,11 +83,11 @@ module.exports = class {
 
     }
 
-    // TODO: Make multiple channels (for now 'general' is always used)
-    editMessage(uuid, newmessage) {
+    
+    editMessage(channel, uuid, newmessage) {
         if (!this.closed) {
             const query = 'UPDATE Messages SET message=? WHERE channel=? and UUID=?;';
-            let data = [newmessage, 'general', uuid];
+            let data = [newmessage, channel, uuid];
             return new Promise((resolve, reject) => {
                 this.client.execute(query, data, { prepare: true }).then(result => {
                     resolve();
@@ -112,11 +116,11 @@ module.exports = class {
         }
     }
 
-    getMessages() {
+    getMessages(channel) {
         if (!this.closed) {
-            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=\'general\' ORDER BY UUID;';
+            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=? ORDER BY UUID;';
             return new Promise((resolve, reject) => {
-                this.client.execute(query, { prepare: true }).then(result => {
+                this.client.execute(query, [channel], { prepare: true }).then(result => {
                     resolve(result.rows);
                 }).catch(err => {
                     reject(err);
@@ -127,11 +131,11 @@ module.exports = class {
         }
     }
 
-    getMessageSender(message_uuid) {
+    getMessageSender(channel, message_uuid) {
         if (!this.closed) {
-            const query = 'SELECT Username FROM Messages WHERE channel=\'general\' AND UUID=?;';
+            const query = 'SELECT Username FROM Messages WHERE channel=? AND UUID=?;';
             return new Promise((resolve, reject) => {
-                this.client.execute(query, [message_uuid], { prepare: true }).then(result => {
+                this.client.execute(query, [channel, message_uuid], { prepare: true }).then(result => {
                     let res = result.first();
                     if (res) {
                         resolve(res.username);
@@ -147,11 +151,11 @@ module.exports = class {
         }
     }
 
-    getMessagesFrom(uuid) {
+    getMessagesFrom(channel, uuid) {
         if (!this.closed) {
-            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=\'general\' and UUID>? ORDER BY UUID;';
+            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=? and UUID>? ORDER BY UUID;';
             return new Promise((resolve, reject) => {
-                let data = [uuid];
+                let data = [channel, uuid];
                 this.client.execute(query, data, { prepare: true }).then(result => {
                     resolve(result.rows);
                 }).catch(err => {
@@ -163,10 +167,10 @@ module.exports = class {
         }
     }
 
-    get100Messages(uuid=undefined) {
+    get100Messages(channel, uuid=undefined) {
         if(uuid){
-            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=\'general\' AND UUID<? ORDER BY UUID DESC LIMIT 100;';
-            let data = [uuid];
+            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=? AND UUID<? ORDER BY UUID DESC LIMIT 100;';
+            let data = [channel, uuid];
             return new Promise((resolve, reject) => {
                 this.client.execute(query, data, { prepare: true }).then(result => {
                     resolve(result.rows); // They come in from last to first
@@ -175,9 +179,9 @@ module.exports = class {
                 });
             });
         }else{
-            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=\'general\' ORDER BY UUID DESC LIMIT 100;';
+            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=? ORDER BY UUID DESC LIMIT 100;';
             return new Promise((resolve, reject) => {
-                this.client.execute(query).then(result => {
+                this.client.execute(query, [channel], {prepare: true}).then(result => {
                     resolve(result.rows); // They come in from last to first
                 }).catch(err => {
                     reject(err);
@@ -188,8 +192,8 @@ module.exports = class {
 
     registerUser(user, passwordHash) {
         if (!this.closed) {
-            const query = 'INSERT INTO Users (User_low, Username, PasswordHash) values(?,?,?) IF NOT EXISTS;';
-            let data = [user.toLowerCase(), user, passwordHash];
+            const query = 'INSERT INTO Users (User_low, Username, PasswordHash, Channels) values(?,?,?,?) IF NOT EXISTS;';
+            let data = [user.toLowerCase(), user, passwordHash, [global_channel_uuid]];
             return new Promise((resolve, reject) => {
                 this.client.execute(query, data, { prepare: true }).then(result => {
                     this.saveSetting(user, createColor()).then(result => resolve()).catch(err => reject(err));
@@ -202,8 +206,8 @@ module.exports = class {
 
     registerBot(bot, passwordHash) {
         if (!this.closed) {
-            const query = 'INSERT INTO Users (User_low, Username, PasswordHash) values(?,?,?) IF NOT EXISTS;';
-            let data = [bot.toLowerCase(), bot, passwordHash];
+            const query = 'INSERT INTO Users (User_low, Username, PasswordHash, Channels) values(?,?,?,?) IF NOT EXISTS;';
+            let data = [bot.toLowerCase(), bot, passwordHash, [global_channel_uuid]];
             return new Promise((resolve, reject) => {
                 this.client.execute(query, data, { prepare: true }).then(result => {
                     this.saveSetting(bot, createColor(), NOTIFICATIONS_OFF, DEFAULT_IMAGE_BOT)
@@ -339,6 +343,9 @@ module.exports = class {
             return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
         }
     }
+
+    //TODO Add methods for getting the members of a chat & the chats a user is member of
+    //TODO Add method to include a user in a chat
 
     updateLoggedInUser(uuid) {
         if (!this.closed) {
