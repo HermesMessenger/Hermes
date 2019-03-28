@@ -1,14 +1,11 @@
 const CACHE = "cache";
-const offlinePage = "offline.html";
 
 self.importScripts('js/utils.js'); // Import utils
 
 // Install stage sets up the offline page in the cache and opens a new cache
 self.addEventListener("install", event => {
     event.waitUntil(
-        caches.open(CACHE).then(cache => {
-            return cache.add(offlinePage);
-        })
+        caches.delete(CACHE)
     );
 });
 
