@@ -402,6 +402,63 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
         });
     });
 
+    app.post('/api/getChannels', function (req, res) {
+        db.getUserForUUID(req.body.uuid).then(user => {
+            db.getChannels(user).then(channels => {
+                res.send(channels)
+            }).catch(err => {
+                console.error(err)
+                res.sendStatus(500)
+            })
+        }).catch(err => {
+            console.error(err)
+            res.sendStatus(500)
+        })
+    });
+
+    app.post('/api/createChannel', function (req, res) {
+        db.getUserForUUID(req.body.uuid).then(user => {
+            db.createChannel(user, req.body.name).then(uuid => {
+                res.send(uuid)
+            }).catch(err => {
+                console.error(err)
+                res.sendStatus(500)
+            })
+        }).catch(err => {
+            console.error(err)
+            res.sendStatus(500)
+        })
+    });
+
+    app.post('/api/joinChannel', function (req, res) {
+        db.getUserForUUID(req.body.uuid).then(user => {
+            db.channelExists(req.body.channel).then(exists => {
+                if (exists) {
+                    db.joinChannel(user, req.body.channel).then(() => {
+                        res.sendStatus(200)
+                    }).catch(err => {
+                        console.error(err)
+                        res.sendStatus(500)
+                    })
+                } else res.sendStatus(404) // Channel not found
+            }).catch(err => res.sendStatus(404))
+        }).catch(err => res.sendStatus(500))
+    });
+
+    app.post('/api/leaveChannel', function (req, res) {
+        db.getUserForUUID(req.body.uuid).then(user => {
+            db.leaveChannel(user, req.body.channel).then(() => {
+                res.sendStatus(200)
+            }).catch(err => {
+                console.error(err)
+                res.sendStatus(500)
+            })
+        }).catch(err => {
+            console.error(err)
+            res.sendStatus(500)
+        })
+    });
+
     app.get('/api/getSettings/:username', function (req, res) { // Only for chat (Color & image only)
         db.getSetting(decodeURIComponent(req.params.username)).then((data) => {
             let color = data[0];
