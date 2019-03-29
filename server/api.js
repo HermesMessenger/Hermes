@@ -28,7 +28,7 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
     app.post('/api/load100messages/:message_uuid', function (req, res) {
         db.checkLoggedInUser(req.body.uuid).then(ok => {
             if (ok) {
-                db.get100Messages(req.params.message_uuid).then(result => {
+                db.get100Messages(req.body.channel, req.params.message_uuid).then(result => {
 
                     let newm = [];
                     for (let i = 0; i < result.length; i++) {
@@ -55,7 +55,7 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
     app.post('/api/load100messages/', function (req, res) {
         db.checkLoggedInUser(req.body.uuid).then(ok => {
             if (ok) {
-                db.get100Messages().then(result => {
+                db.get100Messages(req.body.channel).then(result => {
                     let newm = [];
                     for (let i = 0; i < result.length; i++) {
                         let json_data = {};
@@ -78,35 +78,10 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
         });
     });
 
-    app.post('/api/loadmessages', function (req, res) { // TODO: remove
-        db.checkLoggedInUser(req.body.uuid).then(ok => {
-            if (ok) {
-                db.getMessages().then(result => {
-                    let data = '';
-                    for (let i = 0; i < result.length; i++) {
-                        data += result[i].uuid + SEPCHAR;
-                        data += result[i].username + SEPCHAR;
-                        data += result[i].message + SEPCHAR;
-                        data += result[i].timesent.getTime();
-                        if (i != result.length - 1)
-                            data += NULLCHAR;
-                    }
-
-                    res.send(data);
-                }).catch(err => console.error('ERROR:', err));
-            } else {
-                res.sendStatus(401); // Unauthorized
-            }
-        }).catch(err => {
-            console.error('ERROR:', err);
-            res.sendStatus(500); // Internal Server Error
-        });
-    });
-
     app.post('/api/loadmessages/:message_uuid', function (req, res) {
         db.checkLoggedInUser(req.body.uuid).then(ok => {
             if (ok) {
-                db.getMessagesFrom(req.params.message_uuid).then(result => {
+                db.getMessagesFrom(req.body.channel, req.params.message_uuid).then(result => {
 
                     let newm = [];
                     for (let i = 0; i < result.length; i++) {
@@ -161,7 +136,7 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
 
     app.post('/api/sendmessage/', function (req, res) {
         db.getUserForUUID(req.body.uuid).then(user => {
-            db.addMessage(user, req.body.message).then(message_uuid => {
+            db.addMessage(req.body.channel, user, req.body.message).then(message_uuid => {
                 res.sendStatus(200);
                 eventManager.callSendMessageHandler([user, req.body.message]);
                 HA.sendMessage(req.body, message_uuid);
@@ -194,9 +169,9 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
 
     app.post('/api/deletemessage/', function (req, res) {
         db.getUserForUUID(req.body.uuid).then(user => {
-            db.getSingleMessage('general', req.body.message_uuid).then(message => {
+            db.getSingleMessage(req.body.channel, req.body.message_uuid).then(message => {
                 if (user == message.username) {
-                    db.deleteMessage(req.body.message_uuid);
+                    db.deleteMessage(req.body.channel, req.body.message_uuid);
                     deleted_messages.push({
                         uuid: req.body.message_uuid,
                         del_time: new Date().getTime(),
@@ -230,10 +205,11 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
 
     app.post('/api/editmessage/', function (req, res) {
         db.getUserForUUID(req.body.uuid).then((user) => {
-            db.getMessageSender(req.body.message_uuid).then(sender => {
+            db.getMessageSender(req.body.channel, req.body.message_uuid).then(sender => {
                 if (user == sender) {
-                    db.editMessage(req.body.message_uuid, req.body.newmessage);
+                    db.editMessage(req.body.channel, req.body.message_uuid, req.body.newmessage);
                     edited_messages.push({
+                        channel: req.body.channel,
                         uuid: req.body.message_uuid,
                         message: req.body.newmessage,
                         edit_time: new Date().getTime(),
