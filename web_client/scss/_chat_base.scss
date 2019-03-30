@@ -486,6 +486,9 @@ span {
     color: $text-color;
     display: inline-block;
     vertical-align: middle;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 150px;
 }
 
 /* The side navigation menu */
