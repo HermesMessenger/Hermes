@@ -276,7 +276,7 @@ function loadMessages() {
                 last_message_uuid = message.time_uuid;
             });
 
-            if(messages){
+            if(messages && messages.length > 0){
                 printMessages(messages);
             }
 
