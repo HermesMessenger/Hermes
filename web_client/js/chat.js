@@ -105,6 +105,7 @@ $(window).on('load', function () {
 
             let header = uuid_header;
             header.message_uuid = id.substr(9);
+            header.channel = current_channel
             httpPostAsync('/api/deletemessage/', header);
         });
 
@@ -115,6 +116,7 @@ $(window).on('load', function () {
             md: '"$TEXT"'
         })
         edit_header.message = HTMLtoMD($(this).find('b').next().html(), EDIT_HTML_RULES);
+        edit_header.channel = current_channel
 
         var is_editing = false;
 
