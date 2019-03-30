@@ -486,9 +486,13 @@ span {
     color: $text-color;
     display: inline-block;
     vertical-align: middle;
+}
+
+.chatselect>.chatname{
     text-overflow: ellipsis;
     overflow: hidden;
     max-width: 150px;
+    white-space: nowrap;
 }
 
 /* The side navigation menu */
