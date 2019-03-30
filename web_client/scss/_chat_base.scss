@@ -471,7 +471,7 @@ span {
     text-align: center
 }
 
-#chatimg {
+.chatimg {
     display: inline-block;
     width: 30px;
     height: 30px;
@@ -482,7 +482,7 @@ span {
     padding: 1px;
 }
 
-#chatname {
+.chatname {
     color: $text-color;
     display: inline-block;
     vertical-align: middle;

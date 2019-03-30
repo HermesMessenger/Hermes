@@ -7,9 +7,6 @@ FIELD_REQUIRED_ERROR.code = 10002;
 let TOKEN_INVALID_ERROR = new Error('Token was invalid');
 TOKEN_INVALID_ERROR.code = 10003;
 
-const NULLCHAR = String.fromCharCode(0x0);
-const SEPCHAR = String.fromCharCode(0x1);
-
 const TimeUUID = require('cassandra-driver').types.TimeUuid;
 const Events = require('./events');
 const { EventManager, EventHandler } = Events;
@@ -402,32 +399,31 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
         });
     });
 
-    app.post('/api/getChannels', function (req, res) {
-        db.getUserForUUID(req.body.uuid).then(user => {
-            db.getChannels(user).then(channels => {
-                res.send(channels)
-            }).catch(err => {
-                console.error(err)
-                res.sendStatus(500)
-            })
-        }).catch(err => {
+    app.post('/api/getChannels', async function (req, res) {
+        try {
+            const user = await db.getUserForUUID(req.body.uuid)
+            const channels = await db.getChannels(user)
+            let r = [];
+            for (const channel of channels) {
+                const p = await db.getChannelProperties(channel)
+                r.push(p)
+            }
+            res.send(r)
+        } catch (err) {
             console.error(err)
             res.sendStatus(500)
-        })
+        }
     });
 
-    app.post('/api/createChannel', function (req, res) {
-        db.getUserForUUID(req.body.uuid).then(user => {
-            db.createChannel(user, req.body.name).then(uuid => {
-                res.send(uuid)
-            }).catch(err => {
-                console.error(err)
-                res.sendStatus(500)
-            })
-        }).catch(err => {
+    app.post('/api/createChannel', async function (req, res) {
+        try {
+            const user = await db.getUserForUUID(req.body.uuid)
+            const uuid = await db.createChannel(user, req.body.name)
+            res.send(uuid)
+        } catch (err) {
             console.error(err)
             res.sendStatus(500)
-        })
+        }
     });
 
     app.post('/api/joinChannel', function (req, res) {

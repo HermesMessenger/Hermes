@@ -205,13 +205,13 @@ function resizeInput() {
 function sendMessage() {
     msg = $('#m').val();
     if (!msg.match(/^\s*$/)) {
-        var header = uuid_header;
-        header['message'] = (($('#s-quote:hidden').length == 0) ?`"${$('#s-quote').attr('data-quoted-id')}"`:'')+msg;
-        httpPostAsync('/api/sendmessage/', header);
+        httpPostAsync('/api/sendmessage/', {
+            ...uuid_header,
+            message: (($('#s-quote:hidden').length == 0) ?`"${$('#s-quote').attr('data-quoted-id')}"`:'')+msg, 
+            channel: current_channel,
+        });
         $('#m').val('');
         removeSQuote();
-        $('#m, #message_send_form').height(18) // Reset height to default 
-        $('#m, #message_send_form').height(18) // Reset height to default 
         $('#m, #message_send_form').height(18) // Reset height to default 
     }
 }
@@ -337,6 +337,26 @@ function replaceLinks(html_element) {
 
         } else {
             replaceLinks(node); // If it has more than of child, apply this function
+        }
+    }
+}
+
+function changeChatTo(uuid){
+    if (current_channel != uuid || first_load) {
+        for (let chat of my_channels) {
+            if (chat.uuid == uuid) {
+                $('#darkoverlay').click()
+                current_channel = uuid;
+                $('#chatname').text(chat.name);
+                $('#chatimg').attr('src', `data:image/png;base64,${chat.icon}`);
+                $('#messages').empty();
+                $("#loading").show();
+                loadLast100Messages(() => {
+                    first_load = false;
+                    loadMessages();
+                });
+                return;
+            }
         }
     }
 }

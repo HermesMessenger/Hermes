@@ -2,6 +2,8 @@ var last_message_timestamp = 0;
 var last_message_uuid = '13814000-1dd2-11b2-8080-808080808080'; // Smallest posible UUID for timestamp 0 (1/1/1970 00:00:00)
 let prev_json = {};
 var first_load = true;
+var current_channel = '13814000-1dd2-11b2-8080-808080808080'; // GLOBAL Channel UUID
+var my_channels = [];
 
 const users = {};
 
@@ -207,9 +209,20 @@ $(window).on('load', function () {
         window.sessionStorage.clear();
 
 
-        loadLast100Messages(() => {
-            first_load = false;
-            loadMessages();
+        httpPostAsync('/api/getChannels/', uuid_header, data => {
+            my_channels = JSON.parse(data);
+            for(let channel of my_channels){
+                let new_channel = $('<li class="chatselect">');
+                new_channel.attr('data-channel', channel.uuid);
+                new_channel.append($('<img class="chatimg">').attr('src', `data:image/png;base64,${channel.icon}`));
+                new_channel.append($('<p class="chatname">').text(channel.name));
+                new_channel.click(() => {
+                    changeChatTo(channel.uuid);
+                });
+                $('#chats').append(new_channel)
+            }
+            
+            changeChatTo(current_channel);
         });
     });
 
@@ -236,7 +249,7 @@ $(window).on('load', function () {
 
             let scrollTop = Math.max($('html').scrollTop(), $('body').scrollTop())
 
-            if (scrollTop == 0 && $("#loading-oldmessages").css('display') == 'none' && !hasLoadedEveryMessage) {
+            if (scrollTop == 0 && $("#loading-oldmessages").css('display') == 'none' && !hasLoadedEveryMessage && $('#messages').find('.message').first().attr('id')) {
                 $("#loading-oldmessages").show();
                 loadNext100Messages($('#messages').find('.message').first().attr('id').substr(8));
             }
@@ -253,9 +266,8 @@ $(window).on('load', function () {
 // ---------------------
 
 function loadMessages() {
-    httpPostAsync('/api/loadmessages/' + last_message_uuid, uuid_header, function (res) {
-        if (res !== '[]') {
-
+    httpPostAsync('/api/loadmessages/' + last_message_uuid, {...uuid_header, channel: current_channel}, function (res) {
+        if (res != '') {
             res = JSON.parse(res);
             let messages = res.newmessages;
             let delm = res.deletedmessages;
@@ -264,7 +276,9 @@ function loadMessages() {
                 last_message_uuid = message.time_uuid;
             });
 
-            printMessages(messages);
+            if(messages){
+                printMessages(messages);
+            }
 
             if (first_load) {
                 $("#loading").hide()
@@ -278,7 +292,7 @@ function loadMessages() {
 let hasLoadedEveryMessage = false;
 
 function loadLast100Messages(callback) {
-    httpPostAsync('/api/load100messages/', uuid_header, function (res) {
+    httpPostAsync('/api/load100messages/', {...uuid_header, channel: current_channel}, function (res) {
         if (res !== '[]') {
             res = JSON.parse(res);
             if (res.length != 100) hasLoadedEveryMessage = true;
@@ -290,7 +304,7 @@ function loadLast100Messages(callback) {
 };
 
 function loadNext100Messages(uuid, callback) {
-    httpPostAsync('/api/load100messages/' + uuid, uuid_header, function (res) {
+    httpPostAsync('/api/load100messages/' + uuid, {...uuid_header, channel: current_channel}, function (res) {
         if (res !== '[]') {
             res = JSON.parse(res);
             if (res.length != 100) hasLoadedEveryMessage = true;
@@ -309,6 +323,7 @@ function printMessages(messages, prepend) {
     let loadedMessages = $('<div>');
     let prev_day = '';
     $("#messages").append(loadedMessages);
+    let bottom = isAtBottom()
     for (let i = 0; i < messages.length; i++) {
 
         let message_json = messages[i];
@@ -410,14 +425,8 @@ function printMessages(messages, prepend) {
             }
         }
 
-
         new_message.height(new_message_body.height() + (new_message.find(".quote").length != 0 ? new_message.find(".quote").height() + 16 : 0)); //Change message height to cover the quote on top
 
-
-        if (first_load) $(document).scrollTop($("#separator-bottom").offset().top)
-        else if (!message_json.edited) {
-            if (isAtBottom()) scrollToBottom(true)
-        }
         prev_day = day;
     }
     let lmessagesHTML = loadedMessages.html();
@@ -428,4 +437,7 @@ function printMessages(messages, prepend) {
     } else {
         $('#messages').append(lmessagesHTML);
     }
+
+    if (first_load) $(document).scrollTop($("#separator-bottom").offset().top)
+    if (bottom) scrollToBottom(true)
 }
