@@ -8,8 +8,7 @@ let TOKEN_INVALID_ERROR = new Error('Token was invalid');
 TOKEN_INVALID_ERROR.code = 10003;
 
 const TimeUUID = require('cassandra-driver').types.TimeUuid;
-const Events = require('./events');
-const { EventManager, EventHandler } = Events;
+const { EventManager, EventHandler } = require('./events');
 
 
 let eventManager = new EventManager();
@@ -19,132 +18,130 @@ let eventManager = new EventManager();
 let deleted_messages = []
 let edited_messages = []
 
-// TODO Add channel support
 module.exports = function (app, db, bcrypt, webPush, utils, HA) {
 
-    app.post('/api/load100messages/:message_uuid', function (req, res) {
-        db.checkLoggedInUser(req.body.uuid).then(ok => {
+    app.post('/api/load100messages/:message_uuid', async function (req, res) {
+        try {
+            const ok = await db.checkLoggedInUser(req.body.uuid)
             if (ok) {
-                db.get100Messages(req.body.channel, req.params.message_uuid).then(result => {
+                const messages = await db.get100Messages(req.body.channel, req.params.message_uuid)
 
-                    let newm = [];
-                    for (let i = 0; i < result.length; i++) {
-                        let json_data = {};
-                        json_data.uuid = result[i].uuid;
-                        json_data.username = result[i].username;
-                        json_data.message = result[i].message;
-                        json_data.time = result[i].timesent.getTime();
-                        json_data.edited = false;
-                        newm.push(json_data);
+                let newm = [];
+                for (const message of messages) {
+                    let json = {
+                        uuid: message.uuid,
+                        username: message.username,
+                        message: message.message,
+                        time: message.timesent.getTime(),
                     }
-                    res.json(newm.reverse());
-                }).catch(err => console.error('ERROR:', err));
-            } else {
-                res.sendStatus(401); // Unauthorized
+                    newm.push(json);
+                }
+                res.send(newm.reverse());
 
-            }
-        }).catch(err => {
+            } else res.sendStatus(401); // Unauthorized
+
+        } catch (err) {
             console.error('ERROR:', err);
             res.sendStatus(500); // Internal Server Error
-        });
+        };
     });
 
-    app.post('/api/load100messages/', function (req, res) {
-        db.checkLoggedInUser(req.body.uuid).then(ok => {
+    app.post('/api/load100messages/', async function (req, res) {
+        try {
+            const ok = await db.checkLoggedInUser(req.body.uuid)
             if (ok) {
-                db.get100Messages(req.body.channel).then(result => {
-                    let newm = [];
-                    for (let i = 0; i < result.length; i++) {
-                        let json_data = {};
-                        json_data.uuid = result[i].uuid;
-                        json_data.username = result[i].username;
-                        json_data.message = result[i].message;
-                        json_data.time = result[i].timesent.getTime();
-                        json_data.edited = false;
-                        newm.push(json_data);
+                const messages = await db.get100Messages(req.body.channel)
+                let newm = [];
+                for (const message of messages) {
+                    let json = {
+                        uuid: message.uuid,
+                        username: message.username,
+                        message: message.message,
+                        time: message.timesent.getTime(),
                     }
-                    res.json(newm.reverse());
-                }).catch(err => console.error('ERROR:', err));
-            } else {
-                res.sendStatus(401); // Unauthorized
+                    newm.push(json);
+                }
+                res.send(newm.reverse());
 
-            }
-        }).catch(err => {
+            } else res.sendStatus(401); // Unauthorized
+
+        } catch (err) {
             console.error('ERROR:', err);
             res.sendStatus(500); // Internal Server Error
-        });
+        };
     });
 
-    app.post('/api/loadmessages/:message_uuid', function (req, res) {
-        db.checkLoggedInUser(req.body.uuid).then(ok => {
+    app.post('/api/loadmessages/:message_uuid', async function (req, res) {
+        try {
+            const ok = await db.checkLoggedInUser(req.body.uuid)
             if (ok) {
-                db.getMessagesFrom(req.body.channel, req.params.message_uuid).then(result => {
+                const messages = await db.getMessagesFrom(req.body.channel, req.params.message_uuid)
 
-                    let newm = [];
-                    for (let i = 0; i < result.length; i++) {
-                        let json_data = {};
-                        json_data.uuid = result[i].uuid;
-                        json_data.username = result[i].username;
-                        json_data.message = result[i].message;
-                        json_data.time = result[i].timesent.getTime();
-                        json_data.edited = false;
-                        newm.push(json_data);
+                let newm = [];
+                for (const message of messages) {
+                    let json = {
+                        uuid: message.uuid,
+                        username: message.username,
+                        message: message.message,
+                        time: message.timesent.getTime(),
                     }
-                    let from_date = TimeUUID.fromString(req.params.message_uuid).getDate().getTime();
-                    let delm = [];
-                    deleted_messages.forEach((message) => {
-                        if (message.del_time > from_date) {
-                            delm.push({
-                                uuid: message.uuid,
-                                del_time: message.del_time,
-                                time_uuid: message.time_uuid,
-                                original_message: message.original_message
-                            });
-                        }
-                    });
+                    newm.push(json);
+                }
 
-                    edited_messages.forEach((message) => {
-                        if (message.edit_time > from_date) {
-                            newm.push({
-                                uuid: message.uuid,
-                                message: message.message,
-                                time_uuid: message.time_uuid,
-                                time: message.time,
-                                username: message.username,
-                                edited: true,
-                            });
-                        }
-                    });
-                    res.json({ newmessages: newm, deletedmessages: delm });
-                }).catch(err => console.error('ERROR:', err));
-            } else {
-                res.sendStatus(401); // Unauthorized
+                let from_date = TimeUUID.fromString(req.params.message_uuid).getDate().getTime();
+                let delm = [];
+                deleted_messages.forEach(message => {
+                    if (message.del_time > from_date) {
+                        delm.push({
+                            uuid: message.uuid,
+                            del_time: message.del_time,
+                            time_uuid: message.time_uuid,
+                            original_message: message.original_message
+                        });
+                    }
+                });
 
-            }
-        }).catch(err => {
+                edited_messages.forEach(message => {
+                    if (message.edit_time > from_date) {
+                        newm.push({
+                            uuid: message.uuid,
+                            message: message.message,
+                            time_uuid: message.time_uuid,
+                            time: message.time,
+                            username: message.username,
+                            edited: true,
+                        });
+                    }
+                });
+                res.send({
+                    newmessages: newm,
+                    deletedmessages: delm
+                });
+
+            } else res.sendStatus(401); // Unauthorized
+
+        } catch (err) {
             console.error('ERROR:', err);
             res.sendStatus(500); // Internal Server Error
-        });
+        };
     });
 
-    app.get('/api/loadmessages', function (req, res) {
+    app.get('/api/loadmessages', async function (req, res) {
         res.sendStatus(401);
     });
 
-    app.post('/api/sendmessage/', function (req, res) {
-        db.getUserForUUID(req.body.uuid).then(user => {
-            db.addMessage(req.body.channel, user, req.body.message).then(message_uuid => {
-                res.sendStatus(200);
-                eventManager.callSendMessageHandler([user, req.body.message]);
-                HA.sendMessage(req.body, message_uuid);
-            }).catch(err => {
-                console.error('ERROR:', err);
-                res.sendStatus(500); // Internal Server Error
-            });
+    app.post('/api/sendmessage/', async function (req, res) {
+        try {
+            const user = await db.getUserForUUID(req.body.uuid)
+            const message_uuid = await db.addMessage(req.body.channel, user, req.body.message)
+
+            res.sendStatus(200);
+            eventManager.callSendMessageHandler([user, req.body.message]);
+            HA.sendMessage(req.body, message_uuid);
 
             const subs = webPush.getSubscriptions()
             const pushMessage = {
-                sender: user, 
+                sender: user,
                 message: req.body.message
             }
 
@@ -154,249 +151,207 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
                 }
             }
 
-        }).catch(err => {
+        } catch (err) {
             console.error('ERROR:', err);
             res.sendStatus(500); // Internal Server Error
-        });
-    });
-
-    app.get('/api/sendmessage/', function (req, res) {
-        res.sendStatus(401);
-    });
-
-    app.post('/api/deletemessage/', function (req, res) {
-        db.getUserForUUID(req.body.uuid).then(user => {
-            db.getSingleMessage(req.body.channel, req.body.message_uuid).then(message => {
-                if (user == message.username) {
-                    db.deleteMessage(req.body.channel, req.body.message_uuid);
-                    deleted_messages.push({
-                        uuid: req.body.message_uuid,
-                        del_time: new Date().getTime(),
-                        time_uuid: new TimeUUID(),
-                        original_message: {
-                            uuid: message.uuid,
-                            username: message.username,
-                            message: message.message,
-                            timesent: new Date(message.timesent).getTime(),
-                        }
-                    });
-                    res.sendStatus(200);
-                    eventManager.callDeleteMessageHandler([user, req.body.message_uuid]);
-                    HA.deleteMessage(req.body);
-                } else {
-                    res.sendStatus(403); // Forbidden
-                }
-            }).catch(err => {
-                console.error('ERROR:', err);
-                res.sendStatus(500); // Internal Server Error
-            });
-        }).catch(err => {
-            console.error('ERROR:', err);
-            res.sendStatus(500); // Internal Server Error
-        });
-    });
-
-    app.get('/api/deletemessage/', function (req, res) {
-        res.sendStatus(401);
-    });
-
-    app.post('/api/editmessage/', function (req, res) {
-        db.getUserForUUID(req.body.uuid).then((user) => {
-            db.getMessageSender(req.body.channel, req.body.message_uuid).then(sender => {
-                if (user == sender) {
-                    db.editMessage(req.body.channel, req.body.message_uuid, req.body.newmessage);
-                    edited_messages.push({
-                        channel: req.body.channel,
-                        uuid: req.body.message_uuid,
-                        message: req.body.newmessage,
-                        edit_time: new Date().getTime(),
-                        time_uuid: new TimeUUID(),
-                        username: user,
-                        time: new TimeUUID(req.body.message_uuid).getDate().getTime()
-                    });
-                    res.sendStatus(200);
-                    eventManager.callEditMessageHandler([user, req.body.newmessage]);
-                    HA.editMessage(req.body);
-                } else {
-                    res.sendStatus(500); // Internal Server Error
-                }
-            }).catch(err => {
-                console.error('ERROR:', err);
-                res.sendStatus(500); // Internal Server Error
-            });
-        }).catch(err => {
-            console.error('ERROR:', err);
-            res.sendStatus(500); // Internal Server Error
-        });
-    });
-
-    app.get('/api/editmessage/', function (req, res) {
-        res.sendStatus(401);
-    });
-
-    app.post('/api/login', function (req, res) {
-        username = req.body.username;
-        password = req.body.password;
-        if (username && password) {
-            db.getPasswordHash(username).then(hash => {
-                bcrypt.verifyPromise(password, hash).then(same => {
-                    if (same) {
-                        console.log(username, 'logged in through the API.')
-                        db.loginUser(username).then(user_uuid => {
-                            res.status(200).send(user_uuid);
-                            eventManager.callLoginUserHandler([username]);
-                            HA.login(body, user_uuid);
-                        }).catch(err => {
-                            console.error('ERROR: ', err);
-                            res.sendStatus(500); // Server error
-                        });
-                    } else {
-                        res.sendStatus(400); // Bad request: either username and/or pasword are not present
-                    }
-                });
-            }).catch(err => {
-                if (err == USER_NOT_FOUND_ERROR) {
-                    res.sendStatus(400); // Bad request: either username and/or pasword are not present
-                } else {
-                    console.error('ERROR: ', err);
-                    res.sendStatus(500); // Server error
-                }
-            });
-        } else {
-            res.sendStatus(400); // Bad request: either username and/or pasword are not present
         }
     });
 
-    app.post('/api/register', function (req, res) {
-        var username = req.body.username;
-        var password1 = req.body.password1;
-        var password2 = req.body.password2;
-
-        if (username && password1 && password2) {
-            if (password1 == password2) {
-                db.isntAlreadyRegistered(username).then(result => {
-                    if (result) {
-                        console.log('New user: ', username);
-                        bcrypt.save(username, password1).then(user_uuid => {
-                            db.loginUser(username).then(session_uuid => {
-                                res.status(200).send(session_uuid);
-                                eventManager.callRegisterUserHandler([username]);
-                            }).catch(err => res.sendStatus(500)) // Server Error
-                        }).catch(err => res.sendStatus(500)) // Server Error
-                    } else res.sendStatus(409) // Conflict
-                }).catch(err => res.sendStatus(500)) // Server Error
-            } else res.sendStatus(400);
-        } else res.sendStatus(400);
+    app.get('/api/sendmessage/', async function (req, res) {
+        res.sendStatus(401);
     });
 
+    app.post('/api/deletemessage/', async function (req, res) {
+        try {
+            const user = await db.getUserForUUID(req.body.uuid)
+            const message = await db.getSingleMessage(req.body.channel, req.body.message_uuid)
 
-    app.get('/api/login', function (req, res) {
-        res.sendStatus(405); // Bad Method
-    });
-
-    app.post('/api/logout', function (req, res) {
-        db.logoutUser(req.body.uuid);
-        res.sendStatus(200);
-        eventManager.callLogoutUserHandler([req.body.uuid]);
-        HA.logout(req.body)
-    });
-
-    app.get('/api/logout', function (req, res) {
-        res.sendStatus(405); // Bad Method
-    });
-
-    app.post('/api/updatePassword', function (req, res) {
-        let old_password = req.body.old_password;
-        let new_password = req.body.new_password;
-        let new_password_repeat = req.body.new_password_repeat;
-        let uuid = req.body.uuid;
-        db.getUserForUUID(uuid).then(user => {
-            if (new_password == new_password_repeat) {
-                db.getPasswordHash(user).then(hash => {
-                    bcrypt.verifyPromise(old_password, hash).then(ok => {
-                        if (ok) {
-                            bcrypt.update(user, new_password).then(() => {
-                                res.sendStatus(200); // Success
-                                HA.updatePassword(req.body)
-                            }).catch(err => {
-                                if (err == USER_NOT_FOUND_ERROR) {
-                                    res.sendStatus(403); // Forbidden
-                                } else {
-                                    console.error('ERROR:', err);
-                                    res.sendStatus(500);
-                                }
-                            });
-                        } else {
-                            res.sendStatus(401); // Unauthorized
-                        }
-                    }).catch(err => {
-                        if (err == USER_NOT_FOUND_ERROR) {
-                            res.sendStatus(403); // Forbidden
-                        } else {
-                            console.error('ERROR:', err);
-                            res.sendStatus(500);
-                        }
-                    });
-                }).catch(err => {
-                    if (err == USER_NOT_FOUND_ERROR) {
-                        res.sendStatus(403); // Forbidden
-                    } else {
-                        console.error('ERROR:', err);
-                        res.sendStatus(500);
+            if (user === message.username) {
+                db.deleteMessage(req.body.channel, req.body.message_uuid);
+                deleted_messages.push({
+                    uuid: req.body.message_uuid,
+                    del_time: new Date().getTime(),
+                    time_uuid: new TimeUUID(),
+                    original_message: {
+                        uuid: message.uuid,
+                        username: message.username,
+                        message: message.message,
+                        timesent: new Date(message.timesent).getTime(),
                     }
                 });
-            } else {
-                res.sendStatus(400); // Bad request
-            }
-        }).catch(err => {
-            if (err == USER_NOT_FOUND_ERROR) {
-                res.sendStatus(403); // Forbidden
-            } else {
-                console.error('ERROR:', err);
-                res.sendStatus(500);
-            }
-        });
+
+                res.sendStatus(200);
+                eventManager.callDeleteMessageHandler([user, req.body.message_uuid]);
+                HA.deleteMessage(req.body);
+
+            } else res.sendStatus(403); // Forbidden
+
+        } catch (err) {
+            console.error('ERROR:', err);
+            res.sendStatus(500); // Internal Server Error
+        }
     });
 
-    app.get('/api/verifyUUID/:uuid', function (req, res) { // For Hermes Desktop
-        let uuid = req.params.uuid;
-        if (uuid) {
-            db.checkLoggedInUser(uuid).then(() => {
+    app.get('/api/deletemessage/', async function (req, res) {
+        res.sendStatus(401);
+    });
+
+    app.post('/api/editmessage/', async function (req, res) {
+        try {
+            const user = await db.getUserForUUID(req.body.uuid)
+            const sender = await db.getMessageSender(req.body.channel, req.body.message_uuid)
+
+            if (user === sender) {
+                db.editMessage(req.body.channel, req.body.message_uuid, req.body.newmessage);
+                edited_messages.push({
+                    channel: req.body.channel,
+                    uuid: req.body.message_uuid,
+                    message: req.body.newmessage,
+                    edit_time: new Date().getTime(),
+                    time_uuid: new TimeUUID(),
+                    username: user,
+                    time: new TimeUUID(req.body.message_uuid).getDate().getTime()
+                });
                 res.sendStatus(200);
-            }).catch(err => res.sendStatus(400));
-        } else {
-            res.sendStatus(400);
+                eventManager.callEditMessageHandler([user, req.body.newmessage]);
+                HA.editMessage(req.body);
+
+            } else res.sendStatus(403); // Forbidden
+
+        } catch (err) {
+            console.error('ERROR:', err);
+            res.sendStatus(500); // Internal Server Error
         };
     });
 
-    app.post('/api/saveSettings', function (req, res) {
-        let color = req.body.color;
-        let theme = req.body.theme;
-        let notifications = req.body.notifications;
-        let image_b64 = decodeURIComponent(req.body.image_b64);
-        let uuid = req.body.uuid;
+    app.get('/api/editmessage/', async function (req, res) {
+        res.sendStatus(401);
+    });
 
-        db.getUserForUUID(uuid).then(user => {
-            console.log('Saving settings for', user + ':', '#' + color, parseInt(notifications), theme);
-            db.saveSetting(user, color, parseInt(notifications), image_b64, theme).then(() => {
-                res.sendStatus(200);
-                HA.saveSettings(req.body);
-            }).catch(err => {
-                if (err == USER_NOT_FOUND_ERROR) {
-                    res.sendStatus(401); // Unauthorized
-                } else {
-                    console.error('ERROR:', err);
-                    res.sendStatus(500);
-                }
-            });
-        }).catch(err => {
-            if (err == USER_NOT_FOUND_ERROR) {
-                res.sendStatus(401); // Unauthorized
-            } else {
-                console.error('ERROR:', err);
-                res.sendStatus(500);
-            }
-        });
+    app.post('/api/login', async function (req, res) {
+        try {
+            const username = req.body.username;
+            const password = req.body.password;
+
+            const hash = await db.getPasswordHash(username)
+            const same = await bcrypt.verifyPromise(password, hash)
+
+            if (same) {
+                const uuid = await db.loginUser(username)
+                res.send(uuid);
+                eventManager.callLoginUserHandler([username]);
+                HA.login(body, uuid);
+
+            } else res.sendStatus(400); // Bad request: either username and/or pasword are not present
+
+        } catch (err) {
+            console.error('ERROR: ', err);
+            res.sendStatus(500); // Server error
+        };
+    });
+
+    app.post('/api/register', async function (req, res) {
+        try {
+
+            const username = req.body.username;
+            const password1 = req.body.password1;
+            const password2 = req.body.password2;
+
+            if (username && password1 && password2 && (password1 === password2)) {
+                const result = await db.isntAlreadyRegistered(username)
+
+                if (result) {
+                    const uuid = await bcrypt.save(username, password1)
+                    res.send(uuid);
+                    eventManager.callRegisterUserHandler([username]);
+
+                } else res.sendStatus(409) // Conflict
+
+            } else res.sendStatus(400); // Bad Request: invalid input
+
+        } catch (err) {
+            console.error('ERROR: ', err);
+            res.sendStatus(500); // Server error
+        }
+    });
+
+
+    app.get('/api/login', async function (req, res) {
+        res.sendStatus(405); // Bad Method
+    });
+
+    app.post('/api/logout', async function (req, res) {
+        try {
+            await db.logoutUser(req.body.uuid);
+            res.sendStatus(200);
+            eventManager.callLogoutUserHandler([req.body.uuid]);
+            HA.logout(req.body)
+        } catch (err) {
+            console.error('ERROR:', err);
+            res.sendStatus(500);
+        }
+    });
+
+    app.get('/api/logout', async function (req, res) {
+        res.sendStatus(405); // Bad Method
+    });
+
+    app.post('/api/updatePassword', async function (req, res) {
+        try {
+            const old_password = req.body.old_password;
+            const new_password = req.body.new_password;
+            const new_password_repeat = req.body.new_password_repeat;
+            const uuid = req.body.uuid;
+
+            if (new_password === new_password_repeat) {
+
+                const user = await db.getUserForUUID(uuid)
+                const hash = await db.getPasswordHash(user)
+                const ok = await bcrypt.verifyPromise(old_password, hash)
+
+                if (ok) {
+                    await bcrypt.update(user, new_password)
+                    res.sendStatus(200); // Success
+                    HA.updatePassword(req.body)
+
+                } else res.sendStatus(401); // Unauthorized
+
+            } else res.sendStatus(400); // Bad request
+
+        } catch (err) {
+            console.error('ERROR:', err);
+            res.sendStatus(500);
+        }
+    });
+
+    app.get('/api/verifyUUID/:uuid', async function (req, res) { // For Hermes Desktop
+        try {
+            await db.checkLoggedInUser(req.params.uuid)
+            res.sendStatus(200);
+
+        } catch (err) {
+            console.error('ERROR:', err);
+            res.sendStatus(500);
+        };
+    });
+
+    app.post('/api/saveSettings', async function (req, res) {
+        try {
+            const uuid = req.body.uuid;
+            const color = req.body.color;
+            const notifications = parseInt(req.body.notifications);
+            const image_b64 = decodeURIComponent(req.body.image_b64);
+            const theme = req.body.theme;
+
+            const user = await db.getUserForUUID(uuid)
+            await db.saveSetting(user, color, notifications, image_b64, theme)
+            res.sendStatus(200);
+            HA.saveSettings(req.body);
+
+        } catch (err) {
+            console.error('ERROR:', err);
+            res.sendStatus(500);
+        }
     });
 
     app.post('/api/getChannels', async function (req, res) {
@@ -410,8 +365,8 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
             }
             res.send(r)
         } catch (err) {
-            console.error(err)
-            res.sendStatus(500)
+            console.error('ERROR:', err);
+            res.sendStatus(500);
         }
     });
 
@@ -420,139 +375,88 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
             const user = await db.getUserForUUID(req.body.uuid)
             const uuid = await db.createChannel(user, req.body.name)
             res.send(uuid)
+
         } catch (err) {
-            console.error(err)
-            res.sendStatus(500)
+            console.error('ERROR:', err);
+            res.sendStatus(500);
         }
     });
 
-    app.post('/api/joinChannel', function (req, res) {
-        db.getUserForUUID(req.body.uuid).then(user => {
-            db.channelExists(req.body.channel).then(exists => {
-                if (exists) {
-                    db.joinChannel(user, req.body.channel).then(() => {
-                        res.sendStatus(200)
-                    }).catch(err => {
-                        console.error(err)
-                        res.sendStatus(500)
-                    })
-                } else res.sendStatus(404) // Channel not found
-            }).catch(err => res.sendStatus(404))
-        }).catch(err => res.sendStatus(500))
-    });
+    app.post('/api/joinChannel', async function (req, res) {
+        try {
+            const user = await db.getUserForUUID(req.body.uuid)
+            const exists = await db.channelExists(req.body.channel)
 
-    app.post('/api/leaveChannel', function (req, res) {
-        db.getUserForUUID(req.body.uuid).then(user => {
-            db.leaveChannel(user, req.body.channel).then(() => {
+            if (exists) {
+                await db.joinChannel(user, req.body.channel)
                 res.sendStatus(200)
-            }).catch(err => {
-                console.error(err)
-                res.sendStatus(500)
-            })
-        }).catch(err => {
-            console.error(err)
-            res.sendStatus(500)
-        })
+
+            } else res.sendStatus(404) // Channel not found
+
+        } catch (err) {
+            console.error('ERROR:', err);
+            res.sendStatus(500);
+        }
     });
 
-    app.get('/api/getSettings/:username', function (req, res) { // Only for chat (Color & image only)
-        db.getSetting(decodeURIComponent(req.params.username)).then((data) => {
-            let color = data[0];
-            let image_b64 = data[2];
+    app.post('/api/leaveChannel', async function (req, res) {
 
-            res.status(200).send({
-                color: '#' + color,
-                image: image_b64
+        try {
+            const user = await db.getUserForUUID(req.body.uuid)
+            await db.leaveChannel(user, req.body.channel)
+            res.sendStatus(200)
+
+        } catch (err) {
+            console.error('ERROR:', err);
+            res.sendStatus(500);
+        }
+    });
+
+    app.get('/api/getSettings/:username', async function (req, res) { // Only for chat (Color & image only)
+        try {
+            const settings = await db.getSetting(decodeURIComponent(req.params.username))
+
+            res.send({
+                color: '#' + settings[0],
+                image: settings[2]
             });
-        }).catch(err => {
-            if (err == FIELD_REQUIRED_ERROR) {
-                res.sendStatus(400); // Bad request
-            } else if (err == USER_NOT_FOUND_ERROR) {
-                res.sendStatus(401); // Unauthorized
-            } else {
-                console.error('ERROR:', err);
-                res.sendStatus(500);
-            }
-        });
+        } catch (err) {
+            console.error('ERROR:', err);
+            res.sendStatus(500);
+        };
     });
 
-    app.post('/api/getSettings/', function (req, res) {
-        let uuid = req.body.uuid;
-        db.getUserForUUID(uuid).then(user => {
-            db.getSetting(user).then((data) => {
-                res.status(200).send({
-                    username: user,
-                    color: '#' + data[0],
-                    notifications: data[1],
-                    image: data[2],
-                    theme: data[3]
-                });
-            }).catch(err => {
-                if (err == FIELD_REQUIRED_ERROR) {
-                    res.sendStatus(400); // Bad request
-                } else if (err == USER_NOT_FOUND_ERROR) {
-                    res.sendStatus(401); // Unauthorized
-                } else {
-                    console.error('ERROR:', err);
-                    res.sendStatus(500);
-                }
+    app.post('/api/getSettings/', async function (req, res) {
+        try {
+            const user = await db.getUserForUUID(req.body.uuid)
+            const settings = await db.getSetting(user)
+
+            res.send({
+                username: user,
+                color: '#' + settings[0],
+                notifications: settings[1],
+                image: settings[2],
+                theme: settings[3]
             });
-        }).catch(err => {
-            if (err == USER_NOT_FOUND_ERROR) {
-                res.sendStatus(401); // Unauthorized
-            } else {
-                console.error('ERROR:', err);
-                res.sendStatus(500);
-            }
-        });
+
+        } catch (err) {
+            console.error('ERROR:', err);
+            res.sendStatus(500);
+        };
     });
 
-    app.get('/api/clearMessages/:token', function (req, res) {
-        db.checkToken(req.params.token).then(() => {
-            db.clear('messages');
-            res.redirect('/');
-            console.log('Cleared messages');
-            HA.clearMessages(req.params.token);
-        }).catch(err => res.sendStatus(403));
-    });
-
-    app.get('/api/clearUsers/:token', function (req, res) {
-        db.checkToken(req.params.token).then(() => {
-            db.clear('users');
-            db.clear('settings');
-            db.clear('messages');
-            res.redirect('/');
-            console.log('Cleared users.');
-            HA.clearUsers(req.params.token);
-        }).catch(err => res.sendStatus(403));
-    });
-
-    app.get('/api/clearSessions/:token', function (req, res) {
-        db.checkToken(req.params.token).then(() => {
-            db.clear('sessions');
-            res.redirect('/');
-            console.log('Cleared logged in users.');
-            HA.clearSessions(req.params.token);
-        }).catch(err => res.sendStatus(403));
-    });
-
-    app.get('/api/teapot', function (req, res) {
-        console.log('I\'m a teapot!');
+    app.get('/api/teapot', async function (req, res) {
         res.sendStatus(418); // I'm a teapot
         eventManager.callTeapotHandler([]);
     });
 
-    app.get('/api/getThemes', function (req, res) {
-        res.json(utils.getThemes());
+    app.get('/api/getThemes', async function (req, res) {
+        res.send(utils.getThemes());
     });
 
-    HA.init(app, db,bcrypt, utils);
+    HA.init(app, db, bcrypt, utils);
 
-    app.get('/api/*', function (req, res) {
-        console.log('Tried to access a non implemented part of the API: ' + req.url);
+    app.get('/api/*', async function (req, res) {
         res.sendStatus(404); // Not found
     });
-
-    
-
 };

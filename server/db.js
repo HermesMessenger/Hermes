@@ -302,7 +302,8 @@ module.exports = class {
                     try {
                         await this.saveSetting(user, createColor())
                         await this.joinChannel(user, global_channel_uuid)
-                        resolve()
+                        const uuid = await this.loginUser(user)
+                        resolve(uuid)
                     } catch (err) {
                         reject(err)
                     }
