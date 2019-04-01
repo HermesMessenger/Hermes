@@ -1,0 +1,48 @@
+#rightclick {
+    display: none;
+    z-index: 1000;
+    position: absolute;
+    overflow: hidden;
+    border: 2px solid $border-color;
+    white-space: nowrap;
+    background: $their-message-color;
+    color: $text-color;
+    border-radius: 8px;
+}
+
+#rightclick li {
+    padding: 6px 8px;
+    cursor: pointer;
+}
+
+#rightclick li:hover {
+    background-color: $bg-color;
+}
+
+.quote {
+    padding: 1px 2px;
+    color: $text-color;
+    display: block;
+    margin: 2px;
+    margin-bottom: 12px;
+}
+
+#closeQuote {
+    position: absolute;
+    float: right;
+    right: 16px;
+    top: 4px;
+    font: 32px $font-family, monospace;
+    cursor: pointer;
+}
+textarea#editing {
+    border: none;
+    font: italic 15px $font-family, monospace;
+    border: none;
+    width: calc(95vw - 180px);
+    background: $my-message-color;
+    color: $text-color;
+    word-wrap: break-word;
+    word-break: break-all;
+    resize: none;
+}

@@ -1,0 +1,20 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font: 15px $font-family, monospace;
+    background: $bg-color;
+}
+
+@import './header';
+@import './footer';
+@import './messages';
+@import './settings';
+@import './contextmenu';
+@import './sidebar';
+@import './loader';
+@import './keyframes';
+@import './mobile';

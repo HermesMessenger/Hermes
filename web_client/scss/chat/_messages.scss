@@ -1,0 +1,81 @@
+
+#messages {
+    list-style-type: none;
+}
+
+#chat_prof_pic {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin: 0px 5px;
+}
+
+.message {
+    font: 16px $font-family, monospace;
+    padding: 8px;
+    border: 2px solid $border-color;
+    color: $text-color;
+    white-space: pre-wrap;
+    min-height: 36px;
+    overflow: hidden;
+    transition: all .1s ease-in-out;
+}
+
+span.message_body {
+    display: inline-block;
+    position: absolute;
+    width: calc(100vw - 290px)
+}
+
+.myMessage {
+    margin: 12px 24px 0px 128px;
+    border-radius: 16px 4px 16px 16px;
+    background: $my-message-color;
+}
+
+.myMessageLeft {
+    margin: 12px 88px 0px 64px;
+}
+
+.theirMessage {
+    margin: 12px 128px 0px 24px;
+    border-radius: 4px 16px 16px 16px;
+    background: $their-message-color;
+}
+
+.theirMessageLeft {
+    margin: 12px 192px 0px -40px;
+}
+
+.time {
+    position: relative;
+    float: right;
+    color: $text-color;
+}
+
+#messages li.date {
+    margin-top: 16px;
+    border-radius: 0;
+    border: 0;
+    background: 0;
+    text-align: center;
+    color: $text-color;
+}
+
+.MD-spoiler {
+    padding: 1px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.spoiler-hidden {
+    background: $text-color;
+}
+
+.spoiler-seen {
+    background: inherit;
+}
+
+.highlight_message {
+    background-color: $hightlight-color;
+}

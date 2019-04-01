@@ -1,0 +1,68 @@
+#separator-top {
+    top: 0;
+    height: 48px;
+    width: 100%;
+}
+
+#menutop {
+    height: 48px;
+    background: $menu-color;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1;
+    border-bottom: 3px solid $border-color;
+}
+
+#sidebarbtn {
+    display: inline-block;
+    background: url(/images/menu.png) no-repeat;
+    background-size: 28px;
+    background-position: center;
+    z-index: 8;
+    height: 42px;
+    width: 42px;
+    margin: 2px 8px;
+    padding: 0 3px;
+    transition: all .2s ease-in-out;
+    border-radius: 50%;
+
+    @if $invert-images !='auto' {
+        filter: invert(100%);
+    }
+}
+
+#sidebarbtn:hover {
+    background-color: darken($menu-color, 10%);
+    transition: all .2s ease-in-out;
+
+    @if $invert-images !='auto' {
+        background-color: invert(darken($menu-color, 10%));
+    }
+}
+
+#title {
+    position: absolute;
+    display: inline-block;
+    width: calc(100vw - 72px);
+    top: 4px;
+    left: 54px;
+    text-align: center
+}
+
+#chatimg {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid $border-color;
+    vertical-align: middle;
+    margin: 4px;
+    padding: 1px;
+}
+
+#chatname {
+    color: $text-color;
+    display: inline-block;
+    vertical-align: middle;
+}

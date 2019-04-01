@@ -1,0 +1,105 @@
+#sidebar {
+    border-right: 3px solid $border-color;
+    height: 100%;
+    width: 75vw;
+    max-width: 330px;
+    position: fixed;
+    z-index: 1002;
+    top: 0;
+    left: -400px;
+    background: $menu-color;
+    overflow-x: hidden;
+    padding: 8px;
+    transition: left .33s ease-in-out;
+}
+
+#sidebar-header {
+    color: $text-color;
+    padding: 48px 0px 16px 64px;
+}
+
+.chatselect {
+    background: $menu-color;
+    transition: all .2s ease-in-out;
+    padding: 6px;
+    font-size: 25px;
+    overflow-x: hidden;
+    border-radius: 24px;
+}
+
+.chatselect:hover {
+    background: darken($menu-color, 10%);
+}
+
+.chatname {
+    color: $text-color;
+    display: inline-block;
+    vertical-align: middle;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: calc(100% - 42px);
+    white-space: nowrap;
+}
+
+.chatimg {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid $border-color;
+    vertical-align: middle;
+    margin: 8px 12px 8px 0px;
+    padding: 1px;
+}
+
+#sidebar-footer {
+    position: absolute;
+    bottom: 16px;
+    width: calc(100% - 16px);
+    height: 48px;
+    text-align: center;
+}
+
+#settings {
+    display: inline-block;
+    font: 20px $font-family, monospace;
+    background: url(/images/settings.png) no-repeat;
+    background-size: 24px;
+    background-position: center;
+    background-color: $their-message-color;
+    color: $text-color;
+    border-radius: 16px;
+    border: 3px solid $border-color;
+    width: 44px;
+    height: 44px;
+
+    @if $invert-images !='auto' {
+        filter: invert(100%);
+        border-color: invert($border-color);
+        background-color: invert($their-message-color);
+        color: invert($text-color);
+    }
+}
+
+#logout {
+    display: inline-block;
+    font: 20px $font-family, monospace;
+    background: rgba(255, 89, 89, 0.8);
+    color: $text-color;
+    border-radius: 16px;
+    border: 3px solid $border-color;
+    width: 128px;
+    height: 44px;
+}
+
+#darkoverlay {
+    display: none;
+    z-index: 1001;
+    background: rgba(0, 0, 0, 0.4);
+    position: fixed;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    opacity: 1;
+    transition: opacity .2s ease-in-out;
+}
