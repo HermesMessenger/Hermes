@@ -205,7 +205,7 @@ $(window).on('load', function () {
 
         $("#darkoverlay").click(function () {
             $("#darkoverlay").fadeOut(200);
-            $("#sidebar").css("left", "-300px");
+            $("#sidebar").css("left", "-333px");
         });
 
         window.sessionStorage.clear();
@@ -213,14 +213,12 @@ $(window).on('load', function () {
 
         httpPostAsync('/api/getChannels/', uuid_header, data => {
             my_channels = JSON.parse(data);
-            for(let channel of my_channels){
+            for (let channel of my_channels) {
                 let new_channel = $('<li class="chatselect">');
                 new_channel.attr('data-channel', channel.uuid);
                 new_channel.append($('<img class="chatimg">').attr('src', `data:image/png;base64,${channel.icon}`));
                 new_channel.append($('<p class="chatname">').text(channel.name));
-                new_channel.click(() => {
-                    changeChatTo(channel.uuid);
-                });
+                new_channel.click(() => changeChatTo(channel.uuid));
                 $('#chats').append(new_channel)
             }
             

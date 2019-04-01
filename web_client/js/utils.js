@@ -135,7 +135,7 @@ function createQuoteHTML(message_id, loadedMessages = undefined) {
             background-color: ${users[quoted_user.toLowerCase()].color}50;
         }`
         // Create the quote span
-        let quoteSpan = $(`<span class="quote user-${quoted_user_id.toLowerCase()}" onclick="quoteOnClick('${message_id}')" data-quoted-id="${message_id}" >`).append(MDtoHTML(quoted_message));
+        let quoteSpan = $(`<span class="quote user-${quoted_user_id.toLowerCase()}" onclick="quoteOnClick('#${message_id}')" data-quoted-id="${message_id}" >`).append(MDtoHTML(quoted_message));
 
         // Check if the CSS for the current user already exists
         let cssRuleExists = false;
@@ -199,7 +199,6 @@ function resizeInput() {
     $('#message_send_form').height(height + (($('#s-quote:hidden').length == 0) ? $('#s-quote').outerHeight(true) : 0))
     $('#m').height(height)
     $('#separator-bottom').height($('#message_send_form').height() + 42)
-    if (isAtBottom()) scrollToBottom(false)
 };
 
 function sendMessage() {
@@ -207,7 +206,7 @@ function sendMessage() {
     if (!msg.match(/^\s*$/)) {
         httpPostAsync('/api/sendmessage/', {
             ...uuid_header,
-            message: (($('#s-quote:hidden').length == 0) ?`"${$('#s-quote').attr('data-quoted-id')}"`:'')+msg, 
+            message: (($('#s-quote:hidden').length == 0) ? `"${$('#s-quote').attr('data-quoted-id')}"` : '') + msg, 
             channel: current_channel,
         });
         $('#m').val('');
@@ -279,9 +278,34 @@ function getMessageAtPosition(y) {
     return res
 }
 function isAtBottom() {
-    let scroll = $(document).height() - $(window).height() - $(window).scrollTop() - $('#messages').children().last().outerHeight();
+    let scroll = $(document).height() - $(window).height() - $(window).scrollTop();
     if (scroll <= 100) return true
     return false
+}
+
+// Check if y is in scrolled part of the window
+function isVisible(y) {
+    let minScroll = $(window).scrollTop()
+    let maxScroll = minScroll + window.innerHeight
+    return y > minScroll && y < maxScroll
+}
+
+function getScrollDistance(y) {
+    if (isVisible(y)) return 0
+
+    let minScroll = $(window).scrollTop()
+    let maxScroll = minScroll + window.innerHeight
+
+    return Math.min(Math.abs(y - minScroll), Math.abs(y - maxScroll))
+}
+
+function scrollTo(y, callback) {
+    let distance = getScrollDistance(y)
+    if (distance) {
+        $("HTML").animate({ scrollTop: y }, distance / 4, 'linear', () => {
+            if (typeof callback == 'function') callback()
+        });
+    } else if (typeof callback == 'function') callback() // No need to scroll since message is already visible
 }
 
 function scrollToBottom(animate) {
@@ -295,23 +319,13 @@ function spoilerOnClick(t){
     t.onClick = undefined;
 }
 
-function quoteOnClick(message_id) {
-    let message = document.getElementById(message_id);
-    window.scroll({
-        top: $(message).offset().top - $(message).height() - $('#menutop').height() + 2,
-        left: 0,
-        behavior: 'smooth',
-        speed: 'slow'
-    })
-    let background = $(message).css("background-color");
-    $(message).toggleClass("highlight_message");
-    $(message).animate({
-        backgroundColor: background,
-        queue: false
-    }, 400, function () {
-        $(message).css("background-color", '');
+function quoteOnClick(message) {
+    scrollTo($(message).offset().top - 60, function () {
         $(message).toggleClass("highlight_message");
-    });
+        setTimeout(() => $(message).toggleClass("highlight_message"), 100);
+        setTimeout(() => $(message).toggleClass("highlight_message"), 250);
+        setTimeout(() => $(message).toggleClass("highlight_message"), 350);
+    })
 }
 
 function replaceLinks(html_element) {
@@ -342,23 +356,25 @@ function replaceLinks(html_element) {
 }
 
 function changeChatTo(uuid){
-    if (current_channel != uuid || first_load) {
-        for (let chat of my_channels) {
-            if (chat.uuid == uuid) {
-                $('#darkoverlay').click()
-                current_channel = uuid;
-                $('#chatname').text(chat.name);
-                $('#chatimg').attr('src', `data:image/png;base64,${chat.icon}`);
-                $('#messages').empty();
-                $("#loading").show();
-                loadLast100Messages(() => {
-                    first_load = false;
-                    loadMessages();
-                });
-                return;
+    $('#darkoverlay').click()
+    setTimeout(() => {
+        if (current_channel != uuid || first_load) {
+            for (let chat of my_channels) {
+                if (chat.uuid == uuid) {
+                    current_channel = uuid;
+                    $('#chatname').text(chat.name);
+                    $('#chatimg').attr('src', `data:image/png;base64,${chat.icon}`);
+                    $('#messages').empty();
+                    $("#loading").show();
+                    loadLast100Messages(() => {
+                        first_load = false;
+                        loadMessages();
+                    });
+                    return;
+                }
             }
         }
-    }
+    }, 300) // Run this after 300ms to ensure sidebar is closed
 }
 
 /**
