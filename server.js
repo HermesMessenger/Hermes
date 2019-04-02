@@ -115,6 +115,23 @@ app.get('/', async function (req, res) {
     }
 });
 
+app.get('/joinChannel/:uuid', async function (req, res) {
+    try {
+        const user = await db.getUserForUUID(req.cookies.hermes_uuid)
+        const exists = await db.channelExists(req.params.uuid)
+
+        if (exists) {
+            await db.joinChannel(user, req.params.uuid)
+
+            res.redirect('/chat');
+        }
+
+    } catch (err) {
+        console.error('ERROR:', err);
+        res.redirect('/login')
+    }
+});
+
 app.get('/chat', async function (req, res) {
     try {
         const ok = await db.checkLoggedInUser(req.cookies.hermes_uuid)
