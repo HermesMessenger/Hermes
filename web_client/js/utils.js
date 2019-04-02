@@ -33,6 +33,35 @@ function padNumber(n) {
     return n.toString();
 }
 
+function fallbackCopyTextToClipboard(text) {
+    var textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+  
+    try {
+      var successful = document.execCommand('copy');
+      var msg = successful ? 'successful' : 'unsuccessful';
+      console.log('Fallback: Copying text command was ' + msg);
+    } catch (err) {
+      console.error('Fallback: Oops, unable to copy', err);
+    }
+  
+    document.body.removeChild(textArea);
+  }
+  function copyTextToClipboard(text) {
+    if (!navigator.clipboard) {
+      fallbackCopyTextToClipboard(text);
+      return;
+    }
+    navigator.clipboard.writeText(text).then(function() {
+      console.log('Async: Copying to clipboard was successful!');
+    }, function(err) {
+      console.error('Async: Could not copy text: ', err);
+    });
+  }
+
 function sendNotifiaction(user, message, image) {
     if (notifications_allowed && notifications_supported && !(ifvisible.now())) {
         new Notification(user, {
@@ -73,8 +102,8 @@ function getCookie(cname) { // From W3Schools
     return "";
 }
 
-function deleteCookie(name) {   
-    document.cookie = name + '=; Max-Age=-99999999;';  
+function deleteCookie(name) {
+    document.cookie = name + '=; Max-Age=-99999999;';
 }
 
 function escapeStringForCSS(string) {
@@ -128,9 +157,9 @@ function createQuoteHTML(message_id, loadedMessages = undefined) {
 
         // Replace all the unvalid charaters in css IDs
         let quoted_user_id = escapeStringForCSS(quoted_user);
-        
+
         let quote_css =
-        `.quote.user-${quoted_user_id.toLowerCase()} {
+            `.quote.user-${quoted_user_id.toLowerCase()} {
             border-left: 4px ${users[quoted_user.toLowerCase()].color} solid;
             background-color: ${users[quoted_user.toLowerCase()].color}50;
         }`
@@ -149,7 +178,7 @@ function createQuoteHTML(message_id, loadedMessages = undefined) {
                 }
             }
         }
-        
+
         if (!cssRuleExists) {
             css.insertRule(quote_css);
         }
@@ -180,14 +209,14 @@ function removeSQuote() {
 
 function addSQuote(id) {
     let q = createQuoteHTML(id)
-    if(q){
-        
+    if (q) {
+
         for (let cls of q.classList) {
             if (cls.startsWith('user-')) {
                 $('#s-quote').addClass(cls)
             }
         }
-        $('#s-quote').html(deconvertHTML(q.innerHTML)+'<span id="closeQuote" onclick="removeSQuote()">&times;</span>')
+        $('#s-quote').html(deconvertHTML(q.innerHTML) + '<span id="closeQuote" onclick="removeSQuote()">&times;</span>')
         $('#s-quote').attr('data-quoted-id', id)
         $('#s-quote').show()
         resizeInput();
@@ -206,7 +235,7 @@ function sendMessage() {
     if (!msg.match(/^\s*$/)) {
         httpPostAsync('/api/sendmessage/', {
             ...uuid_header,
-            message: (($('#s-quote:hidden').length == 0) ? `"${$('#s-quote').attr('data-quoted-id')}"` : '') + msg, 
+            message: (($('#s-quote:hidden').length == 0) ? `"${$('#s-quote').attr('data-quoted-id')}"` : '') + msg,
             channel: current_channel,
         });
         $('#m').val('');
@@ -314,8 +343,8 @@ function scrollToBottom(animate) {
     else $("HTML, BODY").animate({ scrollTop: bottom }, 0);
 }
 
-function spoilerOnClick(t){
-    t.classList.replace('spoiler-hidden','spoiler-seen');
+function spoilerOnClick(t) {
+    t.classList.replace('spoiler-hidden', 'spoiler-seen');
     t.onClick = undefined;
 }
 
@@ -355,7 +384,7 @@ function replaceLinks(html_element) {
     }
 }
 
-function changeChatTo(uuid){
+function changeChatTo(uuid) {
     $('#darkoverlay').click()
     setTimeout(() => {
         if (current_channel != uuid || first_load) {
@@ -363,10 +392,28 @@ function changeChatTo(uuid){
                 if (chat.uuid == uuid) {
                     current_channel = uuid;
                     $('#chatname').text(chat.name);
+                    let last_show = new Date().getTime();
+                    const delay = 1000;
+                    function hide_chatinfo(){
+                        setTimeout(()=>{
+                            if((new Date().getTime() - last_show) > 1000){
+                                $('#chatinfo').fadeOut(200);
+                            }else{
+                                hide_chatinfo();
+                            }
+                        }, 1000)
+                    }
+                    $('#chatname,#chatinfo').hover(()=>{
+                        $('#chatinfo').fadeIn(200);
+                        last_show = new Date().getTime();
+                    },()=>{
+                        hide_chatinfo();
+                    });
                     $('#chatimg').attr('src', `data:image/png;base64,${chat.icon}`);
                     $('#messages').empty();
                     $("#loading").show();
                     loadLast100Messages(() => {
+                        populateChatInfo();
                         first_load = false;
                         loadMessages();
                     });
@@ -375,6 +422,30 @@ function changeChatTo(uuid){
             }
         }
     }, 300) // Run this after 300ms to ensure sidebar is closed
+}
+
+function populateChatInfo() {
+    $('#chatinfo_uuid').text(`${current_channel}`);
+    $('#chatinfo_members').empty();
+    $('#chatinfo_copylink').click(()=>{
+        copyTextToClipboard(`${window.location.origin}/joinChannel/${current_channel}`);
+        // TODO give some sort of response
+    });
+    for (let chat of my_channels) {
+        if (chat.uuid == current_channel) {
+            for(let member of chat.members){
+                if (member in users) {
+                    let user = users[member];
+                    let li = $('<li>');
+                    li.append($('<img>').attr('src', `data:image/png;base64,${user.image}`));
+                    li.append($(`<span style="color: ${user.color}">`).text(user.displayname))
+                    $('#chatinfo_members').append(li);
+                }else{
+                    // TODO get user properties from server
+                }
+            }
+        }
+    }
 }
 
 /**

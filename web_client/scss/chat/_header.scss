@@ -27,7 +27,7 @@
     transition: all .2s ease-in-out;
     border-radius: 50%;
 
-    @if $invert-images !='auto' {
+    @if $invert-images == true {
         filter: invert(100%);
     }
 }
@@ -36,7 +36,7 @@
     background-color: darken($menu-color, 10%);
     transition: all .2s ease-in-out;
 
-    @if $invert-images !='auto' {
+    @if $invert-images == true {
         background-color: invert(darken($menu-color, 10%));
     }
 }

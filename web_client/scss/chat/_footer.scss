@@ -68,7 +68,7 @@ textarea {
     background: url(/images/send.png) no-repeat;
     background-color: $their-message-color;
 
-    @if $invert-images !='auto' {
+    @if $invert-images == true {
         filter: invert(100%);
         background-color: invert($their-message-color);
     }

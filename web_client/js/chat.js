@@ -346,6 +346,7 @@ function printMessages(messages, prepend) {
         if (!Object.keys(users).includes(username.toLowerCase())) {
             let response = httpGetSync("/api/getSettings/" + encodeURIComponent(username));
             users[username.toLowerCase()] = JSON.parse(response);
+            users[username.toLowerCase()]['displayname'] = username;
         }
 
         let color = users[username.toLowerCase()].color;

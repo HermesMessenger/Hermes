@@ -1,0 +1,59 @@
+#chatinfo {
+    $width: 60vw;
+    position: absolute;
+    width: $width;
+    background: $bg-color;
+    left: 50vw - ($width / 2);
+    top: 48px /*The height of the menutop*/ + 10px;
+    border: $border-color 2px solid;
+    border-radius: 4px;
+    padding: 5px;
+    color: $text-color;
+
+    span#chatinfo_uuid {
+        display: inline-block;
+        text-align: center;
+        width: 100%;
+        color: lighten($color: $text-color, $amount: 50);
+        @if $invert-images == true {
+            color: darken($color: $text-color, $amount: 50);
+        }
+        font-size: 0.7em;
+    }
+
+    div#chatinfo_copylink_wrapper{
+        text-align: center;
+        button#chatinfo_copylink {
+            display: inline-block;
+            padding: 2px;
+            margin: 2px;
+            width: 50%;
+            background: $their-message-color;
+            border: $border-color 2px solid;
+            border-radius: 4px;
+        }
+    }
+
+    div#chatinfo_separator {
+        width: 100%;
+        background: $border-color;
+        height: 2px;
+        margin: 2px;
+    }
+
+    ul#chatinfo_members {
+        li {
+            display: block;
+            text-align: center;
+            img {
+                display: inline-block;
+                width: 10px;
+                height: 10px;
+            }
+            span {
+                display: inline-block;
+                margin-left: 10px;
+            }
+        }
+    }
+}

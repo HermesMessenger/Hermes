@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#C8E6C9"/>
-    <meta name="Description" content="A decentralized messaging app."/>
+    <meta name="theme-color" content="#C8E6C9" />
+    <meta name="Description" content="A decentralized messaging app." />
     <title>Hermes</title>
     <link rel="shortcut icon" href="/favicon.png">
     <link rel="icon" href="/favicon.png">
@@ -26,6 +26,12 @@
         <div id="title">
             <img id="chatimg" src="/images/HermesMessengerLogoV2.png">
             <h1 id="chatname">GLOBAL</h1>
+        </div>
+        <div id="chatinfo" style="display:none">
+            <div id="chatinfo_copylink_wrapper"><button id="chatinfo_copylink">Copy join link</button></div>
+            <div id="chatinfo_separator"></div>
+            <ul id="chatinfo_members"></ul>
+            <span id="chatinfo_uuid">13814000-1dd2-11b2-8080-808080808080</span>
         </div>
         <div id="sidebarbtn"></div>
     </div>
@@ -49,7 +55,7 @@
     <form action="" id="message_send_form">
         <span id="s-quote" class="quote" style="display: none"></span>
         <p id="user"></p>
-        <textarea id="m" autocomplete="off" autofocus ></textarea>
+        <textarea id="m" autocomplete="off" autofocus></textarea>
         <button id='send'></button>
     </form>
     <div id="separator-bottom"></div>
