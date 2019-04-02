@@ -2,6 +2,6 @@ POST http://localhost:8080/api/createChannel/ HTTP/1.1
 content-type: application/json
 
 {
-    "uuid": "325c18d0-52dc-11e9-a394-45ed24103f9f", 
-    "name": "NOT GLOBAL CHAT WITH LONG NAME"
+    "uuid": "251145d0-54ba-11e9-ba75-d4cabd9f4f9b", 
+    "name": "Test Channel"
 }

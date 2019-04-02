@@ -513,7 +513,7 @@ module.exports = class {
     saveSetting(username, color, notifications = NOTIFICATIONS_ON, image_b64 = DEFAULT_IMAGE, theme = 'hermes') {
         if (!this.closed) {
             const query = 'INSERT INTO Settings(Username,Notifications,Theme,Color,Image) values(?,?,?,?,textAsBlob(?));';
-            let data = [username, notifications, theme, color, image_b64];
+            let data = [username.toLowerCase(), notifications, theme, color, image_b64];
             return new Promise((resolve, reject) => {
                 this.client.execute(query, data, { prepare: true }).then(result => {
                     resolve();
@@ -528,11 +528,30 @@ module.exports = class {
         if (!this.closed) {
             const query = 'SELECT color, notifications, blobAsText(image) as image, theme FROM Settings WHERE username=?;';
             return new Promise((resolve, reject) => {
-                let data = [username];
+                let data = [username.toLowerCase()];
                 this.client.execute(query, data, { prepare: true }).then(result => {
                     let userRow = result.first();
                     if (userRow) {
                         resolve([userRow.color, userRow.notifications, userRow.image, userRow.theme]);
+                    } else {
+                        reject(USER_NOT_FOUND_ERROR);
+                    }
+                }).catch(err => reject(err));
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
+    }
+
+    getDisplayName(username) {
+        if (!this.closed) {
+            const query = 'SELECT username FROM Users WHERE user_low=?;';
+            return new Promise((resolve, reject) => {
+                let data = [username.toLowerCase()];
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    let userRow = result.first();
+                    if (userRow) {
+                        resolve(userRow.username);
                     } else {
                         reject(USER_NOT_FOUND_ERROR);
                     }

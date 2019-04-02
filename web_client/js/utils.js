@@ -393,15 +393,15 @@ function changeChatTo(uuid) {
                     current_channel = uuid;
                     $('#chatname').text(chat.name);
                     let last_show = new Date().getTime();
-                    const delay = 1000;
+                    const delay = 500;
                     function hide_chatinfo(){
                         setTimeout(()=>{
-                            if((new Date().getTime() - last_show) > 1000){
+                            if((new Date().getTime() - last_show) > delay){
                                 $('#chatinfo').fadeOut(200);
                             }else{
                                 hide_chatinfo();
                             }
-                        }, 1000)
+                        }, delay);
                     }
                     $('#chatname,#chatinfo').hover(()=>{
                         $('#chatinfo').fadeIn(200);
@@ -441,7 +441,15 @@ function populateChatInfo() {
                     li.append($(`<span style="color: ${user.color}">`).text(user.displayname))
                     $('#chatinfo_members').append(li);
                 }else{
-                    // TODO get user properties from server
+                    httpGetAsync('/api/getSettings/'+encodeURIComponent(member), (data)=>{
+                        httpGetAsync('/api/getDisplayName/'+encodeURIComponent(member), (displayname)=>{
+                            data = JSON.parse(data);
+                            let li = $('<li>');
+                            li.append($('<img>').attr('src', `data:image/png;base64,${data.image}`));
+                            li.append($(`<span style="color: ${data.color}">`).text(displayname))
+                            $('#chatinfo_members').append(li);
+                        });
+                    });
                 }
             }
         }

@@ -445,6 +445,16 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
         };
     });
 
+    app.get('/api/getDisplayName/:user', async function(req, res){
+        try {
+            const username = await db.getDisplayName(req.params.user);
+            res.send(username);
+        } catch (err) {
+            console.error('ERROR:', err);
+            res.sendStatus(500);
+        };
+    });
+
     app.get('/api/teapot', async function (req, res) {
         res.sendStatus(418); // I'm a teapot
         eventManager.callTeapotHandler([]);
