@@ -413,15 +413,24 @@ function changeChatTo(uuid) {
                         hide_chatinfo();
                     });
 
-                    $('#chatname,#chatinfo').click(()=>{
-                        if(chatinfo_shown){
-                            $('#chatinfo').fadeOut(200);
-                            chatinfo_shown = false;
-                        }else{
+                    
+                    $('#chatname,#chatinfo').click((e)=>{
+                        if(!chatinfo_shown){
+                            let chatinfo_click_two = function(e2){
+                                if(chatinfo_shown && e.timeStamp != e2.timeStamp){
+                                    
+                                    $('#chatinfo').fadeOut(200);
+                                    chatinfo_shown = false;
+                                    $(document).off('click', chatinfo_click_two);
+                                }
+                            }
+                            $(document).on('click', chatinfo_click_two);
                             $('#chatinfo').fadeIn(200);
                             chatinfo_shown = true;
+                            
                         }
                     });
+                    
                     $('#chatimg').attr('src', `data:image/png;base64,${chat.icon}`);
                     $('#messages').empty();
                     $("#loading").show();
