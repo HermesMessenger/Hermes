@@ -235,6 +235,8 @@ $(window).on('load', function () {
         if ($(window).width() > 600) $("#m").width($(window).width() - 100 - $("#user").width())
         else $("#m").width($(window).width() - 72)
 
+        resizeChatInfo()
+
         resizeInput()
     });
 
@@ -258,6 +260,7 @@ $(window).on('load', function () {
     }, 200) 
 
     $('#m').on('input propertychange', resizeInput)
+    resizeChatInfo()
 });
 
 

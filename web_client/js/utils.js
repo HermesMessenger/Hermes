@@ -393,21 +393,34 @@ function changeChatTo(uuid) {
                     current_channel = uuid;
                     $('#chatname').text(chat.name);
                     let last_show = new Date().getTime();
+                    let chatinfo_shown = false;
                     const delay = 500;
                     function hide_chatinfo(){
-                        setTimeout(()=>{
-                            if((new Date().getTime() - last_show) > delay){
-                                $('#chatinfo').fadeOut(200);
-                            }else{
-                                hide_chatinfo();
-                            }
-                        }, delay);
+                        if(!chatinfo_shown){
+                            setTimeout(()=>{
+                                if((new Date().getTime() - last_show) > delay){
+                                    $('#chatinfo').fadeOut(200);
+                                }else{
+                                    hide_chatinfo();
+                                }
+                            }, delay);
+                        }
                     }
                     $('#chatname,#chatinfo').hover(()=>{
                         $('#chatinfo').fadeIn(200);
                         last_show = new Date().getTime();
                     },()=>{
                         hide_chatinfo();
+                    });
+
+                    $('#chatname,#chatinfo').click(()=>{
+                        if(chatinfo_shown){
+                            $('#chatinfo').fadeOut(200);
+                            chatinfo_shown = false;
+                        }else{
+                            $('#chatinfo').fadeIn(200);
+                            chatinfo_shown = true;
+                        }
                     });
                     $('#chatimg').attr('src', `data:image/png;base64,${chat.icon}`);
                     $('#messages').empty();
@@ -454,6 +467,10 @@ function populateChatInfo() {
             }
         }
     }
+}
+
+function resizeChatInfo(){
+    $('#chatinfo').css('left', $(window).width() / 2 - $('#chatinfo').outerWidth() / 2);
 }
 
 /**

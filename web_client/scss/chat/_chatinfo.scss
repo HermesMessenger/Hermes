@@ -1,5 +1,7 @@
 #chatinfo {
     $width: 60vw;
+    $mob_width: 95vw;
+    $max_width: 370px;
     position: absolute;
     width: $width;
     background: $bg-color;
@@ -9,6 +11,11 @@
     border-radius: 4px;
     padding: 5px;
     color: $text-color;
+    max-width: $max_width;
+    @media only screen and (max-width: 600px) {
+        width: $mob_width;
+    }
+    
 
     span#chatinfo_uuid {
         display: inline-block;
@@ -28,6 +35,7 @@
             padding: 2px;
             margin: 2px;
             width: 50%;
+            max-width: 215px;
             background: $their-message-color;
             border: $border-color 2px solid;
             border-radius: 4px;
