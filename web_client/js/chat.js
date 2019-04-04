@@ -109,35 +109,31 @@ $(window).on('load', function () {
             httpPostAsync('/api/deletemessage/', header);
         });
 
-        var edit_header = uuid_header;
-        let EDIT_HTML_RULES = getCustomRules(HTML_RULES, {
-            tag: 'span',
-            class: 'quote',
-            md: '"$TEXT"'
-        })
-        edit_header.message = HTMLtoMD($(this).find('b').next().html(), EDIT_HTML_RULES);
-        edit_header.channel = current_channel
-
         var is_editing = false;
 
-        function setup_edit(ctx, username_element) {
-            edit_header.message = HTMLtoMD(username_element.next().html(), EDIT_HTML_RULES);
-            edit_header.message_uuid = $(ctx).attr('id').substr(8);
+        function setup_edit(id, username_element) {
+            let md_message = HTMLtoMD(username_element.next().html(), HTML_RULES)
+
             is_editing = true;
-            let input = $('<textarea id="editing">').val(edit_header['message']);
+            let input = $('<textarea id="editing">').val(md_message);
             input.keydown(function (e) { // Add an event listener for this input
                 let evtobj = window.event ? event : e
                 let modifier = evtobj.ctrlKey || evtobj.metaKey; // Ctrl on Windows, Cmd on Mac
                 if (evtobj.keyCode == 13 && modifier) { // Ctrl/Cmd + enter to send the message
+
+                    let edit_header = {
+                        uuid: uuid_header.uuid, 
+                        message: md_message,
+                        message_uuid: $(id).attr('id').substr(8),
+                        channel: current_channel
+                    };
+
                     if ($(this).val() != '') {
-                        edit_header['newmessage'] = (input.parent().parent().find(".quote").length != 0 ? "\"" + input.parent().parent().find(".quote").attr('data-quoted-id') + "\"" : "") + $(this).val();
+                        edit_header.newmessage = (input.parent().parent().find(".quote").length != 0 ? '"' + input.parent().parent().find(".quote").attr('data-quoted-id') + '"' : "") + $(this).val();
                         httpPostAsync('/api/editmessage/', edit_header);
-                        editing_message_timestamp = 0;
-                        is_editing = false;
-                    } else {
-                        httpPostAsync('/api/deletemessage/', edit_header);
-                        is_editing = false;
-                    }
+
+                    } else httpPostAsync('/api/deletemessage/', edit_header);
+                    is_editing = false;
                 }
             });
             username_element.next().remove();
@@ -151,25 +147,12 @@ $(window).on('load', function () {
             });
             username_element.next().focus();
         }
-        $("#edit").click(function () { // TODO: update
-            $("#messages").find("li").each(function (i) {
-                let username_element = $(this).find('#m-username');
-                let sender = username_element.text()
-                sender = sender.substr(0, sender.length - 2);
-                if (i != $("#messages").find("li").length - 1) {
-                    let click = $("#rightclick").position().top
-                    let start = $(this).offset().top
-                    let next = $("#messages").find("li").eq(i + 1).offset().top
-                    if (click > start && click < next) {
-                        if (!is_editing && username == sender) {
-                            setup_edit(this, username_element);
-                            return false;
-                        }
-                    }
-                } else {
-                    setup_edit(this, username_element);
-                }
-            });
+
+        $("#edit").click(function () { 
+            let id = '#' + getMessageAtPosition($("#rightclick").position().top)
+            let username_element = $(id).find('#m-username');
+
+            setup_edit(id, username_element)
         });
 
         document.addEventListener('contextmenu', function (e) {
@@ -349,7 +332,7 @@ function printMessages(messages, prepend) {
         if (!Object.keys(users).includes(username.toLowerCase())) {
             let response = httpGetSync("/api/getSettings/" + encodeURIComponent(username));
             users[username.toLowerCase()] = JSON.parse(response);
-            users[username.toLowerCase()]['displayname'] = username;
+            users[username.toLowerCase()].displayname = username;
         }
 
         let color = users[username.toLowerCase()].color;
