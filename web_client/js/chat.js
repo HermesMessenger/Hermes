@@ -57,6 +57,34 @@ $(window).on('load', function () {
         }
     });
 
+    let chatinfo_shown = false;
+
+    $('#title, #chatinfo').on('click mouseenter', e => {
+        clearTimeout($(this).data('timeout'));
+        if (!chatinfo_shown) {
+            let chatinfo_click_two = function (e2) {
+                if (chatinfo_shown && e.timeStamp != e2.timeStamp) {
+
+                    $('#chatinfo').fadeOut(200);
+                    chatinfo_shown = false;
+                    $(document).off('click', chatinfo_click_two);
+                }
+            }
+            $(document).on('click', chatinfo_click_two);
+            $('#chatinfo').fadeIn(200);
+            chatinfo_shown = true;
+        }
+    });
+
+    $('#title, #chatinfo').on('mouseleave', e => {
+        let timeout = setTimeout(function(){
+            $('#chatinfo').fadeOut(200);
+            chatinfo_shown = false;
+        }, 200);
+
+        $(this).data('timeout', timeout); 
+    });
+
 
     var username;
     httpPostAsync('/api/getSettings', uuid_header, function (res) {
@@ -199,7 +227,7 @@ $(window).on('load', function () {
             for (let channel of my_channels) {
                 let new_channel = $('<li class="chatselect">');
                 new_channel.attr('data-channel', channel.uuid);
-                new_channel.append($('<img class="chatimg">').attr('src', `data:image/png;base64,${channel.icon}`));
+                new_channel.append($('<img class="chatimg">').attr('src', `data:image/png;base64,${ channel.icon }`));
                 new_channel.append($('<p class="chatname">').text(channel.name));
                 new_channel.click(() => changeChatTo(channel.uuid));
                 $('#chats').append(new_channel)
@@ -215,11 +243,14 @@ $(window).on('load', function () {
             $(this).height($(this).find(".message_body").height() + ($(this).find(".quote").length ? $(this).find(".quote").height() + 16 : 0));
         });
 
-        if ($(window).width() > 600) $("#m").width($(window).width() - 100 - $("#user").width())
-        else $("#m").width($(window).width() - 72)
+        let vw = $(window).width()
+
+        if (vw > 600) $("#m").width(vw - 100 - $("#user").width())
+        else $("#m").width(vw - 72)
+
+        $('#title').css('left', (vw - 48 - $('#title').width()) / 2)
 
         resizeChatInfo()
-
         resizeInput()
     });
 
@@ -252,7 +283,7 @@ $(window).on('load', function () {
 // ---------------------
 
 function loadMessages() {
-    httpPostAsync('/api/loadmessages/' + last_message_uuid, {...uuid_header, channel: current_channel}, function (res) {
+    httpPostAsync('/api/loadmessages/' + last_message_uuid, { uuid: uuid_header.uuid, channel: current_channel }, function (res) {
         if (res != '') {
             res = JSON.parse(res);
             let messages = res.newmessages;
@@ -278,7 +309,7 @@ function loadMessages() {
 let hasLoadedEveryMessage = false;
 
 function loadLast100Messages(callback) {
-    httpPostAsync('/api/load100messages/', {...uuid_header, channel: current_channel}, function (res) {
+    httpPostAsync('/api/load100messages/', { uuid: uuid_header.uuid, channel: current_channel }, function (res) {
         if (res !== '[]') {
             res = JSON.parse(res);
             if (res.length != 100) hasLoadedEveryMessage = true;
@@ -290,7 +321,7 @@ function loadLast100Messages(callback) {
 };
 
 function loadNext100Messages(uuid, callback) {
-    httpPostAsync('/api/load100messages/' + uuid, {...uuid_header, channel: current_channel}, function (res) {
+    httpPostAsync('/api/load100messages/' + uuid, { uuid: uuid_header.uuid, channel: current_channel }, function (res) {
         if (res !== '[]') {
             res = JSON.parse(res);
             if (res.length != 100) hasLoadedEveryMessage = true;
@@ -324,7 +355,7 @@ function printMessages(messages, prepend) {
         last_message_timestamp = message_json.time;
         last_message_uuid = message_json.uuid;
 
-        if ($("#messages").find(`#${day.replaceAll(/\//g, '\\/')}`).length == 0 && day != prev_day) {
+        if ($("#messages").find('#' + day.replaceAll(/\//g, '\\/')).length == 0 && day != prev_day) {
             let date_message = $('<li>').attr("class", "date").attr("id", day).append(day);
             loadedMessages.append(date_message);
         }
@@ -336,7 +367,7 @@ function printMessages(messages, prepend) {
         }
 
         let color = users[username.toLowerCase()].color;
-        let new_message = $(`<li id="message-${last_message_uuid}" class="message" >`);
+        let new_message = $('<li>').attr('id', last_message_uuid).addClass("message");
 
         let name = $("#message_send_form").find('p').text()
         name = name.substr(0, name.length - 1);

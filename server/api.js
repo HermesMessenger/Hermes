@@ -399,6 +399,28 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
         }
     });
 
+    app.post('/api/makeAdmin', async function (req, res) {
+        try {
+            const user = await db.getUserForUUID(req.body.uuid)
+            const exists = await db.channelExists(req.body.channel)
+
+            if (exists) {
+                const admin = await db.isAdmin(user, req.body.channel)
+
+                if (admin) {
+                    await db.makeAdmin(req.body.user, req.body.channel)
+                    res.sendStatus(200)
+
+                } else res.sendStatus(403) // Forbidden: user making request isn't an admin
+
+            } else res.sendStatus(404) // Channel not found
+
+        } catch (err) {
+            console.error('ERROR:', err);
+            res.sendStatus(500);
+        }
+    });
+
     app.post('/api/leaveChannel', async function (req, res) {
 
         try {

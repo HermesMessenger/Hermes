@@ -39,28 +39,18 @@ function fallbackCopyTextToClipboard(text) {
     document.body.appendChild(textArea);
     textArea.focus();
     textArea.select();
-  
-    try {
-      var successful = document.execCommand('copy');
-      var msg = successful ? 'successful' : 'unsuccessful';
-      console.log('Fallback: Copying text command was ' + msg);
-    } catch (err) {
-      console.error('Fallback: Oops, unable to copy', err);
-    }
-  
+
+    document.execCommand('copy');
     document.body.removeChild(textArea);
-  }
-  function copyTextToClipboard(text) {
+}
+
+function copyTextToClipboard(text) {
     if (!navigator.clipboard) {
-      fallbackCopyTextToClipboard(text);
-      return;
+        fallbackCopyTextToClipboard(text);
+        return;
     }
-    navigator.clipboard.writeText(text).then(function() {
-      console.log('Async: Copying to clipboard was successful!');
-    }, function(err) {
-      console.error('Async: Could not copy text: ', err);
-    });
-  }
+    navigator.clipboard.writeText(text)
+}
 
 function sendNotifiaction(user, message, image) {
     if (notifications_allowed && notifications_supported && !(ifvisible.now())) {
@@ -234,7 +224,7 @@ function sendMessage() {
     msg = $('#m').val();
     if (!msg.match(/^\s*$/)) {
         httpPostAsync('/api/sendmessage/', {
-            ...uuid_header,
+            uuid: uuid_header.uuid,
             message: (($('#s-quote:hidden').length == 0) ? `"${$('#s-quote').attr('data-quoted-id')}"` : '') + msg,
             channel: current_channel,
         });
@@ -306,6 +296,7 @@ function getMessageAtPosition(y) {
     })
     return res
 }
+
 function isAtBottom() {
     let scroll = $(document).height() - $(window).height() - $(window).scrollTop();
     if (scroll <= 100) return true
@@ -392,48 +383,11 @@ function changeChatTo(uuid) {
                 if (chat.uuid == uuid) {
                     current_channel = uuid;
                     $('#chatname').text(chat.name);
-                    let last_show = new Date().getTime();
-                    let chatinfo_shown = false;
-                    const delay = 500;
-                    function hide_chatinfo(){
-                        if(!chatinfo_shown){
-                            setTimeout(()=>{
-                                if((new Date().getTime() - last_show) > delay){
-                                    $('#chatinfo').fadeOut(200);
-                                }else{
-                                    hide_chatinfo();
-                                }
-                            }, delay);
-                        }
-                    }
-                    $('#chatname,#chatinfo').hover(()=>{
-                        $('#chatinfo').fadeIn(200);
-                        last_show = new Date().getTime();
-                    },()=>{
-                        hide_chatinfo();
-                    });
-
-                    
-                    $('#chatname,#chatinfo').click((e)=>{
-                        if(!chatinfo_shown){
-                            let chatinfo_click_two = function(e2){
-                                if(chatinfo_shown && e.timeStamp != e2.timeStamp){
-                                    
-                                    $('#chatinfo').fadeOut(200);
-                                    chatinfo_shown = false;
-                                    $(document).off('click', chatinfo_click_two);
-                                }
-                            }
-                            $(document).on('click', chatinfo_click_two);
-                            $('#chatinfo').fadeIn(200);
-                            chatinfo_shown = true;
-                            
-                        }
-                    });
-                    
                     $('#chatimg').attr('src', `data:image/png;base64,${chat.icon}`);
                     $('#messages').empty();
+
                     $("#loading").show();
+
                     loadLast100Messages(() => {
                         populateChatInfo();
                         first_load = false;
@@ -447,38 +401,69 @@ function changeChatTo(uuid) {
 }
 
 function populateChatInfo() {
-    $('#chatinfo_uuid').text(`${current_channel}`);
     $('#chatinfo_members').empty();
-    $('#chatinfo_copylink').click(()=>{
+    $('#chatinfo_copylink').click(() => {
         copyTextToClipboard(`${window.location.origin}/joinChannel/${current_channel}`);
-        // TODO give some sort of response
     });
+
     for (let chat of my_channels) {
         if (chat.uuid == current_channel) {
-            for(let member of chat.members){
+            let i = 0
+            for (let member of chat.members) {
+
+                let li = $('<li>');
                 if (member in users) {
+
                     let user = users[member];
-                    let li = $('<li>');
-                    li.append($('<img>').attr('src', `data:image/png;base64,${user.image}`));
-                    li.append($(`<span style="color: ${user.color}">`).text(user.displayname))
-                    $('#chatinfo_members').append(li);
-                }else{
-                    httpGetAsync('/api/getSettings/'+encodeURIComponent(member), (data)=>{
-                        httpGetAsync('/api/getDisplayName/'+encodeURIComponent(member), (displayname)=>{
+                    li.append($('<img>').attr('src', 'data:image/png;base64,' + user.image));
+                    li.append($('<span>').css('color', user.color).text(user.displayname))
+
+                    if (chat.admins) {
+                        if (chat.admins.includes(member)) {
+                            let star = $('<div>').addClass('star')
+                            let css = {
+                                position: 'absolute',
+                                top: -40 + (i * 15) + 'px',
+                                left: 45 + (member.length * 8) + 'px',
+                                transform: 'scale(0.6) rotate(180deg)'
+                            }
+                            star.css(css)
+                            li.append(star)
+                        }
+                    }
+                    
+                } else {
+                    httpGetAsync('/api/getSettings/' + encodeURIComponent(member), data => {
+                        httpGetAsync('/api/getDisplayName/' + encodeURIComponent(member), displayname => {
                             data = JSON.parse(data);
                             let li = $('<li>');
-                            li.append($('<img>').attr('src', `data:image/png;base64,${data.image}`));
-                            li.append($(`<span style="color: ${data.color}">`).text(displayname))
-                            $('#chatinfo_members').append(li);
+                            li.append($('<img>').attr('src', 'data:image/png;base64,' + data.image));
+                            li.append($('<span>').css('color', data.color).text(displayname))
+
+                            if (chat.admins) {
+                                if (chat.admins.includes(member)) {
+                                    let star = $('<div>').addClass('star')
+                                    let css = {
+                                        position: 'absolute',
+                                        top: -40 + (i * 15) + 'px',
+                                        left: 45 + (member.length * 8) + 'px',
+                                        transform: 'scale(0.6) rotate(180deg)'
+                                    }
+                                    star.css(css)
+                                    li.append(star)
+                                }
+                            }
                         });
                     });
                 }
+                $('#chatinfo_members').append(li);
+                i++
             }
         }
     }
 }
 
-function resizeChatInfo(){
+function resizeChatInfo() {
     $('#chatinfo').css('left', $(window).width() / 2 - $('#chatinfo').outerWidth() / 2);
 }
 
@@ -630,11 +615,11 @@ Array.prototype.remove = function () {
     return this;
 };
 
-var swipe_right_handler = function () { }
-var swipe_left_handler = function () { }
+var swipe_right_handler = function () {}
+var swipe_left_handler = function () {}
 
-var swipe_up_handler = function () { }
-var swipe_down_handler = function () { }
+var swipe_up_handler = function () {}
+var swipe_down_handler = function () {}
 
 var xDown = null;
 var yDown = null;

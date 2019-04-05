@@ -2,6 +2,6 @@ POST http://localhost:8080/api/createChannel/ HTTP/1.1
 content-type: application/json
 
 {
-    "uuid": "251145d0-54ba-11e9-ba75-d4cabd9f4f9b", 
-    "name": "Test Channel"
+    "uuid": "48f63aa0-5799-11e9-9248-e6b2c512a43e", 
+    "name": "Test Channel 1"
 }

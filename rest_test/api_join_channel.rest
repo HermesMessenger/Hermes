@@ -2,6 +2,6 @@ POST http://localhost:8080/api/joinChannel/ HTTP/1.1
 content-type: application/json
 
 {
-    "uuid": "325c18d0-52dc-11e9-a394-45ed24103f9f", 
-    "channel": "8d2e45d0-52e1-11e9-b5d5-8806d6c79d9a"
+    "uuid": "e202c340-57c0-11e9-a9ca-3c0e017b2d69", 
+    "channel": "89ad2770-5799-11e9-9646-f826cfc2f55e"
 }

@@ -116,7 +116,7 @@ module.exports = class {
 
     getChannelProperties(channel) {
         if (!this.closed) {
-            const query = 'SELECT uuid, blobAsText(icon) as icon, members, name FROM Channels WHERE UUID=?;';
+            const query = 'SELECT uuid, blobAsText(icon) as icon, members, admins, name FROM Channels WHERE UUID=?;';
             let data = [channel];
             return new Promise((resolve, reject) => {
                 this.client.execute(query, data, { prepare: true }).then(result => {
@@ -130,12 +130,12 @@ module.exports = class {
 
     createChannel(user, name) {
         if (!this.closed) {
-            const query = 'INSERT INTO Channels (UUID, Name, Members, Icon) values(?,?,?,textAsBlob(?));';
+            const query = 'INSERT INTO Channels (UUID, Name, Members, Admins, Icon) values(?,?,?,?,textAsBlob(?));';
             let channel_uuid = new cassandra.types.TimeUuid();
-            let data = [channel_uuid, name, [], DEFAULT_CHAT_IMAGE];
+            let data = [channel_uuid, name, [], [], DEFAULT_CHAT_IMAGE];
             return new Promise((resolve, reject) => {
                 this.client.execute(query, data, { prepare: true }).then(result => {
-                    this.joinChannel(user.toLowerCase(), channel_uuid)
+                    this.joinChannel(user.toLowerCase(), channel_uuid, true)
                         .then(() => resolve(channel_uuid))
                         .catch(err => reject(err))
                 }).catch(err => reject(err))
@@ -159,7 +159,7 @@ module.exports = class {
         }
     }
 
-    joinChannel(user, channel) {
+    joinChannel(user, channel, admin) {
         if (!this.closed) {
             const queries = [
                 {
@@ -171,11 +171,62 @@ module.exports = class {
                     params: [[user.toLowerCase()], channel]
                 }
             ];
+
+            if (admin) {
+                queries.push({
+                    query: 'UPDATE Channels SET admins = admins + ? WHERE UUID = ?;',
+                    params: [[user.toLowerCase()], channel]
+                }) 
+            }
+
             return new Promise((resolve, reject) => {
                 this.client.batch(queries, { prepare: true })
                     .then(() => resolve())
                     .catch(err => reject(err))
             })
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
+    }
+
+    isAdmin(user, channel) {
+        if (!this.closed) {
+            const query = 'SELECT COUNT (*) as count from Channels WHERE uuid = ? AND admins CONTAINS ?;';
+            let data = [channel, user.toLowerCase()];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    console.log(result.first())
+                    resolve(result.first().count.low != 0);
+                }).catch(err => reject(err));
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
+    }
+
+    makeAdmin(user, channel) {
+        if (!this.closed) {
+            const query = 'UPDATE Channels SET admins = admins + ? WHERE UUID = ?;';
+            let data = [[user], channel];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    resolve();
+                }).catch(err => reject(err));
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
+    }
+
+    removeAdmin(user, channel) {
+        if (!this.closed) {
+            const query = 'UPDATE Channels SET admins = admins - ? WHERE UUID = ?;';
+            let data = [[user], channel];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    resolve();
+                }).catch(err => reject(err));
+            });
         } else {
             return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
         }
@@ -191,8 +242,11 @@ module.exports = class {
                 {
                     query: 'UPDATE Channels SET members = members - ? WHERE UUID = ?;',
                     params: [[user.toLowerCase()], channel]
-                }
-            ];
+                },
+                {
+                    query: 'UPDATE Channels SET admins = admins - ? WHERE UUID = ?;',
+                    params: [[user.toLowerCase()], channel]
+                }            ];
             return new Promise((resolve, reject) => {
                 this.client.batch(queries, { prepare: true })
                     .then(() => resolve())

@@ -1,0 +1,8 @@
+POST http://localhost:8080/api/makeAdmin/ HTTP/1.1
+content-type: application/json
+
+{
+    "uuid": "48f63aa0-5799-11e9-9248-e6b2c512a43e", 
+    "user": "dabsdhbasd", 
+    "channel": "89ad2770-5799-11e9-9646-f826cfc2f55e"
+}
