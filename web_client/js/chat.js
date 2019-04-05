@@ -44,6 +44,22 @@ swipe_left_handler = function (x, y) {
     }
 }
 
+function resizeFn() {
+    $("#messages").find("li").each(function () {
+        $(this).height($(this).find(".message_body").height() + ($(this).find(".quote").length ? $(this).find(".quote").height() + 16 : 0));
+    });
+
+    let vw = $(window).width()
+
+    if (vw > 600) $("#m").width(vw - 100 - $("#user").width())
+    else $("#m").width(vw - 72)
+
+    $('#title').css('left', (vw - 48 - $('#title').width()) / 2)
+
+    resizeChatInfo()
+    resizeInput()
+}
+
 $(window).on('load', function () {
 
     const uuid_header = {
@@ -59,12 +75,10 @@ $(window).on('load', function () {
 
     let chatinfo_shown = false;
 
-    $('#title, #chatinfo').on('click mouseenter', e => {
-        clearTimeout($(this).data('timeout'));
-        if (!chatinfo_shown) {
-            let chatinfo_click_two = function (e2) {
-                if (chatinfo_shown && e.timeStamp != e2.timeStamp) {
-
+    $('#chatname,#chatinfo').click((e)=>{
+        if(!chatinfo_shown){
+            let chatinfo_click_two = function(e2){
+                if(chatinfo_shown && e.timeStamp != e2.timeStamp){
                     $('#chatinfo').fadeOut(200);
                     chatinfo_shown = false;
                     $(document).off('click', chatinfo_click_two);
@@ -75,14 +89,24 @@ $(window).on('load', function () {
             chatinfo_shown = true;
         }
     });
-
-    $('#title, #chatinfo').on('mouseleave', e => {
-        let timeout = setTimeout(function(){
-            $('#chatinfo').fadeOut(200);
-            chatinfo_shown = false;
-        }, 200);
-
-        $(this).data('timeout', timeout); 
+    let last_show = new Date().getTime();
+    const delay = 500;
+    function hide_chatinfo(){
+        if(!chatinfo_shown){
+            setTimeout(()=>{
+                if((new Date().getTime() - last_show) > delay){
+                    $('#chatinfo').fadeOut(200);
+                }else{
+                    hide_chatinfo();
+                }
+            }, delay);
+        }
+    }
+    $('#chatname,#chatinfo').hover(()=>{
+        $('#chatinfo').fadeIn(200);
+        last_show = new Date().getTime();
+    },()=>{
+        hide_chatinfo();
     });
 
 
@@ -238,21 +262,8 @@ $(window).on('load', function () {
     });
 
 
-    $(window).resize(function () {
-        $("#messages").find("li").each(function () {
-            $(this).height($(this).find(".message_body").height() + ($(this).find(".quote").length ? $(this).find(".quote").height() + 16 : 0));
-        });
-
-        let vw = $(window).width()
-
-        if (vw > 600) $("#m").width(vw - 100 - $("#user").width())
-        else $("#m").width(vw - 72)
-
-        $('#title').css('left', (vw - 48 - $('#title').width()) / 2)
-
-        resizeChatInfo()
-        resizeInput()
-    });
+    $(window).resize(resizeFn);
+    resizeFn();
 
     let scrolling = false
     $(document).on('scroll mousedown wheel DOMMouseScroll mousewheel', evt => {
