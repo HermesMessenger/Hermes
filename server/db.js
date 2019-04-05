@@ -66,6 +66,23 @@ module.exports = class {
             return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
         }
     }
+
+    addWelcomeMessage(channel, user) {
+        if (!this.closed) {
+            const query = 'INSERT INTO Messages (UUID, Channel, Username, Message) values(?,?,?,?);';
+            let message_uuid = new cassandra.types.TimeUuid();
+            let data = [message_uuid, channel, 'Admin', "@"+user+' has joined the chat.'];
+            return new Promise((resolve, reject) => {
+                this.client.execute(query, data, { prepare: true }).then(result => {
+                    resolve(message_uuid);
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        } else {
+            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+        }
+    }
     
     deleteMessage(channel, uuid) {
         if (!this.closed) {

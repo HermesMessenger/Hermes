@@ -389,6 +389,7 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
 
             if (exists) {
                 await db.joinChannel(user, req.body.channel)
+                await db.addWelcomeMessage(req.body.channel, user);
                 res.sendStatus(200)
 
             } else res.sendStatus(404) // Channel not found

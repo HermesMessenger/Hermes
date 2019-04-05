@@ -347,7 +347,6 @@ function printMessages(messages, prepend) {
         let username = message_json.username;
         let message = convertHTML(message_json.message);
 
-
         let time = new Date(message_json.time);
         let day = time.getDate() + '/' + (time.getMonth() + 1) + '/' + time.getFullYear();
         let hour = padNumber(time.getHours()) + ':' + padNumber(time.getMinutes()) + ':' + padNumber(time.getSeconds());
@@ -360,92 +359,102 @@ function printMessages(messages, prepend) {
             loadedMessages.append(date_message);
         }
 
-        if (!Object.keys(users).includes(username.toLowerCase())) {
+        if(username=="Admin"){
+            let user_color=JSON.parse(httpGetSync('/api/getSettings/'+message_json.message.split(" ")[0].substring(1))).color;
+            let username_span=$(`<b style="color:${user_color};">`).text(message_json.message.split(" ")[0]);
+            let admin_message=$('<li class="date">').append(username_span);
+            admin_message.append(" "+message_json.message.split(" ").slice(1).join(" "));
+            loadedMessages.append(admin_message);
+        }
+
+
+        if (!Object.keys(users).includes(username.toLowerCase()) && username.toLowerCase()!="admin") {
             let response = httpGetSync("/api/getSettings/" + encodeURIComponent(username));
             users[username.toLowerCase()] = JSON.parse(response);
             users[username.toLowerCase()].displayname = username;
         }
+        if(username.toLowerCase()!="admin"){ // I couldn't come up with a better solution, feel free to change this if you find anything better
+            let color = users[username.toLowerCase()].color;
+            let new_message = $(`<li id="message-${last_message_uuid}" class="message" >`);
 
-        let color = users[username.toLowerCase()].color;
-        let new_message = $('<li>').attr('id', last_message_uuid).addClass("message");
+            let name = $("#message_send_form").find('p').text()
+            name = name.substr(0, name.length - 1);
 
-        let name = $("#message_send_form").find('p').text()
-        name = name.substr(0, name.length - 1);
+            if (username == name) new_message.addClass('myMessage')
+            else new_message.addClass('theirMessage')
 
-        if (username == name) new_message.addClass('myMessage')
-        else new_message.addClass('theirMessage')
+            new_message.append($('<img>').attr('src', IMG_URL_HEADER + users[username.toLowerCase()].image).attr("id", "chat_prof_pic"));
+            let new_message_body = $('<span>');
+            new_message_body.append($('<b id="m-username">').text(username + ': ').css("color", color));
 
-        new_message.append($('<img>').attr('src', IMG_URL_HEADER + users[username.toLowerCase()].image).attr("id", "chat_prof_pic"));
-        let new_message_body = $('<span>');
-        new_message_body.append($('<b id="m-username">').text(username + ': ').css("color", color));
+            let messageHTML = message;
 
-        let messageHTML = message;
-
-        let quoteMatch = message.match(quoteREGEX);
-        // So that we dont parse the MD in the quote
-        let convertedMDstart = 0;
-        let convertedMDend = 0;
-        if (quoteMatch) {
-            let quote = createQuoteHTML(quoteMatch[1], loadedMessages);
-            if (quote) {
-                quote = quote.outerHTML;
-                convertedMDstart = quoteMatch.index;
-                convertedMDend = quoteMatch.index + quote.length;
-                messageHTML = messageHTML.replace(quoteMatch[0], quote)
+            let quoteMatch = message.match(quoteREGEX);
+            // So that we dont parse the MD in the quote
+            let convertedMDstart = 0;
+            let convertedMDend = 0;
+            if (quoteMatch) {
+                let quote = createQuoteHTML(quoteMatch[1], loadedMessages);
+                if (quote) {
+                    quote = quote.outerHTML;
+                    convertedMDstart = quoteMatch.index;
+                    convertedMDend = quoteMatch.index + quote.length;
+                    messageHTML = messageHTML.replace(quoteMatch[0], quote)
+                }
             }
+
+            //We're going to replace the string before & after the convertedMD
+            let message_first_replace = messageHTML.substr(0, convertedMDstart);
+            let message_second_replace = messageHTML.substr(convertedMDend, messageHTML.length);
+            let message_fisrt_MD = MDtoHTML(message_first_replace);
+            let message_second_MD = MDtoHTML(message_second_replace);
+            messageHTML = messageHTML.replace(message_first_replace, message_fisrt_MD);
+            messageHTML = messageHTML.replace(message_second_replace, message_second_MD);
+
+            let m_body_element = $('<span id="m-body">').html(messageHTML);
+
+            // find the links
+            replaceLinks(m_body_element[0]);
+
+            // Mentions
+            try {
+                let mention_regex = /(@([^ ]+))/g
+
+                let match
+                while (match = mention_regex.exec(message)) {
+                    let mention = $('<b class="mention">').css('color', users[match[2].toLowerCase()].color).text(match[1])[0].outerHTML
+                    m_body_element[0].innerHTML = m_body_element[0].innerHTML.replace(match[1], mention)
+                }
+            } catch (err) { } // Don't do anything, the mention was invalid so just don't parse it 
+
+            new_message_body.append(deconvertHTML(m_body_element[0].outerHTML));
+
+            let time_el = $("<span class='time'>")
+
+            $(window).width() > 600 ? time_el.text(hour) : time_el.text(hour.substring(0, 5)) // Hide seconds from time if on mobile
+
+            new_message_body.attr('class', 'message_body');
+
+            new_message.append(new_message_body);
+            new_message.append(time_el);
+
+            //Insert the quote after the image, this has to be done with all the message created
+            new_message.find(".quote").insertBefore(new_message.find("img")).css("display", "block");
+
+            if (message_json.edited) { // It's an edited message
+                $('li#message-' + message_json.uuid).replaceWith(new_message);
+                message_with_body = $('li#message-' + message_json.uuid);
+                last_message_uuid = message_json.time_uuid;
+            } else {
+                if ($('#messages').find('li#message-' + message_json.uuid).length == 0) {
+                    loadedMessages.append(new_message);
+                }
+            }
+
+            new_message.height(new_message_body.height() + (new_message.find(".quote").length != 0 ? new_message.find(".quote").height() + 16 : 0)); //Change message height to cover the quote on top
+
+            prev_day = day;
         }
-
-        //We're going to replace the string before & after the convertedMD
-        let message_first_replace = messageHTML.substr(0, convertedMDstart);
-        let message_second_replace = messageHTML.substr(convertedMDend, messageHTML.length);
-        let message_fisrt_MD = MDtoHTML(message_first_replace);
-        let message_second_MD = MDtoHTML(message_second_replace);
-        messageHTML = messageHTML.replace(message_first_replace, message_fisrt_MD);
-        messageHTML = messageHTML.replace(message_second_replace, message_second_MD);
-
-        let m_body_element = $('<span id="m-body">').html(messageHTML);
-
-        // find the links
-        replaceLinks(m_body_element[0]);
-
-        // Mentions
-        try {
-            let mention_regex = /(@([^ ]+))/g
-
-            let match
-            while (match = mention_regex.exec(message)) {
-                let mention = $('<b class="mention">').css('color', users[match[2].toLowerCase()].color).text(match[1])[0].outerHTML
-                m_body_element[0].innerHTML = m_body_element[0].innerHTML.replace(match[1], mention)
-            }
-        } catch (err) { } // Don't do anything, the mention was invalid so just don't parse it 
-
-        new_message_body.append(deconvertHTML(m_body_element[0].outerHTML));
-
-        let time_el = $("<span class='time'>")
-
-        $(window).width() > 600 ? time_el.text(hour) : time_el.text(hour.substring(0, 5)) // Hide seconds from time if on mobile
-
-        new_message_body.attr('class', 'message_body');
-
-        new_message.append(new_message_body);
-        new_message.append(time_el);
-
-        //Insert the quote after the image, this has to be done with all the message created
-        new_message.find(".quote").insertBefore(new_message.find("img")).css("display", "block");
-
-        if (message_json.edited) { // It's an edited message
-            $('li#message-' + message_json.uuid).replaceWith(new_message);
-            message_with_body = $('li#message-' + message_json.uuid);
-            last_message_uuid = message_json.time_uuid;
-        } else {
-            if ($('#messages').find('li#message-' + message_json.uuid).length == 0) {
-                loadedMessages.append(new_message);
-            }
-        }
-
-        new_message.height(new_message_body.height() + (new_message.find(".quote").length != 0 ? new_message.find(".quote").height() + 16 : 0)); //Change message height to cover the quote on top
-
-        prev_day = day;
     }
     let lmessagesHTML = loadedMessages.html();
 
