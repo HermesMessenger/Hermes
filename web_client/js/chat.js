@@ -487,9 +487,16 @@ function printMessages(messages, prepend) {
     } else {
         $('#messages').append(lmessagesHTML);
     }
-    $('.MD-img').on('load', () => {
+    
+    if ($('.MD-img').length) {
+        $('.MD-img').on('load', () => {
+            resizeFn();
+            if (first_load) $(document).scrollTop($("#separator-bottom").offset().top)
+            if (bottom) scrollToBottom(true)
+        });
+    } else {
         resizeFn();
         if (first_load) $(document).scrollTop($("#separator-bottom").offset().top)
         if (bottom) scrollToBottom(true)
-    });
+    }
 }
