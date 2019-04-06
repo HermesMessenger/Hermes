@@ -2,7 +2,8 @@ var last_message_timestamp = 0;
 var last_message_uuid = '13814000-1dd2-11b2-8080-808080808080'; // Smallest posible UUID for timestamp 0 (1/1/1970 00:00:00)
 let prev_json = {};
 var first_load = true;
-var current_channel = '13814000-1dd2-11b2-8080-808080808080'; // GLOBAL Channel UUID
+var GLOBAL_CHANNEL_UUID = '13814000-1dd2-11b2-8080-808080808080';
+var current_channel = GLOBAL_CHANNEL_UUID;
 var my_channels = [];
 
 const users = {};
@@ -43,7 +44,7 @@ swipe_left_handler = function (x, y) {
         } // Animation to move the message to the left and back
     }
 }
-function resizeMessage(message){
+function resizeMessage(message) {
     message.height(message.find(".message_body").height() + (message.find(".quote").length ? message.find(".quote").height() + 16 : 0));
 }
 function resizeFn() {
@@ -70,17 +71,17 @@ $(window).on('load', function () {
 
     $("#rightclick").hide();
     $(document).click(function (e) {
-        if(e.which == 1){
+        if (e.which == 1) {
             $("#rightclick").hide(100); //Hide on click outside
         }
     });
 
     let chatinfo_shown = false;
 
-    $('#chatname,#chatinfo').click((e)=>{
-        if(!chatinfo_shown){
-            let chatinfo_click_two = function(e2){
-                if(chatinfo_shown && e.timeStamp != e2.timeStamp){
+    $('#chatname, #chatinfo').click(e => {
+        if (!chatinfo_shown || current_channel !== GLOBAL_CHANNEL_UUID) {
+            let chatinfo_click_two = e2 => {
+                if (chatinfo_shown && e.timeStamp != e2.timeStamp) {
                     $('#chatinfo').fadeOut(200);
                     chatinfo_shown = false;
                     $(document).off('click', chatinfo_click_two);
@@ -93,21 +94,21 @@ $(window).on('load', function () {
     });
     let last_show = new Date().getTime();
     const delay = 500;
-    function hide_chatinfo(){
-        if(!chatinfo_shown){
-            setTimeout(()=>{
-                if((new Date().getTime() - last_show) > delay){
+    function hide_chatinfo() {
+        if (!chatinfo_shown) {
+            setTimeout(() => {
+                if ((new Date().getTime() - last_show) > delay) {
                     $('#chatinfo').fadeOut(200);
-                }else{
+                } else {
                     hide_chatinfo();
                 }
             }, delay);
         }
     }
-    $('#chatname,#chatinfo').hover(()=>{
+    $('#chatname,#chatinfo').hover(() => {
         $('#chatinfo').fadeIn(200);
         last_show = new Date().getTime();
-    },()=>{
+    }, () => {
         hide_chatinfo();
     });
 
@@ -135,14 +136,14 @@ $(window).on('load', function () {
             return false;
         });
 
-        document.onkeydown = e => {
+        $('#m').on('keydown', e => {
             let evtobj = window.event ? event : e
             let modifier = evtobj.ctrlKey || evtobj.metaKey; // Ctrl on Windows, Cmd on Mac
             if (evtobj.keyCode == 13 && modifier) { // Ctrl/Cmd + enter to send the message
                 e.preventDefault() // This is so a newline isn't added on Edge
                 sendMessage()
             }
-        }
+        });
 
         $("#logout").click(function () {
             deleteCookie('hermes_uuid')
@@ -176,7 +177,7 @@ $(window).on('load', function () {
                 if (evtobj.keyCode == 13 && modifier) { // Ctrl/Cmd + enter to send the message
 
                     let edit_header = {
-                        uuid: uuid_header.uuid, 
+                        uuid: uuid_header.uuid,
                         message: md_message,
                         message_uuid: $(id).attr('id').substr(8),
                         channel: current_channel
@@ -202,7 +203,7 @@ $(window).on('load', function () {
             username_element.next().focus();
         }
 
-        $("#edit").click(function () { 
+        $("#edit").click(function () {
             let id = '#' + getMessageAtPosition($("#rightclick").position().top)
             let username_element = $(id).find('#m-username');
 
@@ -227,7 +228,7 @@ $(window).on('load', function () {
                 else
                     $("#delete, #edit").show();
 
-                
+
                 $("#rightclick").css({ // Show #rightclick at cursor position
                     top: e.pageY + "px",
                     left: e.pageX + "px"
@@ -248,18 +249,29 @@ $(window).on('load', function () {
         window.sessionStorage.clear();
 
 
-        httpPostAsync('/api/getChannels/', uuid_header, data => {
-            my_channels = JSON.parse(data);
-            for (let channel of my_channels) {
-                let new_channel = $('<li class="chatselect">');
-                new_channel.attr('data-channel', channel.uuid);
-                new_channel.append($('<img class="chatimg">').attr('src', `data:image/png;base64,${ channel.icon }`));
-                new_channel.append($('<p class="chatname">').text(channel.name));
-                new_channel.click(() => changeChatTo(channel.uuid));
-                $('#chats').append(new_channel)
+        loadChannels();
+        $('#addchat').click(() => {
+            let css = {
+                width: '200px',
+                padding: '4px',
             }
-            
-            changeChatTo(current_channel);
+            $('#newchatname').css(css)
+            $('#newchatname').focus();
+        });
+        $('#newchatname').on('keydown', e => {
+            let evtobj = window.event ? event : e
+            if (evtobj.keyCode == 13) { // Ctrl/Cmd + enter to send the message
+                if(!/^\s*$/.test($('#newchatname').val())){
+                    httpPostAsync('api/createChannel', {
+                        uuid: uuid_header.uuid, 
+                        name: $('#newchatname').val()
+                    }, ()=>{
+                        $('#newchatname').val('')
+                        $('#newchatname').attr('style', '');
+                        loadChannels(false);
+                    })
+                }
+            }
         });
     });
 
@@ -284,7 +296,7 @@ $(window).on('load', function () {
             }
             scrolling = false
         }
-    }, 200) 
+    }, 200)
 
     $('#m').on('input propertychange', resizeInput)
     resizeChatInfo()
@@ -306,7 +318,7 @@ function loadMessages() {
                 last_message_uuid = message.time_uuid;
             });
 
-            if(messages && messages.length > 0){
+            if (messages && messages.length > 0) {
                 printMessages(messages);
             }
 
@@ -372,21 +384,21 @@ function printMessages(messages, prepend) {
             loadedMessages.append(date_message);
         }
 
-        if(username=="Admin"){ // I couldn't come up with a better solution, feel free to change this if you find anything better
-            let user_color=JSON.parse(httpGetSync('/api/getSettings/'+message_json.message.split(" ")[0].substring(1))).color;
-            let username_span=$(`<b style="color:${user_color};">`).text(message_json.message.split(" ")[0]);
-            let admin_message=$('<li class="date">').append(username_span);
-            admin_message.append(" "+message_json.message.split(" ").slice(1).join(" "));
+        if (username == "Admin") { // I couldn't come up with a better solution, feel free to change this if you find anything better
+            let user_color = JSON.parse(httpGetSync('/api/getSettings/' + message_json.message.split(" ")[0].substring(1))).color;
+            let username_span = $(`<b style="color:${user_color};">`).text(message_json.message.split(" ")[0]);
+            let admin_message = $('<li class="date">').append(username_span);
+            admin_message.append(" " + message_json.message.split(" ").slice(1).join(" "));
             loadedMessages.append(admin_message);
         }
 
 
-        if (!Object.keys(users).includes(username.toLowerCase()) && username.toLowerCase()!="admin") {
+        if (!Object.keys(users).includes(username.toLowerCase()) && username.toLowerCase() != "admin") {
             let response = httpGetSync("/api/getSettings/" + encodeURIComponent(username));
             users[username.toLowerCase()] = JSON.parse(response);
             users[username.toLowerCase()].displayname = username;
         }
-        if(username.toLowerCase()!="admin"){ // I couldn't come up with a better solution, feel free to change this if you find anything better
+        if (username.toLowerCase() != "admin") { // I couldn't come up with a better solution, feel free to change this if you find anything better
             let color = users[username.toLowerCase()].color;
             let new_message = $(`<li id="message-${last_message_uuid}" class="message" >`);
 

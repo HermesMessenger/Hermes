@@ -160,6 +160,10 @@ function removeXSS(html_str, rules = HTML_RULES) {
     return result;
 }
 
+function replaceQuotes(text){
+    return text.replace(/"/g, '&quot;');
+}
+
 
 function MDtoHTML(MD_String, rules = MD_RULES, html_rules = HTML_RULES) {
     let r = convertHTML(MD_String);
@@ -177,7 +181,7 @@ function MDtoHTML(MD_String, rules = MD_RULES, html_rules = HTML_RULES) {
                     for (let dollar_s of dollar_ms) {
                         let dollar_m = dollar_s.replace('$', '');
                         let group_number = parseInt(dollar_m);
-                        current_tag = current_tag.replace(dollar_s, match[group_number + 1])
+                        current_tag = current_tag.replace(dollar_s, replaceQuotes(match[group_number + 1]))
                     }
                 }
                 let element = current_rule.escapeMD ? $(current_tag).text(convertHTML(HTMLtoMD(match[current_rule.text_group + 1], html_rules))) : $(current_tag).html(removeXSS(match[current_rule.text_group + 1]))
@@ -208,8 +212,12 @@ function HTMLtoMD(html, rules = HTML_RULES) {
                     let inner_html = node.innerHTML;
                     let html_to_md = HTMLtoMD(inner_html, rules);
                     replaceVal = replaceVal.replace('$TEXT', html_to_md);
-                    if (href) replaceVal = replaceVal.replace('$HREF', href);
-                    if (src)  replaceVal = replaceVal.replace('$SRC', src);
+                    if (href){
+                        replaceVal = replaceVal.replace('$HREF', href);
+                    }
+                    if (src){
+                        replaceVal = replaceVal.replace('$SRC', src);
+                    }
                     innerMD = replaceVal;
                     break;
                 }

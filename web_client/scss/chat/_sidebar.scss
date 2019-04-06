@@ -15,7 +15,38 @@
 
 #sidebar-header {
     color: $text-color;
-    padding: 48px 0px 16px 64px;
+    padding: 10vh 0px 16px 8px;
+
+    button {
+        margin-right: 32px;
+        border: 2px solid $border-color;
+        border-radius: 50%;
+        background-color: inherit;
+        width: 2em;
+        height: 2em;
+        display: inline-table;
+        text-align: center;
+        vertical-align: middle;
+
+        div {
+            display: table-cell;
+            vertical-align: middle;
+            color: $text-color;
+            font-size: inherit;
+            text-align: center;
+            width: inherit;
+        }
+    }
+
+    input {
+        position: absolute;
+        width: 0px;
+        border: none;
+        border-bottom: 2px solid $border-color;
+        font: 18px $font-family, monospace;
+        transition: width .33s ease-in-out;
+        background: $menu-color;
+    }
 }
 
 .chatselect {

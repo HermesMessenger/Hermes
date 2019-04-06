@@ -1,5 +1,22 @@
 const quoteREGEX = /"(message-([0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}))"/
 
+function loadChannels(closesidebar=true){
+    httpPostAsync('/api/getChannels/', uuid_header, data => {
+        my_channels = JSON.parse(data);
+        $('#chats').empty()
+        for (let channel of my_channels) {
+            let new_channel = $('<li class="chatselect">');
+            new_channel.attr('data-channel', channel.uuid);
+            new_channel.append($('<img class="chatimg">').attr('src', `data:image/png;base64,${channel.icon}`));
+            new_channel.append($('<p class="chatname">').text(channel.name));
+            new_channel.click(() => changeChatTo(channel.uuid));
+            $('#chats').append(new_channel)
+        }
+
+        changeChatTo(current_channel,closesidebar);
+    });
+}
+
 /**
  * A function that converts a TimeUUID to a timestamp
  * @param {String} UUID The UUID
@@ -376,7 +393,8 @@ function replaceLinks(html_element) {
     }
 }
 
-function changeChatTo(uuid) {
+function changeChatTo(uuid, closesidebar=true) {
+    if(closesidebar)
     $('#darkoverlay').click()
     setTimeout(() => {
         if (current_channel != uuid || first_load) {

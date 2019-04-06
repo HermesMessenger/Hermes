@@ -372,6 +372,10 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
 
     app.post('/api/createChannel', async function (req, res) {
         try {
+            if (/^\s*$/.test(req.body.name)) {
+                res.sendStatus(400); // Bad request: name is whitespace
+                return
+            }
             const user = await db.getUserForUUID(req.body.uuid)
             const uuid = await db.createChannel(user, req.body.name)
             db.addWelcomeMessage(uuid, user);
