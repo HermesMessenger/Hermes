@@ -1,4 +1,3 @@
-
 // ### RULES FOR THE MD -> HTML PARSER ### //
 // Anything within the tag with $nº will be replaced with that group
 let MD_RULES = [
@@ -8,6 +7,7 @@ let MD_RULES = [
     { regex: /\[([\S\s]+?)\]\(((?:http:\/\/|https:\/\/).+?)\)/, text_group: 0, tag: '<a class="MD-link" href="$1" target="_blank" rel="noopener">' },
     { regex: /`([\S\s]+?)`/, text_group: 0, tag: '<code class="MD-code">', escapeMD: true },
     { regex: /\|\|([\S\s]+?)\|\|/, text_group: 0, tag: '<div class="MD-spoiler spoiler-hidden" onclick="spoilerOnClick(this)">'},
+    { regex: /!\[((?:http:\/\/|https:\/\/).+?)\]/, text_group: 0, tag: '<img class="MD-img" src="$0">'}
 ]
 
 // ### RULES FOR THE HTML -> MD PARSER ### //
@@ -18,6 +18,7 @@ let HTML_RULES = [
     { tag: 'a', class: 'MD-link', md: '[$TEXT]($HREF)' },
     { tag: 'code', class: 'MD-code', md: '`$TEXT`' },
     { tag: 'div', class: 'MD-spoiler', md: '||$TEXT||' },
+    { tag: 'img', class: 'MD-img', md: '![$SRC]' },
     { tag: 'span', class: 'quote', md: '"quote"' }, //Make the MD parser remove quotes (For editing it's changed)
     { tag: 'a', class: 'MD-link-explicit', md: '$TEXT' }, // Ignore links
     { tag: 'b', class: 'mention', md: '$TEXT' }, // Ignore mentions
@@ -180,11 +181,10 @@ function MDtoHTML(MD_String, rules = MD_RULES, html_rules = HTML_RULES) {
                     }
                 }
                 let element = current_rule.escapeMD ? $(current_tag).text(convertHTML(HTMLtoMD(match[current_rule.text_group + 1], html_rules))) : $(current_tag).html(removeXSS(match[current_rule.text_group + 1]))
-                //console.log(element[0].outerHTML);
+                
                 let to_replace = match[0];
                 if (current_rule.replace_group != undefined) to_replace = match[current_rule.replace_group + 1]
                 r = r.replace(to_replace, element.prop('outerHTML'));
-                //console.log(r);
             }
         }
     }
@@ -204,12 +204,12 @@ function HTMLtoMD(html, rules = HTML_RULES) {
                 if (node.classList.contains(rule.class) && node.nodeName == rule.tag.toUpperCase()) {
                     let replaceVal = rule.md;
                     let href = node.getAttribute('href');
+                    let src = node.getAttribute('src');
                     let inner_html = node.innerHTML;
                     let html_to_md = HTMLtoMD(inner_html, rules);
                     replaceVal = replaceVal.replace('$TEXT', html_to_md);
-                    if (href) {
-                        replaceVal = replaceVal.replace('$HREF', href);
-                    }
+                    if (href) replaceVal = replaceVal.replace('$HREF', href);
+                    if (src)  replaceVal = replaceVal.replace('$SRC', src);
                     innerMD = replaceVal;
                     break;
                 }

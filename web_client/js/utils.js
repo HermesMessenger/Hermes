@@ -349,29 +349,30 @@ function quoteOnClick(message) {
 }
 
 function replaceLinks(html_element) {
-    const linkREGEX = /([\w\d]+):\/\/([\w\d\.-]+)\.([\w\d]+)\/?([\w\d-@:%_\+.~#?&/=]*)/g;
+        const linkREGEX = /([\w\d]+):\/\/([\w\d\.-]+)\.([\w\d]+)\/?([\w\d-@:%_\+.~#?&/=]*)/g;
 
-    for (let node of html_element.childNodes) {
-        if (node.childNodes.length == 0) { // If the element doesn't have children:
-            let content = node.nodeValue; // get the elements text
-            let last_change_index = -1; // We use this so that we don't override the href property in the HTML
-            // Find every link in the content
-            while (match = linkREGEX.exec(content)) {
-                // if its past the last edit && it's not a MD-link or MD-link-explicit
-                if (match.index > last_change_index && !html_element.classList.contains('MD-link') && !html_element.classList.contains('MD-link-explicit')) {
-                    let link = match[0] // get the whole link
-                    let link_jquery = $(`<a class="MD-link-explicit" href="${link}" target="_blank" rel="noopener">`).text(link) // replace it with an actual link
-                    content = content.replaceIndex(match.index, match.index + match[0].length, link_jquery[0].outerHTML) // replace the current link found with the HTML generated
+        for (let node of html_element.childNodes) {
+            if (node.childNodes.length == 0) { // If the element doesn't have children:
+                let content = node.nodeValue; // get the elements text
+                let last_change_index = -1; // We use this so that we don't override the href property in the HTML
+                // Find every link in the content
+                while (match = linkREGEX.exec(content)) {
+                    // if its past the last edit && it's not a MD-link or MD-link-explicit
+                    if (match.index > last_change_index && !html_element.classList.contains('MD-link') && !html_element.classList.contains('MD-link-explicit')) {
+                        let link = match[0] // get the whole link
+                        let link_jquery = $(`<a class="MD-link-explicit" href="${link}" target="_blank" rel="noopener">`).text(link) // replace it with an actual link
+                        content = content.replaceIndex(match.index, match.index + match[0].length, link_jquery[0].outerHTML) // replace the current link found with the HTML generated
 
-                    last_change_index = match.index + link_jquery[0].outerHTML.length; // Update the last edit index
+                        last_change_index = match.index + link_jquery[0].outerHTML.length; // Update the last edit index
+                    }
+                }
+                if (node.classList ? !node.classList.contains('MD-img') : true) {
+                    html_element.replaceChild(toFragment(content), node) // Replace the current element with a list(Fragment) of the elements generated in HTML
                 }
 
+            } else {
+                replaceLinks(node); // If it has more than of child, apply this function
             }
-            html_element.replaceChild(toFragment(content), node) // Replace the current element with a list(Fragment) of the elements generated in HTML
-
-        } else {
-            replaceLinks(node); // If it has more than of child, apply this function
-        }
     }
 }
 
@@ -411,52 +412,56 @@ function populateChatInfo() {
             let i = 0
             for (let member of chat.members) {
 
-                let li = $('<li>');
-                if (member in users) {
+                if (member.toLowerCase() !== 'admin') {
+                    let li = $('<li>');
+                    if (member in users) {
+                        let user = users[member];
+                        li.append($('<img>').attr('src', 'data:image/png;base64,' + user.image));
+                        li.append($('<span>').css('color', user.color).text(user.displayname))
 
-                    let user = users[member];
-                    li.append($('<img>').attr('src', 'data:image/png;base64,' + user.image));
-                    li.append($('<span>').css('color', user.color).text(user.displayname))
-
-                    if (chat.admins) {
-                        if (chat.admins.includes(member)) {
-                            let star = $('<div>').addClass('star')
-                            let css = {
-                                position: 'absolute',
-                                top: -40 + (i * 15) + 'px',
-                                left: 45 + (member.length * 8) + 'px',
-                                transform: 'scale(0.6) rotate(180deg)'
-                            }
-                            star.css(css)
-                            li.append(star)
-                        }
-                    }
-                    
-                } else {
-                    httpGetAsync('/api/getSettings/' + encodeURIComponent(member), data => {
-                        httpGetAsync('/api/getDisplayName/' + encodeURIComponent(member), displayname => {
-                            data = JSON.parse(data);
-                            let li = $('<li>');
-                            li.append($('<img>').attr('src', 'data:image/png;base64,' + data.image));
-                            li.append($('<span>').css('color', data.color).text(displayname))
-
-                            if (chat.admins) {
-                                if (chat.admins.includes(member)) {
-                                    let star = $('<div>').addClass('star')
-                                    let css = {
-                                        position: 'absolute',
-                                        top: -40 + (i * 15) + 'px',
-                                        left: 45 + (member.length * 8) + 'px',
-                                        transform: 'scale(0.6) rotate(180deg)'
-                                    }
-                                    star.css(css)
-                                    li.append(star)
+                        if (chat.admins) {
+                            if (chat.admins.includes(member)) {
+                                let star = $('<div>').addClass('star')
+                                let css = {
+                                    position: 'absolute',
+                                    top: -40 + (i * 15) + 'px',
+                                    left: 45 + (member.length * 8) + 'px',
+                                    transform: 'scale(0.6) rotate(180deg)'
                                 }
+                                star.css(css)
+                                li.append(star)
                             }
+                        }
+
+                        $('#chatinfo_members').append(li);
+                    } else {
+                        httpGetAsync('/api/getSettings/' + encodeURIComponent(member), data => {
+                            httpGetAsync('/api/getDisplayName/' + encodeURIComponent(member), displayname => {
+                                data = JSON.parse(data);
+                                let li = $('<li>');
+                                li.append($('<img>').attr('src', 'data:image/png;base64,' + data.image));
+                                li.append($('<span>').css('color', data.color).text(displayname))
+
+                                if (chat.admins) {
+                                    if (chat.admins.includes(member)) {
+                                        let star = $('<div>').addClass('star')
+                                        let css = {
+                                            position: 'absolute',
+                                            top: -40 + (i * 15) + 'px',
+                                            left: 45 + (member.length * 8) + 'px',
+                                            transform: 'scale(0.6) rotate(180deg)'
+                                        }
+                                        star.css(css)
+                                        li.append(star)
+                                    }
+                                }
+                                if (member.toLowerCase() !== 'admin') {
+                                    $('#chatinfo_members').append(li);
+                                }
+                            });
                         });
-                    });
+                    }
                 }
-                $('#chatinfo_members').append(li);
                 i++
             }
         }
@@ -615,11 +620,11 @@ Array.prototype.remove = function () {
     return this;
 };
 
-var swipe_right_handler = function () {}
-var swipe_left_handler = function () {}
+var swipe_right_handler = function () { }
+var swipe_left_handler = function () { }
 
-var swipe_up_handler = function () {}
-var swipe_down_handler = function () {}
+var swipe_up_handler = function () { }
+var swipe_down_handler = function () { }
 
 var xDown = null;
 var yDown = null;

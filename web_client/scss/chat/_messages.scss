@@ -76,6 +76,11 @@ span.message_body {
     background: inherit;
 }
 
+.MD-img{
+    max-width: 256px;
+    max-height: 256px;
+}
+
 .highlight_message {
     background-color: $hightlight-color;
 }

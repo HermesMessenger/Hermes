@@ -374,7 +374,7 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
         try {
             const user = await db.getUserForUUID(req.body.uuid)
             const uuid = await db.createChannel(user, req.body.name)
-            await db.addWelcomeMessage(req.body.channel, user);
+            db.addWelcomeMessage(uuid, user);
             res.send(uuid)
 
         } catch (err) {
@@ -390,7 +390,7 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
 
             if (exists) {
                 await db.joinChannel(user, req.body.channel)
-                await db.addWelcomeMessage(req.body.channel, user);
+                db.addWelcomeMessage(req.body.channel, user);
                 res.sendStatus(200)
 
             } else res.sendStatus(404) // Channel not found

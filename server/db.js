@@ -69,12 +69,12 @@ module.exports = class {
 
     addWelcomeMessage(channel, user) {
         if (!this.closed) {
-            const query = 'INSERT INTO Messages (UUID, Channel, Username, Message) values(?,?,?,?);';
-            let message_uuid = new cassandra.types.TimeUuid();
-            let data = [message_uuid, channel, 'Admin', "@"+user+' has joined the chat.'];
+            const query = 'INSERT INTO Messages (UUID, Channel, Username, Message) values(now(),?,?,?);';
+            let data = [channel, 'Admin', `@${user} has joined the chat.`];
+            console.log('Adding welcome message')
             return new Promise((resolve, reject) => {
                 this.client.execute(query, data, { prepare: true }).then(result => {
-                    resolve(message_uuid);
+                    resolve();
                 }).catch(err => {
                     reject(err);
                 });

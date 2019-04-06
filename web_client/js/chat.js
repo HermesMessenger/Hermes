@@ -43,10 +43,12 @@ swipe_left_handler = function (x, y) {
         } // Animation to move the message to the left and back
     }
 }
-
+function resizeMessage(message){
+    message.height(message.find(".message_body").height() + (message.find(".quote").length ? message.find(".quote").height() + 16 : 0));
+}
 function resizeFn() {
     $("#messages").find("li").each(function () {
-        $(this).height($(this).find(".message_body").height() + ($(this).find(".quote").length ? $(this).find(".quote").height() + 16 : 0));
+        resizeMessage($(this))
     });
 
     let vw = $(window).width()
@@ -370,7 +372,7 @@ function printMessages(messages, prepend) {
             loadedMessages.append(date_message);
         }
 
-        if(username=="Admin"){
+        if(username=="Admin"){ // I couldn't come up with a better solution, feel free to change this if you find anything better
             let user_color=JSON.parse(httpGetSync('/api/getSettings/'+message_json.message.split(" ")[0].substring(1))).color;
             let username_span=$(`<b style="color:${user_color};">`).text(message_json.message.split(" ")[0]);
             let admin_message=$('<li class="date">').append(username_span);
@@ -462,8 +464,6 @@ function printMessages(messages, prepend) {
                 }
             }
 
-            new_message.height(new_message_body.height() + (new_message.find(".quote").length != 0 ? new_message.find(".quote").height() + 16 : 0)); //Change message height to cover the quote on top
-
             prev_day = day;
         }
     }
@@ -475,7 +475,9 @@ function printMessages(messages, prepend) {
     } else {
         $('#messages').append(lmessagesHTML);
     }
-
-    if (first_load) $(document).scrollTop($("#separator-bottom").offset().top)
-    if (bottom) scrollToBottom(true)
+    $('.MD-img').on('load', () => {
+        resizeFn();
+        if (first_load) $(document).scrollTop($("#separator-bottom").offset().top)
+        if (bottom) scrollToBottom(true)
+    });
 }
