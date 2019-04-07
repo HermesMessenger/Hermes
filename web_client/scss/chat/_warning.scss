@@ -1,0 +1,13 @@
+#warning {
+  border-right: 3px solid $border-color;
+  height: 100vw;
+  width: 75vw;
+  max-width: 330px;
+  position: fixed;
+  z-index: 1002;
+  left: -400px;
+  background: $menu-color;
+  overflow-x: hidden;
+  padding: 8px;
+  transition: left .33s ease-in-out;
+}
