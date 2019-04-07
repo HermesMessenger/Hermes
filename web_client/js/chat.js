@@ -247,31 +247,39 @@ $(window).on('load', function () {
         });
 
         window.sessionStorage.clear();
-
-
         loadChannels();
+
         $('#addchat').click(() => {
-            let css = {
-                width: '200px',
-                padding: '4px',
+            if ($('#newchatname').width() === 0) {
+                let css = {
+                    width: '220px'
+                }
+                $('#newchatname').css(css)
+                $('#newchatname').focus();
             }
-            $('#newchatname').css(css)
-            $('#newchatname').focus();
         });
+
+        $('#newchatname').focusout(() => {
+            $('#newchatname').val('')
+            $('#newchatname').attr('style', '');
+        });
+
         $('#newchatname').on('keydown', e => {
             let evtobj = window.event ? event : e
-            if (evtobj.keyCode == 13) { // Ctrl/Cmd + enter to send the message
+            if (evtobj.keyCode == 13) { // Enter
                 if(!/^\s*$/.test($('#newchatname').val())){
                     httpPostAsync('api/createChannel', {
                         uuid: uuid_header.uuid, 
                         name: $('#newchatname').val()
                     }, ()=>{
-                        $('#newchatname').val('')
-                        $('#newchatname').attr('style', '');
+                        $('#newchatname').blur()
                         loadChannels(false);
                     })
                 }
+            } else if (evtobj.keyCode == 27) { // Esc
+                $('#newchatname').blur()
             }
+
         });
     });
 
