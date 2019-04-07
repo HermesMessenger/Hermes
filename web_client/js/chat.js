@@ -79,7 +79,7 @@ $(window).on('load', function () {
     let chatinfo_shown = false;
 
     $('#chatname, #chatinfo').click(e => {
-        if (!chatinfo_shown || current_channel !== GLOBAL_CHANNEL_UUID) {
+        if (!chatinfo_shown && current_channel !== GLOBAL_CHANNEL_UUID) {
             let chatinfo_click_two = e2 => {
                 if (chatinfo_shown && e.timeStamp != e2.timeStamp) {
                     $('#chatinfo').fadeOut(200);
@@ -106,8 +106,10 @@ $(window).on('load', function () {
         }
     }
     $('#chatname,#chatinfo').hover(() => {
-        $('#chatinfo').fadeIn(200);
-        last_show = new Date().getTime();
+        if (current_channel !== GLOBAL_CHANNEL_UUID) {
+            $('#chatinfo').fadeIn(200);
+            last_show = new Date().getTime();
+        }
     }, () => {
         hide_chatinfo();
     });

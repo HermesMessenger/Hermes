@@ -12,55 +12,56 @@
     width: 100%;
     z-index: 1;
     border-bottom: 3px solid $border-color;
-}
 
-#sidebarbtn {
-    display: inline-block;
-    background: url(/images/menu.png) no-repeat;
-    background-size: 28px;
-    background-position: center;
-    z-index: 8;
-    height: 42px;
-    width: 42px;
-    margin: 2px 8px;
-    padding: 0 3px;
-    transition: all .2s ease-in-out;
-    border-radius: 50%;
+    #sidebarbtn {
+        display: inline-block;
+        background: url(/images/menu.png) no-repeat;
+        background-size: 28px;
+        background-position: center;
+        z-index: 8;
+        height: 42px;
+        width: 42px;
+        margin: 2px 8px;
+        padding: 0 3px;
+        transition: all .2s ease-in-out;
+        border-radius: 50%;
 
-    @if $invert-images == true {
-        filter: invert(100%);
+        @if $invert-images==true {
+            filter: invert(100%);
+        }
     }
-}
 
-#sidebarbtn:hover {
-    background-color: darken($menu-color, 10%);
-    transition: all .2s ease-in-out;
+    #sidebarbtn:hover {
+        background-color: darken($menu-color, 10%);
+        transition: all .2s ease-in-out;
 
-    @if $invert-images == true {
-        background-color: invert(darken($menu-color, 10%));
+        @if $invert-images==true {
+            background-color: invert(darken($menu-color, 10%));
+        }
     }
-}
 
-#title {
-    position: absolute;
-    top: 4px;
-    left: 43vw;
-    text-align: center;
-}
+    #title {
+        position: absolute;
+        top: 4px;
+        left: 43vw;
+        text-align: center;
 
-#chatimg {
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: 2px solid $border-color;
-    vertical-align: middle;
-    margin: 4px;
-    padding: 1px;
-}
+        #chatimg {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid $border-color;
+            vertical-align: middle;
+            margin: 4px;
+            padding: 1px;
+        }
 
-#chatname {
-    color: $text-color;
-    display: inline-block;
-    vertical-align: middle;
+        #chatname {
+            color: $text-color;
+            display: inline-block;
+            vertical-align: middle;
+            cursor: default;
+        }
+    }
 }

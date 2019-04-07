@@ -394,8 +394,7 @@ function replaceLinks(html_element) {
 }
 
 function changeChatTo(uuid, closesidebar=true) {
-    if(closesidebar)
-    $('#darkoverlay').click()
+    if (closesidebar) $('#darkoverlay').click()
     setTimeout(() => {
         if (current_channel != uuid || first_load) {
             for (let chat of my_channels) {
@@ -423,6 +422,17 @@ function populateChatInfo() {
     $('#chatinfo_members').empty();
     $('#chatinfo_copylink').click(() => {
         copyTextToClipboard(`${window.location.origin}/joinChannel/${current_channel}`);
+    });
+
+    $('#leavechat').click(() => {
+        httpPostAsync('api/leaveChannel', {
+            uuid: uuid_header.uuid, 
+            channel: current_channel
+        }, () => {
+            loadChannels()
+            changeChatTo(GLOBAL_CHANNEL_UUID, false)
+            $('#sidebarbtn').click() // Show sidebar
+        })
     });
 
     for (let chat of my_channels) {
