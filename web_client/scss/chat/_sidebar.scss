@@ -11,116 +11,125 @@
     overflow-x: hidden;
     padding: 8px;
     transition: left .33s ease-in-out;
-}
 
-#sidebar-header {
-    color: $text-color;
-    padding: 10vh 0px 16px 8px;
+    #sidebar-header {
+        color: $text-color;
+        padding: 7vh 0px 16px 8px;
+        cursor: default;
 
-    button {
-        margin-right: 32px;
-        border: 2px solid $border-color;
-        border-radius: 50%;
-        background-color: inherit;
-        width: 2em;
-        height: 2em;
-        display: inline-table;
-        text-align: center;
-        vertical-align: middle;
-
-        div {
-            display: table-cell;
-            vertical-align: middle;
-            color: $text-color;
-            font-size: inherit;
+        button {
+            margin-right: 32px;
+            border: 2px solid $border-color;
+            border-radius: 50%;
+            background-color: inherit;
+            width: 2em;
+            height: 2em;
+            display: inline-table;
             text-align: center;
-            width: inherit;
+            vertical-align: middle;
+            cursor: pointer;
+
+            div {
+                display: table-cell;
+                vertical-align: middle;
+                color: $text-color;
+                font-size: 21px;
+                font-weight: bolder;
+                text-align: center;
+                width: inherit;
+
+            }
+        }
+
+        input {
+            position: absolute;
+            width: 0px;
+            height: 32px;
+            border: none;
+            border-bottom: 2px solid $border-color;
+            font: 18px $font-family, monospace;
+            transition: width .33s ease-in-out;
+            background: $menu-color;
         }
     }
 
-    input {
-        position: absolute;
-        width: 0px;
-        border: none;
-        border-bottom: 2px solid $border-color;
-        font: 18px $font-family, monospace;
-        transition: width .33s ease-in-out;
+    .chatselect {
         background: $menu-color;
+        transition: all .2s ease-in-out;
+        padding: 0px 8px;
+        margin: 8px 0px;
+        font-size: 25px;
+        overflow-x: hidden;
+        border-radius: 24px;
+        cursor: pointer;
+
+        .chatimg {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid $border-color;
+            vertical-align: middle;
+            margin: 8px 24px 8px 0px;
+            padding: 1px;
+        }
+
+        .chatname {
+            color: $text-color;
+            display: inline-block;
+            vertical-align: middle;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            width: calc(100% - 60px);
+            white-space: nowrap;
+        }
     }
-}
 
-.chatselect {
-    background: $menu-color;
-    transition: all .2s ease-in-out;
-    padding: 6px;
-    font-size: 25px;
-    overflow-x: hidden;
-    border-radius: 24px;
-}
-
-.chatselect:hover {
-    background: darken($menu-color, 10%);
-}
-
-.chatname {
-    color: $text-color;
-    display: inline-block;
-    vertical-align: middle;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    width: calc(100% - 42px);
-    white-space: nowrap;
-}
-
-.chatimg {
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: 2px solid $border-color;
-    vertical-align: middle;
-    margin: 8px 12px 8px 0px;
-    padding: 1px;
-}
-
-#sidebar-footer {
-    position: absolute;
-    bottom: 16px;
-    width: calc(100% - 16px);
-    height: 48px;
-    text-align: center;
-}
-
-#settings {
-    display: inline-block;
-    font: 20px $font-family, monospace;
-    background: url(/images/settings.png) no-repeat;
-    background-size: 24px;
-    background-position: center;
-    background-color: $their-message-color;
-    color: $text-color;
-    border-radius: 16px;
-    border: 3px solid $border-color;
-    width: 44px;
-    height: 44px;
-
-    @if $invert-images == true {
-        filter: invert(100%);
-        border-color: invert($border-color);
-        background-color: invert($their-message-color);
-        color: invert($text-color);
+    .chatselect:hover {
+        background: darken($menu-color, 10%);
     }
-}
 
-#logout {
-    display: inline-block;
-    font: 20px $font-family, monospace;
-    background: rgba(255, 89, 89, 0.8);
-    color: $text-color;
-    border-radius: 16px;
-    border: 3px solid $border-color;
-    width: 128px;
-    height: 44px;
+    #sidebar-footer {
+        position: absolute;
+        bottom: 16px;
+        width: calc(100% - 16px);
+        height: 48px;
+        text-align: center;
+
+        #settings {
+            display: inline-block;
+            font: 20px $font-family, monospace;
+            background: url(/images/settings.png) no-repeat;
+            background-size: 24px;
+            background-position: center;
+            background-color: $their-message-color;
+            color: $text-color;
+            margin-right: 16px;
+            border-radius: 16px;
+            border: 3px solid $border-color;
+            width: 44px;
+            height: 44px;
+            vertical-align: bottom;
+
+            @if $invert-images==true {
+                filter: invert(100%);
+                border-color: invert($border-color);
+                background-color: invert($their-message-color);
+                color: invert($text-color);
+            }
+        }
+
+        #logout {
+            display: inline-block;
+            font: 20px $font-family, monospace;
+            background: rgba(255, 89, 89, 0.8);
+            color: $text-color;
+            border-radius: 16px;
+            border: 3px solid $border-color;
+            width: 128px;
+            height: 44px;
+        }
+    }
 }
 
 #darkoverlay {
