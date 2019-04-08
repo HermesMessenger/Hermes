@@ -378,7 +378,10 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
             }
             const user = await db.getUserForUUID(req.body.uuid)
             const uuid = await db.createChannel(user, req.body.name)
-            db.addWelcomeMessage(uuid, user);
+
+            await db.addCreateMessage(uuid, user);
+            await db.addWelcomeMessage(uuid, user);
+
             res.send(uuid)
 
         } catch (err) {
@@ -432,6 +435,7 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
         try {
             const user = await db.getUserForUUID(req.body.uuid)
             await db.leaveChannel(user, req.body.channel)
+            await db.addLeaveMessage(req.body.channel, user)
             res.sendStatus(200)
 
         } catch (err) {
