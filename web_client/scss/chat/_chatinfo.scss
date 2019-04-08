@@ -2,6 +2,7 @@
     $width: 60vw;
     position: absolute;
     width: $width;
+    max-width: 512px;
     background: $bg-color;
     left: 50vw - ($width / 2);
     top: 46px;
