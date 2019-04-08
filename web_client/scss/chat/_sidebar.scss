@@ -110,6 +110,7 @@
             width: 44px;
             height: 44px;
             vertical-align: bottom;
+            cursor: pointer;
 
             @if $invert-images==true {
                 filter: invert(100%);
@@ -128,6 +129,7 @@
             border: 3px solid $border-color;
             width: 128px;
             height: 44px;
+            cursor: pointer;
         }
     }
 }

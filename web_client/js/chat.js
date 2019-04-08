@@ -147,6 +147,10 @@ $(window).on('load', function () {
             }
         });
 
+        $("#goBottom").click(function () {
+            scrollToBottom(true)
+        });
+
         $("#logout").click(function () {
             deleteCookie('hermes_uuid')
             location.reload()
@@ -304,6 +308,10 @@ $(window).on('load', function () {
                 $("#loading-oldmessages").show();
                 loadNext100Messages($('#messages').find('.message').first().attr('id').substr(8));
             }
+
+            if (!isAtBottom()) $('#goBottom').fadeIn(200)
+            else $('#goBottom').fadeOut(200)
+
             scrolling = false
         }
     }, 200)

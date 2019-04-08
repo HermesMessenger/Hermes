@@ -1,22 +1,12 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font: 15px $font-family, monospace;
-    background: $bg-color;
-}
-
-@import './header';
-@import './footer';
-@import './messages';
-@import './settings';
 @import './chatinfo';
 @import './contextmenu';
-@import './sidebar';
-@import './loader';
+@import './footer';
+@import './header';
 @import './keyframes';
+@import './loader';
+@import './messages';
 @import './mobile';
+@import './other';
+@import './settings';
+@import './sidebar';
 @import './warning';

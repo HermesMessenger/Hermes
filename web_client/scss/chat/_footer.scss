@@ -32,6 +32,7 @@
     font-weight: bold;
     vertical-align: top;
     margin-left: 4px;
+    cursor: default;
 }
 
 input,
@@ -67,6 +68,7 @@ textarea {
     bottom: 8px;
     background: url(/images/send.png) no-repeat;
     background-color: $their-message-color;
+    cursor: pointer;
 
     @if $invert-images == true {
         filter: invert(100%);

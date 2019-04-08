@@ -25,6 +25,7 @@
         padding: 0 3px;
         transition: all .2s ease-in-out;
         border-radius: 50%;
+        cursor: pointer;
 
         @if $invert-images==true {
             filter: invert(100%);

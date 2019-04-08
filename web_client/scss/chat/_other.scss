@@ -1,0 +1,27 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font: 15px $font-family, monospace;
+    background: $bg-color;
+}
+
+#goBottom {
+    position: fixed;
+    display: none;
+    right: 16px;
+    bottom: 64px; 
+    width: 48px;
+    height: 48px;
+    padding-top: 4px;
+    border-radius: 18px;
+    border: 3px solid $border-color;
+    background-color: $their-message-color;
+    text-align: center;
+    font: 36px $font-family, monospace;
+    font-weight: bold;
+    cursor: pointer;
+}
