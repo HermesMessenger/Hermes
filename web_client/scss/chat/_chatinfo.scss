@@ -24,6 +24,7 @@
             border-radius: 4px;
             text-align: center;
         }
+
         #chatinfo_copylink {
             margin: 2px;
             background: $their-message-color;
@@ -31,7 +32,7 @@
 
         #leavechat {
             margin: 2px 2px 2px 10%;
-            background: rgba(255,89,89,.8);
+            background: rgba(255, 89, 89, .8);
         }
     }
 
@@ -103,4 +104,48 @@
     border-left: 10px solid transparent;
     transform: rotate(-70deg);
     content: '';
+}
+
+.star-admin {
+    color: #900;
+    border-bottom-color: #900;
+}
+
+.star-admin:before {
+    border-bottom-color: #900;
+}
+
+.star-admin:after {
+    color: #900;
+    border-bottom-color: #900;
+}
+
+
+
+.transparent {
+    color: $bg-color;
+    border-bottom-color: $bg-color;
+}
+
+.transparent:before {
+    border-bottom-color: $bg-color;
+}
+
+.transparent:after {
+    color: $bg-color;
+    border-bottom-color: $bg-color;
+}
+
+.transparent-admin:hover {
+    color: rgba($border-color, 0.3);
+    border-bottom-color: rgba($border-color, 0.3);
+}
+
+.transparent-admin:hover:before {
+    border-bottom-color: rgba($border-color, 0.3);
+}
+
+.transparent-admin:hover:after {
+    color: rgba($border-color, 0.3);
+    border-bottom-color: rgba($border-color, 0.3);
 }

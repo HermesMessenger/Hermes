@@ -447,21 +447,58 @@ function populateChatInfo() {
                         li.append($('<img>').attr('src', 'data:image/png;base64,' + user.image));
                         li.append($('<span>').css('color', user.color).text(user.displayname))
 
+                        let star = $('<div class="star transparent">')
+                        let css = {
+                            position: 'absolute',
+                            top: -41 + (i * 15) + 'px',
+                            left: '8px',
+                            transform: 'scale(0.6) rotate(180deg)'
+                        }
+                        star.css(css)
+
+                        let currentname = $('#user').text()
+                        currentname = currentname.substring(0, currentname.length - 1)
+
                         if (chat.admins) {
                             if (chat.admins.includes(member)) {
-                                let star = $('<div>').addClass('star')
-                                let css = {
-                                    position: 'absolute',
-                                    top: -42 + (i * 15) + 'px',
-                                    left: '8px',
-                                    transform: 'scale(0.6) rotate(180deg)'
+                                star.removeClass('transparent')
+
+                            } if (chat.admins.includes(currentname)) {
+                                if (star.hasClass('transparent')) {
+                                    star.hover(() => {
+                                        star.toggleClass('transparent-admin')
+                                    })
+
+                                    star.click(() => {
+                                        $(star).toggleClass('transparent')
+                                        httpPostAsync('api/makeAdmin', {
+                                            uuid: uuid_header.uuid, 
+                                            user: member, 
+                                            channel: current_channel
+                                        })
+                                    })
+
+                                } else {
+                                    star.hover(() => {
+                                        star.toggleClass('star-admin')
+                                    })
+
+                                    star.click(() => {
+                                        $(star).toggleClass('transparent')
+                                        httpPostAsync('api/removeAdmin', {
+                                            uuid: uuid_header.uuid, 
+                                            user: member, 
+                                            channel: current_channel
+                                        })
+                                    })
                                 }
-                                star.css(css)
-                                li.append(star)
                             }
                         }
 
+                        li.append(star)
+
                         $('#chatinfo_members').append(li);
+
                     } else {
                         httpGetAsync('/api/getSettings/' + encodeURIComponent(member), data => {
                             httpGetAsync('/api/getDisplayName/' + encodeURIComponent(member), displayname => {
@@ -470,22 +507,55 @@ function populateChatInfo() {
                                 li.append($('<img>').attr('src', 'data:image/png;base64,' + data.image));
                                 li.append($('<span>').css('color', data.color).text(displayname))
 
+                                let star = $('<div class="star transparent">')
+                                let css = {
+                                    position: 'absolute',
+                                    top: -41 + (i * 15) + 'px',
+                                    left: '8px',
+                                    transform: 'scale(0.6) rotate(180deg)'
+                                }
+                                star.css(css)
+        
+                                let currentname = $('#user').text()
+                                currentname = currentname.substring(0, currentname.length - 1)
+        
                                 if (chat.admins) {
                                     if (chat.admins.includes(member)) {
-                                        let star = $('<div>').addClass('star')
-                                        let css = {
-                                            position: 'absolute',
-                                            top: -40 + (i * 15) + 'px',
-                                            left: 45 + (member.length * 8) + 'px',
-                                            transform: 'scale(0.6) rotate(180deg)'
+                                        star.removeClass('transparent')
+        
+                                    } if (chat.admins.includes(currentname)) {
+                                        if (star.hasClass('transparent')) {
+                                            star.hover(() => {
+                                                star.toggleClass('transparent-admin')
+                                            })
+
+                                            star.click(() => {
+                                                $(star).toggleClass('transparent')
+                                                httpPostAsync('api/makeAdmin', {
+                                                    uuid: uuid_header.uuid, 
+                                                    user: member, 
+                                                    channel: current_channel
+                                                })
+                                            })
+
+                                        } else {
+                                            star.hover(() => {
+                                                star.toggleClass('star-admin')
+                                            })
+
+                                            star.click(() => {
+                                                $(star).toggleClass('transparent')
+                                                httpPostAsync('api/removeAdmin', {
+                                                    uuid: uuid_header.uuid, 
+                                                    user: member, 
+                                                    channel: current_channel
+                                                })
+                                            })
                                         }
-                                        star.css(css)
-                                        li.append(star)
                                     }
                                 }
-                                if (member.toLowerCase() !== 'admin') {
-                                    $('#chatinfo_members').append(li);
-                                }
+        
+                                li.append(star)
                             });
                         });
                     }
