@@ -465,10 +465,8 @@ function populateChatInfo() {
 
                             } if (chat.admins.includes(currentname)) {
                                 if (star.hasClass('transparent')) {
-                                    star.hover(() => {
-                                        star.toggleClass('transparent-admin')
-                                    })
 
+                                    star.hover(() => star.toggleClass('transparent-admin'))
                                     star.click(() => {
                                         $(star).toggleClass('transparent')
                                         httpPostAsync('api/makeAdmin', {
@@ -479,10 +477,8 @@ function populateChatInfo() {
                                     })
 
                                 } else {
-                                    star.hover(() => {
-                                        star.toggleClass('star-admin')
-                                    })
 
+                                    star.hover(() => star.toggleClass('star-admin'))
                                     star.click(() => {
                                         $(star).toggleClass('transparent')
                                         httpPostAsync('api/removeAdmin', {
@@ -525,10 +521,8 @@ function populateChatInfo() {
         
                                     } if (chat.admins.includes(currentname)) {
                                         if (star.hasClass('transparent')) {
-                                            star.hover(() => {
-                                                star.toggleClass('transparent-admin')
-                                            })
-
+        
+                                            star.hover(() => star.toggleClass('transparent-admin'))
                                             star.click(() => {
                                                 $(star).toggleClass('transparent')
                                                 httpPostAsync('api/makeAdmin', {
@@ -537,12 +531,10 @@ function populateChatInfo() {
                                                     channel: current_channel
                                                 })
                                             })
-
+        
                                         } else {
-                                            star.hover(() => {
-                                                star.toggleClass('star-admin')
-                                            })
-
+        
+                                            star.hover(() => star.toggleClass('star-admin'))
                                             star.click(() => {
                                                 $(star).toggleClass('transparent')
                                                 httpPostAsync('api/removeAdmin', {
