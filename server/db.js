@@ -14,6 +14,7 @@ FIELD_REQUIRED_ERROR.code = 10002;
 let TOKEN_INVALID_ERROR = new Error('Token was invalid');
 TOKEN_INVALID_ERROR.code = 10003;
 
+const client = new cassandra.Client({ contactPoints: ['127.0.0.1:9042'], localDataCenter: 'datacenter1', keyspace: 'hermes' })
 
 const global_channel_uuid = '13814000-1dd2-11b2-8080-808080808080';
 
@@ -44,616 +45,460 @@ function createColor() {
 
 module.exports = class {
     constructor() {
-        this.client = new cassandra.Client({ contactPoints: ['127.0.0.1:9042'], localDataCenter: 'datacenter1', keyspace: 'hermes' })
-        this.closed = false;
-        
-    }
-
-    
-    addMessage(channel, user, message) {
-        if (!this.closed) {
-            const query = 'INSERT INTO Messages (UUID, Channel, Username, Message) values(?,?,?,?);';
-            let message_uuid = new cassandra.types.TimeUuid();
-            let data = [message_uuid, channel, user, message];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    resolve(message_uuid);
-                }).catch(err => {
-                    reject(err);
-                });
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
-    }
-
-    addWelcomeMessage(channel, user) {
-        if (!this.closed) {
-            const query = 'INSERT INTO Messages (UUID, Channel, Username, Message) values(now(),?,?,?);';
-            let data = [channel, 'Admin', `@${user} has joined the chat.`];
-            console.log('Adding welcome message')
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    resolve();
-                }).catch(err => {
-                    reject(err);
-                });
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+        this.closed = false;        
     }
     
-    deleteMessage(channel, uuid) {
-        if (!this.closed) {
-            const query = 'DELETE FROM Messages WHERE channel=? and UUID=?;';
-            let data = [channel, uuid];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    resolve(uuid);
-                }).catch(err => {
-                    reject(err);
-                });
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async addMessage(channel, user, message) {
+        if (this.closed) throw new Error('DB closed')
 
+        const query = 'INSERT INTO Messages (UUID, Channel, Username, Message) values(?,?,?,?);'
+        const message_uuid = new cassandra.types.TimeUuid();
+        const data = [message_uuid, channel, user, message];
+
+        await client.execute(query, data, { prepare: true })
+        return
+     }
+
+    async addCreateMessage(channel, user) {
+        if (this.closed) throw new Error('DB closed')
+
+        return this.addMessage(channel, 'Admin', `@${user} has created the chat.`)
     }
 
-    editMessage(channel, uuid, newmessage) {
-        if (!this.closed) {
-            const query = 'UPDATE Messages SET message=? WHERE channel=? and UUID=?;';
-            let data = [newmessage, channel, uuid];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    resolve();
-                }).catch(err => {
-                    reject(err);
-                });
-            })
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async addWelcomeMessage(channel, user) {
+        if (this.closed) throw new Error('DB closed')
+
+        return this.addMessage(channel, 'Admin', `@${user} has joined the chat.`)
+    }
+    
+    async addLeaveMessage(channel, user) {
+        if (this.closed) throw new Error('DB closed')
+
+        return this.addMessage(channel, 'Admin', `@${user} has left the chat.`)
     }
 
-    getChannels(user) {
-        if (!this.closed) {
-            const query = 'SELECT Channels FROM Users WHERE user_low=?;';
-            let data = [user.toLowerCase()];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    resolve(result.rows[0].channels);
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async deleteMessage(channel, uuid) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'DELETE FROM Messages WHERE channel=? and UUID=?;'
+        const data = [channel, uuid];
+
+        await client.execute(query, data, { prepare: true })
+
+        return
     }
 
-    getChannelProperties(channel) {
-        if (!this.closed) {
-            const query = 'SELECT uuid, blobAsText(icon) as icon, members, admins, name FROM Channels WHERE UUID=?;';
-            let data = [channel];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    resolve(result.rows[0]);
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async editMessage(channel, uuid, newmessage) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'UPDATE Messages SET message=? WHERE channel=? and UUID=?;'
+        const data = [newmessage, channel, uuid];
+
+        await client.execute(query, data, { prepare: true })
+
+        return
     }
 
-    createChannel(user, name) {
-        if (!this.closed) {
-            const query = 'INSERT INTO Channels (UUID, Name, Members, Admins, Icon) values(?,?,?,?,textAsBlob(?));';
-            let channel_uuid = new cassandra.types.TimeUuid();
-            let data = [channel_uuid, name, [], [], DEFAULT_CHAT_IMAGE];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    this.joinChannel(user.toLowerCase(), channel_uuid, true)
-                        .then(() => resolve(channel_uuid))
-                        .catch(err => reject(err))
-                }).catch(err => reject(err))
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async getChannels(user) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'SELECT Channels FROM Users WHERE user_low=?;'
+        const data = [user.toLowerCase()];
+
+        const res = await client.execute(query, data, { prepare: true })
+
+        return res.rows[0].channels
     }
 
-    channelExists(channel) {
-        if (!this.closed) {
-            const query = 'SELECT COUNT (*) as count from Channels where UUID = ?;';
-            let data = [channel];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    resolve(result.first().count.low != 0);
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async getChannelProperties(channel) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'SELECT uuid, blobAsText(icon) as icon, members, admins, name FROM Channels WHERE UUID=?;'
+        const data = [channel];
+
+        const res = await client.execute(query, data, { prepare: true })
+
+        return res.rows[0]
     }
 
-    joinChannel(user, channel, admin) {
-        if (!this.closed) {
-            const queries = [
-                {
-                    query: 'UPDATE Users SET channels = channels + ? WHERE User_low = ?;',
-                    params: [[channel], user.toLowerCase()]
-                },
-                {
-                    query: 'UPDATE Channels SET members = members + ? WHERE UUID = ?;',
-                    params: [[user.toLowerCase()], channel]
-                }
-            ];
+    async createChannel(user, name) {
+        if (this.closed) throw new Error('DB closed')
 
-            if (admin) {
-                queries.push({
-                    query: 'UPDATE Channels SET admins = admins + ? WHERE UUID = ?;',
-                    params: [[user.toLowerCase()], channel]
-                }) 
+        const query = 'INSERT INTO Channels (UUID, Name, Members, Admins, Icon) values(?,?,?,?,textAsBlob(?));'
+        const channel_uuid = new cassandra.types.TimeUuid();
+        const data = [channel_uuid, name, [], [], DEFAULT_CHAT_IMAGE];
+
+        await client.execute(query, data, { prepare: true })
+        await this.joinChannel(user.toLowerCase(), channel_uuid, true)
+
+        return channel_uuid
+    }
+
+    async channelExists(channel) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'SELECT COUNT (*) as count from Channels where UUID = ?;'
+        const data = [channel];
+
+        const res = await client.execute(query, data, { prepare: true })
+
+        return res.first().count.low != 0
+    }
+
+    async joinChannel(user, channel, admin) {
+        if (this.closed) throw new Error('DB closed')
+
+        const queries = [
+            {
+                query: 'UPDATE Users SET channels = channels + ? WHERE User_low = ?;',
+                params: [[channel], user.toLowerCase()]
+            },
+            {
+                query: 'UPDATE Channels SET members = members + ? WHERE UUID = ?;',
+                params: [[user.toLowerCase()], channel]
             }
+        ];
 
-            return new Promise((resolve, reject) => {
-                this.client.batch(queries, { prepare: true })
-                    .then(() => resolve())
-                    .catch(err => reject(err))
-            })
+        if (admin) {
+            queries.push({
+                query: 'UPDATE Channels SET admins = admins + ? WHERE UUID = ?;',
+                params: [[user.toLowerCase()], channel]
+            }) 
+        }
+
+        await client.batch(queries, { prepare: true })
+        return
+    }
+
+    async isAdmin(user, channel) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'SELECT COUNT (*) as count from Channels WHERE uuid = ? AND admins CONTAINS ?;'
+        const data = [channel, user.toLowerCase()];
+
+        const res = await client.execute(query, data, { prepare: true })
+
+        return res.first().count.low != 0
+    }
+
+    async makeAdmin(user, channel) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'UPDATE Channels SET admins = admins + ? WHERE UUID = ?;'
+            const data = [[user], channel];
+
+            await client.execute(query, data, { prepare: true })
+
+            return
+        }
+
+    async removeAdmin(user, channel) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'UPDATE Channels SET admins = admins - ? WHERE UUID = ?;'
+            const data = [[user], channel];
+
+            await client.execute(query, data, { prepare: true })
+
+            return
+        }
+
+    async leaveChannel(user, channel) {
+        if (this.closed) throw new Error('DB closed')
+
+        const queries = [
+            {
+                query: 'UPDATE Users SET channels = channels - ? WHERE User_low = ?;',
+                params: [[channel], user.toLowerCase()]
+            },
+            {
+                query: 'UPDATE Channels SET members = members - ? WHERE UUID = ?;',
+                params: [[user.toLowerCase()], channel]
+            },
+            {
+                query: 'UPDATE Channels SET admins = admins - ? WHERE UUID = ?;',
+                params: [[user.toLowerCase()], channel]
+            }
+        ];
+        
+        await client.batch(queries, { prepare: true })
+
+        return
+    }
+
+    async getSingleMessage(channel, uuid) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=? and UUID=?;'
+        const data = [channel, uuid];
+
+        const res = await client.execute(query, data, { prepare: true })
+
+        return res.rows[0];
+    }
+
+    async getMessages(channel) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=? ORDER BY UUID;'
+        const data = [channel]
+
+        const res = await client.execute(query, data, { prepare: true })
+
+        return res.rows 
+    }                    
+
+    async getMessageSender(channel, message_uuid) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'SELECT Username FROM Messages WHERE channel=? AND UUID=?;';
+        const data = [channel, message_uuid]
+
+        const res = await client.execute(query, data, { prepare: true })
+
+        return res.rows[0].username
+
+    }
+    async getMessagesFrom(channel, uuid) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=? and UUID>? ORDER BY UUID;'
+        const data = [channel, uuid];
+
+        const res = await client.execute(query, data, { prepare: true })
+
+        return res.rows
+    }
+
+    async get100Messages(channel, uuid) {
+        if (this.closed) throw new Error('DB closed')
+
+        if (uuid) {
+            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=? AND UUID<? ORDER BY UUID DESC LIMIT 100;'
+            const data = [channel, uuid];
+
+            const res = await client.execute(query, data, { prepare: true })
+
+            return res.rows // They come in from last to first
+
         } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
+            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=? ORDER BY UUID DESC LIMIT 100;'
+            const data = [channel];
+
+            const res = await client.execute(query, data, { prepare: true })
+
+            return res.rows // They come in from last to first
         }
     }
 
-    isAdmin(user, channel) {
-        if (!this.closed) {
-            const query = 'SELECT COUNT (*) as count from Channels WHERE uuid = ? AND admins CONTAINS ?;';
-            let data = [channel, user.toLowerCase()];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    console.log(result.first())
-                    resolve(result.first().count.low != 0);
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async registerUser(user, passwordHash) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'INSERT INTO Users (User_low, Username, PasswordHash, Channels) values(?,?,?,?) IF NOT EXISTS;'
+        const data = [user.toLowerCase(), user, passwordHash, []];
+
+        await client.execute(query, data, { prepare: true })
+        await this.saveSetting(user, createColor())
+        await this.joinChannel(user, global_channel_uuid)
+        const uuid = await this.loginUser(user)
+
+        return uuid
     }
 
-    makeAdmin(user, channel) {
-        if (!this.closed) {
-            const query = 'UPDATE Channels SET admins = admins + ? WHERE UUID = ?;';
-            let data = [[user], channel];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    resolve();
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async registerBot(bot, passwordHash) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'INSERT INTO Users (User_low, Username, PasswordHash, Channels) values(?,?,?,?) IF NOT EXISTS;'
+        const data = [bot.toLowerCase(), bot, passwordHash, [global_channel_uuid]];
+
+        await client.execute(query, data, { prepare: true })
+        await this.saveSetting(bot, createColor(), NOTIFICATIONS_OFF, DEFAULT_IMAGE_BOT)
+
+        return
     }
 
-    removeAdmin(user, channel) {
-        if (!this.closed) {
-            const query = 'UPDATE Channels SET admins = admins - ? WHERE UUID = ?;';
-            let data = [[user], channel];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    resolve();
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async updatePasswordHash(user, passwordHash) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'UPDATE Users SET passwordHash=? WHERE User_low=?;'
+        const data = [passwordHash, user.toLowerCase()];
+
+        await client.execute(query, data, { prepare: true })
+
+        return
     }
 
-    leaveChannel(user, channel) {
-        if (!this.closed) {
-            const queries = [
-                {
-                    query: 'UPDATE Users SET channels = channels - ? WHERE User_low = ?;',
-                    params: [[channel], user.toLowerCase()]
-                },
-                {
-                    query: 'UPDATE Channels SET members = members - ? WHERE UUID = ?;',
-                    params: [[user.toLowerCase()], channel]
-                },
-                {
-                    query: 'UPDATE Channels SET admins = admins - ? WHERE UUID = ?;',
-                    params: [[user.toLowerCase()], channel]
-                }            ];
-            return new Promise((resolve, reject) => {
-                this.client.batch(queries, { prepare: true })
-                    .then(() => resolve())
-                    .catch(err => reject(err))
-            })
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async getPasswordHash(user) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'SELECT PasswordHash from Users where User_low = ?;'
+        const data = [user.toLowerCase()];
+
+        const res = await client.execute(query, data, { prepare: true })
+
+        return res.rows[0].passwordhash
     }
 
-    getSingleMessage(channel, uuid) {
-        if (!this.closed) {
-            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=? and UUID=?;';
-            let data = [channel, uuid];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    resolve(result.rows[0]);
-                }).catch(err => {
-                    reject(err);
-                });
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async isntAlreadyRegistered(user) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'SELECT COUNT (*) as count from Users where User_low = ?;'
+        const data = [user.toLowerCase()];
+
+        const res = await client.execute(query, data, { prepare: true })
+
+        return res.rows[0].count.low == 0
     }
 
-    getMessages(channel) {
-        if (!this.closed) {
-            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=? ORDER BY UUID;';
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, [channel], { prepare: true }).then(result => {
-                    resolve(result.rows);
-                }).catch(err => {
-                    reject(err);
-                });
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async isntBotAlreadyRegistered(bot) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'SELECT COUNT(*) as count from Users where User_low = ?;'
+        const data = [bot.toLowerCase()];
+
+        const res = await client.execute(query, data, { prepare: true })
+
+        return res.rows[0].count.low == 0
     }
 
-    getMessageSender(channel, message_uuid) {
-        if (!this.closed) {
-            const query = 'SELECT Username FROM Messages WHERE channel=? AND UUID=?;';
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, [channel, message_uuid], { prepare: true }).then(result => {
-                    let res = result.first();
-                    if (res) {
-                        resolve(res.username);
-                    } else {
-                        reject(new Error('Message not found'));
-                    }
-                }).catch(err => {
-                    reject(err);
-                });
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async loginUser(user) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) IF NOT EXISTS USING TTL ?;'
+        const uuid = new cassandra.types.TimeUuid();
+        const data = [uuid, user, SESSION_TIMEOUT];
+
+        await client.execute(query, data, { prepare: true })
+
+        return uuid.toString()
     }
 
-    getMessagesFrom(channel, uuid) {
-        if (!this.closed) {
-            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=? and UUID>? ORDER BY UUID;';
-            return new Promise((resolve, reject) => {
-                let data = [channel, uuid];
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    resolve(result.rows);
-                }).catch(err => {
-                    reject(err);
-                });
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async loginHA(user, session_uuid) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) IF NOT EXISTS USING TTL ?;'
+        const data = [user, session_uuid, SESSION_TIMEOUT];
+
+        await client.execute(query, data, { prepare: true })
+
+        return
     }
 
-    get100Messages(channel, uuid=undefined) {
-        if(uuid){
-            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=? AND UUID<? ORDER BY UUID DESC LIMIT 100;';
-            let data = [channel, uuid];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    resolve(result.rows); // They come in from last to first
-                }).catch(err => {
-                    reject(err);
-                });
-            });
-        }else{
-            const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=? ORDER BY UUID DESC LIMIT 100;';
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, [channel], {prepare: true}).then(result => {
-                    resolve(result.rows); // They come in from last to first
-                }).catch(err => {
-                    reject(err);
-                });
-            });
-        }
+    async loginBot(bot) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) IF NOT EXISTS USING TTL ?;'
+        const uuid = new cassandra.types.TimeUuid();
+        const data = [uuid, bot, BOT_SESSION_TIMEOUT];
+
+        await client.execute(query, data, { prepare: true })
+
+        return uuid.toString()
     }
 
-    registerUser(user, passwordHash) {
-        if (!this.closed) {
-            const query = 'INSERT INTO Users (User_low, Username, PasswordHash, Channels) values(?,?,?,?) IF NOT EXISTS;';
-            let data = [user.toLowerCase(), user, passwordHash, []];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(async result => {
-                    try {
-                        await this.saveSetting(user, createColor())
-                        await this.joinChannel(user, global_channel_uuid)
-                        const uuid = await this.loginUser(user)
-                        resolve(uuid)
-                    } catch (err) {
-                        reject(err)
-                    }
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async getUserForUUID(uuid) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'SELECT Username FROM Sessions WHERE UUID=?';
+        const data = [uuid];
+
+        const res = await client.execute(query, data, { prepare: true })
+
+        return res.rows[0].username
     }
 
-    registerBot(bot, passwordHash) {
-        if (!this.closed) {
-            const query = 'INSERT INTO Users (User_low, Username, PasswordHash, Channels) values(?,?,?,?) IF NOT EXISTS;';
-            let data = [bot.toLowerCase(), bot, passwordHash, [global_channel_uuid]];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    this.saveSetting(bot, createColor(), NOTIFICATIONS_OFF, DEFAULT_IMAGE_BOT)
-                        .then(result => resolve()).catch(err => reject(err));
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async updateLoggedInUser(uuid) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) USING TTL ?';
+        const uuid = await this.getUserForUUID(uuid)
+        const data = [uuid, user, SESSION_TIMEOUT];
+
+        await client.execute(query, data, { prepare: true })
+
+        return
     }
 
-    updatePasswordHash(user, passwordHash) {
-        if (!this.closed) {
-            const query = 'UPDATE Users SET passwordHash=? WHERE User_low=?;';
-            return new Promise((resolve, reject) => {
-                let newdata = [passwordHash, user.toLowerCase()];
-                this.client.execute(query, newdata, { prepare: true }).then(result => resolve()).catch(err => reject(err));
-            }).catch(err => reject(err));
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async checkLoggedInUser(uuid) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'SELECT UUID FROM sessions WHERE UUID=?;'
+        const data = [uuid];
+
+        const res = await client.execute(query, data, { prepare: true })
+
+        return res.rows[0].uuid
     }
 
-    getPasswordHash(user) {
-        if (!this.closed) {
-            const query = 'SELECT PasswordHash from Users where User_low = ?;';
-            let data = [user.toLowerCase()];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    let hashRow = result.first();
-                    if (hashRow) {
-                        resolve(hashRow.passwordhash);
-                    } else {
-                        reject(USER_NOT_FOUND_ERROR);
-                    }
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async logoutUser(uuid) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'DELETE FROM Sessions WHERE UUID=?;'
+        const data = [uuid];
+
+        await client.execute(query, data, { prepare: true })
+        
+        return
     }
 
-    isntAlreadyRegistered(user) {
-        if (!this.closed) {
-            const query = 'SELECT COUNT (*) as count from Users where User_low = ?;';
-            let data = [user.toLowerCase()];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    resolve(result.first().count.low == 0);
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async clear(table) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'TRUNCATE ?;'
+        const data = [table]
+
+        await client.execute(query, data, { prepare: true })
+
+        return
     }
 
-    isntBotAlreadyRegistered(bot) {
-        if (!this.closed) {
-            const query = 'SELECT COUNT(*) as count from Users where User_low = ?;';
-            let data = [bot.toLowerCase()];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    resolve(result.first().count.low == 0);
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async saveSetting(username, color, notifications = NOTIFICATIONS_ON, image_b64 = DEFAULT_IMAGE, theme = 'hermes') {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'INSERT INTO Settings(Username,Notifications,Theme,Color,Image) values(?,?,?,?,textAsBlob(?));'
+        const data = [username.toLowerCase(), notifications, theme, color, image_b64];
+
+        await client.execute(query, data, { prepare: true })
+
+        return
     }
 
-    loginUser(user) {
-        if (!this.closed) {
-            const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) IF NOT EXISTS USING TTL ?;';
-            let uuid = new cassandra.types.TimeUuid();
-            let data = [uuid, user, SESSION_TIMEOUT];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(() => {
-                    resolve(uuid.toString());
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async getSetting(username) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'SELECT color, notifications, blobAsText(image) as image, theme FROM Settings WHERE username=?;'
+        const data = [username.toLowerCase()];
+
+        const res = await client.execute(query, data, { prepare: true })
+            
+        const userRow = res.first();
+        return [userRow.color, userRow.notifications, userRow.image, userRow.theme]
     }
 
-    loginHA(user, session_uuid) {
-        if (!this.closed) {
-            const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) IF NOT EXISTS USING TTL ?;';
-            let data = [user, session_uuid, SESSION_TIMEOUT];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(() => {
-                    resolve();
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async getDisplayName(username) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'SELECT username FROM Users WHERE user_low=?;'
+        const data = [username.toLowerCase()];
+
+        const res = await client.execute(query, data, { prepare: true })
+
+        return res.rows[0].username
     }
 
-    loginBot(bot) {
-        if (!this.closed) {
-            const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) IF NOT EXISTS USING TTL ?;';
-            let uuid = new cassandra.types.TimeUuid();
-            let data = [uuid, bot, BOT_SESSION_TIMEOUT];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    resolve(uuid.toString());
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
+    async checkToken(token) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'SELECT COUNT (*) AS count FROM tokens WHERE UUID=?;'
+        const data = [token];
+
+        const res = await client.execute(query, data, { prepare: true })
+
+        return res.rows[0].count.low > 0
     }
 
-    getUserForUUID(uuid) {
-        if (!this.closed) {
-            const query = 'SELECT Username FROM Sessions WHERE UUID=?';
-            let data = [uuid];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    let userRow = result.first();
-                    if (userRow) {
-                        resolve(userRow.username);
-                    } else {
-                        reject(USER_NOT_LOGGED_IN_ERROR);
-                    }
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
-    }
-
-    updateLoggedInUser(uuid) {
-        if (!this.closed) {
-            const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) USING TTL ?';
-            return new Promise((resolve, reject) => {
-                this.getUserForUUID(uuid).then(user => {
-                    let data = [uuid, user, SESSION_TIMEOUT];
-                    this.client.execute(query, data, { prepare: true }).then(result => {
-                        resolve();
-                    }).catch(err => reject(err));
-                }).catch(err => reject(err));
-
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
-    }
-
-    checkLoggedInUser(uuid) {
-        if (!this.closed) {
-            const query = 'SELECT UUID FROM sessions WHERE UUID=?;';
-            let data = [uuid];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    let uuidRow = result.first();
-                    if (uuidRow) {
-                        resolve(uuidRow.uuid);
-                    } else {
-                        reject(USER_NOT_LOGGED_IN_ERROR);
-                    }
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
-    }
-
-    logoutUser(uuid) {
-        if (!this.closed) {
-            const query = 'DELETE FROM Sessions WHERE UUID=?;';
-            let data = [uuid];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => resolve()).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
-    }
-
-    clear(table) {
-        if (!this.closed) {
-            const query = 'TRUNCATE ' + escapeCQL(table) + ';';
-            return new Promise((resolve, reject) => {
-                this.client.execute(query).then(result => resolve()).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
-    }
-
-    saveSetting(username, color, notifications = NOTIFICATIONS_ON, image_b64 = DEFAULT_IMAGE, theme = 'hermes') {
-        if (!this.closed) {
-            const query = 'INSERT INTO Settings(Username,Notifications,Theme,Color,Image) values(?,?,?,?,textAsBlob(?));';
-            let data = [username.toLowerCase(), notifications, theme, color, image_b64];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    resolve();
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
-    }
-
-    getSetting(username) {
-        if (!this.closed) {
-            const query = 'SELECT color, notifications, blobAsText(image) as image, theme FROM Settings WHERE username=?;';
-            return new Promise((resolve, reject) => {
-                let data = [username.toLowerCase()];
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    let userRow = result.first();
-                    if (userRow) {
-                        resolve([userRow.color, userRow.notifications, userRow.image, userRow.theme]);
-                    } else {
-                        reject(USER_NOT_FOUND_ERROR);
-                    }
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
-    }
-
-    getDisplayName(username) {
-        if (!this.closed) {
-            const query = 'SELECT username FROM Users WHERE user_low=?;';
-            return new Promise((resolve, reject) => {
-                let data = [username.toLowerCase()];
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    let userRow = result.first();
-                    if (userRow) {
-                        resolve(userRow.username);
-                    } else {
-                        reject(USER_NOT_FOUND_ERROR);
-                    }
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
-    }
-
-    checkToken(token) {
-        if (!this.closed) {
-            const query = 'SELECT COUNT (*) AS count FROM tokens WHERE UUID=?;';
-            let data = [token];
-            return new Promise((resolve, reject) => {
-                this.client.execute(query, data, { prepare: true }).then(result => {
-                    if (result.first().count.low > 0) {
-                        resolve();
-                    } else {
-                        reject(TOKEN_INVALID_ERROR);
-                    }
-
-                }).catch(err => reject(err));
-            });
-        } else {
-            return new Promise((resolve, reject) => { reject(new Error('DB closed')) })
-        }
-    }
-
-    close(calback = () => { }) {
+    close(callback = () => { }) {
         this.closed = true;
-        this.client.shutdown(calback);
+        client.shutdown(callback);
     }
 }
