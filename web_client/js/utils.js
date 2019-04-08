@@ -452,8 +452,8 @@ function populateChatInfo() {
                                 let star = $('<div>').addClass('star')
                                 let css = {
                                     position: 'absolute',
-                                    top: -40 + (i * 15) + 'px',
-                                    left: 45 + (member.length * 8) + 'px',
+                                    top: -42 + (i * 15) + 'px',
+                                    left: '8px',
                                     transform: 'scale(0.6) rotate(180deg)'
                                 }
                                 star.css(css)
