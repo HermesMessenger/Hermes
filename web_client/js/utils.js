@@ -232,11 +232,16 @@ function addSQuote(id) {
 
 function resizeInput() {
     let height = countTextareaLines($('#m')[0]) * 18
-    $('#message_send_form').height(height + (($('#s-quote:hidden').length == 0) ? $('#s-quote').outerHeight(true) : 0))
-    $('#m').height(height)
-    $('#separator-bottom').height($('#message_send_form').height() + 42)
+    let vh = $(window).height() / 100
 
-    $('#goBottom').css('bottom', $('#separator-bottom').height() + 4)
+    if (height < 60 * vh) { // Prevent input from being over 60% tall
+        $('#message_send_form').height(height + (($('#s-quote:hidden').length == 0) ? $('#s-quote').outerHeight(true) : 0))
+        $('#m').height(height)
+        $('#separator-bottom').height($('#message_send_form').height() + 42)
+    
+        $('#goBottom').css('bottom', $('#separator-bottom').height() + 4)
+
+    } else $('#m').height(60 * vh - 26)
 };
 
 function resetInput() {
