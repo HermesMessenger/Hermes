@@ -235,7 +235,15 @@ function resizeInput() {
     $('#message_send_form').height(height + (($('#s-quote:hidden').length == 0) ? $('#s-quote').outerHeight(true) : 0))
     $('#m').height(height)
     $('#separator-bottom').height($('#message_send_form').height() + 42)
+
+    $('#goBottom').css('bottom', $('#separator-bottom').height() + 4)
 };
+
+function resetInput() {
+    $('#m').val('');
+    removeSQuote();
+    $('#m, #message_send_form').height(18) // Reset height to default 
+}
 
 function sendMessage() {
     msg = $('#m').val();
@@ -245,9 +253,7 @@ function sendMessage() {
             message: (($('#s-quote:hidden').length == 0) ? `"${$('#s-quote').attr('data-quoted-id')}"` : '') + msg,
             channel: current_channel,
         });
-        $('#m').val('');
-        removeSQuote();
-        $('#m, #message_send_form').height(18) // Reset height to default 
+        resetInput()
     }
 }
 
@@ -403,6 +409,7 @@ function changeChatTo(uuid, closesidebar=true) {
                     $('#chatname').text(chat.name);
                     $('#chatimg').attr('src', `data:image/png;base64,${chat.icon}`);
                     $('#messages').empty();
+                    resetInput()
 
                     $("#loading").show();
 
