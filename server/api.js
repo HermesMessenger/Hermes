@@ -514,6 +514,18 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
         eventManager.callTeapotHandler([]);
     });
 
+    app.get('/api/getCountry', async function (req, res) {
+        let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+        if (ip.substr(0, 7) == "::ffff:") ip = ip.substr(7)
+
+        if (!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)) return // Check if it's a valid IPv4 address
+
+        ip = utils.ipToInt(ip)
+        let country = await db.getIPCountry(ip)
+        res.send(country)
+    });
+
     app.get('/api/getThemes', async function (req, res) {
         res.send(utils.getThemes());
     });

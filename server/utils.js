@@ -94,3 +94,13 @@ module.exports.getThemes = function(){
     }
     return themes;
 }
+
+module.exports.ipToInt = function(ip){
+    try {
+        ip = ip.split('.')
+        return (ip[0] << 24) + (ip[1] << 16) + (ip[2] << 8) + (ip[3])
+
+    } catch (err) {
+        return // Invalid IP
+    }
+}

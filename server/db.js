@@ -486,6 +486,17 @@ module.exports = class {
         return res.rows[0].username
     }
 
+    async getIPCountry(ip) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'SELECT country FROM hermes.ips WHERE planet=\'earth\' AND start<=? ORDER BY start DESC LIMIT 1;'
+        const data = [ip];
+
+        const res = await client.execute(query, data, { prepare: true })
+
+        return res.rows[0].country
+    }
+
     async checkToken(token) {
         if (this.closed) throw new Error('DB closed')
 
