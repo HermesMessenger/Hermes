@@ -123,6 +123,7 @@ app.get('/joinChannel/:uuid', async function (req, res) {
         if (exists) {
             await db.joinChannel(user, req.params.uuid)
             db.addWelcomeMessage(req.params.uuid, user);
+            res.cookie('hermes_channel', req.params.uuid);
             res.redirect('/chat');
         }
 

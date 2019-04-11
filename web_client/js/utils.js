@@ -440,7 +440,6 @@ function populateChatInfo() {
         if (chat.uuid == current_channel) {
             let i = 0
             for (let member of chat.members) {
-
                 if (member.toLowerCase() !== 'admin') {
                     let li = $('<li>');
                     if (member in users) {

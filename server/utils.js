@@ -94,6 +94,9 @@ module.exports.getThemes = function () {
     }
     return themes;
 }
+// This three functions are from StackOverflow, they're for converting the binary number in a string to a 
+// decimal number in a string, because IPv6 int representations are too big for the JS number type, so
+// we're using the BigInt type
 
 function parseBigInt(bigint, base) {
     //convert bigint string to array of digit values
@@ -155,9 +158,10 @@ module.exports.ipToInt = function (ip) {
             let dec = BigInt(convertBase(bin, 2, 10));
             return dec;
         } else if (ipObj.kind() == 'ipv4') { // TODO Convert IPv4 to IPv6
-
+            // To change to IPv6:
+            // ipToInt(`::ffff:${ip}`); // Call this function with the IPv6 version
             let ipOctets = ipObj.octets;
-            return BigInt(ipOctets[0] << 24) + (ipOctets[1] << 16) + (ipOctets[2] << 8) + (ipOctets[3]);
+            return BigInt((ipOctets[0] << 24) + (ipOctets[1] << 16) + (ipOctets[2] << 8) + (ipOctets[3]));
         } else {
             return // Something strange happened
         }

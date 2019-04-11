@@ -157,6 +157,9 @@ $(window).on('load', function () {
 
         $("#logout").click(function () {
             deleteCookie('hermes_uuid')
+            deleteCookie('hermes_theme')
+            deleteCookie('hermes_channel')
+            // Maybe it should be document.cookie = ''
             location.reload()
         });
 
@@ -284,6 +287,7 @@ $(window).on('load', function () {
                     }, ()=>{
                         $('#newchatname').blur()
                         loadChannels(false);
+                        // Change to the new channel
                     })
                 }
             } else if (evtobj.keyCode == 27) { // Esc
