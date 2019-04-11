@@ -14,6 +14,10 @@ if (getCookie('hermes_theme')) {
     $('#hermes_style').attr('href', 'css/themes/' + getCookie('hermes_theme') + '.css');
 }
 
+if (getCookie('hermes_channel')) {
+    current_channel = getCookie('hermes_channel')
+}
+
 document.addEventListener('touchstart', handleTouchStart);
 document.addEventListener('touchmove', handleTouchMove);
 

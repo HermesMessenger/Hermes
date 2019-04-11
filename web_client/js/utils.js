@@ -93,24 +93,12 @@ function setTheme(theme) {
     location.assign('/setTheme/' + theme);
 }
 
-function getCookie(cname) { // From W3Schools
-    var name = cname + "=";
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-    for (var i = 0; i < ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-        }
-    }
-    return "";
+function getCookie(cname) {
+    return Cookies.get(cname);
 }
 
 function deleteCookie(name) {
-    document.cookie = name + '=; Max-Age=-99999999;';
+    Cookies.remove(name)
 }
 
 function escapeStringForCSS(string) {
@@ -411,6 +399,7 @@ function changeChatTo(uuid, closesidebar=true) {
             for (let chat of my_channels) {
                 if (chat.uuid == uuid) {
                     current_channel = uuid;
+                    Cookies.set('hermes_channel', current_channel);
                     $('#chatname').text(chat.name);
                     $('#chatimg').attr('src', `data:image/png;base64,${chat.icon}`);
                     $('#messages').empty();
