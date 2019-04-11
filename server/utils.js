@@ -74,19 +74,19 @@ module.exports.request = async function (method, location, formData) {
 
 }
 
-module.exports.getThemes = function(){
+module.exports.getThemes = function () {
     const fs = require('fs');
     let themes = [];
     let base_path = 'web_client/scss/themes';
     let files = fs.readdirSync(base_path);
-    for(let file of files){
-        if(file.endsWith('.scss')){
-            let first_line = fs.readFileSync(`${base_path}/${file}`, {encoding: 'utf8'}).split('\n')[0].trim();
+    for (let file of files) {
+        if (file.endsWith('.scss')) {
+            let first_line = fs.readFileSync(`${base_path}/${file}`, { encoding: 'utf8' }).split('\n')[0].trim();
             let n_theme = {
-                theme_name: file.replace(/\.scss$/,''),
-                display_name: file.replace(/\.scss$/,'')
+                theme_name: file.replace(/\.scss$/, ''),
+                display_name: file.replace(/\.scss$/, '')
             }
-            if(/^\/\/.+/.test(first_line)){
+            if (/^\/\/.+/.test(first_line)) {
                 n_theme.display_name = first_line.substring(2).trim();
             }
             themes.push(n_theme);
@@ -95,11 +95,72 @@ module.exports.getThemes = function(){
     return themes;
 }
 
-module.exports.ipToInt = function(ip){
-    try {
-        ip = ip.split('.')
-        return (ip[0] << 24) + (ip[1] << 16) + (ip[2] << 8) + (ip[3])
+function parseBigInt(bigint, base) {
+    //convert bigint string to array of digit values
+    for (var values = [], i = 0; i < bigint.length; i++) {
+        values[i] = parseInt(bigint.charAt(i), base);
+    }
+    return values;
+}
 
+function formatBigInt(values, base) {
+    //convert array of digit values to bigint string
+    for (var bigint = '', i = 0; i < values.length; i++) {
+        bigint += values[i].toString(base);
+    }
+    return bigint;
+}
+
+function convertBase(bigint, inputBase, outputBase) {
+    //takes a bigint string and converts to different base
+    var inputValues = parseBigInt(bigint, inputBase),
+        outputValues = [], //output array, little-endian/lsd order
+        remainder,
+        len = inputValues.length,
+        pos = 0,
+        i;
+    while (pos < len) { //while digits left in input array
+        remainder = 0; //set remainder to 0
+        for (i = pos; i < len; i++) {
+            //long integer division of input values divided by output base
+            //remainder is added to output array
+            remainder = inputValues[i] + remainder * inputBase;
+            inputValues[i] = Math.floor(remainder / outputBase);
+            remainder -= inputValues[i] * outputBase;
+            if (inputValues[i] == 0 && i == pos) {
+                pos++;
+            }
+        }
+        outputValues.push(remainder);
+    }
+    outputValues.reverse(); //transform to big-endian/msd order
+    return formatBigInt(outputValues, outputBase);
+}
+
+module.exports.ipToInt = function (ip) {
+    const ipAddr = require('ipaddr.js');
+    try {
+        let ipObj = ipAddr.parse(ip);
+        if (ipObj.kind() == 'ipv6') {
+            // For ipv6 
+            let parts = [];
+            ipObj.parts.forEach(function (it) {
+                let bin = it.toString(2);
+                while (bin.length < 16) {
+                    bin = "0" + bin;
+                }
+                parts.push(bin);
+            })
+            let bin = parts.join("");
+            let dec = BigInt(convertBase(bin, 2, 10));
+            return dec;
+        } else if (ipObj.kind() == 'ipv4') {
+
+            let ipOctets = ipObj.octets;
+            return BigInt(ipOctets[0] << 24) + (ipOctets[1] << 16) + (ipOctets[2] << 8) + (ipOctets[3]);
+        } else {
+            return // Something strange happened
+        }
     } catch (err) {
         return // Invalid IP
     }

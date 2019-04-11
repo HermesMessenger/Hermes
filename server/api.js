@@ -522,8 +522,9 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
         if (!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)) return // Check if it's a valid IPv4 address
 
         ip = utils.ipToInt(ip)
+        console.log(ip);
         let country = await db.getIPCountry(ip)
-        res.send(country)
+        res.send(country);
     });
 
     app.get('/api/getThemes', async function (req, res) {
