@@ -154,7 +154,7 @@ module.exports.ipToInt = function (ip) {
             let bin = parts.join("");
             let dec = BigInt(convertBase(bin, 2, 10));
             return dec;
-        } else if (ipObj.kind() == 'ipv4') {
+        } else if (ipObj.kind() == 'ipv4') { // TODO Convert IPv4 to IPv6
 
             let ipOctets = ipObj.octets;
             return BigInt(ipOctets[0] << 24) + (ipOctets[1] << 16) + (ipOctets[2] << 8) + (ipOctets[3]);
