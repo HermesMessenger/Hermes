@@ -18,9 +18,11 @@ module.exports = {
         return subscriptions
     },
 
-    addSubscription(uuid, res) {
+    addSubscription(uuid, user, settings, res) {
         if (!subscriptions[uuid]) {
             subscriptions[uuid] = res
+            subscriptions[uuid].user = user;
+            subscriptions[uuid].settings = settings;
         }
     },
 
@@ -30,8 +32,16 @@ module.exports = {
         }
     },
 
-    sendNotifiaction(subscription, message) {
-        return webPush.sendNotification(subscription, message, { TTL: 60 * 60 })
+    sendNotifiaction(subscription, message, type) {
+        return webPush.sendNotification(subscription, JSON.stringify({...message, type: type}), { TTL: 60 * 60 })
+    },
 
+    updateSubscriptionSettings(user, settings) {
+        for (let uuid in subscriptions) {
+            if (subscriptions[uuid].user === user) {
+                subscriptions[uuid].settings = settings
+                webPush.sendNotification(subscriptions[uuid], JSON.stringify({settings, type: 'updateSettings'}), { TTL: 60 * 60 })
+            }
+        }
     }
 }

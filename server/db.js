@@ -170,6 +170,17 @@ module.exports = class {
         return
     }
 
+    async isMember(user, channel) {
+        if (this.closed) throw new Error('DB closed')
+
+        const query = 'SELECT COUNT (*) as count from Channels WHERE uuid = ? AND members CONTAINS ?;'
+        const data = [channel, user.toLowerCase()];
+
+        const res = await client.execute(query, data, { prepare: true })
+
+        return res.first().count.low != 0
+    }
+
     async isAdmin(user, channel) {
         if (this.closed) throw new Error('DB closed')
 
@@ -471,8 +482,7 @@ module.exports = class {
 
         const res = await client.execute(query, data, { prepare: true })
             
-        const userRow = res.first();
-        return [userRow.color, userRow.notifications, userRow.image, userRow.theme]
+        return res.rows[0];
     }
 
     async getDisplayName(username) {

@@ -20,11 +20,11 @@ let edited_messages = []
 
 module.exports = function (app, db, bcrypt, webPush, utils, HA) {
 
-    app.post('/api/load100messages/:message_uuid', async function (req, res) {
+    app.post('/api/load100messages', async function (req, res) {
         try {
-            const ok = await db.checkLoggedInUser(req.body.uuid)
-            if (ok) {
-                const messages = await db.get100Messages(req.body.channel, req.params.message_uuid)
+            const user = await db.getUserForUUID(req.body.uuid)
+            if (await db.isMember(user, req.body.channel)) {
+                const messages = await db.get100Messages(req.body.channel, req.query.message_uuid)
 
                 let newm = [];
                 for (const message of messages) {
@@ -37,8 +37,8 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
                     newm.push(json);
                 }
                 res.send(newm.reverse());
-
             } else res.sendStatus(401); // Unauthorized
+
 
         } catch (err) {
             console.error('ERROR:', err);
@@ -46,36 +46,11 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
         };
     });
 
-    app.post('/api/load100messages/', async function (req, res) {
+    app.post('/api/loadmessages', async function (req, res) {
         try {
             const ok = await db.checkLoggedInUser(req.body.uuid)
             if (ok) {
-                const messages = await db.get100Messages(req.body.channel)
-                let newm = [];
-                for (const message of messages) {
-                    let json = {
-                        uuid: message.uuid,
-                        username: message.username,
-                        message: message.message,
-                        time: message.timesent.getTime(),
-                    }
-                    newm.push(json);
-                }
-                res.send(newm.reverse());
-
-            } else res.sendStatus(401); // Unauthorized
-
-        } catch (err) {
-            console.error('ERROR:', err);
-            res.sendStatus(500); // Internal Server Error
-        };
-    });
-
-    app.post('/api/loadmessages/:message_uuid', async function (req, res) {
-        try {
-            const ok = await db.checkLoggedInUser(req.body.uuid)
-            if (ok) {
-                const messages = await db.getMessagesFrom(req.body.channel, req.params.message_uuid)
+                const messages = await db.getMessagesFrom(req.body.channel, req.query.message_uuid)
 
                 let newm = [];
                 for (const message of messages) {
@@ -88,7 +63,7 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
                     newm.push(json);
                 }
 
-                let from_date = TimeUUID.fromString(req.params.message_uuid).getDate().getTime();
+                let from_date = TimeUUID.fromString(req.query.message_uuid).getDate().getTime();
                 let delm = [];
                 deleted_messages.forEach(message => {
                     if (message.del_time > from_date) {
@@ -126,14 +101,11 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
         };
     });
 
-    app.get('/api/loadmessages', async function (req, res) {
-        res.sendStatus(401);
-    });
-
     app.post('/api/sendmessage/', async function (req, res) {
         try {
             const user = await db.getUserForUUID(req.body.uuid)
             const message_uuid = await db.addMessage(req.body.channel, user, req.body.message)
+            const channel_prop = await db.getChannelProperties(req.body.channel);
 
             res.sendStatus(200);
             eventManager.callSendMessageHandler([user, req.body.message]);
@@ -142,12 +114,13 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
             const subs = webPush.getSubscriptions()
             const pushMessage = {
                 sender: user,
-                message: req.body.message
+                message: req.body.message,
+                channel: channel_prop
             }
 
             for (const sub in subs) {
-                if (sub !== req.body.uuid) {
-                    webPush.sendNotifiaction(subs[sub], JSON.stringify(pushMessage)).catch(err => webPush.deleteSubscription(sub))
+                if (subs[sub].user !== user && await db.isMember(subs[sub].user, req.body.channel) && subs[sub].settings.notifications < 2) {
+                    webPush.sendNotifiaction(subs[sub], pushMessage, 'message').catch(err => webPush.deleteSubscription(sub))
                 }
             }
 
@@ -471,8 +444,8 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
             const settings = await db.getSetting(decodeURIComponent(req.params.username))
 
             res.send({
-                color: '#' + settings[0],
-                image: settings[2]
+                color: '#' + settings.color,
+                image: settings.image,
             });
         } catch (err) {
             console.error('ERROR:', err);
@@ -487,10 +460,10 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
 
             res.send({
                 username: user,
-                color: '#' + settings[0],
-                notifications: settings[1],
-                image: settings[2],
-                theme: settings[3]
+                color: '#' + settings.color,
+                notifications: settings.notifications,
+                image: settings.image,
+                theme: settings.theme
             });
 
         } catch (err) {

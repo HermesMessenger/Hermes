@@ -334,7 +334,7 @@ $(window).on('load', function () {
 // ---------------------
 
 function loadMessages() {
-    httpPostAsync('/api/loadmessages/' + last_message_uuid, { uuid: uuid_header.uuid, channel: current_channel }, function (res) {
+    httpPostAsync('/api/loadmessages?message_uuid=' + last_message_uuid, { uuid: uuid_header.uuid, channel: current_channel }, function (res) {
         if (res != '') {
             res = JSON.parse(res);
             let messages = res.newmessages;
@@ -360,7 +360,7 @@ function loadMessages() {
 let hasLoadedEveryMessage = false;
 
 function loadLast100Messages(callback) {
-    httpPostAsync('/api/load100messages/', { uuid: uuid_header.uuid, channel: current_channel }, function (res) {
+    httpPostAsync('/api/load100messages', { uuid: uuid_header.uuid, channel: current_channel }, function (res) {
         if (res !== '[]') {
             res = JSON.parse(res);
             if (res.length != 100) hasLoadedEveryMessage = true;
@@ -372,7 +372,7 @@ function loadLast100Messages(callback) {
 };
 
 function loadNext100Messages(uuid, callback) {
-    httpPostAsync('/api/load100messages/' + uuid, { uuid: uuid_header.uuid, channel: current_channel }, function (res) {
+    httpPostAsync('/api/load100messages?message_uuid=' + uuid, { uuid: uuid_header.uuid, channel: current_channel }, function (res) {
         if (res !== '[]') {
             res = JSON.parse(res);
             if (res.length != 100) hasLoadedEveryMessage = true;

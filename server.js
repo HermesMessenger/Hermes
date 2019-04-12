@@ -280,7 +280,12 @@ app.get('/vapidPublicKey', async function (req, res) {
 });
 
 app.post('/registerWebPush', async function (req, res) {
-    webPush.addSubscription(req.body.uuid, req.body.subscription)
+    const user = await db.getUserForUUID(req.body.uuid)
+    const settings = await db.getSetting(user);
+
+    webPush.addSubscription(req.body.uuid, user, settings, req.body.subscription)
+    webPush.sendNotifiaction(req.body.subscription, { user, settings }, 'handshake')
+
     res.sendStatus(200);
 });
 
