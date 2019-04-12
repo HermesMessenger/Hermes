@@ -31,7 +31,8 @@
     "prestart": "npm run prepare-project",
     "prestart-no-css": "npm run prepare-project-no-css",
     "postinstall": "npm run prepare-project",
-    "watch": "node scripts/watch.js"
+    "watch": "node scripts/watch.js",
+    "cleanup": "node scripts/cleanup.js"
   },
   "repository": {
     "type": "git",

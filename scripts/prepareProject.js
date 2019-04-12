@@ -8,7 +8,7 @@ const configTemplate = {
     mainIP: "localhost:8080",
     port: 8080,
     forceHAConnect: false,
-    webPush: webPush.generateVAPIDKeys() // Creates object with publicKey and privateKey 
+    webPush: webPush.generateVAPIDKeys(), // Creates object with publicKey and privateKey 
 };
 
 function writeJSON(json = {}) {
