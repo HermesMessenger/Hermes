@@ -391,6 +391,7 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
 
                 if (admin) {
                     await db.makeAdmin(req.body.user, req.body.channel)
+                    await db.addPromoteMessage(req.body.channel, user, req.body.user)
                     res.sendStatus(200)
 
                 } else res.sendStatus(403) // Forbidden: user making request isn't an admin
@@ -413,6 +414,7 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
 
                 if (admin) {
                     await db.removeAdmin(req.body.user, req.body.channel)
+                    await db.addDemoteMessage(req.body.channel, user, req.body.user)
                     res.sendStatus(200)
 
                 } else res.sendStatus(403) // Forbidden: user making request isn't an admin

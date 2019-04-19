@@ -77,6 +77,18 @@ module.exports = class {
         return this.addMessage(channel, 'Admin', `@${user} has left the chat.`)
     }
 
+    async addPromoteMessage(channel, admin, newAdmin) {
+        if (this.closed) throw new Error('DB closed')
+
+        return this.addMessage(channel, 'Admin', `@${admin} has made @${newAdmin} an admin.`)
+    }
+
+    async addDemoteMessage(channel, admin, oldAdmin) {
+        if (this.closed) throw new Error('DB closed')
+
+        return this.addMessage(channel, 'Admin', `@${admin} has removed @${oldAdmin} as an admin.`)
+    }
+
     async deleteMessage(channel, uuid) {
         if (this.closed) throw new Error('DB closed')
 

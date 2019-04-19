@@ -419,6 +419,23 @@ function changeChatTo(uuid, closesidebar=true) {
     }, 300) // Run this after 300ms to ensure sidebar is closed
 }
 
+function toggleAdmin(ctx, member) {
+    let data = {
+        uuid: uuid_header.uuid, 
+        user: member, 
+        channel: current_channel
+    }
+
+    if ($(ctx).hasClass('transparent')) {
+        httpPostAsync('api/makeAdmin', data)
+
+    } else {
+        httpPostAsync('api/removeAdmin', data)
+    }
+
+    $(ctx).toggleClass('transparent')
+}
+
 function populateChatInfo() {
     $('#chatinfo_members').empty();
     $('#chatinfo_copylink').click(() => {
@@ -460,33 +477,16 @@ function populateChatInfo() {
                         currentname = currentname.substring(0, currentname.length - 1)
 
                         if (chat.admins) {
-                            if (chat.admins.includes(member)) {
-                                star.removeClass('transparent')
+                            if (chat.admins.includes(member)) star.removeClass('transparent')
 
-                            } if (chat.admins.includes(currentname)) {
+                            if (chat.admins.includes(currentname) && currentname !== member /* Don't allow a user to remove himself as an admin */) {
                                 if (star.hasClass('transparent')) {
-
                                     star.hover(() => star.toggleClass('transparent-admin'))
-                                    star.click(() => {
-                                        $(star).toggleClass('transparent')
-                                        httpPostAsync('api/makeAdmin', {
-                                            uuid: uuid_header.uuid, 
-                                            user: member, 
-                                            channel: current_channel
-                                        })
-                                    })
+                                    star.click(() => toggleAdmin(star, member))
 
                                 } else {
-
                                     star.hover(() => star.toggleClass('star-admin'))
-                                    star.click(() => {
-                                        $(star).toggleClass('transparent')
-                                        httpPostAsync('api/removeAdmin', {
-                                            uuid: uuid_header.uuid, 
-                                            user: member, 
-                                            channel: current_channel
-                                        })
-                                    })
+                                    star.click(() => toggleAdmin(star, member))
                                 }
                             }
                         }
@@ -516,33 +516,16 @@ function populateChatInfo() {
                                 currentname = currentname.substring(0, currentname.length - 1)
         
                                 if (chat.admins) {
-                                    if (chat.admins.includes(member)) {
-                                        star.removeClass('transparent')
+                                    if (chat.admins.includes(member)) star.removeClass('transparent')
         
-                                    } if (chat.admins.includes(currentname)) {
+                                    if (chat.admins.includes(currentname) && currentname !== member /* Don't allow a user to remove himself as an admin */) {
                                         if (star.hasClass('transparent')) {
-        
                                             star.hover(() => star.toggleClass('transparent-admin'))
-                                            star.click(() => {
-                                                $(star).toggleClass('transparent')
-                                                httpPostAsync('api/makeAdmin', {
-                                                    uuid: uuid_header.uuid, 
-                                                    user: member, 
-                                                    channel: current_channel
-                                                })
-                                            })
+                                            star.click(() => toggleAdmin(star, member))
         
                                         } else {
-        
                                             star.hover(() => star.toggleClass('star-admin'))
-                                            star.click(() => {
-                                                $(star).toggleClass('transparent')
-                                                httpPostAsync('api/removeAdmin', {
-                                                    uuid: uuid_header.uuid, 
-                                                    user: member, 
-                                                    channel: current_channel
-                                                })
-                                            })
+                                            star.click(() => toggleAdmin(star, member))
                                         }
                                     }
                                 }
