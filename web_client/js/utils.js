@@ -464,30 +464,16 @@ function populateChatInfo() {
                         li.append($('<img>').attr('src', 'data:image/png;base64,' + user.image));
                         li.append($('<span>').css('color', user.color).text(user.displayname))
 
-                        let star = $('<div class="star transparent">')
-                        let css = {
-                            position: 'absolute',
-                            top: -41 + (i * 15) + 'px',
-                            left: '8px',
-                            transform: 'scale(0.6) rotate(180deg)'
-                        }
-                        star.css(css)
+                        let star = $('<div class="star">')
 
-                        let currentname = $('#user').text()
-                        currentname = currentname.substring(0, currentname.length - 1)
+                        star.css('top', -41 + (i * 15))
 
-                        if (chat.admins) {
-                            if (chat.admins.includes(member)) star.removeClass('transparent')
+                        if (chat.admins !== []) {
+                            if (!chat.admins.includes(member)) star.addClass('transparent')
 
-                            if (chat.admins.includes(currentname) && currentname !== member /* Don't allow a user to remove himself as an admin */) {
-                                if (star.hasClass('transparent')) {
-                                    star.hover(() => star.toggleClass('transparent-admin'))
-                                    star.click(() => toggleAdmin(star, member))
-
-                                } else {
-                                    star.hover(() => star.toggleClass('star-admin'))
-                                    star.click(() => toggleAdmin(star, member))
-                                }
+                            if (chat.admins.includes(username) && username !== member) { // Don't allow a user to remove himself as an admin
+                                star.hover(() => star.toggleClass('star-hover'))
+                                star.click(() => toggleAdmin(star, member))
                             }
                         }
 

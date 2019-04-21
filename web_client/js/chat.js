@@ -5,6 +5,7 @@ var first_load = true;
 var GLOBAL_CHANNEL_UUID = '13814000-1dd2-11b2-8080-808080808080';
 var current_channel = GLOBAL_CHANNEL_UUID;
 var my_channels = [];
+var username;
 
 const users = {};
 
@@ -118,8 +119,6 @@ $(window).on('load', function () {
         hide_chatinfo();
     });
 
-
-    var username;
     httpPostAsync('/api/getSettings', uuid_header, function (res) {
         res = JSON.parse(res)
         username = res.username;

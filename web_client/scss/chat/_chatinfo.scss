@@ -75,6 +75,9 @@
     border-bottom: 7px solid $border-color;
     border-left: 10px solid transparent;
     transform: rotate(35deg);
+    position: absolute;
+    left: 8px;
+    transform: scale(0.6) rotate(180deg);
 }
 
 .star:before {
@@ -106,22 +109,6 @@
     content: '';
 }
 
-.star-admin {
-    color: #900;
-    border-bottom-color: #900;
-}
-
-.star-admin:before {
-    border-bottom-color: #900;
-}
-
-.star-admin:after {
-    color: #900;
-    border-bottom-color: #900;
-}
-
-
-
 .transparent {
     color: $bg-color;
     border-bottom-color: $bg-color;
@@ -136,16 +123,16 @@
     border-bottom-color: $bg-color;
 }
 
-.transparent-admin:hover {
-    color: rgba($border-color, 0.3);
-    border-bottom-color: rgba($border-color, 0.3);
+.star-hover {
+    color: lighten($border-color, 50);
+    border-bottom-color: lighten($border-color, 50);
 }
 
-.transparent-admin:hover:before {
-    border-bottom-color: rgba($border-color, 0.3);
+.star-hover:before {
+    border-bottom-color: lighten($border-color, 50);
 }
 
-.transparent-admin:hover:after {
-    color: rgba($border-color, 0.3);
-    border-bottom-color: rgba($border-color, 0.3);
+.star-hover:after {
+    color: lighten($border-color, 50);
+    border-bottom-color: lighten($border-color, 50);
 }
