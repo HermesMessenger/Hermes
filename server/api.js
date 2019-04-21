@@ -24,6 +24,7 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
         try {
             const user = await db.getUserForUUID(req.body.uuid)
             if (await db.isMember(user, req.body.channel)) {
+
                 const messages = await db.get100Messages(req.body.channel, req.query.message_uuid)
 
                 let newm = [];
@@ -37,7 +38,7 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
                     newm.push(json);
                 }
                 res.send(newm.reverse());
-            } else res.sendStatus(401); // Unauthorized
+            } else res.sendStatus(403); // Forbidden
 
 
         } catch (err) {
@@ -48,8 +49,9 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
 
     app.post('/api/loadmessages', async function (req, res) {
         try {
-            const ok = await db.checkLoggedInUser(req.body.uuid)
-            if (ok) {
+            const user = await db.getUserForUUID(req.body.uuid)
+            if (await db.isMember(user, req.body.channel)) {
+
                 const messages = await db.getMessagesFrom(req.body.channel, req.query.message_uuid)
 
                 let newm = [];
@@ -104,25 +106,28 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
     app.post('/api/sendmessage/', async function (req, res) {
         try {
             const user = await db.getUserForUUID(req.body.uuid)
-            const message_uuid = await db.addMessage(req.body.channel, user, req.body.message)
-            const channel_prop = await db.getChannelProperties(req.body.channel);
+            if (await db.isMember(user, req.body.channel)) {
 
-            res.sendStatus(200);
-            eventManager.callSendMessageHandler([user, req.body.message]);
-            HA.sendMessage(req.body, message_uuid);
+                const message_uuid = await db.addMessage(req.body.channel, user, req.body.message)
+                const channel_prop = await db.getChannelProperties(req.body.channel);
 
-            const subs = webPush.getSubscriptions()
-            const pushMessage = {
-                sender: user,
-                message: req.body.message,
-                channel: channel_prop
-            }
+                res.sendStatus(200);
+                eventManager.callSendMessageHandler([user, req.body.message]);
+                HA.sendMessage(req.body, message_uuid);
 
-            for (const sub in subs) {
-                if (subs[sub].user !== user && await db.isMember(subs[sub].user, req.body.channel) && subs[sub].settings.notifications < 2) {
-                    webPush.sendNotifiaction(subs[sub], pushMessage, 'message').catch(err => webPush.deleteSubscription(sub))
+                const subs = webPush.getSubscriptions()
+                const pushMessage = {
+                    sender: user,
+                    message: req.body.message,
+                    channel: channel_prop
                 }
-            }
+
+                for (const sub in subs) {
+                    if (subs[sub].user !== user && await db.isMember(subs[sub].user, req.body.channel) && subs[sub].settings.notifications < 2) {
+                        webPush.sendNotifiaction(subs[sub], pushMessage, 'message').catch(err => webPush.deleteSubscription(sub))
+                    }
+                }
+            } else res.sendStatus(403) // Forbidden
 
         } catch (err) {
             console.error('ERROR:', err);
@@ -137,26 +142,29 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
     app.post('/api/deletemessage/', async function (req, res) {
         try {
             const user = await db.getUserForUUID(req.body.uuid)
-            const message = await db.getSingleMessage(req.body.channel, req.body.message_uuid)
+            if (await db.isMember(user, req.body.channel)) {
 
-            if (user === message.username) {
-                db.deleteMessage(req.body.channel, req.body.message_uuid);
-                deleted_messages.push({
-                    uuid: req.body.message_uuid,
-                    del_time: new Date().getTime(),
-                    time_uuid: new TimeUUID(),
-                    original_message: {
-                        uuid: message.uuid,
-                        username: message.username,
-                        message: message.message,
-                        timesent: new Date(message.timesent).getTime(),
-                    }
-                });
+                const message = await db.getSingleMessage(req.body.channel, req.body.message_uuid)
 
-                res.sendStatus(200);
-                eventManager.callDeleteMessageHandler([user, req.body.message_uuid]);
-                HA.deleteMessage(req.body);
+                if (user === message.username) {
+                    db.deleteMessage(req.body.channel, req.body.message_uuid);
+                    deleted_messages.push({
+                        uuid: req.body.message_uuid,
+                        del_time: new Date().getTime(),
+                        time_uuid: new TimeUUID(),
+                        original_message: {
+                            uuid: message.uuid,
+                            username: message.username,
+                            message: message.message,
+                            timesent: new Date(message.timesent).getTime(),
+                        }
+                    });
 
+                    res.sendStatus(200);
+                    eventManager.callDeleteMessageHandler([user, req.body.message_uuid]);
+                    HA.deleteMessage(req.body);
+
+                } else res.sendStatus(403); // Forbidden
             } else res.sendStatus(403); // Forbidden
 
         } catch (err) {
@@ -172,24 +180,28 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
     app.post('/api/editmessage/', async function (req, res) {
         try {
             const user = await db.getUserForUUID(req.body.uuid)
-            const sender = await db.getMessageSender(req.body.channel, req.body.message_uuid)
+            if (await db.isMember(user, req.body.channel)) {
 
-            if (user === sender) {
-                db.editMessage(req.body.channel, req.body.message_uuid, req.body.newmessage);
-                edited_messages.push({
-                    channel: req.body.channel,
-                    uuid: req.body.message_uuid,
-                    message: req.body.newmessage,
-                    edit_time: new Date().getTime(),
-                    time_uuid: new TimeUUID(),
-                    username: user,
-                    time: new TimeUUID(req.body.message_uuid).getDate().getTime()
-                });
-                res.sendStatus(200);
-                eventManager.callEditMessageHandler([user, req.body.newmessage]);
-                HA.editMessage(req.body);
+                const sender = await db.getMessageSender(req.body.channel, req.body.message_uuid)
 
+                if (user === sender) {
+                    db.editMessage(req.body.channel, req.body.message_uuid, req.body.newmessage);
+                    edited_messages.push({
+                        channel: req.body.channel,
+                        uuid: req.body.message_uuid,
+                        message: req.body.newmessage,
+                        edit_time: new Date().getTime(),
+                        time_uuid: new TimeUUID(),
+                        username: user,
+                        time: new TimeUUID(req.body.message_uuid).getDate().getTime()
+                    });
+                    res.sendStatus(200);
+                    eventManager.callEditMessageHandler([user, req.body.newmessage]);
+                    HA.editMessage(req.body);
+
+                } else res.sendStatus(403); // Forbidden
             } else res.sendStatus(403); // Forbidden
+
 
         } catch (err) {
             console.error('ERROR:', err);
