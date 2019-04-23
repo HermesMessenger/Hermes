@@ -312,8 +312,6 @@ app.get('*', async function (req, res) {
     res.redirect('/');
 });
 
-IPs.getCountry('FE80::0202:B3FF:FE1E:8329')
-
 let server = app.listen(config.port, function () {
     console.log('listening on *:' + config.port);
 });
