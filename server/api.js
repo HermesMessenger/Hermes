@@ -18,7 +18,7 @@ let eventManager = new EventManager();
 let deleted_messages = []
 let edited_messages = []
 
-module.exports = function (app, db, bcrypt, webPush, utils, HA) {
+module.exports = function (app, db, bcrypt, webPush, IPs, utils, HA) {
 
     app.post('/api/load100messages', async function (req, res) {
         try {
@@ -506,11 +506,13 @@ module.exports = function (app, db, bcrypt, webPush, utils, HA) {
 
         if (ip.substr(0, 7) == "::ffff:") ip = ip.substr(7)
 
-        if (!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)) return // Check if it's a valid IPv4 address
+        if (!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)) { // Check if it's not a valid IPv4 address
 
-        ip = utils.ipToInt(ip)
-        console.log(ip);
-        let country = await db.getIPCountry(ip)
+            res.sendStatus(400) // Bad IP => bad request
+            return
+        }
+
+        let country = IPs.getCountry(ip)
         res.send(country);
     });
 

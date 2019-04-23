@@ -10,6 +10,7 @@ const fileExists = require('file-exists');
 const path = require('path');
 const HA = require('./server/HA/highAvailability.js');
 const config = require('./config.json');
+const IPs = require('./server/IPs/IPs.js')
 
 const web_client_path = __dirname + '/web_client/';
 const html_path = web_client_path + 'html/';
@@ -32,13 +33,11 @@ let TOKEN_INVALID_ERROR = new Error('Token was invalid');
 TOKEN_INVALID_ERROR.code = 10003;
 
 app.use(bodyParser.json()); // for parsing application/json
-app.use(bodyParser.urlencoded({
-    extended: true
-})); // for parsing application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(cookieParser()); // for parsing cookies
 app.use(favicon(path.join(__dirname, '/logos/HermesMessengerLogoV2.png')));
 
-require('./server/api')(app, db, bcrypt, webPush, utils, HA); // API Abstraction
+require('./server/api')(app, db, bcrypt, webPush, IPs, utils, HA); // API Abstraction
 
 console.log('------------------------------------------');
 
@@ -312,6 +311,8 @@ app.get('/sw.js', async function (req, res) {
 app.get('*', async function (req, res) {
     res.redirect('/');
 });
+
+IPs.getCountry('FE80::0202:B3FF:FE1E:8329')
 
 let server = app.listen(config.port, function () {
     console.log('listening on *:' + config.port);

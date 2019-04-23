@@ -42,13 +42,6 @@ CREATE TABLE Hermes.Settings (
     Image BLOB
 );
 
-CREATE TABLE Hermes.IPs (
-    Planet TEXT,
-    Start BIGINT,
-    Country TEXT,
-    PRIMARY KEY(Planet, Start)
-);
-
 CREATE TABLE Hermes.Tokens (
     UUID UUID PRIMARY KEY
 );
@@ -61,6 +54,3 @@ INSERT INTO Hermes.Channels (UUID, Name, Members, Admins, Icon) values(13814000-
 
 CREATE INDEX ON Hermes.Channels (members);
 CREATE INDEX ON Hermes.Channels (admins);
-
-COPY Hermes.IPs FROM './IPs.csv';
-/* TODO: Get Ips from ipv6 table */
