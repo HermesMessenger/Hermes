@@ -1,37 +1,20 @@
-// This is the "Offline page" service worker
-
-// Add this below content to your HTML page, or add the js file to your page at the very top to register service worker
-
-// Check compatibility for the browser we're running this in
-if ("serviceWorker" in navigator) {
-    if (navigator.serviceWorker.controller) {
-        console.log("[PWA Builder] active service worker found, no need to register");
-    } else {
-        // Register the service worker
-        navigator.serviceWorker.register("sw.js", {
-            scope: "./"
-        }).then(res => {
-            console.log("[PWA Builder] Service worker has been registered for scope: " + res.scope);
-        }).catch(err => {
-            console.error(err)
-        })
-
+if (navigator.serviceWorker) { // Check if browser is compatible with service workers
+    if (!navigator.serviceWorker.controller) { // Check if there is an active service worker
+        navigator.serviceWorker.register('sw.js') // If there isn't, register the service worker
     }
 }
 
 navigator.serviceWorker.ready.then(async reg => {
-    const subscription = await reg.pushManager.getSubscription()
+    const subscription = await reg.pushManager.getSubscription() // Check whether there is an active push subscription before creating a new one
     if (subscription) return subscription
-    const key = await (await fetch('/vapidPublicKey')).text()
+    const key = await (await fetch('/vapidPublicKey')).text() // If there isn't, download the Web Push public key from the server
 
-    // TODO Only subscribe depending on user settings
-    return reg.pushManager.subscribe({
+    return reg.pushManager.subscribe({ // Create a subscription using the downloaded key
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(key)
     })
 }).then(sub => {
-
-    fetch('/registerWebPush', {
+    fetch('/registerWebPush', { // Send the server a POST request with the generated subscription
         method: 'post',
         headers: {
             'Content-type': 'application/json'

@@ -1,43 +1,34 @@
 const SaltRounds = 3;
 const bcrypt = require('bcrypt')
+const db = require('./db')
 
-module.exports = class {
-    constructor(db) {
-        this.db = db;
-    }
+module.exports = {
 
     async verify(password, hash) {
         return await bcrypt.compare(password, hash);
-    }
+    },
 
-    verifyPromise(password, hash) {
-        return bcrypt.compare(password, hash);
-    }
+    async save(username, password) {
 
-    save(username, password) {
+        const hash = await bcrypt.hash(password, SaltRounds)
+        const uuid = await db.registerUser(username, hash)
 
-        return new Promise((resolve, reject) => {
-            bcrypt.hash(password, SaltRounds).then(hash => {
-                this.db.registerUser(username, hash).then(uuid => resolve(uuid)).catch(err => reject(err));
-            }).catch(err => reject(err));
-        });
-    }
+        return uuid
+    },
 
-    saveBot(botname, password) {
+    async saveBot(botname, password) {
 
-        return new Promise((resolve, reject) => {
-            bcrypt.hash(password, SaltRounds).then(hash => {
-                this.db.registerBot(botname, hash).then(uuid => resolve(uuid)).catch(err => reject(err));
-            }).catch(err => reject(err));
-        });
-    }
+        const hash = await bcrypt.hash(password, SaltRounds)
+        const uuid = await db.registerBot(botname, hash)
 
-    update(username, new_password) {
+        return uuid
+    },
 
-        return new Promise((resolve, reject) => {
-            bcrypt.hash(new_password, SaltRounds).then(hash => {
-                this.db.updatePasswordHash(username, hash).then(() => resolve()).catch(err => reject(err));
-            }).catch(err => reject(err));
-        });
+    async update(username, new_password) {
+
+        const hash = await bcrypt.hash(new_password, SaltRounds)
+        await db.updatePasswordHash(username, hash)
+
+        return
     }
 };
