@@ -339,7 +339,9 @@ function getScrollDistance(y) {
 function scrollTo(y, callback) {
     let distance = getScrollDistance(y)
     if (distance) {
-        $("HTML").animate({ scrollTop: y }, distance / 4, 'linear', () => {
+        $("HTML").animate({
+            scrollTop: y
+        }, distance / 4, 'linear', () => {
             if (typeof callback == 'function') callback()
         });
     } else if (typeof callback == 'function') callback() // No need to scroll since message is already visible
@@ -347,8 +349,12 @@ function scrollTo(y, callback) {
 
 function scrollToBottom(animate) {
     let bottom = $(document).height() - $(window).height();
-    if (animate) $("HTML, BODY").animate({ scrollTop: bottom }, 200);
-    else $("HTML, BODY").animate({ scrollTop: bottom }, 0);
+    if (animate) $("HTML, BODY").animate({
+        scrollTop: bottom
+    }, 200);
+    else $("HTML, BODY").animate({
+        scrollTop: bottom
+    }, 0);
 }
 
 function spoilerOnClick(t) {
@@ -517,13 +523,13 @@ function httpGetSync(theUrl) {
  */
 function httpGetAsync(theUrl, callback) {
     var xmlHttp = new XMLHttpRequest();
-    return new Promise((resolve,reject)=>{
+    return new Promise((resolve, reject) => {
         xmlHttp.onreadystatechange = function () {
             if (xmlHttp.readyState == 4) {
                 if (xmlHttp.status == 200) {
                     if (callback) callback(xmlHttp.responseText);
                     else resolve(xmlHttp.responseText)
-                
+
                 } else reject()
             }
         }
@@ -539,12 +545,15 @@ function httpGetAsync(theUrl, callback) {
  */
 function httpGetStatusAsync(theUrl, callback) {
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function () {
-        if (xmlHttp.readyState == 4)
-            if (callback) callback(xmlHttp.responseText, xmlHttp.status);
-    }
-    xmlHttp.open("GET", theUrl, true); // true for asynchronous
-    xmlHttp.send(null);
+    return new Promise((resolve, reject) => {
+        xmlHttp.onreadystatechange = function () {
+            if (xmlHttp.readyState == 4)
+                if (callback) callback(xmlHttp.responseText, xmlHttp.status);
+                else resolve(xmlHttp.responseText, xmlHttp.status)
+        }
+        xmlHttp.open("GET", theUrl, true); // true for asynchronous
+        xmlHttp.send(null);
+    })
 }
 
 /**
@@ -555,13 +564,20 @@ function httpGetStatusAsync(theUrl, callback) {
  */
 function httpPostAsync(theUrl, jsonData, callback) {
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function () {
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            if (callback) callback(xmlHttp.responseText);
-    }
-    xmlHttp.open("POST", theUrl, true); // true for asynchronous
-    xmlHttp.setRequestHeader('Content-Type', 'application/json');
-    xmlHttp.send(JSON.stringify(jsonData));
+    return new Promise((resolve, reject) => {
+        xmlHttp.onreadystatechange = function () {
+            if (xmlHttp.readyState == 4) {
+                if (xmlHttp.status == 200) {
+                    if (callback) callback(xmlHttp.responseText);
+                    else resolve(xmlHttp.responseText)
+
+                } else reject()
+            }
+        }
+        xmlHttp.open("POST", theUrl, true); // true for asynchronous
+        xmlHttp.setRequestHeader('Content-Type', 'application/json');
+        xmlHttp.send(JSON.stringify(jsonData));
+    })
 }
 
 /**
@@ -572,13 +588,16 @@ function httpPostAsync(theUrl, jsonData, callback) {
  */
 function httpPostStatusAsync(theUrl, jsonData, callback) {
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function () {
-        if (xmlHttp.readyState == 4)
-            if (callback) callback(xmlHttp.responseText, xmlHttp.status);
-    }
-    xmlHttp.open("POST", theUrl, true); // true for asynchronous
-    xmlHttp.setRequestHeader('Content-Type', 'application/json');
-    xmlHttp.send(JSON.stringify(jsonData));
+    return new Promise((resolve, reject) => {
+        xmlHttp.onreadystatechange = function () {
+            if (xmlHttp.readyState == 4)
+                if (callback) callback(xmlHttp.responseText, xmlHttp.status);
+                else resolve(xmlHttp.responseText, xmlHttp.status)
+        }
+        xmlHttp.open("POST", theUrl, true); // true for asynchronous
+        xmlHttp.setRequestHeader('Content-Type', 'application/json');
+        xmlHttp.send(JSON.stringify(jsonData));
+    })
 }
 
 var _buffer;
@@ -653,11 +672,11 @@ Array.prototype.remove = function () {
     return this;
 };
 
-var swipe_right_handler = function () { }
-var swipe_left_handler = function () { }
+var swipe_right_handler = function () {}
+var swipe_left_handler = function () {}
 
-var swipe_up_handler = function () { }
-var swipe_down_handler = function () { }
+var swipe_up_handler = function () {}
+var swipe_down_handler = function () {}
 
 var xDown = null;
 var yDown = null;

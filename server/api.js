@@ -93,7 +93,6 @@ router.post('/sendmessage/', async function (req, res) {
     if (await db.isMember(user, req.body.channel)) {
 
         const message_uuid = await db.addMessage(req.body.channel, user, req.body.message)
-        const channel_prop = await db.getChannelProperties(req.body.channel);
 
         res.sendStatus(200);
         eventManager.callSendMessageHandler([user, req.body.message]);
@@ -103,10 +102,10 @@ router.post('/sendmessage/', async function (req, res) {
         const pushMessage = {
             sender: user,
             message: req.body.message,
-            channel: channel_prop
+            channel_id: req.body.channel
         }
 
-        for (const sub in subs) {
+        for (let sub in subs) {
             if (subs[sub].user !== user && await db.isMember(subs[sub].user, req.body.channel) && subs[sub].settings.notifications < 2) {
                 webPush.sendNotifiaction(subs[sub], pushMessage, 'message').catch(err => webPush.deleteSubscription(sub))
             }
@@ -267,7 +266,15 @@ router.post('/saveSettings', async function (req, res) {
     const user = await db.getUserForUUID(uuid)
     await db.saveSetting(user, color, notifications, image_b64, theme)
     res.sendStatus(200);
+
+    for (let sub in subs) {
+        if (subs[sub].user === user) {
+            webPush.sendNotifiaction(sub, { notifications }, 'updateSettings')
+        }
+    }
+
     HA.saveSettings(req.body);
+    
 });
 
 router.post('/getChannels', async function (req, res) {

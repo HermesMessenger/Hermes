@@ -279,7 +279,7 @@ app.post('/registerWebPush', async function (req, res) {
     const settings = await db.getSetting(user);
 
     webPush.addSubscription(req.body.uuid, user, settings, req.body.subscription)
-    webPush.sendNotifiaction(req.body.subscription, { user, settings }, 'handshake')
+    webPush.sendNotifiaction(req.body.subscription, { notifications: settings.notifications, user, uuid: req.body.uuid }, 'handshake')
 
     res.sendStatus(200);
 });
