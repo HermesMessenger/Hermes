@@ -7,7 +7,7 @@ var current_channel = GLOBAL_CHANNEL_UUID;
 var my_channels = [];
 var username;
 
-const users = {};
+var users = {};
 
 if (isElectron()) window.sendUUID(getCookie('hermes_uuid'));
 
@@ -240,6 +240,13 @@ $(window).on('load', function () {
                 else
                     $("#delete, #edit").show();
 
+                for (channel of my_channels) {
+                    if (channel.uuid === current_channel) {
+                        if (channel.admins.includes(username)) {
+                            $("#delete").show();
+                        }
+                    }
+                }
 
                 $("#rightclick").css({ // Show #rightclick at cursor position
                     top: e.pageY + "px",
@@ -513,15 +520,13 @@ function printMessages(messages, prepend) {
         $('#messages').append(lmessagesHTML);
     }
     
-    if ($('.MD-img').length) {
-        $('.MD-img').on('load', () => {
-            resizeFn();
-            if (first_load) $(document).scrollTop($("#separator-bottom").offset().top)
-            if (bottom) scrollToBottom(true)
-        });
-    } else {
+    $('.MD-img').on('load', () => {
         resizeFn();
         if (first_load) $(document).scrollTop($("#separator-bottom").offset().top)
         if (bottom) scrollToBottom(true)
-    }
+    });
+    
+    resizeFn();
+    if (first_load) $(document).scrollTop($("#separator-bottom").offset().top)
+    if (bottom) scrollToBottom(true)
 }

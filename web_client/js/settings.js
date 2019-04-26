@@ -112,7 +112,7 @@ function loadSettingsJS(res) {
             modalContent.style.animationName = "slideOut";
             setTimeout(function () {
                 modal.style.display = "None";
-                let newTheme = $("#theme").val();
+                let newTheme = r_theme_map[$("#theme").val()];
                 if (lastTheme != newTheme) {
                     lastTheme = newTheme;
                     setTheme(newTheme);

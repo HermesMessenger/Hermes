@@ -24,7 +24,9 @@
 span.message_body {
     display: inline-block;
     position: absolute;
-    width: calc(100vw - 290px)
+    width: calc(100vw - 290px);
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
 }
 
 .myMessage {

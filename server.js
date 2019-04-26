@@ -2,6 +2,7 @@ const express = require('express');
 const db = require('./server/db');
 const bcrypt = require('./server/bcrypt');
 const webPush = require('./server/web-push');
+const ws = require('ws');
 const errors = require('./server/errors');
 const utils = require('./server/utils');
 const bodyParser = require('body-parser'); // Peticiones POST

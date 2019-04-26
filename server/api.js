@@ -124,7 +124,7 @@ router.post('/deletemessage/', async function (req, res) {
 
         const message = await db.getSingleMessage(req.body.channel, req.body.message_uuid)
 
-        if (user === message.username) {
+        if ((user === message.username) || await db.isAdmin(user, req.body.channel)) {
             db.deleteMessage(req.body.channel, req.body.message_uuid);
             deleted_messages.push({
                 uuid: req.body.message_uuid,
