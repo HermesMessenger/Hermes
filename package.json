@@ -15,8 +15,7 @@
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "sass": "^1.17.3",
-    "web-push": "^3.3.3",
-    "ws": "^6.2.1"
+    "web-push": "^3.3.3"
   },
   "devDependencies": {},
   "scripts": {

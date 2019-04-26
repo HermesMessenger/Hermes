@@ -1,5 +1,4 @@
 const express = require('express');
-const ws = require('ws');
 const db = require('./server/db');
 const bcrypt = require('./server/bcrypt');
 const webPush = require('./server/web-push');
