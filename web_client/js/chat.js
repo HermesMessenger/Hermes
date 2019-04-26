@@ -513,15 +513,13 @@ function printMessages(messages, prepend) {
         $('#messages').append(lmessagesHTML);
     }
     
-    if ($('.MD-img').length) {
-        $('.MD-img').on('load', () => {
-            resizeFn();
-            if (first_load) $(document).scrollTop($("#separator-bottom").offset().top)
-            if (bottom) scrollToBottom(true)
-        });
-    } else {
+    $('.MD-img').on('load', () => {
         resizeFn();
         if (first_load) $(document).scrollTop($("#separator-bottom").offset().top)
         if (bottom) scrollToBottom(true)
-    }
+    });
+    
+    resizeFn();
+    if (first_load) $(document).scrollTop($("#separator-bottom").offset().top)
+    if (bottom) scrollToBottom(true)
 }

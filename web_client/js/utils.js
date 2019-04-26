@@ -125,8 +125,9 @@ function removeFormatting(message) {
         .replace(/(?:[^*]|^)(\*([^*](?:.*?[^*])?)\*)(?:[^*]|$)/g, '$2')
         .replace(/~([\S\s]+?)~/g, '$1')
         .replace(/\[([\S\s]+?)\]\(((?:http:\/\/|https:\/\/).+?)\)/g, '$1')
+        .replace(/!\[([\S\s]+?)\]\(((?:http:\/\/|https:\/\/).+?)\)/g, '[image]')
         .replace(/`([\S\s]+?)`/g, '$1')
-        .replace(/\|\|([\S\s]+?)\|\|/g, '$1')
+        .replace(/\|\|([\S\s]+?)\|\|/g, '[spoiler]')
 }
 
 function createQuoteHTML(message_id, loadedMessages = undefined) {
@@ -459,8 +460,8 @@ async function populateChatInfo() {
             for (let member of chat.members) {
                 if (member.toLowerCase() !== 'admin') {
                     let li = $('<li>');
-                    if (!member in users) {
-                        const data = await httpGetAsync('/api/getSettings/' + encodeURIComponent(member))
+                    if (!(member in users)) {
+                        const data = JSON.parse(await httpGetAsync('/api/getSettings/' + encodeURIComponent(member)))
                         const displayname = await httpGetAsync('/api/getDisplayName/' + encodeURIComponent(member))
 
                         data.displayname = displayname
@@ -516,12 +517,19 @@ function httpGetSync(theUrl) {
  */
 function httpGetAsync(theUrl, callback) {
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function () {
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            if (callback) callback(xmlHttp.responseText);
-    }
-    xmlHttp.open("GET", theUrl, true); // true for asynchronous
-    xmlHttp.send(null);
+    return new Promise((resolve,reject)=>{
+        xmlHttp.onreadystatechange = function () {
+            if (xmlHttp.readyState == 4) {
+                if (xmlHttp.status == 200) {
+                    if (callback) callback(xmlHttp.responseText);
+                    else resolve(xmlHttp.responseText)
+                
+                } else reject()
+            }
+        }
+        xmlHttp.open("GET", theUrl, true); // true for asynchronous
+        xmlHttp.send(null);
+    })
 }
 
 /**
