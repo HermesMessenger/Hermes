@@ -1,7 +1,8 @@
-const app = require('express')();
-const db = new(require('./server/db'))();
-const bcrypt = new(require('./server/bcrypt'))(db);
+const express = require('express');
+const db = require('./server/db');
+const bcrypt = require('./server/bcrypt');
 const webPush = require('./server/web-push');
+const errors = require('./server/errors');
 const utils = require('./server/utils');
 const bodyParser = require('body-parser'); // Peticiones POST
 const cookieParser = require('cookie-parser'); // Cookies
@@ -11,6 +12,9 @@ const path = require('path');
 const HA = require('./server/HA/highAvailability.js');
 const config = require('./config.json');
 const IPs = require('./server/IPs/IPs.js')
+const api = require('./server/api')
+
+const app = express()
 
 const web_client_path = __dirname + '/web_client/';
 const html_path = web_client_path + 'html/';
@@ -23,21 +27,12 @@ const theme_path = css_path + 'themes/';
 const img_path = web_client_path + 'images/';
 const pwa_path = web_client_path + 'PWA/';
 
-let USER_NOT_FOUND_ERROR = new Error('User not found');
-USER_NOT_FOUND_ERROR.code = 10000;
-let USER_NOT_LOGGED_IN_ERROR = new Error('User not found or not logged in');
-USER_NOT_LOGGED_IN_ERROR.code = 10001;
-let FIELD_REQUIRED_ERROR = new Error('Fields required where left blank');
-FIELD_REQUIRED_ERROR.code = 10002;
-let TOKEN_INVALID_ERROR = new Error('Token was invalid');
-TOKEN_INVALID_ERROR.code = 10003;
-
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(cookieParser()); // for parsing cookies
 app.use(favicon(path.join(__dirname, '/logos/HermesMessengerLogoV2.png')));
 
-require('./server/api')(app, db, bcrypt, webPush, IPs, utils, HA); // API Abstraction
+app.use('/api', api) // Load api router
 
 console.log('------------------------------------------');
 
@@ -228,7 +223,7 @@ app.post('/login', async function (req, res) {
         const password = req.body.password;
 
         const hash = await db.getPasswordHash(username)
-        const same = await bcrypt.verifyPromise(password, hash)
+        const same = await bcrypt.verify(password, hash)
 
         if (same) {
             const uuid = await db.loginUser(username)

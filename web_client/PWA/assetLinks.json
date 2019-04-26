@@ -1,5 +1,14 @@
-[{
-    "relation": ["delegate_permission/common.handle_all_urls"],
-    "target" : { "namespace": "android_app", "package_name": "org.hermesmessenger.hermes",
-                 "sha256_cert_fingerprints": ["7A:BB:FB:51:CD:6F:03:FC:50:82:01:0D:AD:CA:B8:63:D7:91:A6:69:8D:C6:2A:BD:1B:5C:7C:74:C9:02:41:8C"] }
-  }]
+[
+    {
+        "relation": [
+            "delegate_permission/common.handle_all_urls"
+        ],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "org.hermesmessenger.hermes",
+            "sha256_cert_fingerprints": [
+                "7A:BB:FB:51:CD:6F:03:FC:50:82:01:0D:AD:CA:B8:63:D7:91:A6:69:8D:C6:2A:BD:1B:5C:7C:74:C9:02:41:8C"
+            ]
+        }
+    }
+]

@@ -4,11 +4,16 @@ const TimeUUID = require('cassandra-driver').types.TimeUuid;
 const webPush = require('web-push');
 
 const configTemplate = {
-    generalToken: `${new TimeUUID()}`,
+    generalToken: new TimeUUID(),
     mainIP: "localhost:8080",
     port: 8080,
     forceHAConnect: false,
     webPush: webPush.generateVAPIDKeys(), // Creates object with publicKey and privateKey 
+    db: {
+        hosts: ['127.0.0.1:9042'], // Default localhost Cassandra URL
+        username: 'cassandra', // Default Cassandra username & password
+        password: 'cassandra'
+    }
 };
 
 function writeJSON(json = {}) {

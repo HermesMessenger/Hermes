@@ -5,8 +5,9 @@
 @import './keyframes';
 @import './loader';
 @import './messages';
-@import './mobile';
 @import './other';
 @import './settings';
 @import './sidebar';
 @import './warning';
+
+@import './mobile'; // This has to be the last import since it overrides the others

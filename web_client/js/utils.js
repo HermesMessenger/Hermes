@@ -1,6 +1,6 @@
 const quoteREGEX = /"(message-([0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}))"/
 
-function loadChannels(closesidebar=true){
+function loadChannels(closesidebar = true) {
     httpPostAsync('/api/getChannels/', uuid_header, data => {
         my_channels = JSON.parse(data);
         $('#chats').empty()
@@ -13,7 +13,7 @@ function loadChannels(closesidebar=true){
             $('#chats').append(new_channel)
         }
 
-        changeChatTo(current_channel,closesidebar);
+        changeChatTo(current_channel, closesidebar);
     });
 }
 
@@ -226,7 +226,7 @@ function resizeInput() {
         $('#message_send_form').height(height + (($('#s-quote:hidden').length == 0) ? $('#s-quote').outerHeight(true) : 0))
         $('#m').height(height)
         $('#separator-bottom').height($('#message_send_form').height() + 42)
-    
+
         $('#goBottom').css('bottom', $('#separator-bottom').height() + 4)
 
     } else $('#m').height(60 * vh - 26)
@@ -365,34 +365,34 @@ function quoteOnClick(message) {
 }
 
 function replaceLinks(html_element) {
-        const linkREGEX = /([\w\d]+):\/\/([\w\d\.-]+)\.([\w\d]+)\/?([\w\d-@:%_\+.~#?&/=]*)/g;
+    const linkREGEX = /([\w\d]+):\/\/([\w\d\.-]+)\.([\w\d]+)\/?([\w\d-@:%_\+.~#?&/=]*)/g;
 
-        for (let node of html_element.childNodes) {
-            if (node.childNodes.length == 0) { // If the element doesn't have children:
-                let content = node.nodeValue; // get the elements text
-                let last_change_index = -1; // We use this so that we don't override the href property in the HTML
-                // Find every link in the content
-                while (match = linkREGEX.exec(content)) {
-                    // if its past the last edit && it's not a MD-link or MD-link-explicit
-                    if (match.index > last_change_index && !html_element.classList.contains('MD-link') && !html_element.classList.contains('MD-link-explicit')) {
-                        let link = match[0] // get the whole link
-                        let link_jquery = $(`<a class="MD-link-explicit" href="${link}" target="_blank" rel="noopener">`).text(link) // replace it with an actual link
-                        content = content.replaceIndex(match.index, match.index + match[0].length, link_jquery[0].outerHTML) // replace the current link found with the HTML generated
+    for (let node of html_element.childNodes) {
+        if (node.childNodes.length == 0) { // If the element doesn't have children:
+            let content = node.nodeValue; // get the elements text
+            let last_change_index = -1; // We use this so that we don't override the href property in the HTML
+            // Find every link in the content
+            while (match = linkREGEX.exec(content)) {
+                // if its past the last edit && it's not a MD-link or MD-link-explicit
+                if (match.index > last_change_index && !html_element.classList.contains('MD-link') && !html_element.classList.contains('MD-link-explicit')) {
+                    let link = match[0] // get the whole link
+                    let link_jquery = $(`<a class="MD-link-explicit" href="${link}" target="_blank" rel="noopener">`).text(link) // replace it with an actual link
+                    content = content.replaceIndex(match.index, match.index + match[0].length, link_jquery[0].outerHTML) // replace the current link found with the HTML generated
 
-                        last_change_index = match.index + link_jquery[0].outerHTML.length; // Update the last edit index
-                    }
+                    last_change_index = match.index + link_jquery[0].outerHTML.length; // Update the last edit index
                 }
-                if (node.classList ? !node.classList.contains('MD-img') : true) {
-                    html_element.replaceChild(toFragment(content), node) // Replace the current element with a list(Fragment) of the elements generated in HTML
-                }
-
-            } else {
-                replaceLinks(node); // If it has more than of child, apply this function
             }
+            if (node.classList ? !node.classList.contains('MD-img') : true) {
+                html_element.replaceChild(toFragment(content), node) // Replace the current element with a list(Fragment) of the elements generated in HTML
+            }
+
+        } else {
+            replaceLinks(node); // If it has more than of child, apply this function
+        }
     }
 }
 
-function changeChatTo(uuid, closesidebar=true) {
+function changeChatTo(uuid, closesidebar = true) {
     if (closesidebar) $('#darkoverlay').click()
     setTimeout(() => {
         if (current_channel != uuid || first_load) {
@@ -421,8 +421,8 @@ function changeChatTo(uuid, closesidebar=true) {
 
 function toggleAdmin(ctx, member) {
     let data = {
-        uuid: uuid_header.uuid, 
-        user: member, 
+        uuid: uuid_header.uuid,
+        user: member,
         channel: current_channel
     }
 
@@ -436,7 +436,7 @@ function toggleAdmin(ctx, member) {
     $(ctx).toggleClass('transparent')
 }
 
-function populateChatInfo() {
+async function populateChatInfo() {
     $('#chatinfo_members').empty();
     $('#chatinfo_copylink').click(() => {
         copyTextToClipboard(`${window.location.origin}/joinChannel/${current_channel}`);
@@ -444,7 +444,7 @@ function populateChatInfo() {
 
     $('#leavechat').click(() => {
         httpPostAsync('api/leaveChannel', {
-            uuid: uuid_header.uuid, 
+            uuid: uuid_header.uuid,
             channel: current_channel
         }, () => {
             loadChannels()
@@ -459,67 +459,33 @@ function populateChatInfo() {
             for (let member of chat.members) {
                 if (member.toLowerCase() !== 'admin') {
                     let li = $('<li>');
-                    if (member in users) {
-                        let user = users[member];
-                        li.append($('<img>').attr('src', 'data:image/png;base64,' + user.image));
-                        li.append($('<span>').css('color', user.color).text(user.displayname))
+                    if (!member in users) {
+                        const data = await httpGetAsync('/api/getSettings/' + encodeURIComponent(member))
+                        const displayname = await httpGetAsync('/api/getDisplayName/' + encodeURIComponent(member))
 
-                        let star = $('<div class="star">')
-
-                        star.css('top', -41 + (i * 15))
-
-                        if (chat.admins !== []) {
-                            if (!chat.admins.includes(member)) star.addClass('transparent')
-
-                            if (chat.admins.includes(username) && username !== member) { // Don't allow a user to remove himself as an admin
-                                star.hover(() => star.toggleClass('star-hover'))
-                                star.click(() => toggleAdmin(star, member))
-                            }
-                        }
-
-                        li.append(star)
-
-                        $('#chatinfo_members').append(li);
-
-                    } else {
-                        httpGetAsync('/api/getSettings/' + encodeURIComponent(member), data => {
-                            httpGetAsync('/api/getDisplayName/' + encodeURIComponent(member), displayname => {
-                                data = JSON.parse(data);
-                                let li = $('<li>');
-                                li.append($('<img>').attr('src', 'data:image/png;base64,' + data.image));
-                                li.append($('<span>').css('color', data.color).text(displayname))
-
-                                let star = $('<div class="star transparent">')
-                                let css = {
-                                    position: 'absolute',
-                                    top: -41 + (i * 15) + 'px',
-                                    left: '8px',
-                                    transform: 'scale(0.6) rotate(180deg)'
-                                }
-                                star.css(css)
-        
-                                let currentname = $('#user').text()
-                                currentname = currentname.substring(0, currentname.length - 1)
-        
-                                if (chat.admins) {
-                                    if (chat.admins.includes(member)) star.removeClass('transparent')
-        
-                                    if (chat.admins.includes(currentname) && currentname !== member /* Don't allow a user to remove himself as an admin */) {
-                                        if (star.hasClass('transparent')) {
-                                            star.hover(() => star.toggleClass('transparent-admin'))
-                                            star.click(() => toggleAdmin(star, member))
-        
-                                        } else {
-                                            star.hover(() => star.toggleClass('star-admin'))
-                                            star.click(() => toggleAdmin(star, member))
-                                        }
-                                    }
-                                }
-        
-                                li.append(star)
-                            });
-                        });
+                        data.displayname = displayname
+                        users[member] = data
                     }
+                    let user = users[member];
+                    li.append($('<img>').attr('src', 'data:image/png;base64,' + user.image));
+                    li.append($('<span>').css('color', user.color).text(user.displayname))
+
+                    let star = $('<div class="star">')
+
+                    star.css('top', -41 + (i * 15))
+
+                    if (chat.admins && chat.admins !== []) {
+                        if (!chat.admins.includes(member)) star.addClass('transparent')
+
+                        if (chat.admins.includes(username) && username !== member) { // Don't allow a user to remove himself as an admin
+                            star.hover(() => star.toggleClass('star-hover'))
+                            star.click(() => toggleAdmin(star, member))
+                        }
+                    }
+
+                    li.append(star)
+
+                    $('#chatinfo_members').append(li);
                 }
                 i++
             }
