@@ -1,4 +1,8 @@
 
+.option{
+    cursor: pointer;
+}
+
 .modal {
     font: 16px $font-family, monospace;
     display: none;
@@ -72,6 +76,7 @@
     border-radius: 16px;
     padding: 8px;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .desk {
@@ -105,14 +110,17 @@ section {
 
 option[value="always"] {
     background: #88ff88;
+    cursor: pointer;
 }
 
 option[value="tagged"] {
     background: #edff88;
+    cursor: pointer;
 }
 
 option[value="never"] {
     background: #ff8888;
+    cursor: pointer;
 }
 
 .one {
@@ -138,6 +146,7 @@ option[value="never"] {
     border: 2px solid $border-color;
     border-radius: 8px;
     font: 16px $font-family, monospace;
+    cursor: pointer;
 }
 
 #theme {
@@ -149,6 +158,7 @@ option[value="never"] {
     font: 16px $font-family, monospace;
     background-color: $their-message-color;
     color: $text-color;
+    cursor: pointer;
 }
 
 .setting {
@@ -169,6 +179,7 @@ option[value="never"] {
     border: 2px solid $border-color;
     vertical-align: middle;
     margin-left: 64px;
+    cursor: pointer;
 }
 
 #color {
