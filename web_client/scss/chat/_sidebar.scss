@@ -19,7 +19,7 @@
 
         button {
             margin-right: 32px;
-            border: 2px solid $border-color;
+            //border: 2px solid $border-color;
             border-radius: 50%;
             background-color: inherit;
             width: 2em;
@@ -28,16 +28,17 @@
             text-align: center;
             vertical-align: middle;
             cursor: pointer;
+            border: none;
 
-            div {
-                display: table-cell;
-                vertical-align: middle;
+            svg {
+                width: 2em;
+                height: 2em;
+                stroke: $text-color;
+                stroke-width: 2.25;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+                fill: none;
                 color: $text-color;
-                font-size: 21px;
-                font-weight: bolder;
-                text-align: center;
-                width: inherit;
-
             }
         }
 
