@@ -61,6 +61,3 @@ INSERT INTO Hermes.Channels (UUID, Name, Members, Admins, Icon) values(13814000-
 
 CREATE INDEX ON Hermes.Channels (members);
 CREATE INDEX ON Hermes.Channels (admins);
-
-COPY Hermes.IPs FROM './IPs.csv';
-/* TODO: Get Ips from ipv6 table */
