@@ -4,9 +4,9 @@
   "description": "A decentralized messaging app",
   "main": "server.js",
   "dependencies": {
-    "bcrypt": "^3.0.4",
-    "body-parser": "^1.18.3",
-    "cassandra-driver": "^4.0.0",
+    "bcrypt": "^3.0.6",
+    "body-parser": "^1.19.0",
+    "cassandra-driver": "^4.1.0",
     "cookie-parser": "^1.4.4",
     "express": "^4.16.4",
     "express-favicon": "^2.0.1",
@@ -14,9 +14,9 @@
     "ipaddr.js": "^1.9.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
-    "sass": "^1.17.3",
+    "sass": "^1.19.0",
     "web-push": "^3.3.3",
-    "ws": "^6.2.1"
+    "ws": "^7.0.0"
   },
   "devDependencies": {},
   "scripts": {
