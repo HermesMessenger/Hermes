@@ -421,7 +421,7 @@ module.exports = {
         if (this.closed) throw new Error('DB closed')
 
         const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) USING TTL ?';
-        const uuid = await this.getUserForUUID(uuid)
+        const user = await this.getUserForUUID(uuid)
         const data = [uuid, user, SESSION_TIMEOUT];
 
         await client.execute(query, data, { prepare: true })
