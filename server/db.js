@@ -8,7 +8,7 @@ const DEFAULT_CHAT_IMAGE = 'iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAABOFBM
 const config = require('../config.json')
 
 const authProvider = new cassandra.auth.PlainTextAuthProvider(config.db.username, config.db.password);
-const client = new cassandra.Client({ contactPoints: config.db.hosts, localDataCenter: 'datacenter1', authProvider, keyspace: 'hermes' })
+const client = new cassandra.Client({ contactPoints: config.db.hosts, localDataCenter: config.db.datacenter, authProvider, keyspace: 'hermes' })
 
 // console.log('DB LOADED!') // <-- This only runs once since node caches modules. This means that only 1 db instance is created. 
 

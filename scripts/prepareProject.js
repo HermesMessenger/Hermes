@@ -12,7 +12,8 @@ const configTemplate = {
     db: {
         hosts: ['127.0.0.1:9042'], // Default localhost Cassandra URL
         username: 'cassandra', // Default Cassandra username & password
-        password: 'cassandra'
+        password: 'cassandra', 
+        datacenter: 'datacenter1'
     }
 };
 
