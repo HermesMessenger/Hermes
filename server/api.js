@@ -276,6 +276,16 @@ router.post('/getChannels', async function (req, res) {
     let r = [];
     for (const channel of channels) {
         const p = await db.getChannelProperties(channel)
+
+        let s = {}
+        p.members.forEach(async val => {
+            let settings = await db.getSetting(val)
+            s[val] = {
+                color: '#' + settings.color,
+                image: settings.image,
+            }
+        })
+        p.members = s
         r.push(p)
     }
     res.send(r)
