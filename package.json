@@ -39,7 +39,7 @@
     "url": "git+https://github.com/HermesMessenger/Hermes.git"
   },
   "author": "CoderDojo Majadahonda",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/HermesMessenger/Hermes/issues"
   },
