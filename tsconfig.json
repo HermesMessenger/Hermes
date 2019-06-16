@@ -2,6 +2,7 @@
     "compilerOptions": {
         "noImplicitAny": true,
         "esModuleInterop": true,
+        "resolveJsonModule": true,
         "strictNullChecks": true,
         "removeComments": true,
         "preserveConstEnums": true,

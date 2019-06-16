@@ -1,7 +1,7 @@
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const NodemonPlugin = require('nodemon-webpack-plugin')
-const devMode = false//process.env.NODE_ENV !== 'production';
+const devMode = process.env.NODE_ENV !== 'production';
 const fs = require('fs');
 const path = require('path');
 
