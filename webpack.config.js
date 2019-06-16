@@ -1,13 +1,11 @@
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const NodemonPlugin = require('nodemon-webpack-plugin')
 const devMode = process.env.NODE_ENV !== 'production';
 const fs = require('fs');
 const path = require('path');
 
 let config = {
     plugins: [
-        new NodemonPlugin(),
         new webpack.ProvidePlugin({
             $: 'jquery'
         }),
@@ -38,7 +36,8 @@ let config = {
                         options: { sourceMap: true }
                     },
                     {
-                        loader: 'sass-loader', options: {
+                        loader: 'sass-loader',
+                        options: {
                             sourceMap: true,
                             outputStyle: 'compressed'
                         }
