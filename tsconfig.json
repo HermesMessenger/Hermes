@@ -1,5 +1,18 @@
 {
     "compilerOptions": {
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
         "sourceMap": true,
-    }
+        "outDir": "dist/server",
+        "target": "es6",
+        "module": "commonjs"
+    },
+    "include": [
+        "src/server/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
+    ]
 }
