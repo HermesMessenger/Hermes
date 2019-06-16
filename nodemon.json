@@ -1,6 +1,7 @@
 {
     "watch": [
-        "src/server/"
+        "src/**/"
     ],
-    "ext": "ts"
+    "ext": "*", 
+    "exec": "npm start -s"
 }

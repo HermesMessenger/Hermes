@@ -1,11 +1,13 @@
-const path = require('path');
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const devMode = process.env.NODE_ENV !== 'production';
+const NodemonPlugin = require('nodemon-webpack-plugin')
+const devMode = false//process.env.NODE_ENV !== 'production';
 const fs = require('fs');
+const path = require('path');
 
 let config = {
     plugins: [
+        new NodemonPlugin(),
         new webpack.ProvidePlugin({
             $: 'jquery'
         }),
@@ -62,15 +64,16 @@ let config = {
         index: ['./index.ts', './index.scss', './index.html'],
     },
     resolve: {
-        extensions: [ '.ts', '.html', '.scss', '.png', '.jpeg', '.jpg', '.json' ]
-    }
+        extensions: ['.ts', '.html', '.scss', '.png', '.jpeg', '.jpg', '.json']
+    },
+    stats: 'errors-only'
 };
 
 // Add themes
 let files = fs.readdirSync(config.context + '/themes/')
-for (let file of files){
-    if(file.endsWith('.scss')) {
-        config.entry['theme_'+file.replace('.scss', '')] = ['./themes/'+file]
+for (let file of files) {
+    if (file.endsWith('.scss')) {
+        config.entry['theme_' + file.replace('.scss', '')] = ['./themes/' + file]
     }
 }
 

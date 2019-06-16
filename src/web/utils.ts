@@ -1,3 +1,3 @@
-export function greet(person: String) {
-    console.log(`Greetings ${person}`)
+export function greet (person: String) {
+  console.log(`Greetings ${person}`)
 }

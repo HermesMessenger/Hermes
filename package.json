@@ -2,7 +2,7 @@
   "name": "hermes",
   "version": "3.0.0",
   "description": "A decentralized messaging app",
-  "main": "server.js",
+  "main": "dist/server/server.js",
   "dependencies": {
     "bcrypt": "^3.0.6",
     "body-parser": "^1.19.0",
@@ -12,11 +12,12 @@
     "express-favicon": "^2.0.1",
     "file-exists": "^5.0.1",
     "ipaddr.js": "^1.9.0",
+    "jquery": "^3.4.1",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "sass": "^1.21.0",
     "web-push": "^3.3.5",
-    "jquery": "^3.4.1"
+    "ws": "^7.0.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.0",
@@ -39,20 +40,26 @@
     "webpack-cli": "^3.3.4"
   },
   "scripts": {
-    "build-css": "sass --no-source-map -s compressed web_client/scss/:web_client/css/",
-    "watch-css": "sass --source-map --watch web_client/scss/:web_client/css/",
-    "build-css-source-map": "sass --source-map -s compressed web_client/scss/:web_client/css/",
-    "prepare-project": "node scripts/prepareProject.js && npm run build-css",
-    "prepare-project-no-css": "node scripts/prepareProject.js",
-    "test": "node server.js",
-    "start": "node server.js",
-    "start-no-css": "node server.js",
-    "debug": "node --inspect server.js",
-    "prestart": "npm run prepare-project",
-    "prestart-no-css": "npm run prepare-project-no-css",
+    "build": "npm run build-server && npm run build-web",
+    "build-server": "tsc",
+    "build-web": "webpack",
+    "watch": "nodemon",
+    "lint": "tslint -c tslint.json src/**/*.ts",
+    "test": "npm run lint",
+    "prepare-project": "node scripts/prepareProject.js && npm run build",
     "postinstall": "npm run prepare-project",
-    "watch": "node scripts/watch.js",
+    "prestart": "npm run prepare-project",
+    "start": "node .",
+    "debug": "node . --inspect",
     "cleanup": "node scripts/cleanup.js"
+  },
+  "browserslist": [
+    "defaults"
+  ],
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
   },
   "repository": {
     "type": "git",
