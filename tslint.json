@@ -4,6 +4,13 @@
         "tslint-config-standard"
     ],
     "jsRules": {},
-    "rules": {},
+    "rules": {
+        "indent": [true, "tabs"],
+        "ter-indent": [true, "tab"],
+        "comment-format": [true, "check-space"],
+        "encoding": true,
+        "linebreak-style": [true, "LF"],
+        "semicolon": [true, "never"]
+    },
     "rulesDirectory": []
 }
