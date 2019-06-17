@@ -19,9 +19,9 @@ app.get('/favicon.png', function (req, res) {
 	res.sendFile(paths.imgPath + 'HermesMessengerLogoV2.png')
 })
 
-app.get('/js/:file', async function (req, res) {
+app.get('/chat/:file', async function (req, res) {
 	try {
-		const file = paths.jsPath + req.params.file
+		const file = paths.chatPath + req.params.file
 		const exists = await fileExists(file)
 		if (exists) res.sendFile(file)
 		else res.sendStatus(404)
@@ -32,9 +32,9 @@ app.get('/js/:file', async function (req, res) {
 	}
 })
 
-app.get('/js/lib/:file', async function (req, res) {
+app.get('/login/:file', async function (req, res) {
 	try {
-		const file = paths.jsLibPath + req.params.file
+		const file = paths.loginPath + req.params.file
 		const exists = await fileExists(file)
 		if (exists) res.sendFile(file)
 		else res.sendStatus(404)
@@ -58,20 +58,7 @@ app.get('/images/:file', async function (req, res) {
 	}
 })
 
-app.get('/css/:file', async function (req, res) {
-	try {
-		const file = paths.cssPath + req.params.file
-		const exists = await fileExists(file)
-		if (exists) res.sendFile(file)
-		else res.sendStatus(404)
-
-	} catch (err) {
-		console.error('ERROR:', err)
-		res.sendStatus(500) // Internal Server Error
-	}
-})
-
-app.get('/css/themes/:file', async function (req, res) {
+app.get('/themes/:file', async function (req, res) {
 	try {
 		const file = paths.themePath + req.params.file
 		const exists = await fileExists(file)
@@ -90,7 +77,7 @@ app.get('/', async function (req, res) {
 	} else {
 		res.redirect('/login')
 	}*/
-	res.sendFile(paths.webPath + 'index.html')
+	res.sendFile(paths.chatPath + 'chat.html')
 })
 
 const server = http.createServer(app)

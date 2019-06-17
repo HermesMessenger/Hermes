@@ -33,9 +33,13 @@ let config = {
                         loader: MiniCssExtractPlugin.loader,
                         options: {
                             hmr: devMode,
+                            sourceMap: true,
                         },
                     },
-                    'css-loader',
+                    {
+                        loader: 'css-loader',
+                        options: { sourceMap: true }
+                    },
                     {
                         loader: 'postcss-loader',
                         options: { sourceMap: true }
@@ -90,6 +94,12 @@ for (let file of files) {
         });
         fs.writeFileSync(config.output.path + '/themes/' + file.replace('.scss', '.css'), result.css);
     }
+}
+
+let images = fs.readdirSync(config.context + '/images/')
+for (let file of images) {
+    // Copy all files from src/web/images to dist/web/images
+    fs.copyFileSync(config.context + '/images/' + file, config.output.path + '/images/' + file)
 }
 
 module.exports = config;
