@@ -5,6 +5,10 @@ const fs = require('fs');
 const path = require('path');
 const node_sass = require('node-sass');
 
+function entry(name){
+    return `${name}/${name}`
+}
+
 let config = {
     plugins: [
         new webpack.ProvidePlugin({
@@ -45,14 +49,16 @@ let config = {
                     },
                 ],
             },
-            { test: /\.ts$/, use: 'ts-loader', exclude: /node_modules/ },
+            { 
+                test: /\.ts$/, 
+                use: 'ts-loader', 
+                exclude: /node_modules/,
+            },
             {
                 test: /\.(html|png|jpe?g|json)$/,
                 loader: 'file-loader',
                 options: {
-                    name(file) {
-                        return '[path][name].[ext]';
-                    },
+                    name: '[folder]/[name].[ext]'
                 },
             },
         ]
@@ -60,14 +66,15 @@ let config = {
     output: {
         path: path.resolve(__dirname, 'dist/web'),
     },
-    entry: {
-        index: ['./index.ts', './index.scss', './index.html'],
-    },
+    entry: {},
     resolve: {
         extensions: ['.ts', '.html', '.scss', '.png', '.jpeg', '.jpg', '.json']
     },
     stats: 'errors-only'
 };
+
+config.entry[entry('chat')] = ['./chat/chat.ts', './chat/chat.scss', './chat/chat.html']
+config.entry[entry('login')] = ['./login/login.ts', './login/login.scss', './login/login.html']
 
 // Add themes
 let files = fs.readdirSync(config.context + '/themes/')
@@ -75,13 +82,13 @@ for (let file of files) {
     if (file.endsWith('.scss')) {
         let result = node_sass.renderSync({
             file: config.context + '/themes/' + file,
-            outFile: config.output.path + '/css/themes/' + file.replace('.scss', '.css'),
+            outFile: config.output.path + '/themes/' + file.replace('.scss', '.css'),
             outputStyle: 'compressed',
             sourceMap: devMode, // True for development
             sourceMapEmbed: true,
             sourceMapContents: true
         });
-        fs.writeFileSync(config.output.path + '/css/themes/' + file.replace('.scss', '.css'), result.css);
+        fs.writeFileSync(config.output.path + '/themes/' + file.replace('.scss', '.css'), result.css);
     }
 }
 

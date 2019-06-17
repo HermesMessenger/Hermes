@@ -1,5 +1,5 @@
-import { greet } from './utils'
-require('./jscolor.js')
+import { greet } from '../ts/utils'
+require('../ts/lib/jscolor.js')
 
 let ws = new WebSocket('ws://' + window.location.host)
 ws.onmessage = data => {

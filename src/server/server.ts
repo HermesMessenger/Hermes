@@ -85,11 +85,12 @@ app.get('/css/themes/:file', async function (req, res) {
 })
 
 app.get('/', async function (req, res) {
-	if (req.cookies.hermes_uuid) {
+	/*if (req.cookies.hermes_uuid) {
 		res.redirect('/chat')
 	} else {
 		res.redirect('/login')
-	}
+	}*/
+	res.sendFile(paths.webPath + 'index.html')
 })
 
 const server = http.createServer(app)
