@@ -3,8 +3,8 @@ require('./jscolor.js')
 
 let ws = new WebSocket('ws://' + window.location.host)
 ws.onmessage = data => {
-  console.log(data)
-  ws.send('HELLO')
+	console.log(data)
+	ws.send('HELLO')
 }
 
 console.log('HOLA JQUERY')
