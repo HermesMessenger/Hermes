@@ -12,7 +12,7 @@
         "module": "commonjs"
     },
     "include": [
-        "src/server/*"
+        "src/server/*", "src/server/utils/fileExists.ts"
     ],
     "exclude": [
         "node_modules",

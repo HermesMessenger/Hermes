@@ -27,7 +27,7 @@ let config = {
                     {
                         loader: MiniCssExtractPlugin.loader,
                         options: {
-                            hmr: process.env.NODE_ENV === 'development',
+                            hmr: devMode,
                         },
                     },
                     'css-loader',

@@ -1,5 +1,4 @@
 const fs = require('fs');
-const fileExists = require('file-exists');
 const TimeUUID = require('cassandra-driver').types.TimeUuid;
 const webPush = require('web-push');
 
@@ -29,9 +28,8 @@ function writeJSON(json = {}) {
     });
 }
 
-fileExists('config.json', (err, exists) => {
-    if (err) throw err;
-    if (exists) {
+fs.access('config.json', err => {
+    if (!err) {
         const config = require('../config.json');
         let config_correct = true;
         for (key of Object.keys(configTemplate)) {
