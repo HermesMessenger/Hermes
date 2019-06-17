@@ -46,6 +46,7 @@
     "build-web": "webpack",
     "watch": "nodemon",
     "lint": "tslint -c tslint.json src/**/*.ts",
+    "lintFix": "tslint -c tslint.json --fix src/**/*.ts",
     "test": "npm run lint",
     "prepare-project": "node scripts/prepareProject.js && npm run build",
     "postinstall": "npm run prepare-project",

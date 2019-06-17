@@ -3,6 +3,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const devMode = process.env.NODE_ENV !== 'production';
 const fs = require('fs');
 const path = require('path');
+const node_sass = require('node-sass');
 
 let config = {
     plugins: [
@@ -72,7 +73,15 @@ let config = {
 let files = fs.readdirSync(config.context + '/themes/')
 for (let file of files) {
     if (file.endsWith('.scss')) {
-        config.entry['theme_' + file.replace('.scss', '')] = ['./themes/' + file]
+        let result = node_sass.renderSync({
+            file: config.context + '/themes/' + file,
+            outFile: config.output.path + '/css/themes/' + file.replace('.scss', '.css'),
+            outputStyle: 'compressed',
+            sourceMap: devMode, // True for development
+            sourceMapEmbed: true,
+            sourceMapContents: true
+        });
+        fs.writeFileSync(config.output.path + '/css/themes/' + file.replace('.scss', '.css'), result.css);
     }
 }
 
