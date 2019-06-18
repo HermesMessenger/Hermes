@@ -14,7 +14,7 @@
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "web-push": "^3.3.5",
-    "ws": "^7.0.0"
+    "ws": "^7.0.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",
@@ -33,7 +33,7 @@
     "nodemon": "^1.19.1",
     "postcss-loader": "^3.0.0",
     "sass-loader": "^7.1.0",
-    "ts-loader": "^6.0.2",
+    "ts-loader": "^6.0.3",
     "tslint": "^5.17.0",
     "tslint-config-standard": "^8.0.1",
     "typescript": "^3.5.2",
@@ -41,16 +41,16 @@
     "webpack-cli": "^3.3.4"
   },
   "scripts": {
-    "build": "npm run build-server && npm run build-web",
-    "build-server": "echo \"[tsc] Compiling\" && tsc && echo \"[tsc] Done\"",
-    "build-web": "echo \"[webpack] Compiling\" && webpack && echo \"[webpack] Done\"",
+    "build": "npm run build-server -s && npm run build-web -s",
+    "build-server": "echo '[tsc] Compiling' && tsc && echo '[tsc] Done'",
+    "build-web": "echo '[webpack] Compiling' && webpack && echo '[webpack] Done'",
     "watch": "nodemon",
     "lint": "tslint -c tslint.json src/**/*.ts",
     "lintFix": "tslint -c tslint.json --fix src/**/*.ts",
     "test": "npm run lint",
-    "prepare-project": "node scripts/prepareProject.js && npm run build",
-    "postinstall": "npm run prepare-project",
-    "prestart": "npm run prepare-project",
+    "prepare-project": "node scripts/prepareProject.js && npm run build -s",
+    "postinstall": "npm run prepare-project -s",
+    "prestart": "npm run prepare-project -s",
     "start": "node .",
     "debug": "node . --inspect",
     "cleanup": "node scripts/cleanup.js"

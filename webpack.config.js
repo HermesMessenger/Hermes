@@ -82,6 +82,7 @@ config.entry[entry('login')] = ['./login/login.ts', './login/login.scss', './log
 
 // Add themes
 let files = fs.readdirSync(config.context + '/themes/')
+fs.mkdirSync(config.output.path + '/themes/', { recursive: true }) // Ensure folder exsts
 for (let file of files) {
     if (file.endsWith('.scss')) {
         let result = node_sass.renderSync({
@@ -92,12 +93,12 @@ for (let file of files) {
             sourceMapEmbed: true,
             sourceMapContents: true
         });
-        fs.mkdirSync(config.output.path + '/themes/', { recursive: true }) // Ensure folder exsts
         fs.writeFileSync(config.output.path + '/themes/' + file.replace('.scss', '.css'), result.css);
     }
 }
 
 let images = fs.readdirSync(config.context + '/images/')
+fs.mkdirSync(config.output.path + '/images/', { recursive: true }) // Ensure folder exsts
 for (let file of images) {
     // Copy all files from src/web/images to dist/web/images
     fs.copyFileSync(config.context + '/images/' + file, config.output.path + '/images/' + file)
