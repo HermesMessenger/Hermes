@@ -42,8 +42,8 @@
   },
   "scripts": {
     "build": "npm run build-server && npm run build-web",
-    "build-server": "tsc",
-    "build-web": "webpack",
+    "build-server": "echo \"[tsc] Compiling\" && tsc && echo \"[tsc] Done\"",
+    "build-web": "echo \"[webpack] Compiling\" && webpack && echo \"[webpack] Done\"",
     "watch": "nodemon",
     "lint": "tslint -c tslint.json src/**/*.ts",
     "lintFix": "tslint -c tslint.json --fix src/**/*.ts",

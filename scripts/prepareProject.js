@@ -24,7 +24,7 @@ function writeJSON(json = {}) {
     }
     fs.writeFile('config.json', JSON.stringify(config, null, '\t'), err => {
         if (err) throw err;
-        console.log('config.json created');
+        console.log('[prepare-project] config.json created');
     });
 }
 
@@ -34,20 +34,20 @@ fs.access('config.json', err => {
         let config_correct = true;
         for (key of Object.keys(configTemplate)) {
             if (config[key] == undefined) {
-                console.log(`${key} is missing from config.json`);
+                console.log(`[prepare-project] ${key} is missing from config.json`);
                 config_correct = false;
                 if(key == 'global_channel_uuid'){
-                    console.log('Please set the global channel UUID')
+                    console.log('[prepare-project] Please set the global channel UUID')
                 }
             }
         }
         if (!config_correct) {
             writeJSON(config);
         } else {
-            console.log('config.json is correct');
+            console.log('[prepare-project] config.json is correct');
         }
     } else {
-        console.log('config.json is misssing');
+        console.log('[prepare-project] config.json is misssing');
         writeJSON();
     }
 });

@@ -10,7 +10,8 @@
         "comment-format": [true, "check-space"],
         "encoding": true,
         "linebreak-style": [true, "LF"],
-        "semicolon": [true, "never"]
+        "semicolon": [true, "never"],
+        "triple-equals": false
     },
     "rulesDirectory": []
 }
