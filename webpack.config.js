@@ -92,6 +92,7 @@ for (let file of files) {
             sourceMapEmbed: true,
             sourceMapContents: true
         });
+        fs.mkdirSync(config.output.path + '/themes/', { recursive: true }) // Ensure folder exsts
         fs.writeFileSync(config.output.path + '/themes/' + file.replace('.scss', '.css'), result.css);
     }
 }

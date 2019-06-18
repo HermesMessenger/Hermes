@@ -6,13 +6,13 @@
         "strictNullChecks": true,
         "removeComments": true,
         "preserveConstEnums": true,
-        "sourceMap": true,
+        "inlineSourceMap": true,
         "outDir": "dist/server",
         "target": "es6",
         "module": "commonjs"
     },
     "include": [
-        "src/server/*", "src/server/**/*"
+        "src/server/**/*"
     ],
     "exclude": [
         "node_modules",
