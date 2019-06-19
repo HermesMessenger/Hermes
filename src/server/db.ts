@@ -177,7 +177,7 @@ export = {
 
 		const res = await client.execute(query, data, { prepare: true })
 
-		return res.rows[0]
+		return res.rows[0] as Channel
 	},
 
 	/**
@@ -353,7 +353,7 @@ export = {
 
 		const res = await client.execute(query, data, { prepare: true })
 
-		return res.rows[0]
+		return res.rows[0] as Message
 	},
 
 	/**
@@ -387,7 +387,7 @@ export = {
 
 		const res = await client.execute(query, data, { prepare: true })
 
-		return res.rows
+		return res.rows as Message[]
 	},
 
 	/**
@@ -404,7 +404,7 @@ export = {
 
 		const res = await client.execute(query, data, { prepare: true })
 
-		return res.rows
+		return res.rows as Message[]
 	},
 
 	// TODO: Finish writing JSDoc comments
@@ -417,7 +417,7 @@ export = {
 
 			const res = await client.execute(query, data, { prepare: true })
 
-			return res.rows // They come in from last to first
+			return res.rows as Message[] // They come in from last to first
 
 		} else {
 			const query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=? ORDER BY UUID DESC LIMIT 100;'
@@ -425,7 +425,7 @@ export = {
 
 			const res = await client.execute(query, data, { prepare: true })
 
-			return res.rows // They come in from last to first
+			return res.rows as Message[] // They come in from last to first
 		}
 	},
 
@@ -579,7 +579,7 @@ export = {
 		return
 	},
 
-	async getSetting (username: string): Promise<void> {
+	async getSetting (username: string): Promise<void> { // TODO Add setting type
 		if (this.closed) throw new Error('DB closed')
 
 		const query = 'SELECT color, notifications, blobAsText(image) as image, theme FROM Settings WHERE username=?;'
