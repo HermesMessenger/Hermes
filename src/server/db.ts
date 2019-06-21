@@ -1,5 +1,5 @@
 import cassandra from 'cassandra-driver'
-import config from '../config.json' // <-- This breaks compilation because it's outside the root, we have to find a new way to import it.
+import config from '../../config.json'
 
 const authProvider = new cassandra.auth.PlainTextAuthProvider(config.db.username, config.db.password)
 const client = new cassandra.Client({ contactPoints: config.db.hosts, localDataCenter: 'datacenter1', authProvider, keyspace: 'hermes' })
@@ -26,6 +26,14 @@ interface Message extends cassandra.types.Row {
 	username: string
 }
 
+interface Settings extends cassandra.types.Row {
+	username: string,
+	notifications: number,
+	theme: string,
+	color: string,
+	image: string
+}
+
 function getRandomHEXPart () {
 	// Random RGB part to hex
 	let hexString = (Math.floor(Math.random() * 150 + 50)).toString(16)
@@ -39,10 +47,10 @@ function createColor () {
 	return getRandomHEXPart() + getRandomHEXPart() + getRandomHEXPart()
 }
 
-export = {
+const DB = {
 
 	/**
-	 * Add a message to the DB
+	 * Add a new message
 	 * @param channel The channel UUID to join
 	 * @param user The user that sent the message
 	 * @param message The message to add
@@ -55,7 +63,6 @@ export = {
 		const data = [messageUUID, channel, user, message]
 
 		await client.execute(query, data, { prepare: true })
-		return
 	},
 
 	/**
@@ -63,10 +70,10 @@ export = {
 	 * @param channel The channel UUID to join
 	 * @param user The user that sent the message
 	 */
-	async addCreateMessage (channel: string, user: string): Promise<void> {
+	addCreateMessage (channel: string, user: string): Promise<void> {
 		if (this.closed) throw new Error('DB closed')
 
-		return this.addMessage(channel, 'Admin', `@${user} has created the chat.`)
+		return DB.addMessage(channel, 'Admin', `@${user} has created the chat.`)
 	},
 
 	/**
@@ -74,10 +81,10 @@ export = {
 	 * @param channel The channel UUID to join
 	 * @param user The user that sent the message
 	 */
-	async addWelcomeMessage (channel: string, user: string): Promise<void> {
+	addWelcomeMessage (channel: string, user: string): Promise<void> {
 		if (this.closed) throw new Error('DB closed')
 
-		return this.addMessage(channel, 'Admin', `@${user} has joined the chat.`)
+		return DB.addMessage(channel, 'Admin', `@${user} has joined the chat.`)
 	},
 
 	/**
@@ -85,10 +92,10 @@ export = {
 	 * @param channel The channel UUID to join
 	 * @param user The user that sent the message
 	 */
-	async addLeaveMessage (channel: string, user: string): Promise<void> {
+	addLeaveMessage (channel: string, user: string): Promise<void> {
 		if (this.closed) throw new Error('DB closed')
 
-		return this.addMessage(channel, 'Admin', `@${user} has left the chat.`)
+		return DB.addMessage(channel, 'Admin', `@${user} has left the chat.`)
 	},
 
 	/**
@@ -97,10 +104,10 @@ export = {
 	 * @param admin The user making the promotion
 	 * @param newAdmin The user gettning promoted
 	 */
-	async addPromoteMessage (channel: string, admin: string, newAdmin: string): Promise<void> {
+	addPromoteMessage (channel: string, admin: string, newAdmin: string): Promise<void> {
 		if (this.closed) throw new Error('DB closed')
 
-		return this.addMessage(channel, 'Admin', `@${admin} has made @${newAdmin} an admin.`)
+		return DB.addMessage(channel, 'Admin', `@${admin} has made @${newAdmin} an admin.`)
 	},
 
 	/**
@@ -109,10 +116,10 @@ export = {
 	 * @param admin The user making the demotion
 	 * @param oldAdmin The user gettning demoted
 	 */
-	async addDemoteMessage (channel: string, admin: string, oldAdmin: string): Promise<void> {
+	addDemoteMessage (channel: string, admin: string, oldAdmin: string): Promise<void> {
 		if (this.closed) throw new Error('DB closed')
 
-		return this.addMessage(channel, 'Admin', `@${admin} has removed @${oldAdmin} as an admin.`)
+		return DB.addMessage(channel, 'Admin', `@${admin} has removed @${oldAdmin} as an admin.`)
 	},
 
 	/**
@@ -127,8 +134,6 @@ export = {
 		const data = [channel, uuid]
 
 		await client.execute(query, data, { prepare: true })
-
-		return
 	},
 
 	/**
@@ -144,8 +149,6 @@ export = {
 		const data = [newmessage, channel, uuid]
 
 		await client.execute(query, data, { prepare: true })
-
-		return
 	},
 
 	/**
@@ -181,7 +184,7 @@ export = {
 	},
 
 	/**
-	 * Creates a channel
+	 * Create a channel
 	 * @param user The user to get the channels for
 	 * @returns The channel's UUID
 	 */
@@ -189,17 +192,17 @@ export = {
 		if (this.closed) throw new Error('DB closed')
 
 		const query = 'INSERT INTO Channels (UUID, Name, Members, Admins, Icon) values(?,?,?,?,textAsBlob(?));'
-		const channelUUID = new cassandra.types.TimeUuid()
+		const channelUUID = new cassandra.types.TimeUuid().toString()
 		const data = [channelUUID, name, [], [], DEFAULT_CHAT_IMAGE]
 
 		await client.execute(query, data, { prepare: true })
-		await this.joinChannel(user.toLowerCase(), channelUUID, true)
+		await DB.joinChannel(user.toLowerCase(), channelUUID, true)
 
 		return channelUUID.toString()
 	},
 
 	/**
-	 * Checks whether a channel exists
+	 * Check whether a channel exists
 	 * @param channel The channel to check
 	 * @returns If the channel exists
 	 */
@@ -215,10 +218,10 @@ export = {
 	},
 
 	/**
-	 * Joins a channel
+	 * Add a user to a channel
 	 * @param user The user to add to the channel
 	 * @param channel The channel to join
-	 * @param [makeAdmin] Whether to make the user an admin
+	 * @param makeAdmin Whether to make the user an admin
 	 */
 	async joinChannel (user: string, channel: string, makeAdmin?: boolean): Promise<void> {
 		if (this.closed) throw new Error('DB closed')
@@ -242,11 +245,10 @@ export = {
 		}
 
 		await client.batch(queries, { prepare: true })
-		return
 	},
 
 	/**
-	 * Checks whether a user belongs to a channel
+	 * Check whether a user belongs to a channel
 	 * @param user The user to check
 	 * @param channel The channel to check
 	 * @returns If the user is in the channel
@@ -263,7 +265,7 @@ export = {
 	},
 
 	/**
-	 * Checks whether a user is an admin of a channel
+	 * Check whether a user is an admin of a channel
 	 * @param user The user to check
 	 * @param channel The channel to check
 	 * @returns If the user is an admin
@@ -280,7 +282,7 @@ export = {
 	},
 
 	/**
-	 * Makes a user an admin of a channel
+	 * Make a user an admin of a channel
 	 * @param user The user to make admin
 	 * @param channel The channel to add to
 	 */
@@ -291,12 +293,10 @@ export = {
 		const data = [[user], channel]
 
 		await client.execute(query, data, { prepare: true })
-
-		return
 	},
 
 	/**
-	 * Removes a user as an admin of a channel
+	 * Remove a user as an admin of a channel
 	 * @param user The user to remove
 	 * @param channel The channel to remove from
 	 */
@@ -307,12 +307,10 @@ export = {
 		const data = [[user], channel]
 
 		await client.execute(query, data, { prepare: true })
-
-		return
 	},
 
 	/**
-	 * Removes a user from a channel
+	 * Remove a user from a channel
 	 * @param user The user to remove
 	 * @param channel The channel to remove from
 	 */
@@ -335,8 +333,6 @@ export = {
 		]
 
 		await client.batch(queries, { prepare: true })
-
-		return
 	},
 
 	/**
@@ -407,8 +403,13 @@ export = {
 		return res.rows as Message[]
 	},
 
-	// TODO: Finish writing JSDoc comments
-	async get100Messages (channel: string, uuid: string): Promise<Message[]> {
+	/**
+	 * Get the latest 100 messages of a channel
+	 * @param channel The channel UUID
+	 * @param uuid The message UUID from which to get messages
+	 * @returns An array of 100 messages
+	 */
+	async get100Messages (channel: string, uuid?: string): Promise<Message[]> {
 		if (this.closed) throw new Error('DB closed')
 
 		if (uuid) {
@@ -429,6 +430,12 @@ export = {
 		}
 	},
 
+	/**
+	 * Add a user to the DB
+	 * @param user The user (name) to add
+	 * @param passwordHash The hash of the user's password
+	 * @returns The user's session UUID
+	 */
 	async registerUser (user: string, passwordHash: string): Promise<string> {
 		if (this.closed) throw new Error('DB closed')
 
@@ -436,25 +443,37 @@ export = {
 		const data = [user.toLowerCase(), user, passwordHash, []]
 
 		await client.execute(query, data, { prepare: true })
-		await this.saveSetting(user, createColor())
-		await this.joinChannel(user, globalChannelUUID)
-		const uuid = await this.loginUser(user)
+		await DB.saveSetting(user, createColor())
+		await DB.joinChannel(user, globalChannelUUID)
+		const uuid = await DB.loginUser(user)
 
 		return uuid
 	},
 
-	async registerBot (bot: string, passwordHash: string): Promise<void> {
+	/**
+	 * Add a bot to the DB
+	 * @param bot The bot (name) to add
+	 * @param passwordHash The hash of the bot's password
+	 * @returns The bot's session UUID
+	 */
+	async registerBot (bot: string, passwordHash: string): Promise<string> {
 		if (this.closed) throw new Error('DB closed')
 
 		const query = 'INSERT INTO Users (User_low, Username, PasswordHash, Channels) values(?,?,?,?) IF NOT EXISTS;'
 		const data = [bot.toLowerCase(), bot, passwordHash, [globalChannelUUID]]
 
 		await client.execute(query, data, { prepare: true })
-		await this.saveSetting(bot, createColor(), 2, DEFAULT_BOT_IMAGE)
-
-		return
+		await DB.saveSetting(bot, createColor(), 2, DEFAULT_BOT_IMAGE)
+		await DB.joinChannel(bot, globalChannelUUID)
+		const uuid = await DB.loginBot(bot)
+		return uuid
 	},
 
+	/**
+	 * Update the password hash of a user
+	 * @param user The user to change the password for
+	 * @param passwordHash The new password hash
+	 */
 	async updatePasswordHash (user: string, passwordHash: string): Promise<void> {
 		if (this.closed) throw new Error('DB closed')
 
@@ -462,10 +481,13 @@ export = {
 		const data = [passwordHash, user.toLowerCase()]
 
 		await client.execute(query, data, { prepare: true })
-
-		return
 	},
 
+	/**
+	 * Get the password hash for a user
+	 * @param user The user to get the hash for
+	 * @returns The password hash
+	 */
 	async getPasswordHash (user: string): Promise<string> {
 		if (this.closed) throw new Error('DB closed')
 
@@ -477,6 +499,11 @@ export = {
 		return res.rows[0] && res.rows[0].passwordhash
 	},
 
+	/**
+	 * Check if user is already registered
+	 * @param user The username to check
+	 * @returns If the user is registered or not
+	 */
 	async isntAlreadyRegistered (user: string): Promise<boolean> {
 		if (this.closed) throw new Error('DB closed')
 
@@ -488,17 +515,11 @@ export = {
 		return res.rows[0] && res.rows[0].count.low === 0
 	},
 
-	async isntBotAlreadyRegistered (bot: string): Promise<boolean> {
-		if (this.closed) throw new Error('DB closed')
-
-		const query = 'SELECT COUNT(*) as count from Users where User_low = ?;'
-		const data = [bot.toLowerCase()]
-
-		const res = await client.execute(query, data, { prepare: true })
-
-		return res.rows[0] && res.rows[0].count.low === 0
-	},
-
+	/**
+	 * Log in a user
+	 * @param user The user to log in
+	 * @returns The user's session UUID
+	 */
 	async loginUser (user: string): Promise<string> {
 		if (this.closed) throw new Error('DB closed')
 
@@ -511,6 +532,11 @@ export = {
 		return uuid.toString()
 	},
 
+	/**
+	 * Log in a bot
+	 * @param bot The bot to log in
+	 * @returns The bot's session UUID
+	 */
 	async loginBot (bot: string): Promise<string> {
 		if (this.closed) throw new Error('DB closed')
 
@@ -523,6 +549,11 @@ export = {
 		return uuid.toString()
 	},
 
+	/**
+	 * Get the username of a session UUID
+	 * @param uuid The session UUID
+	 * @returns The username corresponding to the UUID
+	 */
 	async getUserForUUID (uuid: string): Promise<string> {
 		if (this.closed) throw new Error('DB closed')
 
@@ -534,18 +565,11 @@ export = {
 		return res.rows[0] && res.rows[0].username
 	},
 
-	async updateLoggedInUser (uuid: string): Promise<void> {
-		if (this.closed) throw new Error('DB closed')
-
-		const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) USING TTL ?'
-		const user = await this.getUserForUUID(uuid)
-		const data = [uuid, user, SESSION_TIMEOUT]
-
-		await client.execute(query, data, { prepare: true })
-
-		return
-	},
-
+	/**
+	 * Log in a user
+	 * @param user The user to log in
+	 * @returns The user's session UUID
+	 */
 	async checkLoggedInUser (uuid: string): Promise<boolean> {
 		if (this.closed) throw new Error('DB closed')
 
@@ -557,6 +581,10 @@ export = {
 		return res.rows[0] && res.rows[0].uuid
 	},
 
+	/**
+	 * Log out a user
+	 * @param uuid The session to log out
+	 */
 	async logoutUser (uuid: string): Promise<void> {
 		if (this.closed) throw new Error('DB closed')
 
@@ -564,10 +592,16 @@ export = {
 		const data = [uuid]
 
 		await client.execute(query, data, { prepare: true })
-
-		return
 	},
 
+	/**
+	 * Save a user's settings
+	 * @param username The user whose settings to update
+	 * @param color The user's new color
+	 * @param notifications The user's notifications
+	 * @param imageB64 The user's profile picture (in base64)
+	 * @param theme The user's theme
+	 */
 	async saveSetting (username: string, color: string, notifications = 0, imageB64 = DEFAULT_IMAGE, theme = 'hermes'): Promise<void> {
 		if (this.closed) throw new Error('DB closed')
 
@@ -575,11 +609,14 @@ export = {
 		const data = [username.toLowerCase(), notifications, theme, color, imageB64]
 
 		await client.execute(query, data, { prepare: true })
-
-		return
 	},
 
-	async getSetting (username: string): Promise<void> { // TODO Add setting type
+	/**
+	 * Get a user's settings
+	 * @param username The user whose settings to get
+	 * @returns The user's settings
+	 */
+	async getSettings (username: string): Promise<Settings> {
 		if (this.closed) throw new Error('DB closed')
 
 		const query = 'SELECT color, notifications, blobAsText(image) as image, theme FROM Settings WHERE username=?;'
@@ -587,9 +624,14 @@ export = {
 
 		const res = await client.execute(query, data, { prepare: true })
 
-		return res.rows[0]
+		return res.rows[0] as Settings
 	},
 
+	/**
+	 * Get a user's display name
+	 * @param username The lowercase username
+	 * @returns The display name (in correct casing)
+	 */
 	async getDisplayName (username: string): Promise<void> {
 		if (this.closed) throw new Error('DB closed')
 
@@ -601,17 +643,11 @@ export = {
 		return res.rows[0] && res.rows[0].username
 	},
 
-	async getIPCountry (ip: string): Promise<void> {
-		if (this.closed) throw new Error('DB closed')
-
-		const query = 'SELECT country FROM hermes.ips WHERE planet=\'earth\' AND start<=? ORDER BY start DESC LIMIT 1;'
-		const data = [ip]
-
-		const res = await client.execute(query, data, { prepare: true })
-
-		return res.rows[0] && res.rows[0].country
-	},
-
+	/**
+	 * Check if an acceess token is valid
+	 * @param token The token to check
+	 * @returns Whether the token is valid or not
+	 */
 	async checkToken (token: string): Promise<boolean> {
 		if (this.closed) throw new Error('DB closed')
 
@@ -623,8 +659,10 @@ export = {
 		return res.rows[0] && res.rows[0].count.low > 0
 	},
 
-	close (callback = () => {}) { // tslint:disable-line: no-empty
+	close (callback?: () => {}) {
 		this.closed = true
 		client.shutdown(callback)
 	}
 }
+
+export default DB

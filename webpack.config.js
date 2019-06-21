@@ -1,7 +1,7 @@
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const devMode = process.env.NODE_ENV !== 'production';
-const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
 const node_sass = require('node-sass');
 
@@ -102,6 +102,14 @@ fs.mkdirSync(config.output.path + '/images/', { recursive: true }) // Ensure fol
 for (let file of images) {
     // Copy all files from src/web/images to dist/web/images
     fs.copyFileSync(config.context + '/images/' + file, config.output.path + '/images/' + file)
+}
+
+// Fix TS file location 
+// TODO: Find a better (less hacky) way to do this
+if (fs.existsSync('dist/src/')) {
+    fs.removeSync('dist/server/')
+    fs.renameSync('dist/src/server/', 'dist/server')
+    fs.removeSync('dist/src/')
 }
 
 module.exports = config;
