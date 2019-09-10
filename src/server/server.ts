@@ -21,6 +21,19 @@ app.get('/favicon.png', function (req, res) {
 	res.sendFile(paths.imgPath + 'HermesMessengerLogoV2.png')
 })
 
+app.get('/test/:file', async function (req, res) {
+	try {
+		const file = paths.testPath + req.params.file
+		const exists = await fileExists(file)
+		if (exists) res.sendFile(file)
+		else res.sendStatus(404)
+
+	} catch (err) {
+		console.error('ERROR:', err)
+		res.sendStatus(500) // Internal Server Error
+	}
+})
+
 app.get('/chat/:file', async function (req, res) {
 	try {
 		const file = paths.chatPath + req.params.file

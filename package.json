@@ -51,8 +51,8 @@
     "prepare-project": "node scripts/prepareProject.js && npm run build -s",
     "postinstall": "npm run prepare-project -s",
     "prestart": "npm run prepare-project -s",
-    "start": "node .",
-    "debug": "node . --inspect",
+    "start": "node . $PWD/config.json",
+    "debug": "node inspect . $PWD/config.json",
     "cleanup": "node scripts/cleanup.js"
   },
   "browserslist": [

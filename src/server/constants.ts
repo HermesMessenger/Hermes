@@ -5,6 +5,7 @@ const webPath = path.join(__dirname, '../web/')
 const paths = {
 	webPath: webPath,
 	chatPath: path.join(webPath, 'chat/'),
+	testPath: path.join(webPath, 'test/'),
 	loginPath: path.join(webPath, 'login/'),
 	themePath: path.join(webPath, 'themes/'),
 	settingPath: path.join(webPath, 'settings/'),

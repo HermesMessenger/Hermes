@@ -79,6 +79,7 @@ let config = {
 
 config.entry[entry('chat')] = ['./chat/chat.ts', './chat/chat.scss', './chat/chat.html']
 config.entry[entry('login')] = ['./login/login.ts', './login/login.scss', './login/login.html']
+config.entry['test/md'] = ['./test/md.ts', './test/md.html']
 
 // Add themes
 let files = fs.readdirSync(config.context + '/themes/')

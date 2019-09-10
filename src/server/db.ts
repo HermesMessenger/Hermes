@@ -1,5 +1,6 @@
 import cassandra from 'cassandra-driver'
-import config from '../config.json' // <-- This breaks compilation because it's outside the root, we have to find a new way to import it.
+// import config from '../config.json' // <-- This breaks compilation because it's outside the root, we have to find a new way to import it.
+import { CONFIG as config } from './utils/configLoader'
 
 const authProvider = new cassandra.auth.PlainTextAuthProvider(config.db.username, config.db.password)
 const client = new cassandra.Client({ contactPoints: config.db.hosts, localDataCenter: 'datacenter1', authProvider, keyspace: 'hermes' })
@@ -579,7 +580,7 @@ export = {
 		return
 	},
 
-	async getSetting (username: string): Promise<void> { // TODO Add setting type
+	async getSetting (username: string)/*: Promise<void>*/ { // TODO Add setting type
 		if (this.closed) throw new Error('DB closed')
 
 		const query = 'SELECT color, notifications, blobAsText(image) as image, theme FROM Settings WHERE username=?;'

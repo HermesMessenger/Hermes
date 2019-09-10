@@ -11,7 +11,8 @@
         "encoding": true,
         "linebreak-style": [true, "LF"],
         "semicolon": [true, "never"],
-        "triple-equals": false
+        "triple-equals": false,
+        "no-empty": false
     },
     "rulesDirectory": []
 }

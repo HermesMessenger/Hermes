@@ -19,14 +19,14 @@ enum MDKind {
 	BODY
 }
 
-interface MDNode {
+export interface MDNode {
 	kind: MDKind,
 	text?: string
 	toMD: () => string,
 	toHTML: () => string
 }
 
-interface MDElement extends MDNode {
+export interface MDElement extends MDNode {
 	children: MDNode[]
 }
 
