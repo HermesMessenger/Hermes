@@ -7,7 +7,7 @@
         "removeComments": true,
         "preserveConstEnums": true,
         "inlineSourceMap": true,
-        "outDir": "dist/server",
+        "outDir": "dist",
         "target": "es6",
         "module": "commonjs"
     },
