@@ -11,8 +11,11 @@ function loadChannels(closesidebar = true) {
             new_channel.append($('<p class="chatname">').text(channel.name));
             new_channel.click(() => changeChatTo(channel.uuid));
             $('#chats').append(new_channel)
-        }
 
+            for (let user in channel.members) {
+                users[user] = channel.members[user]
+            }
+        }
         changeChatTo(current_channel, closesidebar);
     });
 }
@@ -463,7 +466,7 @@ async function populateChatInfo() {
     for (let chat of my_channels) {
         if (chat.uuid == current_channel) {
             let i = 0
-            for (let member of chat.members) {
+            for (let member in chat.members) {
                 if (member.toLowerCase() !== 'admin') {
                     let li = $('<li>');
                     if (!(member in users)) {
@@ -529,7 +532,6 @@ function httpGetAsync(theUrl, callback) {
                 if (xmlHttp.status == 200) {
                     if (callback) callback(xmlHttp.responseText);
                     else resolve(xmlHttp.responseText)
-
                 } else reject()
             }
         }

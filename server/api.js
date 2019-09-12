@@ -4,7 +4,6 @@ const db = require('./db')
 const errors = require('./errors')
 const utils = require('./utils')
 const webPush = require('./web-push')
-const HA = require('./HA/highAvailability.js');
 
 const router = express.Router()
 
@@ -96,7 +95,6 @@ router.post('/sendmessage/', async function (req, res) {
 
         res.sendStatus(200);
         eventManager.callSendMessageHandler([user, req.body.message]);
-        HA.sendMessage(req.body, message_uuid);
 
         const subs = webPush.getSubscriptions()
         const pushMessage = {
@@ -139,8 +137,7 @@ router.post('/deletemessage/', async function (req, res) {
 
             res.sendStatus(200);
             eventManager.callDeleteMessageHandler([user, req.body.message_uuid]);
-            HA.deleteMessage(req.body);
-
+            
         } else res.sendStatus(403); // Forbidden
     } else res.sendStatus(403); // Forbidden
 });
@@ -168,8 +165,7 @@ router.post('/editmessage/', async function (req, res) {
             });
             res.sendStatus(200);
             eventManager.callEditMessageHandler([user, req.body.newmessage]);
-            HA.editMessage(req.body);
-
+            
         } else res.sendStatus(403); // Forbidden
     } else res.sendStatus(403); // Forbidden
 });
@@ -189,8 +185,7 @@ router.post('/login', async function (req, res) {
         const uuid = await db.loginUser(username)
         res.send(uuid);
         eventManager.callLoginUserHandler([username]);
-        HA.login(body, uuid);
-
+        
     } else res.sendStatus(400); // Bad request: either username and/or pasword are not present
 });
 
@@ -222,8 +217,7 @@ router.post('/logout', async function (req, res) {
     await db.logoutUser(req.body.uuid);
     res.sendStatus(200);
     eventManager.callLogoutUserHandler([req.body.uuid]);
-    HA.logout(req.body)
-});
+    });
 
 router.get('/logout', async function (req, res) {
     res.sendStatus(405); // Bad Method
@@ -244,8 +238,7 @@ router.post('/updatePassword', async function (req, res) {
         if (ok) {
             await bcrypt.update(user, new_password)
             res.sendStatus(200); // Success
-            HA.updatePassword(req.body)
-
+            
         } else res.sendStatus(401); // Unauthorized
 
     } else res.sendStatus(400); // Bad request
@@ -273,8 +266,7 @@ router.post('/saveSettings', async function (req, res) {
         }
     }
 
-    HA.saveSettings(req.body);
-    
+        
 });
 
 router.post('/getChannels', async function (req, res) {

@@ -1,5 +1,3 @@
-const Request = require('request-promise')
-
 module.exports.getNowStr = function () {
     var date = new Date();
 
@@ -27,53 +25,6 @@ module.exports.getCurrentTimeStamp = function () {
     return parseInt(new Date()); // Gets the UNIX timestamp in milliseconds
 }
 
-/**
-* A function that sends API requests
-* @param {String} method The HTTP method to send the request with (GET, POST, etc.)
-* @param {String} location The sub URL to send the request to (api/sendmessage)
-* @param {Object} formData (Optional) Data to send in the body of the request
-*/
-module.exports.request = async function (method, location, formData) {
-    // the 3rd or 4th argument could be a callback
-    let callback
-    if (typeof arguments[3] == 'function') {
-        callback = arguments[3]
-    } else if (typeof arguments[2] == 'function') {
-        callback = arguments[2]
-        formData = null
-    }
-
-    let options = {
-        method: method,
-        uri: location,
-        body: formData,
-        json: true,
-        resolveWithFullResponse: true,
-        simple: false
-    }
-
-    try {
-        const res = await Request(options)
-        if (res) {
-            if (res.statusCode == 200) {
-                if (callback) {
-                    callback(null, res.body)
-                }
-                return res.body
-            } else if (res.statusCode == 418) {
-                return '418'
-            } else {
-                throw new Error('Bad status code: ' + res.statusCode)
-            }
-        }
-    } catch (err) {
-        if (err.name == 'RequestError') {
-            console.error("Error: Can't connect to IP. ")
-        }
-    }
-
-}
-
 module.exports.getThemes = function () {
     const fs = require('fs');
     let themes = [];
@@ -93,4 +44,13 @@ module.exports.getThemes = function () {
         }
     }
     return themes;
+}
+
+module.exports.ipToInt = function (ip) {
+    try {
+        const ipOctets = ip.split('.').map(BigInt)
+        return (ipOctets[0] << 24n) + (ipOctets[1] << 16n) + (ipOctets[2] << 8n) + (ipOctets[3])
+    } catch (err) {
+        return // Invalid IP
+    }
 }

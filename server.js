@@ -10,7 +10,6 @@ const cookieParser = require('cookie-parser'); // Cookies
 const favicon = require('express-favicon'); // Favicon
 const fileExists = require('file-exists');
 const path = require('path');
-const HA = require('./server/HA/highAvailability.js');
 const config = require('./config.json');
 const IPs = require('./server/IPs/IPs.js')
 const api = require('./server/api')
