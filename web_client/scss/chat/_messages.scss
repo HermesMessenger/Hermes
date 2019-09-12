@@ -70,6 +70,9 @@ span.message_body {
 
 .spoiler-hidden {
     background: $text-color;
+    * {
+        visibility: hidden;
+    }
 }
 
 .spoiler-seen {
