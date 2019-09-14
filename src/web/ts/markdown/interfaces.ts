@@ -16,7 +16,8 @@ enum MDKind {
 	BOLD,
 	ITALICS,
 	STRIKE,
-	BODY
+	BODY,
+	IMAGE
 }
 
 export interface MDNode {
@@ -28,6 +29,24 @@ export interface MDNode {
 
 export interface MDElement extends MDNode {
 	children: MDNode[]
+}
+
+export interface MDImage extends MDNode {
+	url: string
+}
+
+export function createMDImage (url: string): MDImage {
+	url = url.replace('<', '&lt;').replace('>', '&gt;')
+	return {
+		kind: MDKind.IMAGE,
+		url,
+		toMD: () => {
+			return `![${url}]`
+		},
+		toHTML: () => {
+			return `<img class="MDImage" src="${url}">`
+		}
+	}
 }
 
 export function createMDText (contents: string): MDNode {
@@ -66,7 +85,7 @@ export function createMDBold (children: MDNode[]): MDElement {
 			for (let child of children) {
 				r += child.toMD()
 			}
-			return '~' + r + '~'
+			return '*' + r + '*'
 		},
 		toHTML: () => {
 			let r = ''
@@ -87,7 +106,7 @@ export function createMDItalics (children: MDNode[]): MDElement {
 			for (let child of children) {
 				r += child.toMD()
 			}
-			return '*' + r + '*'
+			return '**' + r + '**'
 		},
 		toHTML: () => {
 			let r = ''
