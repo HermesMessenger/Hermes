@@ -1,0 +1,13 @@
+// Inverted
+@import '../setup_chat';
+
+$bg-color: #021C1C;
+$text-color: #fff;
+$border-color: #fff;
+$menu-color: #0BBCBC;
+$my-message-color: #021C1C;
+$their-message-color: #078282;
+$hightlight-color:  #0ff;
+$invert-images: true;
+
+@import '../chat/base';
