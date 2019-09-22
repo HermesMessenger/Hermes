@@ -1,123 +1,65 @@
-const webpack = require('webpack');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const devMode = process.env.NODE_ENV !== 'production';
-const fs = require('fs-extra');
-const path = require('path');
-const node_sass = require('node-sass');
+const glob = require('glob')
+const path = require('path')
+const FixStyleOnlyEntriesPlugin = require('webpack-fix-style-only-entries')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
-function entry(name){
-    return `${name}/${name}`
+const options = { sourceMap: true }
+
+function entries (files, outputDir = '') {
+  const fileRegex = /(.+\/)?(.+)\.(.+)/ // $1 = dir, $2 = filename, $3 = ext
+  const res = {}
+
+  glob.sync(files).forEach(file => {
+    const match = file.match(fileRegex)
+    res[outputDir + match[2] + (match[3] === 'scss' ? '.css' : '')] = file
+  })
+
+  return res
 }
 
-let config = {
-    plugins: [
-        new webpack.ProvidePlugin({
-            $: 'jquery'
-        }),
-        new MiniCssExtractPlugin({
-            // Options similar to the same options in webpackOptions.output
-            // both options are optional
-            filename: '[name].css',
-            chunkFilename: '[id].css',
-        }),
-    ],
-    mode: devMode ? "development" : 'production',
-    devtool: 'inline-source-map',
-    context: path.resolve(__dirname, 'src/web'),
-    module: {
-        rules: [
-            {
-                test: /\.(sa|sc|c)ss$/,
-                use: [
-                    {
-                        loader: MiniCssExtractPlugin.loader,
-                        options: {
-                            hmr: devMode,
-                            sourceMap: true,
-                        },
-                    },
-                    {
-                        loader: 'css-loader',
-                        options: { sourceMap: true }
-                    },
-                    {
-                        loader: 'postcss-loader',
-                        options: { sourceMap: true }
-                    },
-                    {
-                        loader: 'sass-loader',
-                        options: {
-                            sourceMap: true,
-                            outputStyle: 'compressed'
-                        }
-                    },
-                ],
-            },
-            { 
-                test: /\.ts$/, 
-                use: 'ts-loader', 
-                //exclude: /node_modules/,
-            },
-            {
-                test: /\.(html|png|jpe?g|json)$/,
-                loader: 'file-loader',
-                options: {
-                    name: '[folder]/[name].[ext]'
-                },
-            },
+const config = {
+  mode: 'production',
+  stats: 'errors-warnings',
+  devtool: 'source-map',
+  resolve: {
+    extensions: ['.ts', '.scss']
+  },
+  entry: {
+    ...entries('./src/web/ts/*.ts'),
+    ...entries('./src/web/scss/login.scss'),
+    ...entries('./src/web/scss/themes/*.scss', 'themes/')
+  },
+  plugins: [
+    new FixStyleOnlyEntriesPlugin({ silent: true }),
+    new MiniCssExtractPlugin({ filename: 'css/[name]' }),
+    new CopyWebpackPlugin([
+      { from: './src/web/images/', to: 'images/' },
+      { from: './src/web/html/', to: 'html/' },
+      { from: './src/web/templates/', to: 'templates/' },
+      { from: './src/web/PWA/', to: 'PWA/' }
+    ])
+  ],
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        use: 'ts-loader'
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          { loader: 'css-loader', options },
+          { loader: 'sass-loader', options }
         ]
-    },
-    output: {
-        path: path.resolve(__dirname, 'dist/web'),
-    },
-    entry: {},
-    resolve: {
-        extensions: ['.ts', '.html', '.scss', '.png', '.jpeg', '.jpg', '.json']
-    },
-    stats: 'errors-only'
-};
-
-config.entry[entry('chat')] = ['./chat/chat.ts', './chat/chat.scss', './chat/chat.html']
-config.entry[entry('login')] = ['./login/login.ts', './login/login.scss', './login/login.html']
-config.entry['test/md'] = ['./test/md.ts', './test/md.html']
-
-// Add themes
-let files = fs.readdirSync(config.context + '/themes/')
-fs.mkdirSync(config.output.path + '/themes/', { recursive: true }) // Ensure folder exsts
-for (let file of files) {
-    if (file.endsWith('.scss')) {
-        let result = node_sass.renderSync({
-            file: config.context + '/themes/' + file,
-            outFile: config.output.path + '/themes/' + file.replace('.scss', '.css'),
-            outputStyle: 'compressed',
-            sourceMap: devMode, // True for development
-            sourceMapEmbed: true,
-            sourceMapContents: true
-        });
-        fs.writeFileSync(config.output.path + '/themes/' + file.replace('.scss', '.css'), result.css);
-    }
+      }
+    ]
+  },
+  output: {
+    path: path.resolve('dist/web'),
+    filename: 'js/[name]-bundle.js'
+  }
 }
 
-let images = fs.readdirSync(config.context + '/images/')
-fs.mkdirSync(config.output.path + '/images/', { recursive: true }) // Ensure folder exsts
-for (let file of images) {
-    // Copy all files from src/web/images to dist/web/images
-    fs.copyFileSync(config.context + '/images/' + file, config.output.path + '/images/' + file)
-}
-
-/*let highlightjs = fs.readdirSync(config.context + '/highlightjs/')
-fs.mkdirSync(config.output.path + '/highlightjs/', { recursive: true }) // Ensure folder exsts
-for (let file of highlightjs) {
-    // Copy all files from src/web/images to dist/web/images
-    fs.copyFileSync(config.context + '/highlightjs/' + file, config.output.path + '/highlightjs/' + file)
-}*/
-
-// Fix TS file location 
-// TODO: Find a better (less hacky) way to do this
-if (fs.existsSync('dist/src/')) {
-    fs.removeSync('dist/server/')
-    fs.renameSync('dist/src/server/', 'dist/server')
-    fs.removeSync('dist/src/')
-}
-
-module.exports = config;
+module.exports = config

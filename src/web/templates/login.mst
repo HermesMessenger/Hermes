@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login to Hermes</title>
+  <link rel="stylesheet" id="hermes_style" href="/css/login.css">
+  <link rel="shortcut icon" href="/favicon.png" type="image/png">
+  <link rel="icon" href="/favicon.png" type="image/png">
+</head>
+
+<body>
+    <div class="login-page">
+      {{#error}}
+        <div class="form error">
+          <p class="message">{{error}}</p>
+        </div>
+      {{/error}}
+      <div class="form">
+        <form id="login-form">
+          <input type="text" name="username" placeholder="User Name" required>
+          <input type="password" name="password" placeholder="Password" required>
+          <button type="submit" formaction="/login" formmethod="post">Log In</button>
+          <p class="message">Not registered? <a href="#">Create an account</a></p>
+        </form>
+        <form id="register-form">
+          <input type="text" name='username' placeholder="User Name" required>
+          <input type="password" name="password1" placeholder="Password" required>
+          <input type="password" name="password2" placeholder="Repeat Password" required>
+          <button type="submit" formaction="/register" formmethod="post">Create Account</button>
+          <p class="message">Already registered? <a href="#">Sign in</a></p>
+        </form>
+      </div>
+    </div>
+    <div id="cookie-notice">
+      <p>
+        <b>We're using cookies.</b> By using Hermes, you're accepting their use.
+        <p id="desc">We only use cookies to keep track of your user ID, and therefore are required for the site to function.</p>
+      </p>
+      <button>OK</button>
+    </div>
+  </div>
+  <script src="js/login-bundle.js"></script>
+</body>
+
+</html>

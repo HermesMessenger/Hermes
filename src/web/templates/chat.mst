@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="{{color}}{{^color}}#C8E6C9{{/color}}"/>
+  <meta name="Description" content="A decentralized messaging app."/>
+  <title>Hermes</title>
+  <link rel="shortcut icon" href="/favicon.png">
+  <link rel="icon" href="/favicon.png">
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
+  <link id="hermes_style" rel="stylesheet" href="/themes/{{theme}}{{^theme}}Hermes{{/theme}}.css">
+  <link rel="manifest" href="/manifest.json">
+  <!--<script src="/sw-register.js" type="text/javascript"></script>-->
+</head>
+
+<body>
+  <div id="darkoverlay"></div>
+  <div id="menutop">
+    <div id="sidebarbtn"></div>
+    <div id="title">
+      <img id="chatimg" src="/images/HermesMessengerLogoV2.png">
+      <h1 id="chatname">GLOBAL</h1>
+    </div>
+    <div id="chatinfo" style="display:none">
+      <ul id="chatinfo_members"></ul>
+      <div id="chatinfo_separator"></div>
+      <div id="chatinfo_copylink_wrapper">
+        <button id="chatinfo_copylink">Copy invite link</button>
+        <button id="leavechat">Leave channel</button>
+      </div>
+    </div>
+  </div>
+  <div id="sidebar">
+    <h1 id="sidebar-header">
+      <button id="addchat"><svg role="img" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+          aria-labelledby="addIconTitle addIconDesc">
+          <title id="addIconTitle">Add</title>
+          <desc id="addIconDesc">Icon of a plus sign enclosed in a circle</desc>
+          <path d="M17 12L7 12M12 17L12 7"></path>
+          <circle cx="12" cy="12" r="10"></circle>
+        </svg></button>
+      <input id="newchatname" type="text">Chats</h1>
+    <ul id="chats"></ul>
+    <div id="sidebar-footer">
+      <button id="settings"></button>
+      <button id="logout">Log out</button>
+    </div>
+  </div>
+  <ul id="rightclick">
+    <li id="quote">Quote</li>
+    <li id="edit">Edit</li>
+    <li id="delete">Delete</li>
+  </ul>
+  <div id="loading" class="loader"></div>
+  <div id="separator-top"></div>
+  <div id="loading-oldmessages" class="loader" style="display: none"></div>
+  <ul id="messages"></ul>
+  <form action="" id="message_send_form">
+    <span id="s-quote" class="quote" style="display: none"></span>
+    <p id="user"></p>
+    <textarea id="m" autocomplete="off" autofocus></textarea>
+    <button id='send'></button>
+  </form>
+  <div id="separator-bottom"></div>
+  <div id="goBottom">⇓</div>
+  <div id="myModal" class="modal"></div>
+</body>
+
+</html>

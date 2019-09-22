@@ -1,7 +1,0 @@
-POST http://localhost:8080/api/leaveChannel/ HTTP/1.1
-content-type: application/json
-
-{
-    "uuid": "26da7bd0-5243-11e9-a2fc-b3c1963e4d62", 
-    "channel": "667fd190-5243-11e9-a018-2ae6c0a14c5f"
-}

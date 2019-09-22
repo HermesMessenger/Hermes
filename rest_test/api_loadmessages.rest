@@ -1,6 +1,0 @@
-POST http://localhost:8080/api/loadmessages/ HTTP/1.1
-content-type: application/json
-
-{
-    "uuid": "1624e8a0-2644-11e9-a4d9-312170b2a647"
-}

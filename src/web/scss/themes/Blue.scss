@@ -1,0 +1,11 @@
+@import '../setup_chat';
+
+$bg-color: #E3F2FD;
+$text-color: #000;
+$border-color: #000;
+$menu-color: #2196F3;
+$my-message-color: #BBDEFB;
+$their-message-color: #fff;
+$hightlight-color:  yellow;
+
+@import '../chat/base';

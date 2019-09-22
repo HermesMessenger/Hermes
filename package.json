@@ -4,78 +4,64 @@
   "description": "A decentralized messaging app",
   "main": "dist/server.js",
   "dependencies": {
-    "@types/highlightjs": "^9.12.0",
-    "@types/marked": "^0.6.5",
     "bcrypt": "^3.0.6",
     "body-parser": "^1.19.0",
     "cassandra-driver": "^4.1.0",
     "cookie-parser": "^1.4.4",
     "express": "^4.17.1",
-    "highlightjs": "^9.12.0",
-    "ipaddr.js": "^1.9.0",
     "jquery": "^3.4.1",
-    "marked": "^0.7.0",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.4",
+    "mustache-express": "^1.3.0",
     "web-push": "^3.3.5",
     "ws": "^7.0.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",
+    "@types/body-parser": "^1.17.1",
     "@types/cassandra-driver": "^4.0.3",
     "@types/cookie-parser": "^1.4.1",
     "@types/express": "^4.17.0",
     "@types/jquery": "^3.3.29",
+    "@types/mustache-express": "^1.2.1",
     "@types/node": "^12.0.8",
     "@types/web-push": "^3.3.0",
     "@types/ws": "^6.0.1",
-    "autoprefixer": "^9.6.0",
+    "@typescript-eslint/eslint-plugin": "^2.3.0",
+    "@typescript-eslint/parser": "^2.3.0",
+    "copy-webpack-plugin": "^5.0.4",
     "css-loader": "^3.0.0",
+    "eslint": "^6.2.2",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^9.2.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
     "file-loader": "^4.0.0",
-    "fs-extra": "^8.0.1",
     "mini-css-extract-plugin": "^0.7.0",
     "node-sass": "^4.12.0",
     "nodemon": "^1.19.1",
     "postcss-loader": "^3.0.0",
     "sass-loader": "^7.1.0",
+    "source-map-support": "^0.5.13",
     "ts-loader": "^6.0.3",
-    "tslint": "^5.17.0",
-    "tslint-config-standard": "^8.0.1",
+    "tsc-watch": "^2.4.0",
     "typescript": "^3.5.2",
-    "webpack": "^4.34.0",
-    "webpack-cli": "^3.3.4"
+    "webpack": "^4.40.2",
+    "webpack-cli": "^3.3.8",
+    "webpack-fix-style-only-entries": "^0.4.0"
   },
   "scripts": {
-    "build": "npm run build-server -s && npm run build-web -s",
-    "build-server": "echo '[tsc] Compiling' && tsc && echo '[tsc] Done'",
-    "build-web": "echo '[webpack] Compiling' && webpack && echo '[webpack] Done'",
-
-    "watch-server": "nodemon --config server.nodemon.json",
-    "watch-web": "nodemon --config web.nodemon.json",
-
-    "lint": "tslint -c tslint.json src/**/*.ts",
-    "lintFix": "tslint -c tslint.json --fix src/**/*.ts",
-
-    "test": "npm run lint",
-
-    "prepare-project": "node scripts/prepareProject.js && npm run build -s",
-    "cleanup": "node scripts/cleanup.js",
-
-    "postinstall": "npm run prepare-project -s",
-
-    "prestart": "npm run prepare-project -s",
-    "start": "node dist/server.js $PWD/config.json",
-    "start-no-pre": "node dist/server.js $PWD/config.json",
-
-    "debug": "node inspect dist/server.js $PWD/config.json"
-  },
-  "browserslist": [
-    "defaults"
-  ],
-  "postcss": {
-    "plugins": {
-      "autoprefixer": {}
-    }
+    "postinstall": "npm run prepare -s",
+    "prestart": "npm run prepare -s",
+    "prepare": "node scripts/prepare.js && npm run build -s",
+    "start": "node -r source-map-support/register .",
+    "test": "npm run lint -s",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint --fix src/**/*.ts",
+    "build": "npm run -s build:ts && npm run -s build:web",
+    "build:ts": "echo '[TSC] Building server...' && tsc",
+    "build:web": "echo '[Webpack] Building web... && webpack",
+    "watch:ts": "tsc-watch --onSuccess \"node -r source-map-support/register .\"",
+    "watch:web": "webpack --watch --progress"
   },
   "repository": {
     "type": "git",

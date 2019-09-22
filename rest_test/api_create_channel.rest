@@ -1,7 +1,0 @@
-POST http://localhost:8080/api/createChannel/ HTTP/1.1
-content-type: application/json
-
-{
-    "uuid": "4f033290-5848-11e9-9e53-0890f6c5bdc6", 
-    "name": "TEST2"
-}

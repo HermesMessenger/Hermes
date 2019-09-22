@@ -1,1 +1,0 @@
-http://localhost:8080/clearSessions/5278e70d-e012-419e-9af7-4b4296ef3c1e

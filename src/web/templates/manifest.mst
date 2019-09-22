@@ -1,0 +1,22 @@
+{
+    "dir": "ltr",
+    "name": "Hermes Messenger",
+    "short_name": "Hermes",
+    "description": "A decentralized messaging app",
+    "lang": "en-US",
+    "start_url": "{{url}}{{^url}}https://hermesmessenger.chat/{{/url}}",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "{{bgcolor}}{{^bgcolor}}#E8F5E9{{/bgcolor}}",
+    "theme_color": "{{color}}{{^color}}#81C784{{/color}}",
+    "orientation": "any",
+    "icons": [
+        {
+            "src": "/images/logo.png",
+            "sizes": "1000x1000",
+            "type": "image/png"
+        }
+    ],
+    "related_applications": [],
+    "prefer_related_applications": false
+}

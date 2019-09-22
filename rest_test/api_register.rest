@@ -1,8 +1,0 @@
-POST http://localhost:8080/api/register HTTP/1.1
-content-type: application/json
-
-{
-    "username": "test4",
-    "password1": "1", 
-    "password2": "1"    
-}

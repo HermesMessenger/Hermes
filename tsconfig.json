@@ -7,15 +7,16 @@
         "removeComments": true,
         "preserveConstEnums": true,
         "inlineSourceMap": true,
+        "baseUrl": "./",
         "outDir": "dist",
         "target": "es6",
         "module": "commonjs"
     },
     "include": [
+        "src/server.ts",
         "src/server/**/*"
     ],
     "exclude": [
-        "node_modules",
-        "**/*.spec.ts"
+        "node_modules"
     ]
 }

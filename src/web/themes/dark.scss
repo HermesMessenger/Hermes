@@ -1,7 +1,0 @@
-//TODO: Make themes not be compiled with webpack, because it creates a js file
-
-$test: black;
-html {
-    background: $test;
-    color: white;
-}
