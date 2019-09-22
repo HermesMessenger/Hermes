@@ -1,0 +1,7 @@
+{
+    "watch": [
+        "src/server/"
+    ],
+    "ext": "*", 
+    "exec": "npm run build-server -s; npm run start-no-pre -s"
+}

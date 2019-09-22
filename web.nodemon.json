@@ -1,0 +1,7 @@
+{
+    "watch": [
+        "src/web/"
+    ],
+    "ext": "*", 
+    "exec": "npm run build-web -s"
+}
