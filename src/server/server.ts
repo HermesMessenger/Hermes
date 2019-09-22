@@ -34,6 +34,19 @@ app.get('/test/:file', async function (req, res) {
 	}
 })
 
+/*app.get('/highlightjs/:file', async function (req, res) {
+	try {
+		const file = paths.highlightjsPath + req.params.file
+		const exists = await fileExists(file)
+		if (exists) res.sendFile(file)
+		else res.sendStatus(404)
+
+	} catch (err) {
+		console.error('ERROR:', err)
+		res.sendStatus(500) // Internal Server Error
+	}
+})*/
+
 app.get('/chat/:file', async function (req, res) {
 	try {
 		const file = paths.chatPath + req.params.file
@@ -87,6 +100,7 @@ app.get('/themes/:file', async function (req, res) {
 })
 
 app.get('/', async function (req, res) {
+	console.log(req.path)
 	if (req.cookies.hermes_uuid) {
 		res.redirect('/chat')
 	} else {

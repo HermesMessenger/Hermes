@@ -4,13 +4,17 @@
   "description": "A decentralized messaging app",
   "main": "dist/server/server.js",
   "dependencies": {
+    "@types/highlightjs": "^9.12.0",
+    "@types/marked": "^0.6.5",
     "bcrypt": "^3.0.6",
     "body-parser": "^1.19.0",
     "cassandra-driver": "^4.1.0",
     "cookie-parser": "^1.4.4",
     "express": "^4.17.1",
+    "highlightjs": "^9.12.0",
     "ipaddr.js": "^1.9.0",
     "jquery": "^3.4.1",
+    "marked": "^0.7.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "web-push": "^3.3.5",
@@ -52,8 +56,8 @@
     "prepare-project": "node scripts/prepareProject.js && npm run build -s",
     "postinstall": "npm run prepare-project -s",
     "prestart": "npm run prepare-project -s",
-    "start": "node . $PWD/config.json",
-    "debug": "node inspect . $PWD/config.json",
+    "start": "node dist/server/server.js $PWD/config.json",
+    "debug": "node inspect dist/server/server.js $PWD/config.json",
     "cleanup": "node scripts/cleanup.js"
   },
   "browserslist": [

@@ -6,6 +6,7 @@ const paths = {
 	webPath: webPath,
 	chatPath: path.join(webPath, 'chat/'),
 	testPath: path.join(webPath, 'test/'),
+	highlightjsPath: path.join(webPath, 'highlightjs/'),
 	loginPath: path.join(webPath, 'login/'),
 	themePath: path.join(webPath, 'themes/'),
 	settingPath: path.join(webPath, 'settings/'),

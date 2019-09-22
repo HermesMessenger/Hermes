@@ -56,7 +56,7 @@ let config = {
             { 
                 test: /\.ts$/, 
                 use: 'ts-loader', 
-                exclude: /node_modules/,
+                //exclude: /node_modules/,
             },
             {
                 test: /\.(html|png|jpe?g|json)$/,
@@ -104,6 +104,13 @@ for (let file of images) {
     // Copy all files from src/web/images to dist/web/images
     fs.copyFileSync(config.context + '/images/' + file, config.output.path + '/images/' + file)
 }
+
+/*let highlightjs = fs.readdirSync(config.context + '/highlightjs/')
+fs.mkdirSync(config.output.path + '/highlightjs/', { recursive: true }) // Ensure folder exsts
+for (let file of highlightjs) {
+    // Copy all files from src/web/images to dist/web/images
+    fs.copyFileSync(config.context + '/highlightjs/' + file, config.output.path + '/highlightjs/' + file)
+}*/
 
 // Fix TS file location 
 // TODO: Find a better (less hacky) way to do this
