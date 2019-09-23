@@ -42,13 +42,6 @@ CREATE TABLE Hermes.Settings (
     Image BLOB
 );
 
-CREATE TABLE Hermes.IPs (
-    Planet TEXT,
-    Start BIGINT,
-    Country TEXT,
-    PRIMARY KEY(Planet, Start)
-);
-
 CREATE TABLE Hermes.Tokens (
     UUID UUID PRIMARY KEY
 );

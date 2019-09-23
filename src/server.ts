@@ -21,8 +21,8 @@ app.use(cookieParser()) // for parsing cookies
 
 // Templates
 app.set('views', paths.templatePath)
-app.engine('mst', mustache(paths.templatePath, '.mst'))
-app.set('view engine', 'mst')
+app.engine('mustache', mustache(paths.templatePath))
+app.set('view engine', 'mustache')
 app.set('view cache', process.env.NODE_ENV === 'production')
 
 // API
