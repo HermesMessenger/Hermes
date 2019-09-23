@@ -33,6 +33,11 @@ app.get('/favicon.png', function (req, res) {
   res.sendFile(paths.imgPath + 'logo.png')
 })
 
+// TODO: Remove whenever MD lib is stable
+app.get('/md', function (req, res) {
+  res.sendFile(paths.htmlPath + 'md.html')
+})
+
 app.get('/css/:file', function (req, res) {
   res.sendFile(paths.cssPath + req.params.file)
 })

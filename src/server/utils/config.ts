@@ -1,9 +1,6 @@
 import fs from 'fs'
 import path from 'path'
 import { VapidKeys, generateVAPIDKeys } from 'web-push'
-import { types } from 'cassandra-driver'
-
-const TimeUUID = types.TimeUuid
 
 interface Config {
   mainIP: string;

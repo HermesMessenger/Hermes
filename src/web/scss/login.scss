@@ -17,7 +17,7 @@
 
   form {
     display: block;
-    transition: opacity 0.5s;
+    transition: opacity 0.33s linear;
   }
 
   input {
@@ -50,6 +50,8 @@
 
   #register-form {
     display: none;
+    opacity: 0;
+    transition: opacity 0.5s linear;
   }
 }
 

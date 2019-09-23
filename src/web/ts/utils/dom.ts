@@ -1,16 +1,14 @@
-export const $ = document.querySelector.bind(document)
+export function $ (selector: string): HTMLElement | null {
+  return document.querySelector(selector)
+}
 
-export function createElement<K extends keyof HTMLElementTagNameMap> (name: K, innerText?: string, attrs?: { [attr: string]: string }): HTMLElementTagNameMap[K] {
+export function createElement<K extends keyof HTMLElementTagNameMap> (name: K, innerText = '', attrs: { [attr: string]: string } = {}): HTMLElementTagNameMap[K] {
   const element = document.createElement(name)
 
-  if (innerText) {
-    element.innerText = innerText
-  }
+  element.innerText = innerText
 
-  if (attrs) {
-    for (const [attr, value] of Object.entries(attrs)) {
-      element.setAttribute(attr, value)
-    }
+  for (const [attr, value] of Object.entries(attrs)) {
+    element.setAttribute(attr, value)
   }
 
   return element
@@ -27,7 +25,7 @@ export function fadeOut (element: HTMLElement, callback?: () => void): void {
 }
 
 export function fadeIn (element: HTMLElement, callback?: () => void): void {
-  const duration = parseFloat(getComputedStyle(element).transitionDuration) * 3000
+  const duration = parseFloat(getComputedStyle(element).transitionDuration) * 1000
 
   element.style.display = 'block'
 
