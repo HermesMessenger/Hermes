@@ -61,7 +61,7 @@
     "start": "node -r source-map-support/register .",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint --fix src/**/*.ts",
-    "test": "npm run lint -s",
+    "test": "npm run lint -s && mocha",
     "build": "npm run build:ts && npm run build:web",
     "build:ts": "echo '[tsc] Building server...' && tsc",
     "build:web": "echo '[webpack] Building web...' && webpack",
