@@ -20,7 +20,4 @@ jobs:
         version: ${{ matrix.node_version }}
 
     - name: npm install, build and test
-      run: |
-        npm install
-        npm run build --if-present
-        npm test
+      run: npm install && npm run build --if-present && npm test
