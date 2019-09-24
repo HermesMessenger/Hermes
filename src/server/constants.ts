@@ -3,7 +3,7 @@ import path from 'path'
 
 const DIR = process.env.dirname || __dirname
 
-const webPath = path.join(DIR, 'web/')
+const webPath = path.join(DIR, '../web/')
 const htmlPath = path.join(webPath, 'html/')
 
 export const paths = {

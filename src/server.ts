@@ -55,7 +55,7 @@ app.get('/themes/:file', function (req, res) {
 })
 
 app.get('/', function (req, res) {
-  if (req.cookies.hermes_uuid) {
+  if (req.cookies.hermes_uuid) { // ? Maybe should check if it's logged in (change unit tests)
     res.redirect('/chat')
   } else {
     res.redirect('/login')
@@ -239,4 +239,4 @@ server.listen(8080, () => {
   console.log('Listening on *:8080')
 })
 
-export default app
+export default server
