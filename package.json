@@ -15,14 +15,17 @@
     "sass": "^1.22.12",
     "web-push": "^3.3.5"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "mocha": "^6.2.0",
+    "supertest": "^4.0.2"
+  },
   "scripts": {
     "build-css": "sass --no-source-map -s compressed web_client/scss/:web_client/css/",
     "watch-css": "sass --source-map --watch web_client/scss/:web_client/css/",
     "build-css-source-map": "sass --source-map -s compressed web_client/scss/:web_client/css/",
     "prepare-project": "node scripts/prepareProject.js && npm run build-css",
     "prepare-project-no-css": "node scripts/prepareProject.js",
-    "test": "node server.js",
+    "test": "mocha --exit scripts/test.js",
     "start": "node server.js",
     "start-no-css": "node server.js",
     "debug": "node --inspect server.js",

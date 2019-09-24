@@ -2,8 +2,6 @@ const express = require('express');
 const db = require('./server/db');
 const bcrypt = require('./server/bcrypt');
 const webPush = require('./server/web-push');
-const errors = require('./server/errors');
-const utils = require('./server/utils');
 const bodyParser = require('body-parser'); // Peticiones POST
 const cookieParser = require('cookie-parser'); // Cookies
 const favicon = require('express-favicon'); // Favicon
@@ -60,19 +58,6 @@ app.get('/js/lib/:file', async function (req, res) {
     };
 });
 
-app.get('/images/:file', async function (req, res) {
-    try {
-        const file = img_path + req.params.file
-        const exists = await fileExists(file)
-        if (exists) res.sendFile(file);
-        else res.sendStatus(404)
-
-    } catch (err) {
-        console.error('ERROR:', err);
-        res.sendStatus(500); // Internal Server Error
-    };
-});
-
 app.get('/css/:file', async function (req, res) {
     try {
         const file = css_path + req.params.file
@@ -89,6 +74,19 @@ app.get('/css/:file', async function (req, res) {
 app.get('/css/themes/:file', async function (req, res) {
     try {
         const file = theme_path + req.params.file
+        const exists = await fileExists(file)
+        if (exists) res.sendFile(file);
+        else res.sendStatus(404)
+
+    } catch (err) {
+        console.error('ERROR:', err);
+        res.sendStatus(500); // Internal Server Error
+    };
+});
+
+app.get('/images/:file', async function (req, res) {
+    try {
+        const file = img_path + req.params.file
         const exists = await fileExists(file)
         if (exists) res.sendFile(file);
         else res.sendStatus(404)
@@ -301,6 +299,8 @@ app.get('/sw.js', async function (req, res) {
 app.get('*', async function (req, res) {
     res.redirect('/');
 });
+
+module.exports = app
 
 let server = app.listen(config.port, function () {
     console.log('listening on *:' + config.port);
