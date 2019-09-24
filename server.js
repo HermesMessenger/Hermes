@@ -9,7 +9,6 @@ const cookieParser = require('cookie-parser'); // Cookies
 const favicon = require('express-favicon'); // Favicon
 const fileExists = require('file-exists');
 const path = require('path');
-const HA = require('./server/HA/highAvailability.js');
 const config = require('./config.json');
 const api = require('./server/api')
 
@@ -149,8 +148,7 @@ app.post('/logout', async function (req, res) {
     try {
         res.clearCookie('hermes_uuid');
         db.logoutUser(req.body.uuid);
-        HA.logout(req.body)
-        res.redirect('/');
+                res.redirect('/');
 
     } catch (err) {
         console.error('ERROR:', err);
@@ -171,8 +169,7 @@ app.post('/register', async function (req, res) {
                 const uuid = await bcrypt.save(username, password1)
                 res.cookie('hermes_uuid', uuid);
                 res.redirect('/chat');
-                HA.register(req.body, uuid);
-
+                
             } else res.sendFile(login_pages_path + 'UserExists.html');
 
         } else res.sendFile(login_pages_path + 'FailSignup.html');
@@ -228,8 +225,7 @@ app.post('/login', async function (req, res) {
             const uuid = await db.loginUser(username)
             res.cookie('hermes_uuid', uuid);
             res.redirect('/chat');
-            HA.login(req.body, uuid);
-
+            
         } else res.sendFile(login_pages_path + 'IncorrectPassword.html');
 
     } catch (err) {
