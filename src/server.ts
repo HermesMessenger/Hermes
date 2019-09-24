@@ -238,3 +238,5 @@ wss.on('connection', ws => {
 server.listen(8080, () => {
   console.log('Listening on *:8080')
 })
+
+export default app

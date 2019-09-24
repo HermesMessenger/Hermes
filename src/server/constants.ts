@@ -1,7 +1,9 @@
 import fs from 'fs'
 import path from 'path'
 
-const webPath = path.join(__dirname, '../web/')
+const DIR = process.env.dirname || __dirname
+
+const webPath = path.join(DIR, 'web/')
 const htmlPath = path.join(webPath, 'html/')
 
 export const paths = {

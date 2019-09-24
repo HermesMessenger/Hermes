@@ -17,6 +17,7 @@ module.exports = {
     sourceType: 'module',
     'project': [
       './tsconfig.json',
+      './src/tests/tsconfig.json', // Same as server tsconfig
       './src/web/tsconfig.json'
     ]
   },

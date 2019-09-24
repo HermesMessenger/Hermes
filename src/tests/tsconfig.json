@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+      "noImplicitAny": true,
+      "esModuleInterop": true,
+      "resolveJsonModule": true,
+      "strictNullChecks": true,
+      "removeComments": true,
+      "preserveConstEnums": true,
+      "inlineSourceMap": true,
+      "baseUrl": "./",
+      "outDir": "dist",
+      "target": "es6",
+      "module": "commonjs"
+  },
+  "include": [
+      "./**/*"
+  ],
+  "exclude": [
+      "node_modules"
+  ]
+}
