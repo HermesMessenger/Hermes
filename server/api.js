@@ -4,13 +4,8 @@ const db = require('./db')
 const utils = require('./utils')
 const webPush = require('./web-push')
 
-const router = express.Router()
-
 const TimeUUID = require('cassandra-driver').types.TimeUuid;
-
-const eventManager = new EventManager();
-//example event:
-//eventManager.setSendMessangeHandler(new EventHandler(Events.shellEventHandler, 'python3 newMessage'));
+const router = express.Router()
 
 const deleted_messages = []
 const edited_messages = []
