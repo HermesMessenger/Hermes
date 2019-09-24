@@ -45,12 +45,3 @@ module.exports.getThemes = function () {
     }
     return themes;
 }
-
-module.exports.ipToInt = function (ip) {
-    try {
-        const ipOctets = ip.split('.').map(BigInt)
-        return (ipOctets[0] << 24n) + (ipOctets[1] << 16n) + (ipOctets[2] << 8n) + (ipOctets[3])
-    } catch (err) {
-        return // Invalid IP
-    }
-}

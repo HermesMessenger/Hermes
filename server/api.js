@@ -1,14 +1,12 @@
 const express = require('express')
 const bcrypt = require('./bcrypt')
 const db = require('./db')
-const errors = require('./errors')
 const utils = require('./utils')
 const webPush = require('./web-push')
 
 const router = express.Router()
 
 const TimeUUID = require('cassandra-driver').types.TimeUuid;
-const { EventManager, EventHandler } = require('./events');
 
 const eventManager = new EventManager();
 //example event:
@@ -378,21 +376,8 @@ router.get('/getDisplayName/:user', async function (req, res) {
 });
 
 router.get('/teapot', async function (req, res) {
-
     res.sendStatus(418); // I'm a teapot
     eventManager.callTeapotHandler([]);
-});
-
-router.get('/getCountry', async function (req, res) {
-    let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-
-    if (ip.substr(0, 7) == "::ffff:") ip = ip.substr(7)
-    if (!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)) return // Check if it's a valid IPv4 address
-
-    ip = utils.ipToInt(ip)
-
-    let country = await db.getIPCountry(ip)
-    res.send(country);
 });
 
 router.get('/getThemes', async function (req, res) {
