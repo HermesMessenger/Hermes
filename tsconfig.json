@@ -10,7 +10,13 @@
         "baseUrl": "./",
         "outDir": "dist",
         "target": "es6",
-        "module": "commonjs"
+        "module": "commonjs",
+
+        "paths": {
+            "types/*": ["./src/@types/*"],
+            "server/*": ["./src/server/*"]
+            
+          }
     },
     "include": [
         "src/server.ts",

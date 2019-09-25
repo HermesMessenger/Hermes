@@ -13,6 +13,7 @@ module.exports = {
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
+    createDefaultProgram: true,
     ecmaVersion: 2018,
     sourceType: 'module',
     'project': [
