@@ -25,12 +25,17 @@ app.use(cookieParser()) // for parsing cookies
 app.set('views', paths.templatePath)
 app.engine('mustache', mustache(paths.templatePath))
 app.set('view engine', 'mustache')
-app.set('view cache', process.env.NODE_ENV === 'production')
+app.set('view cache', process.env.NODE_ENV === 'production') // Only cache templates in production
 
 // API
 app.use('/api', router)
 
-// Routes
+// Static files
+app.use('/css', express.static(paths.cssPath))
+app.use('/js', express.static(paths.jsPath))
+app.use('/images', express.static(paths.imgPath))
+app.use('/themes', express.static(paths.themePath))
+
 app.get('/favicon.png', function (req, res) {
   res.sendFile(paths.imgPath + 'logo.png')
 })
@@ -40,22 +45,7 @@ app.get('/md', function (req, res) {
   res.sendFile(paths.htmlPath + 'md.html')
 })
 
-app.get('/css/:file', function (req, res) {
-  res.sendFile(paths.cssPath + req.params.file)
-})
-
-app.get('/js/:file', function (req, res) {
-  res.sendFile(paths.jsPath + req.params.file)
-})
-
-app.get('/images/:file', function (req, res) {
-  res.sendFile(paths.imgPath + req.params.file)
-})
-
-app.get('/themes/:file', function (req, res) {
-  res.sendFile(paths.themePath + req.params.file)
-})
-
+// Routes
 app.get('/', function (req, res) {
   if (req.cookies.hermes_uuid) { // ? Maybe should check if it's logged in (change unit tests)
     res.redirect('/chat')
@@ -224,7 +214,7 @@ app.get('/sw.js', function (req, res) {
 })
 
 app.get('*', function (req, res) {
-  res.redirect('/')
+  res.status(404).sendFile(paths.htmlPath + '404.html')
 })
 
 const server = http.createServer(app)

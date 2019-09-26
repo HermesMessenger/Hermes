@@ -29,6 +29,7 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['error'],
     '@typescript-eslint/no-explicit-any': ['off'],
     '@typescript-eslint/explicit-function-return-type': ['error', { allowExpressions: true }],
+    'arrow-parens': ['error', 'as-needed'],
     'padding-line-between-statements': ['error',
       { blankLine: 'always', prev: '*', next: ['return', 'throw'] },
       ...whitespaceRule('const', 'let'),
