@@ -1,10 +1,10 @@
 import { NewMessage } from './NewMessage'
 import { Response } from './Response'
 import { SendMessage } from './SendMessage'
-import { Auth } from './Auth'
+import { Handshake } from './Handshake'
 
 export default interface Commands {
-  'AUTH': Auth;
+  'HANDSHAKE': Handshake;
   'NEW_MESSAGE': NewMessage;
   'SEND_MESSAGE': SendMessage;
   'RESPONSE': Response;

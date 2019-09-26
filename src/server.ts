@@ -47,7 +47,7 @@ app.get('/md', function (req, res) {
 
 // Routes
 app.get('/', function (req, res) {
-  if (req.cookies.hermes_uuid) { // ? Maybe should check if it's logged in (change unit tests)
+  if (req.cookies.UUID) {
     res.redirect('/chat')
   } else {
     res.redirect('/login')
@@ -56,7 +56,7 @@ app.get('/', function (req, res) {
 
 app.get('/joinChannel/:uuid', async function (req, res) {
   try {
-    const user = await db.getUserForUUID(req.cookies.hermes_uuid)
+    const user = await db.getUserForUUID(req.cookies.UUID)
     const exists = await db.channelExists(req.params.uuid)
 
     if (exists) {
@@ -73,9 +73,11 @@ app.get('/joinChannel/:uuid', async function (req, res) {
 
 app.get('/chat', async function (req, res) {
   try {
-    const user = await db.getUserForUUID(req.cookies.hermes_uuid)
+    if (!req.cookies.UUID) res.redirect('/login')
 
-    if (user) res.render('chat', { color: '#f00' })
+    const user = await db.getUserForUUID(req.cookies.UUID)
+
+    if (user) res.render('chat', { color: '#f00', user })
   } catch (err) {
     console.error('ERROR:', err)
     res.redirect('/login')
@@ -92,7 +94,7 @@ app.get('/settings', function (req, res) {
 
 app.post('/logout', async function (req, res) {
   try {
-    res.clearCookie('hermes_uuid')
+    res.clearCookie('UUID')
     await db.logout(req.body.uuid)
     res.redirect('/')
   } catch (err) {
@@ -113,7 +115,7 @@ app.post('/register', async function (req, res) {
       if (!exists) {
         const uuid = await bcrypt.save(username, password1)
 
-        res.cookie('hermes_uuid', uuid)
+        res.cookie('UUID', uuid)
         res.redirect('/chat')
       } else res.render('login', { error: 'User already exists.' })
     } else res.render('login', { error: 'Passwords do not match.' })
@@ -138,7 +140,7 @@ app.post('/login', async function (req, res) {
     if (same) {
       const uuid = await db.login(username)
 
-      res.cookie('hermes_uuid', uuid)
+      res.cookie('UUID', uuid)
       res.redirect('/chat')
     } else res.render('login', { error: 'Password is incorrect.' })
   } catch (err) {
@@ -151,7 +153,7 @@ app.get('/setCookie/:uuid/:theme', async function (req, res) {
     const user = await db.getUserForUUID(req.params.uuid)
 
     if (user) {
-      res.cookie('hermes_uuid', req.params.uuid)
+      res.cookie('UUID', req.params.uuid)
       res.cookie('hermes_style', req.params.theme)
       res.redirect('/chat')
     }
