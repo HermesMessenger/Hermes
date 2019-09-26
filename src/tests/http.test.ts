@@ -83,7 +83,7 @@ describe('HTTP tests', () => {
 
       it('should redirect to chat if hermes_uuid cookie', done => {
         server.get('/')
-          .set('Cookie', ['hermes_uuid=59e7ea45-5f42-42e6-b4e0-fae20396f1ae'])
+          .set('Cookie', ['UUID=59e7ea45-5f42-42e6-b4e0-fae20396f1ae'])
           .expect('Location', '/chat')
           .end(done)
       })
