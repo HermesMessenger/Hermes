@@ -1,20 +1,23 @@
 {
   "compilerOptions": {
-    "lib": [ "dom", "es2016" ],
-    "target": "es5",
-    "module": "esnext",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "baseUrl": "./",
-
-    "removeComments": true,
-    "sourceMap": true,
-
-    "strict": true,
     "noImplicitAny": true,
-    "strictNullChecks": true
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "strictNullChecks": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+
+    "sourceMap": true,
+    "baseUrl": "./",
+    "outDir": "dist",
+    "target": "es6",
+    "module": "commonjs",
+
+    "paths": {
+      "types/*": ["../@types/*"]
+    }
   },
-  "include": [
-    "ts/**/*"
+  "exclude": [
+    "node_modules"
   ]
 }

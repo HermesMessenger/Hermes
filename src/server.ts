@@ -10,7 +10,7 @@ import { router } from './server/api'
 import * as db from './server/db'
 import * as bcrypt from './server/bcrypt'
 import * as webPush from './server/webPush'
-import Message from 'types/message'
+import { Command } from 'types/Command'
 
 const app = express()
 

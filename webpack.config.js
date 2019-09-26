@@ -23,7 +23,10 @@ const config = {
   stats: 'errors-warnings',
   devtool: 'source-map',
   resolve: {
-    extensions: ['.ts', '.scss']
+    extensions: ['.ts', '.scss'],
+    alias: { 
+      "types/*": "./src/@types/*"
+    }
   },
   entry: {
     ...entries('./src/web/ts/*.ts'),

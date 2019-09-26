@@ -6,6 +6,7 @@
         "strictNullChecks": true,
         "removeComments": true,
         "preserveConstEnums": true,
+
         "inlineSourceMap": true,
         "baseUrl": "./",
         "outDir": "dist",
@@ -15,8 +16,7 @@
         "paths": {
             "types/*": ["./src/@types/*"],
             "server/*": ["./src/server/*"]
-            
-          }
+        }
     },
     "include": [
         "src/server.ts",
