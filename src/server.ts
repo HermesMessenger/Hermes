@@ -4,13 +4,14 @@ import http from 'http'
 import bodyParser from 'body-parser' // Peticiones POST
 import cookieParser from 'cookie-parser' // Cookies
 import mustache from 'mustache-express' // Templates
-import { paths, themes } from './server/constants'
-import { config } from './server/utils/config'
-import { router } from './server/api'
+
 import * as db from './server/db'
 import * as bcrypt from './server/bcrypt'
 import * as webPush from './server/webPush'
-import { Command } from 'types/Command'
+
+import { paths, themes } from './server/constants'
+import { config } from './server/utils/config'
+import { router } from './server/api'
 
 const app = express()
 
