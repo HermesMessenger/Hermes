@@ -13,7 +13,8 @@
     "file-exists": "^5.0.1",
     "request": "^2.88.0",
     "sass": "^1.22.12",
-    "web-push": "^3.3.5"
+    "web-push": "^3.3.5",
+    "snyk": "^1.230.5"
   },
   "devDependencies": {
     "mocha": "^6.2.0",
@@ -33,7 +34,9 @@
     "prestart-no-css": "npm run prepare-project-no-css",
     "postinstall": "npm run prepare-project",
     "watch": "node scripts/watch.js",
-    "cleanup": "node scripts/cleanup.js"
+    "cleanup": "node scripts/cleanup.js",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -44,5 +47,6 @@
   "bugs": {
     "url": "https://github.com/HermesMessenger/Hermes/issues"
   },
-  "homepage": "https://github.com/HermesMessenger/Hermes#readme"
+  "homepage": "https://github.com/HermesMessenger/Hermes#readme",
+  "snyk": true
 }
