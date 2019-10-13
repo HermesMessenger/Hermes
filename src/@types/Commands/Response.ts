@@ -1,6 +1,6 @@
-import CommandTypes from './'
+import { Commands } from './'
 
 export interface Response {
-    originalCommand: keyof CommandTypes;
-    ok: boolean;
+    originalCommand: keyof Commands | null;
+    error: string | null;
 }

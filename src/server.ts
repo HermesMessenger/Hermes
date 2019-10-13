@@ -1,5 +1,5 @@
 import express from 'express'
-import ws from 'ws'
+import { Server as WSServer } from 'ws'
 import http from 'http'
 import bodyParser from 'body-parser' // Peticiones POST
 import cookieParser from 'cookie-parser' // Cookies
@@ -12,6 +12,8 @@ import * as webPush from './server/webPush'
 import { paths, themes } from './server/constants'
 import { config } from './server/utils/config'
 import { router } from './server/api'
+
+import { UnknownCommand, Response } from './@types/Command'
 
 const app = express()
 
@@ -220,17 +222,47 @@ app.get('*', function (req, res) {
 })
 
 const server = http.createServer(app)
-const wss = new ws.Server({ server })
+const wss = new WSServer({ server })
 
 wss.on('connection', ws => {
-  ws.send('HELLO THERE')
-  ws.on('message', message => {
-    console.log(message)
+  let user: string
+
+  ws.on('message', async message => {
+    const parsed = JSON.parse(message.toString()) as UnknownCommand
+    let error: string|null = ''
+
+    switch (parsed.header) {
+
+      case 'HANDSHAKE': {
+        try {
+          user = await db.getUserForUUID(parsed.data.uuid)
+          // TODO Save the session somewhere
+
+        } catch {
+          error = 'Invalid UUID'
+        }
+
+        break
+      } case 'RESPONSE': {
+        error = null
+
+        break
+      } default: {
+        console.log(parsed)
+
+        error = `Command '${parsed.header}' not implemented`
+      }
+    }
+
+    if (error !== null) {
+      const res = Response(parsed.header, error)
+      ws.send(JSON.stringify(res))
+    }
   })
 })
 
-server.listen(8080, () => {
-  console.log('Listening on *:8080')
+server.listen(config.port, () => {
+  console.log(`Listening on *: ${config.port} `)
 })
 
 export default server

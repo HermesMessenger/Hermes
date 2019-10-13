@@ -34,6 +34,14 @@ export interface Settings extends cassandra.types.Row {
   image: string;
 }
 
+export function TimeUUID (buffer?: Buffer): string {
+  if (buffer) {
+    return new cassandra.types.TimeUuid(buffer).toString()
+  } else {
+    return cassandra.types.TimeUuid.now().toString()
+  }
+}
+
 function getRandomHEXPart (): string {
   // Random RGB part to hex
   let hexString = (Math.floor(Math.random() * 150 + 50)).toString(16)
@@ -59,11 +67,11 @@ function createColor (): string {
  * @returns An array of 100 messages
  */
 export async function get100Messages (channel: string, uuid?: string): Promise<Message[]> {
-  let query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=? ORDER BY UUID DESC LIMIT 100;'
+  let query = 'SELECT Username, Message, Channel, UUID FROM Messages WHERE channel=? ORDER BY UUID DESC LIMIT 100;'
   let data = [channel]
 
   if (uuid) {
-    query = 'SELECT Username, Message, toTimestamp(UUID) as TimeSent, UUID FROM Messages WHERE channel=? AND UUID<? ORDER BY UUID DESC LIMIT 100;'
+    query = 'SELECT Username, Message, Channel, UUID FROM Messages WHERE channel=? AND UUID<? ORDER BY UUID DESC LIMIT 100;'
     data = [channel, uuid]
   }
 
@@ -128,7 +136,7 @@ export async function getMessagesFrom (channel: string, uuid: string): Promise<M
  */
 export async function addMessage (channel: string, user: string, message: string): Promise<void> {
   const query = 'INSERT INTO Messages (UUID, Channel, Username, Message) values(?,?,?,?);'
-  const messageUUID = new cassandra.types.TimeUuid()
+  const messageUUID = TimeUUID()
   const data = [messageUUID, channel, user, message]
 
   await client.execute(query, data, { prepare: true })
@@ -318,7 +326,7 @@ export async function leaveChannel (user: string, channel: string): Promise<void
  */
 export async function createChannel (user: string, name: string): Promise<string> {
   const query = 'INSERT INTO Channels (UUID, Name, Members, Admins, Icon) values(?,?,?,?,textAsBlob(?));'
-  const channelUUID = new cassandra.types.TimeUuid().toString()
+  const channelUUID = TimeUUID()
   const data = [channelUUID, name, [], [], DEFAULT_CHAT_IMAGE]
 
   await client.execute(query, data, { prepare: true })
@@ -448,7 +456,7 @@ export async function saveSettings (username: string, color: string, notificatio
  */
 export async function login (user: string, bot = false): Promise<string> {
   const query = 'INSERT INTO Sessions (UUID, Username) values(?,?) IF NOT EXISTS USING TTL ?;'
-  const uuid = new cassandra.types.TimeUuid()
+  const uuid = TimeUUID()
   const data = [uuid, user, bot ? BOT_SESSION_TIMEOUT : SESSION_TIMEOUT]
 
   await client.execute(query, data, { prepare: true })
@@ -517,7 +525,7 @@ export async function getUserForUUID (uuid: string): Promise<string> {
 
   const res = await client.execute(query, data, { prepare: true })
 
-  return res.rows[0] && res.rows[0].username
+  return res.rows[0].username
 }
 
 /**
@@ -551,6 +559,6 @@ export async function updatePasswordHash (user: string, passwordHash: string): P
 
 // #endregion
 
-export function close (callback?: () => {}): void {
+export function close (callback: () => {}): void {
   client.shutdown(callback)
 }

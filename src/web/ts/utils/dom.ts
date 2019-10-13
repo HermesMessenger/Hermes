@@ -2,7 +2,7 @@ export function $ (selector: string): HTMLElement | null {
   return document.querySelector(selector)
 }
 
-export function createElement<K extends keyof HTMLElementTagNameMap> (name: K, innerText = '', attrs: { [attr: string]: string } = {}): HTMLElementTagNameMap[K] {
+export function createElement<K extends keyof HTMLElementTagNameMap> (name: K, attrs: { [attr: string]: string } = {}, innerText = ''): HTMLElementTagNameMap[K] {
   const element = document.createElement(name)
 
   element.innerText = innerText

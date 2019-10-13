@@ -1,6 +1,6 @@
 # For VSCode
 #### Required extensions
- * [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) - Linting support
+ * [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) - Linting support (***BROKEN AT THE MOMENT***)
  * [EditorConfig](https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig) - Editor configuration for standard files
  * [Mustache](https://marketplace.visualstudio.com/items?itemName=dawhite.mustache) - Support for .mustache template files
  

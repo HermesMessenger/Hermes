@@ -14,9 +14,7 @@
     border: 3px solid $border-color;
     margin: 8px;
     padding: 10px;
-    height: 44px;
     max-height: 60vh;
-    width: auto;
     bottom: 0;
     left: 0;
     right: 0;
@@ -37,6 +35,9 @@
     font: inherit;
     background: inherit;
     color: inherit;
+    margin-right: 8px;
+    height: 21px;
+    max-height: calc(60vh - 32px);
 }
 
 #send {

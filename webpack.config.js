@@ -1,6 +1,7 @@
 const glob = require('glob')
 const path = require('path')
 const FixStyleOnlyEntriesPlugin = require('webpack-fix-style-only-entries')
+const TSConfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
@@ -24,9 +25,7 @@ const config = {
   devtool: 'source-map',
   resolve: {
     extensions: ['.ts', '.scss'],
-    alias: { 
-      "types/*": "./src/@types/*"
-    }
+    plugins: [new TSConfigPathsPlugin({ configFile: './src/web/tsconfig.json' })]
   },
   entry: {
     ...entries('./src/web/ts/*.ts'),

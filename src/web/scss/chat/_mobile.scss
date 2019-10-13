@@ -13,21 +13,6 @@
 }
 
 @media only screen and (max-width: 600px) {
-    span.message_body {
-        width: calc(100vw - 144px)
-    }
-
-    #m {
-        width: calc(100vw - 72px)
-    }
-
-    #send {
-        width: 16px;
-        height: 16px;
-        background-size: 16px;
-        margin-top: 2px
-    }
-
     #user {
         display: none;
     }
@@ -52,12 +37,6 @@
 
     .theirMessageLeft {
         margin: 8px 64px 0px -24px;
-    }
-
-    .time {
-        width: 38px;
-        height: 16px;
-        overflow: hidden;
     }
 
     #modal-content {

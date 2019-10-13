@@ -3,30 +3,46 @@
     list-style-type: none;
 }
 
-#chat_prof_pic {
+.message {
+  display: flex;
+  font: 16px $font-family, monospace;
+  padding: 8px;
+  border: 2px solid $border-color;
+  color: $text-color;
+  white-space: pre-wrap;
+  overflow: hidden;
+  transition: all .1s ease-in-out;
+
+  .profileImage {
     display: inline-block;
     width: 16px;
     height: 16px;
     margin: 0px 5px;
-}
+  }
 
-.message {
-    font: 16px $font-family, monospace;
-    padding: 8px;
-    border: 2px solid $border-color;
+  .username {
+    margin-right: 12px;
+  }
+
+  .message_body {
+    overflow: auto;
+    overflow-wrap: break-word;
+    margin-right: 16px;
+    line-height: 20px;
+
+    img {
+      display: block;
+      max-width: 100%;
+      max-height: 256px;
+    }
+  }
+
+  .time {
+    margin-left: auto;
+    float: right;
     color: $text-color;
-    white-space: pre-wrap;
-    min-height: 36px;
-    overflow: hidden;
-    transition: all .1s ease-in-out;
+  }
 }
-
-span.message_body {
-    display: inline-block;
-    position: absolute;
-    width: calc(100vw - 290px)
-}
-
 .myMessage {
     margin: 12px 24px 0px 128px;
     border-radius: 16px 4px 16px 16px;
@@ -45,12 +61,6 @@ span.message_body {
 
 .theirMessageLeft {
     margin: 12px 192px 0px -40px;
-}
-
-.time {
-    position: relative;
-    float: right;
-    color: $text-color;
 }
 
 #messages li.date {

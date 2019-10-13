@@ -1,4 +1,4 @@
-import Marked, { Renderer } from 'marked'
+import marked, { Renderer } from 'marked'
 
 const ALLOWED_SCHEMES = ['http', 'https'] // URL scheme whitelist
 
@@ -45,8 +45,8 @@ class HermesRenderer extends Renderer {
   }
 }
 
-Marked.setOptions({ renderer: new HermesRenderer() })
+marked.setOptions({ renderer: new HermesRenderer() })
 
 export function parseMD (md: string): string {
-  return Marked.parse(sanitize(md))
+  return marked.inlineLexer(sanitize(md), [])
 }
