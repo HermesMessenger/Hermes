@@ -14,7 +14,7 @@
         "module": "commonjs",
 
         "paths": {
-            "types/*": ["./src/@types/*"],
+            "types/*": ["./src/@types/*", "./src/server/@types/*"],
             "server/*": ["./src/server/*"]
         }
     },

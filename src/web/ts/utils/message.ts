@@ -1,14 +1,8 @@
 import { $, createElement } from './dom'
 import { parseMD } from './markdown'
+import { NewMessage } from 'types/Commands/NewMessage'
 
 const messages = $('#messages') as HTMLUListElement
-
-interface Message {
-  uuid: string;
-  username: string;
-  message: string;
-  time: number;
-}
 
 function pad (number: number): string {
   if (number < 10) {
@@ -18,8 +12,8 @@ function pad (number: number): string {
   return number.toString()
 }
 
-function formatDate (time: number): { date: string, time: string } {
-  const date = new Date(time)
+function parseDate (timeUUID: string): { date: string, time: string } {
+  const date = new Date(timeUUID)
 
   return {
     date: [date.getDate(), date.getMonth() + 1, date.getFullYear()].join('/'), // 10/06/2019
@@ -27,16 +21,16 @@ function formatDate (time: number): { date: string, time: string } {
   }
 }
 
-export function createMessage (msg: Message, myMessage = false): HTMLLIElement {
-  const { uuid, username, message } = msg
-  const { time } = formatDate(msg.time)
+export function createMessage (msg: NewMessage): HTMLLIElement {
+  const { uuid, user, message } = msg
+  const { time } = parseDate(msg.uuid)
 
   const wrapper = createElement('li', { class: 'message', id: 'message-' + uuid })
 
-  wrapper.classList.add(myMessage ? 'myMessage' : 'theirMessage')
+  wrapper.classList.add(msg.user === ''/* TODO: Make username constant */ ? 'myMessage' : 'theirMessage')
 
   const profileImageElement = createElement('img', { class: 'profileImage', src: 'https://lh3.googleusercontent.com/-HJiG0fMZgSU/AAAAAAAAAAI/AAAAAAAAAAA/ACHi3rdSYJuSI-dtLIAOvv4riiYmpnRxKQ/photo.jpg?sz=46' })
-  const usernameElement = createElement('b', { class: 'username', style: 'color: #a00' }, username)
+  const usernameElement = createElement('b', { class: 'username', style: 'color: #a00' }, user)
   const timeElement = createElement('span', { class: 'time' }, time)
   const messageElement = createElement('span', { class: 'message_body' })
   messageElement.innerHTML = parseMD(message)
@@ -53,8 +47,9 @@ export function createMessage (msg: Message, myMessage = false): HTMLLIElement {
   return wrapper
 }
 
-export function addMessage (message: string, username: string, mine = false) {
-  const a = createMessage({ message, username, uuid: 'qweqewqeq', time: new Date().getTime() }, mine)
+// export function addMessage (message: string, username: string, mine = false) {
+export function addMessage (message: NewMessage) {
+  const a = createMessage(message)
 
-  messages.appendChild(a)
+  messages.appendChild(a) 
 }

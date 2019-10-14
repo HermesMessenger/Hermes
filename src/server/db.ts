@@ -134,12 +134,14 @@ export async function getMessagesFrom (channel: string, uuid: string): Promise<M
  * @param user The user that sent the message
  * @param message The message to add
  */
-export async function addMessage (channel: string, user: string, message: string): Promise<void> {
+export async function addMessage (channel: string, user: string, message: string): Promise<string> {
   const query = 'INSERT INTO Messages (UUID, Channel, Username, Message) values(?,?,?,?);'
   const messageUUID = TimeUUID()
   const data = [messageUUID, channel, user, message]
 
   await client.execute(query, data, { prepare: true })
+
+  return messageUUID
 }
 
 /**
@@ -147,7 +149,7 @@ export async function addMessage (channel: string, user: string, message: string
  * @param channel The channel UUID to join
  * @param user The user that sent the message
  */
-export async function addCreateMessage (channel: string, user: string): Promise<void> {
+export async function addCreateMessage (channel: string, user: string): Promise<string> {
   return addMessage(channel, 'Admin', `@${user} has created the chat.`)
 }
 
@@ -156,7 +158,7 @@ export async function addCreateMessage (channel: string, user: string): Promise<
  * @param channel The channel UUID to join
  * @param user The user that sent the message
  */
-export async function addWelcomeMessage (channel: string, user: string): Promise<void> {
+export async function addWelcomeMessage (channel: string, user: string): Promise<string> {
   return addMessage(channel, 'Admin', `@${user} has joined the chat.`)
 }
 
@@ -165,7 +167,7 @@ export async function addWelcomeMessage (channel: string, user: string): Promise
  * @param channel The channel UUID to join
  * @param user The user that sent the message
  */
-export async function addLeaveMessage (channel: string, user: string): Promise<void> {
+export async function addLeaveMessage (channel: string, user: string): Promise<string> {
   return addMessage(channel, 'Admin', `@${user} has left the chat.`)
 }
 
@@ -175,7 +177,7 @@ export async function addLeaveMessage (channel: string, user: string): Promise<v
  * @param admin The user making the promotion
  * @param newAdmin The user gettning promoted
  */
-export async function addPromoteMessage (channel: string, admin: string, newAdmin: string): Promise<void> {
+export async function addPromoteMessage (channel: string, admin: string, newAdmin: string): Promise<string> {
   return addMessage(channel, 'Admin', `@${admin} has made @${newAdmin} an admin.`)
 }
 
@@ -185,7 +187,7 @@ export async function addPromoteMessage (channel: string, admin: string, newAdmi
  * @param admin The user making the demotion
  * @param oldAdmin The user gettning demoted
  */
-export async function addDemoteMessage (channel: string, admin: string, oldAdmin: string): Promise<void> {
+export async function addDemoteMessage (channel: string, admin: string, oldAdmin: string): Promise<string> {
   return addMessage(channel, 'Admin', `@${admin} has removed @${oldAdmin} as an admin.`)
 }
 

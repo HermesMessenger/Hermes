@@ -3,9 +3,12 @@ import { $, fadeIn, fadeOut } from './utils/dom'
 import { isAtBottom, scrollToBottom } from './utils/ui'
 
 import './ws'
+import { ws } from './ws/ws'
 
 const username = ($('#user') as HTMLParagraphElement).innerText
 const $m = $('#m') as HTMLTextAreaElement
+
+let activeChannel = '13814000-1dd2-11b2-8080-808080808080' // UUID for global
 
 // Update height on input
 $m.oninput = e => {
@@ -19,7 +22,9 @@ $m.onkeydown = e => {
     const message = $m.value
     const scroll = isAtBottom()
 
-    addMessage(message, username, true)
+    ws.send('SEND_MESSAGE', { message: message, channel: activeChannel })
+
+    // addMessage(message, username, true)
     $m.value = ''
     
     $m.dispatchEvent(new Event('input')) // Emit input event to reset input height
@@ -47,7 +52,8 @@ $darkoverlay.onclick = e => {
 
 (window as any).addMessage = addMessage
 
-addMessage('hi there 1', 'spaceface777')
+/*
+addMessage({ message: 'hi there 1', user: 'spaceface777', channel: '', uuid: '' })
 addMessage('hi there 2', 'spaceface777')
 addMessage('hi there 3', username, true)
 addMessage('hi there 4', username, true)
@@ -55,6 +61,6 @@ addMessage('hi there 5', 'spaceface777')
 addMessage('hi there 5', 'SomeOtherUser')
 addMessage('THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE ', 'SomeOtherUser')
 addMessage('*this* is a **great** website ![StackOverflow](https://upload.wikimedia.org/wikipedia/commons/f/f7/Stack_Overflow_logo.png)', username, true)
-
+*/
 
 scrollToBottom()

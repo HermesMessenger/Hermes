@@ -1,3 +1,2 @@
-export interface SendMessage {
-    message: string;
-}
+import {Message} from './Message'
+export type SendMessage = Message

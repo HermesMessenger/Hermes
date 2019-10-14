@@ -8,4 +8,5 @@ export interface Commands {
   'NEW_MESSAGE': NewMessage;
   'SEND_MESSAGE': SendMessage;
   'RESPONSE': Response;
+  'RELOAD': undefined; // For autoreload when the server restarts
 }

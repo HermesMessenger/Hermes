@@ -13,7 +13,8 @@ import { paths, themes } from './server/constants'
 import { config } from './server/utils/config'
 import { router } from './server/api'
 
-import { UnknownCommand, Response } from './@types/Command'
+import { UnknownCommand, Response, Command } from './@types/Command'
+import { Connections } from 'server/@types/connections'
 
 const app = express()
 
@@ -224,8 +225,11 @@ app.get('*', function (req, res) {
 const server = http.createServer(app)
 const wss = new WSServer({ server })
 
+const connections: Connections = {}
+
 wss.on('connection', ws => {
   let user: string
+  let userUUID: string
 
   ws.on('message', async message => {
     const parsed = JSON.parse(message.toString()) as UnknownCommand
@@ -235,15 +239,40 @@ wss.on('connection', ws => {
 
       case 'HANDSHAKE': {
         try {
+          userUUID = parsed.data.uuid
           user = await db.getUserForUUID(parsed.data.uuid)
           // TODO Save the session somewhere
+
+          const channels = await db.getChannels(user)
+          for (const channel of channels) {
+            if (!connections[channel]) {
+              connections[channel] = {}
+            }
+
+            connections[channel][userUUID] = ws
+          }
 
         } catch {
           error = 'Invalid UUID'
         }
+        
+        break
+      } case 'SEND_MESSAGE': {
+        
+        console.log(`${user}: ${parsed.data.message}`)
+
+        console.log(parsed.data.channel)
+        const messageUUID = await db.addMessage(parsed.data.channel, user, parsed.data.message)
+
+        // TODO: Make sure user is member of channel
+
+        for (const session of Object.values(connections[parsed.data.channel])) {
+          session.send(JSON.stringify(Command('NEW_MESSAGE', { ...parsed.data, user, uuid: messageUUID })))
+        }
 
         break
       } case 'RESPONSE': {
+        
         error = null
 
         break
@@ -255,8 +284,18 @@ wss.on('connection', ws => {
     }
 
     if (error !== null) {
+      console.error(error)
       const res = Response(parsed.header, error)
       ws.send(JSON.stringify(res))
+    }
+  })
+
+  ws.on('close', async () => {
+    if (userUUID) {
+      const channels = await db.getChannels(user)
+      for (const channel of channels) {
+        delete connections[channel][userUUID]
+      }
     }
   })
 })
@@ -264,5 +303,16 @@ wss.on('connection', ws => {
 server.listen(config.port, () => {
   console.log(`Listening on *: ${config.port} `)
 })
+
+/*function reloadHandler() { // Called for watch reloads
+  for (let ws of wss.clients) {
+    
+    
+  }
+}
+
+process.on('SIGUSR1', reloadHandler)
+process.on('SIGUSR1', reloadHandler)*/
+
 
 export default server

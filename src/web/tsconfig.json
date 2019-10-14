@@ -14,7 +14,8 @@
     "module": "commonjs",
 
     "paths": {
-      "types/*": ["../@types/*"]
+      "types/*": ["../@types/*"],
+      "utils/*": ["./ts/utils/*"]
     }
   },
   "exclude": [
