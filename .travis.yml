@@ -1,0 +1,19 @@
+language: node_js
+
+node_js: 
+  - 8
+  - 10
+  - 12
+  - node
+
+before_install: # Install Cassandra
+  - wget http://apache.rediris.es/cassandra/4.0-alpha1/apache-cassandra-4.0-alpha1-bin.tar.gz
+  - tar -xzf apache-cassandra-4.0-alpha1-bin.tar.gz
+  - export PATH="$PWD/apache-cassandra-4.0-alpha1/bin/:$PATH"
+  - cassandra
+  - sleep 20
+
+script:
+  - npm run setup:db
+  - npm run build
+  - npm test

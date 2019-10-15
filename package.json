@@ -54,6 +54,7 @@
     "webpack-fix-style-only-entries": "^0.4.0"
   },
   "scripts": {
+    "setup:db": "cqlsh -f database/setup.cql",
     "prepare": "node scripts/prepare.js && npm run build",
     "postinstall": "npm run prepare",
     "prestart": "npm run prepare",

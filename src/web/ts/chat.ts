@@ -1,14 +1,12 @@
-import { addMessage } from './utils/message'
-import { $, fadeIn, fadeOut } from './utils/dom'
-import { isAtBottom, scrollToBottom } from './utils/ui'
+import { addMessage } from 'utils/message'
+import { $, fadeIn, fadeOut } from 'utils/dom'
+import { isAtBottom, scrollToBottom } from 'utils/ui'
+import { activeChannel } from 'utils/constants'
 
 import './ws'
 import { ws } from './ws/ws'
 
-const username = ($('#user') as HTMLParagraphElement).innerText
 const $m = $('#m') as HTMLTextAreaElement
-
-let activeChannel = '13814000-1dd2-11b2-8080-808080808080' // UUID for global
 
 // Update height on input
 $m.oninput = e => {

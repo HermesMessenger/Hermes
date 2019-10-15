@@ -241,8 +241,8 @@ wss.on('connection', ws => {
         try {
           userUUID = parsed.data.uuid
           user = await db.getUserForUUID(parsed.data.uuid)
-          // TODO Save the session somewhere
 
+          // TODO Save the session somewhere
           const channels = await db.getChannels(user)
           for (const channel of channels) {
             if (!connections[channel]) {
@@ -258,21 +258,16 @@ wss.on('connection', ws => {
         
         break
       } case 'SEND_MESSAGE': {
-        
-        console.log(`${user}: ${parsed.data.message}`)
+        if (await db.isMember(user, parsed.data.channel)) {
+          const messageUUID = await db.addMessage(parsed.data.channel, user, parsed.data.message)
 
-        console.log(parsed.data.channel)
-        const messageUUID = await db.addMessage(parsed.data.channel, user, parsed.data.message)
-
-        // TODO: Make sure user is member of channel
-
-        for (const session of Object.values(connections[parsed.data.channel])) {
-          session.send(JSON.stringify(Command('NEW_MESSAGE', { ...parsed.data, user, uuid: messageUUID })))
-        }
+          for (const session of Object.values(connections[parsed.data.channel])) {
+            session.send(JSON.stringify(Command('NEW_MESSAGE', { ...parsed.data, user, uuid: messageUUID })))
+          }
+        } else error = 'Unauthorized'
 
         break
       } case 'RESPONSE': {
-        
         error = null
 
         break
@@ -284,7 +279,6 @@ wss.on('connection', ws => {
     }
 
     if (error !== null) {
-      console.error(error)
       const res = Response(parsed.header, error)
       ws.send(JSON.stringify(res))
     }
@@ -303,16 +297,5 @@ wss.on('connection', ws => {
 server.listen(config.port, () => {
   console.log(`Listening on *: ${config.port} `)
 })
-
-/*function reloadHandler() { // Called for watch reloads
-  for (let ws of wss.clients) {
-    
-    
-  }
-}
-
-process.on('SIGUSR1', reloadHandler)
-process.on('SIGUSR1', reloadHandler)*/
-
 
 export default server
