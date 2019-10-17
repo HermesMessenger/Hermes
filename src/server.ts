@@ -14,7 +14,7 @@ import { config } from './server/utils/config'
 import { router } from './server/api'
 
 import { UnknownCommand, Response, Command } from './@types/Command'
-import { Connections } from 'server/@types/connections'
+import { Connections } from './server/@types/connections'
 
 const app = express()
 
@@ -108,15 +108,14 @@ app.post('/logout', async function (req, res) {
 
 app.post('/register', async function (req, res) {
   try {
-    const username = req.body.username
-    const password1 = req.body.password1
-    const password2 = req.body.password2
+    const { username, password1, password2 } = req.body
 
     if (username && password1 && password2 && (password1 === password2)) {
       const exists = await db.userExists(username)
 
       if (!exists) {
-        const uuid = await bcrypt.save(username, password1)
+        const hash = await bcrypt.hash(password1)
+        const uuid = await db.register(username, hash)
 
         res.cookie('UUID', uuid)
         res.redirect('/chat')
@@ -236,7 +235,6 @@ wss.on('connection', ws => {
     let error: string|null = ''
 
     switch (parsed.header) {
-
       case 'HANDSHAKE': {
         try {
           userUUID = parsed.data.uuid
@@ -251,18 +249,16 @@ wss.on('connection', ws => {
 
             connections[channel][userUUID] = ws
           }
-
         } catch {
           error = 'Invalid UUID'
         }
-        
         break
       } case 'SEND_MESSAGE': {
         if (await db.isMember(user, parsed.data.channel)) {
           const messageUUID = await db.addMessage(parsed.data.channel, user, parsed.data.message)
 
           for (const session of Object.values(connections[parsed.data.channel])) {
-            session.send(JSON.stringify(Command('NEW_MESSAGE', { ...parsed.data, user, uuid: messageUUID })))
+            session.send(JSON.stringify(Command('NEW_MESSAGE', { ...parsed.data, username: user, uuid: messageUUID })))
           }
         } else error = 'Unauthorized'
 

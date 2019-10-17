@@ -1,4 +1,4 @@
 export interface Message {
-  message: string,
-  channel: string
+  message: string;
+  channel: string;
 }

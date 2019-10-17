@@ -1,15 +1,15 @@
 import { $, createElement } from './dom'
 import { parseMD } from './markdown'
-import { NewMessage } from 'types/Commands/NewMessage'
-import { username } from './constants'
+import { Message } from 'types/Message'
+import { username as myUsername } from './constants'
 
 const messages = $('#messages') as HTMLUListElement
 
-function pad(number: number): string {
-  return number < 10 ? '0' : '' + number
+function pad (number: number): string {
+  return (number < 10 ? '0' : '') + number
 }
 
-function UuidToTimestamp(uuid: string): Date {
+function UuidToTimestamp (uuid: string): Date {
   const split = uuid.split('-')
   const time = [
     split[2].substring(1),
@@ -21,7 +21,12 @@ function UuidToTimestamp(uuid: string): Date {
   return new Date(date)
 }
 
-function parseDate(timeUUID: string): { date: string, time: string } {
+interface ParsedDate {
+  date: string;
+  time: string;
+}
+
+function parseDate (timeUUID: string): ParsedDate {
   const date = UuidToTimestamp(timeUUID)
 
   return {
@@ -30,34 +35,29 @@ function parseDate(timeUUID: string): { date: string, time: string } {
   }
 }
 
-export function createMessage(msg: NewMessage): HTMLLIElement {
-  const { uuid, user, message } = msg
+export function createMessage (msg: Message): HTMLLIElement {
+  const { uuid, username, message } = msg
   const { time } = parseDate(msg.uuid)
 
   const wrapper = createElement('li', { class: 'message', id: 'message-' + uuid })
 
-  wrapper.classList.add(msg.user === username ? 'myMessage' : 'theirMessage')
+  wrapper.classList.add(username === myUsername ? 'myMessage' : 'theirMessage')
 
   const profileImageElement = createElement('img', { class: 'profileImage', src: 'https://lh3.googleusercontent.com/-HJiG0fMZgSU/AAAAAAAAAAI/AAAAAAAAAAA/ACHi3rdSYJuSI-dtLIAOvv4riiYmpnRxKQ/photo.jpg?sz=46' })
-  const usernameElement = createElement('b', { class: 'username', style: 'color: #a00' }, user)
+  const usernameElement = createElement('b', { class: 'username', style: 'color: #a00' }, username)
   const timeElement = createElement('span', { class: 'time' }, time)
   const messageElement = createElement('span', { class: 'message_body' })
   messageElement.innerHTML = parseMD(message)
 
-  messageElement.attributes
-
   messageElement.prepend(usernameElement)
-
   wrapper.appendChild(profileImageElement)
-  //wrapper.appendChild(usernameElement)
   wrapper.appendChild(messageElement)
   wrapper.appendChild(timeElement)
 
   return wrapper
 }
 
-// export function addMessage (message: string, username: string, mine = false) {
-export function addMessage(message: NewMessage) {
+export function addMessage (message: Message): void {
   const a = createMessage(message)
 
   messages.appendChild(a)

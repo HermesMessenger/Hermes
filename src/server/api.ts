@@ -6,6 +6,15 @@ import * as db from './db'
 
 export const router = express.Router()
 
+router.post('/loadmessages', async function (req, res) { // TODO Document
+  const user = await db.getUserForUUID(req.body.uuid)
+  if (await db.isMember(user, req.body.channel)) {
+    const messages = await db.get100Messages(req.body.channel, req.query.message_uuid)
+
+    res.send(messages.reverse())
+  } else res.sendStatus(403) // Forbidden
+})
+
 router.post('/login', async function (req, res) {
   const username = req.body.username
   const password = req.body.password
@@ -29,7 +38,8 @@ router.post('/register', async function (req, res) {
     const exists = await db.userExists(username)
 
     if (!exists) {
-      const uuid = await bcrypt.save(username, password1)
+      const hash = await bcrypt.hash(password1)
+      const uuid = await db.register(username, hash)
 
       res.send(uuid)
     } else res.sendStatus(409) // Conflict
@@ -42,10 +52,7 @@ router.post('/logout', async function (req, res) {
 })
 
 router.post('/updatePassword', async function (req, res) {
-  const oldPassword = req.body.oldPassword
-  const newPassword1 = req.body.newPassword1
-  const newPassword2 = req.body.newPassword2
-  const uuid = req.body.uuid
+  const { oldPassword, newPassword1, newPassword2, uuid } = req.body.oldPassword
 
   if (newPassword1 === newPassword2) {
     const user = await db.getUserForUUID(uuid)
@@ -53,7 +60,8 @@ router.post('/updatePassword', async function (req, res) {
     const ok = await bcrypt.compare(oldPassword, hash)
 
     if (ok) {
-      await bcrypt.update(user, newPassword1)
+      const hash = await bcrypt.hash(newPassword1)
+      await db.updatePasswordHash(user, hash)
       res.sendStatus(200) // Success
     } else res.sendStatus(401) // Unauthorized
   } else res.sendStatus(400) // Bad request
@@ -86,7 +94,7 @@ router.post('/getChannels', async function (req, res) {
 
   for (const channel of channels) {
     const p = await db.getChannelProperties(channel)
-    const members: {[member: string]: { color: string; image: string }} = {}
+    const members: {[member: string]: { color: string image: string }} = {}
 
     for (const member of p.members) {
       const settings = await db.getSettings(member)
@@ -189,11 +197,6 @@ router.post('/getSettings/', async function (req, res) {
   })
 })
 */
-router.get('/getDisplayName/:user', async function (req, res) {
-  const username = await db.getDisplayName(req.params.user)
-
-  res.send(username)
-})
 
 router.get('/teapot', function (req, res) {
   res.sendStatus(418) // I'm a teapot

@@ -1,6 +1,6 @@
 import { Message } from './Message'
 
 export interface NewMessage extends Message {
-  user: string;
+  username: string;
   uuid: string;
 }

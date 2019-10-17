@@ -1,64 +1,61 @@
 import { addMessage } from 'utils/message'
 import { $, fadeIn, fadeOut } from 'utils/dom'
-import { isAtBottom, scrollToBottom } from 'utils/ui'
-import { activeChannel } from 'utils/constants'
+import { scrollToBottom } from 'utils/ui'
+import { activeChannel, uuid } from 'utils/constants'
+
+import { postData } from 'utils/request'
 
 import './ws'
 import { ws } from './ws/ws'
+import { Message } from 'types/Message'
 
 const $m = $('#m') as HTMLTextAreaElement
 
 // Update height on input
-$m.oninput = e => {
-	$m.style.height = 'inherit'
+$m.oninput = () => {
+  $m.style.height = 'inherit'
   $m.style.height = $m.scrollHeight + 1 + 'px'
 }
 
 // Send message on Ctrl + Enter
 $m.onkeydown = e => {
-  if ((e.ctrlKey || e.metaKey) && (e.keyCode == 13 || e.keyCode == 10)) {
+  if ((e.ctrlKey || e.metaKey) && (e.keyCode === 13 || e.keyCode === 10)) {
     const message = $m.value
-    const scroll = isAtBottom()
 
-    ws.send('SEND_MESSAGE', { message: message, channel: activeChannel })
+    if (!message.match(/^\s*$/)) {
+      ws.send('SEND_MESSAGE', { message, channel: activeChannel })
 
-    // addMessage(message, username, true)
-    $m.value = ''
-    
-    $m.dispatchEvent(new Event('input')) // Emit input event to reset input height
+      $m.value = ''
 
-    if (scroll) {
-      scrollToBottom()
+      $m.dispatchEvent(new Event('input')) // Emit input event to reset input height
     }
   }
 }
-
 
 const $sidebar = $('#sidebar') as HTMLDivElement
 const $sidebarbtn = $('#sidebarbtn') as HTMLDivElement
 const $darkoverlay = $('#darkoverlay') as HTMLDivElement
 
-$sidebarbtn.onclick = e => {
+$sidebarbtn.onclick = () => {
   fadeIn($darkoverlay)
   $sidebar.style.left = '0px'
 }
 
-$darkoverlay.onclick = e => {
+$darkoverlay.onclick = () => {
   fadeOut($darkoverlay)
   $sidebar.style.left = '-400px'
 }
 
 (window as any).addMessage = addMessage
 
-/*
-addMessage({ message: 'hi there 1', user: 'spaceface777', channel: '', uuid: '' })
-addMessage('hi there 2', 'spaceface777')
-addMessage('hi there 3', username, true)
-addMessage('hi there 4', username, true)
-addMessage('hi there 5', 'spaceface777')
-addMessage('hi there 5', 'SomeOtherUser')
-addMessage('THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE THIS IS A VERY LONG MESSAGE ', 'SomeOtherUser')
-addMessage('*this* is a **great** website ![StackOverflow](https://upload.wikimedia.org/wikipedia/commons/f/f7/Stack_Overflow_logo.png)', username, true)
-*/
+postData('/api/loadmessages', { uuid, channel: activeChannel }).then(res => {
+  const messages = res as Message[]
+  for (const message of messages) {
+    addMessage(message)
+  }
 
-scrollToBottom()
+  fadeOut($('#loading') as HTMLDivElement)
+  scrollToBottom()
+}).catch(err => {
+  throw err
+})
