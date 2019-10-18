@@ -199,9 +199,5 @@ router.post('/getSettings/', async function (req, res) {
 */
 
 router.get('/teapot', function (req, res) {
-  res.sendStatus(418) // I'm a teapot
-})
-
-router.get('/*', function (req, res) {
-  res.sendStatus(404) // Not found
+  res.status(418).render('418') // I'm a teapot
 })

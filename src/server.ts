@@ -218,7 +218,7 @@ app.get('/sw.js', function (req, res) {
 })
 
 app.get('*', function (req, res) {
-  res.status(404).sendFile(paths.htmlPath + '404.html')
+  res.status(404).render('404', { path: req.url })
 })
 
 const server = http.createServer(app)
