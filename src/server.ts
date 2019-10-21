@@ -13,7 +13,7 @@ import { paths, themes } from './server/constants'
 import { config } from './server/utils/config'
 import { router } from './server/api'
 
-import { UnknownCommand, Response, Command } from './@types/Command'
+import { AnyCommand, Response, Command } from './@types/Command'
 import { Connections } from './server/@types/connections'
 
 const app = express()
@@ -231,8 +231,8 @@ wss.on('connection', ws => {
   let userUUID: string
 
   ws.on('message', async message => {
-    const parsed = JSON.parse(message.toString()) as UnknownCommand
-    let error: string|null = ''
+    const parsed = JSON.parse(message.toString()) as AnyCommand
+    let error = ''
 
     switch (parsed.header) {
       case 'HANDSHAKE': {
@@ -264,20 +264,16 @@ wss.on('connection', ws => {
 
         break
       } case 'RESPONSE': {
-        error = null
-
         break
       } default: {
-        console.log(parsed)
+        console.log('Unimplemented:', parsed)
 
         error = `Command '${parsed.header}' not implemented`
       }
     }
 
-    if (error !== null) {
-      const res = Response(parsed.header, error)
-      ws.send(JSON.stringify(res))
-    }
+    const res = Response(parsed.header, error)
+    ws.send(JSON.stringify(res))
   })
 
   ws.on('close', async () => {

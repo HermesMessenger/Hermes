@@ -1,12 +1,13 @@
+import RWebSocket from 'reconnecting-websocket'
 import { getCookie } from '../utils/dom'
-import { Command, Commands, UnknownCommand } from 'types/Command'
+import { Command, Commands, AnyCommand } from 'types/Command'
 
 class WS {
-  ws: WebSocket
+  ws: RWebSocket
 
   constructor (url?: string) {
     url = url || 'ws://' + document.location.host
-    this.ws = new WebSocket(url)
+    this.ws = new RWebSocket(url)
 
     this.ws.onopen = () => {
       const cmd = Command('HANDSHAKE', { uuid: getCookie('UUID') })
@@ -21,7 +22,7 @@ class WS {
     this.ws.send(JSON.stringify(cmd))
   }
 
-  onMessage (callback: (message: UnknownCommand) => void): void {
+  onMessage (callback: (message: AnyCommand) => void): void {
     this.ws.onmessage = msg => {
       const message = JSON.parse(msg.data)
 

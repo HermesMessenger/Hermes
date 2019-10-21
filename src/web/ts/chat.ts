@@ -56,6 +56,4 @@ postData('/api/loadmessages', { uuid, channel: activeChannel }).then(res => {
 
   fadeOut($('#loading') as HTMLDivElement)
   scrollToBottom()
-}).catch(err => {
-  throw err
 })
