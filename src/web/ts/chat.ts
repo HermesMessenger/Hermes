@@ -14,7 +14,13 @@ const $m = $('#m') as HTMLTextAreaElement
 // Update height on input
 $m.oninput = () => {
   $m.style.height = 'inherit'
-  $m.style.height = $m.scrollHeight + 1 + 'px'
+
+  // Firefox hack to calculate scrollHeight correctly
+  $m.style.overflow = 'scroll'
+  const scrollHeight = $m.scrollHeight
+  $m.style.overflow = 'auto'
+
+  $m.style.height = scrollHeight + 'px'
 }
 
 // Send message on Ctrl + Enter
