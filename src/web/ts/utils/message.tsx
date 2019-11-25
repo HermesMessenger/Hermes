@@ -1,4 +1,5 @@
-import { $, createElement } from './dom'
+import JSX from 'jsxlite'
+import { $ } from './dom'
 import { parseMD } from './markdown'
 import { Message } from 'types/Message'
 import { username as myUsername } from './constants'
@@ -35,26 +36,21 @@ function parseDate (timeUUID: string): ParsedDate {
   }
 }
 
-export function createMessage (msg: Message): HTMLLIElement {
+const DEFAULT_IMAGE = 'https://lh3.googleusercontent.com/-HJiG0fMZgSU/AAAAAAAAAAI/AAAAAAAAAAA/ACHi3rdSYJuSI-dtLIAOvv4riiYmpnRxKQ/photo.jpg?sz=46'
+
+export function createMessage (msg: Message): HTMLElement {
   const { uuid, username, message } = msg
   const { time } = parseDate(msg.uuid)
 
-  const wrapper = createElement('li', { class: 'message', id: 'message-' + uuid })
-
-  wrapper.classList.add(username === myUsername ? 'myMessage' : 'theirMessage')
-
-  const profileImageElement = createElement('img', { class: 'profileImage', src: 'https://lh3.googleusercontent.com/-HJiG0fMZgSU/AAAAAAAAAAI/AAAAAAAAAAA/ACHi3rdSYJuSI-dtLIAOvv4riiYmpnRxKQ/photo.jpg?sz=46' })
-  const usernameElement = createElement('b', { class: 'username', style: 'color: #a00' }, username)
-  const timeElement = createElement('span', { class: 'time' }, time)
-  const messageElement = createElement('span', { class: 'message_body' })
-  messageElement.innerHTML = parseMD(message)
-
-  messageElement.prepend(usernameElement)
-  wrapper.appendChild(profileImageElement)
-  wrapper.appendChild(messageElement)
-  wrapper.appendChild(timeElement)
-
-  return wrapper
+  // TODO!: Implement user settings
+  return (
+    <li id={`message-${uuid}`} class={username === myUsername ? 'message myMessage' : 'message theirMessage'}>
+      <img class="profileImage" src={DEFAULT_IMAGE}/>
+      <b class="username" style={'color: #a00'}>{username}</b>
+      <span class="message_body" innerHTML={parseMD(message)}></span>
+      <span class="time">{time}</span>
+    </li>
+  )
 }
 
 export function addMessage (message: Message): void {

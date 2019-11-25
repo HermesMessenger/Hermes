@@ -24,7 +24,7 @@ const config = {
   stats: 'errors-warnings',
   devtool: 'source-map',
   resolve: {
-    extensions: ['.ts', '.scss'],
+    extensions: ['.ts', '.tsx', '.scss'],
     plugins: [new TSConfigPathsPlugin({ configFile: './src/web/tsconfig.json' })]
   },
   entry: {
@@ -45,7 +45,7 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.ts$/,
+        test: /\.tsx?$/,
         use: 'ts-loader'
       },
       {

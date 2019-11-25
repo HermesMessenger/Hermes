@@ -7,6 +7,9 @@
     "removeComments": true,
     "preserveConstEnums": true,
 
+    "jsx": "react",
+    "reactNamespace": "JSX",
+
     "sourceMap": true,
     "baseUrl": "./",
     "outDir": "dist",

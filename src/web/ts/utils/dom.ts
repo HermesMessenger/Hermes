@@ -2,18 +2,6 @@ export function $ (selector: string): HTMLElement | null {
   return document.querySelector(selector)
 }
 
-export function createElement<K extends keyof HTMLElementTagNameMap> (name: K, attrs: { [attr: string]: string } = {}, innerText = ''): HTMLElementTagNameMap[K] {
-  const element = document.createElement(name)
-
-  element.innerText = innerText
-
-  for (const [attr, value] of Object.entries(attrs)) {
-    element.setAttribute(attr, value)
-  }
-
-  return element
-}
-
 export function fadeOut (element: HTMLElement, callback?: () => void): void {
   const duration = parseFloat(getComputedStyle(element).transitionDuration) * 1000
 
