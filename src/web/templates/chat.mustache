@@ -66,7 +66,20 @@
   </form>
   <div id="separator-bottom"></div>
   <div id="goBottom">⇓</div>
-  <div id="myModal" class="modal"></div>
+  <div id="settings_modal" class="modal"><!--Settings modal-->
+    <div id="modal-content">
+      <div id="settingsTitle">Settings<button id="closeSettings">x</button></div>
+      <div id="userPreview">
+        <img src=https://lh3.googleusercontent.com/-HJiG0fMZgSU/AAAAAAAAAAI/AAAAAAAAAAA/ACHi3rdSYJuSI-dtLIAOvv4riiYmpnRxKQ/photo.jpg?sz=46 id="profilePicture">
+        <div class="settings vertical_layout">
+          <span id="settingsUsername">{{user}}</span><input class="jscolor {hash:true, shadow:false}" id="color"><br>
+          <button id="changePswd">Change password</button>
+        </div>
+      </div>
+      <div id="notificationsSetting"><!--TODO--></div>
+      <div id="themePreview"><!--TODO--></div>
+    </div>
+  </div>
   <script src="/js/chat-bundle.js" type="text/javascript"></script>
 </body>
 

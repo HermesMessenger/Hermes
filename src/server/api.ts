@@ -174,6 +174,7 @@ router.post('/leaveChannel', async function (req, res) {
   await db.addLeaveMessage(req.body.channel, user)
   res.sendStatus(200)
 })
+*/
 
 router.get('/getSettings/:username', async function (req, res) { // Only for chat (Color & image only)
   const settings = await db.getSettings(decodeURIComponent(req.params.username))
@@ -196,7 +197,6 @@ router.post('/getSettings/', async function (req, res) {
     theme: settings.theme
   })
 })
-*/
 
 router.get('/teapot', function (req, res) {
   res.status(418).render('418') // I'm a teapot

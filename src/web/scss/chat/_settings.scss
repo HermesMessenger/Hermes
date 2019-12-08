@@ -16,6 +16,10 @@
     animation-duration: 0.4s;
 }
 
+#settings_modal {
+  z-index: 9999
+}
+
 #modal-content {
     margin: 10vh 64px;
     border: 3px solid $border-color;
@@ -32,7 +36,7 @@
     height: 512px;
 }
 
-.close {
+/*.close {
     color: $text-color;
     float: right;
     font-size: 36px;
@@ -58,9 +62,65 @@
 
 .modal-body {
     padding: 2px 16px;
+}*/
+
+#profilePicture {
+  display: inline-block;
+  margin: 10px;
+  width: 100px;
+  height: 100px;
+  vertical-align: middle;
 }
 
-#save {
+.settings.vertical_layout {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+#settingsUsername {
+  font-size: 40px;
+  margin-bottom: 20px;
+}
+
+#changePswd {
+  margin-top: 15px;
+  height: 30px;
+  display:  inline-block;
+  width: 150px;
+  text-align: center;
+  vertical-align: middle;
+  border: solid red 3px;
+  border-radius: 10px;
+  background: #ff000040;
+  font-family: inherit;
+  font-size: 16px;
+}
+
+#settingsTitle {
+  text-align: center;
+  padding: 3px;
+  border-bottom: 3px solid;
+}
+
+#closeSettings {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 3px;
+  font:  inherit;
+  width: 24px;
+  border: none;
+  background: inherit;
+  border-radius: 0px 10px 0px 0px;
+  font-weight: 900;
+}
+
+#closeSettings:hover {
+  background: #ff0000e0;
+  color: white;
+}
+
+/* #save {
     float: left;
     left: 96px;
     width: 150px;
@@ -200,4 +260,4 @@ option[value="never"] {
     margin: 0 16px 8px 177px;
     background-color: $their-message-color;
     color: $text-color;
-}
+} */

@@ -9,6 +9,8 @@ import './ws'
 import { ws } from './ws/ws'
 import { Message } from 'types/Message'
 
+import './settings'
+
 const $m = $('#m') as HTMLTextAreaElement
 
 // Update height on input

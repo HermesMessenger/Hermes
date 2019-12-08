@@ -5,6 +5,7 @@ import { Message } from 'types/Message'
 import { username as myUsername } from './constants'
 
 const messages = $('#messages') as HTMLUListElement
+let lastDate = ''
 
 function pad (number: number): string {
   return (number < 10 ? '0' : '') + number
@@ -53,8 +54,23 @@ export function createMessage (msg: Message): HTMLElement {
   )
 }
 
+function createDateMessage(date: string): HTMLElement {
+  return (
+    <li id={`date-${date}`} class="date">
+      {date}
+    </li>
+  )
+}
+
 export function addMessage (message: Message): void {
+  const { date } = parseDate(message.uuid)
+
+  if(lastDate !== date) {
+    messages.appendChild(createDateMessage(date))
+  }
+
   const a = createMessage(message)
 
   messages.appendChild(a)
+  lastDate = date
 }

@@ -80,13 +80,14 @@ app.get('/chat', async function (req, res) {
 
     const user = await db.getUserForUUID(req.cookies.UUID)
 
-    if (user) res.render('chat', { color: '#f00', user })
+    if (user) res.render('chat', { color: '#f00', user, userUUID: req.cookies.UUID })
   } catch (err) {
     console.error('ERROR:', err)
     res.redirect('/login')
   }
 })
 
+/*
 app.get('/settings', function (req, res) {
   if (req.headers['user-agent'] && req.headers['user-agent'].includes('Electron')) {
     res.sendFile(paths.settingPath + 'electron.html')
@@ -94,6 +95,7 @@ app.get('/settings', function (req, res) {
     res.sendFile(paths.settingPath + 'regular.html')
   }
 })
+*/
 
 app.post('/logout', async function (req, res) {
   try {
