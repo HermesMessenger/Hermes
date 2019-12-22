@@ -18,7 +18,7 @@
 
     "paths": {
       "types/*": ["../@types/*"],
-      "utils/*": ["./ts/utils/*"]
+      "ts/*": ["./ts/*"]
     }
   },
   "exclude": [

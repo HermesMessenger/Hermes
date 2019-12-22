@@ -1,6 +1,6 @@
 import { ws } from './ws'
-import { addMessage } from 'utils/message'
-import { isAtBottom, scrollToBottom } from 'utils/ui'
+import { addMessage } from 'ts/utils/message'
+import { isAtBottom, scrollToBottom } from 'ts/utils/ui'
 
 (window as any).ws = ws // TODO!: REMOVE
 

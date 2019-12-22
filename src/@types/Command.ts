@@ -1,4 +1,4 @@
-import { Commands } from './Commands'
+import { Commands } from 'types/Commands'
 
 export interface Command<K extends keyof Commands> {
   header: K;

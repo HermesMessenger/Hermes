@@ -1,8 +1,8 @@
 import JSX from 'jsxlite'
-import { $ } from './dom'
-import { parseMD } from './markdown'
+import { $ } from 'ts/utils/dom'
+import { parseMD } from 'ts/utils/markdown'
 import { Message } from 'types/Message'
-import { username as myUsername } from './constants'
+import { username as myUsername } from 'ts/utils/constants'
 
 const messages = $('#messages') as HTMLUListElement
 let lastDate = ''

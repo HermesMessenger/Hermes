@@ -5,16 +5,16 @@ import bodyParser from 'body-parser' // Peticiones POST
 import cookieParser from 'cookie-parser' // Cookies
 import mustache from 'mustache-express' // Templates
 
-import * as db from './server/db'
-import * as bcrypt from './server/bcrypt'
-import * as webPush from './server/webPush'
+import * as db from 'server/db'
+import * as bcrypt from 'server/bcrypt'
+import * as webPush from 'server/webPush'
 
-import { paths, themes } from './server/constants'
-import { config } from './server/utils/config'
-import { router } from './server/api'
+import { paths, themes } from 'server/constants'
+import { config } from 'server/utils/config'
+import { router } from 'server/api'
 
-import { AnyCommand, Response, Command } from './@types/Command'
-import { Connections } from './server/@types/connections'
+import { AnyCommand, Response, Command } from 'types/Command'
+import { Connections } from 'server/@types/connections'
 
 const app = express()
 

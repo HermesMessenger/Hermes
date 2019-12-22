@@ -1,6 +1,6 @@
-import { $, fadeIn, fadeOut } from 'utils/dom'
-import { uuid } from 'utils/constants'
-import { postData } from 'utils/request'
+import { $, fadeIn, fadeOut } from 'ts/utils/dom'
+import { uuid } from 'ts/utils/constants'
+import { postData } from 'ts/utils/request'
 
 const $settingsbutton = $('#settings') as HTMLButtonElement
 const $closesettings = $('#closeSettings') as HTMLButtonElement

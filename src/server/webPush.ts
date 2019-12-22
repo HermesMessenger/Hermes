@@ -1,6 +1,6 @@
 import webPush from 'web-push'
-import { config } from './utils/config'
-import { Settings, Channel } from './db'
+import { config } from 'server/utils/config'
+import { Settings, Channel } from 'server/db'
 
 interface Subscription extends webPush.PushSubscription {
   user: string;

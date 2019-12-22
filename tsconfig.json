@@ -1,28 +1,31 @@
 {
-    "compilerOptions": {
-        "noImplicitAny": true,
-        "esModuleInterop": true,
-        "resolveJsonModule": true,
-        "strictNullChecks": true,
-        "removeComments": true,
-        "preserveConstEnums": true,
-
-        "inlineSourceMap": true,
-        "baseUrl": "./",
-        "outDir": "dist",
-        "target": "es6",
-        "module": "commonjs",
-
-        "paths": {
-            "types/*": ["./src/@types/*", "./src/server/@types/*"],
-            "server/*": ["./src/server/*"]
-        }
-    },
-    "include": [
-        "src/server.ts",
-        "src/server/**/*"
-    ],
-    "exclude": [
-        "node_modules"
-    ]
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "strictNullChecks": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "inlineSourceMap": true,
+    "baseUrl": "./",
+    "outDir": "dist",
+    "target": "es6",
+    "module": "commonjs",
+    "paths": {
+      "types/*": [
+        "./src/@types/*",
+        "./src/server/@types/*"
+      ],
+      "server/*": [
+        "./src/server/*"
+      ]
+    }
+  },
+  "include": [
+    "src/server.ts",
+    "src/server/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

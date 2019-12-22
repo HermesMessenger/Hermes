@@ -1,15 +1,15 @@
-import { addMessage, clearMessages } from 'utils/message'
-import { $, fadeIn, fadeOut } from 'utils/dom'
-import { scrollToBottom } from 'utils/ui'
-import { activeChannel, uuid } from 'utils/constants'
+import { addMessage, clearMessages } from 'ts/utils/message'
+import { $, fadeIn, fadeOut } from 'ts/utils/dom'
+import { scrollToBottom } from 'ts/utils/ui'
+import { activeChannel, uuid } from 'ts/utils/constants'
 
-import { postData } from 'utils/request'
+import { postData } from 'ts/utils/request'
 
-import './ws'
-import { ws } from './ws/ws'
+import 'ts/ws'
+import { ws } from 'ts/ws/ws'
 import { Message } from 'types/Message'
 
-import './settings'
+import 'ts/settings'
 
 const $m = $('#m') as HTMLTextAreaElement
 

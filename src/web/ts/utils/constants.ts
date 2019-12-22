@@ -1,4 +1,4 @@
-import { $, getCookie } from 'utils/dom'
+import { $, getCookie } from 'ts/utils/dom'
 
 export const uuid = getCookie('UUID')
 export const username = ($('#user') as HTMLParagraphElement).innerText

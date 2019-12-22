@@ -1,4 +1,4 @@
-import { $, fadeIn, fadeOut } from './utils/dom'
+import { $, fadeIn, fadeOut } from 'ts/utils/dom'
 
 const loginForm = $('#login-form') as HTMLFormElement
 const registerForm = $('#register-form') as HTMLFormElement
