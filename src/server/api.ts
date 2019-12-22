@@ -1,6 +1,6 @@
 import express from 'express'
-import * as bcrypt from 'server/bcrypt'
-import * as db from 'server/db'
+import * as bcrypt from './bcrypt'
+import * as db from './db'
 // import * as utils from 'server/utils'
 // import * as webPush from 'server/webPush'
 

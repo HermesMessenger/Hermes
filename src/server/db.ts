@@ -1,5 +1,5 @@
 import cassandra from 'cassandra-driver'
-import { config } from 'server/utils/config'
+import { config } from './utils/config'
 
 const authProvider = new cassandra.auth.PlainTextAuthProvider(config.db.username, config.db.password)
 const client = new cassandra.Client({ contactPoints: config.db.hosts, localDataCenter: config.db.datacenter, authProvider, keyspace: config.db.keyspace })
