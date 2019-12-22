@@ -12,9 +12,7 @@ export const paths = {
   cssPath: path.join(webPath, 'css/'),
   jsPath: path.join(webPath, 'js/'),
   templatePath: path.join(webPath, 'templates/'),
-  loginPath: path.join(htmlPath, 'LoginPages/'),
-  themePath: path.join(webPath, 'css/themes/'),
-  settingPath: path.join(webPath, 'settings/'),
+  themePath: path.join(webPath, 'themes/'),
   imgPath: path.join(webPath, 'images/'),
   PWAPath: path.join(webPath, 'PWA/')
 }

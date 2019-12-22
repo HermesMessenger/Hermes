@@ -1,4 +1,4 @@
-import { addMessage } from 'utils/message'
+import { addMessage, clearMessages } from 'utils/message'
 import { $, fadeIn, fadeOut } from 'utils/dom'
 import { scrollToBottom } from 'utils/ui'
 import { activeChannel, uuid } from 'utils/constants'
@@ -65,3 +65,14 @@ postData('/api/loadmessages', { uuid, channel: activeChannel }).then(res => {
   fadeOut($('#loading') as HTMLDivElement)
   scrollToBottom()
 })
+
+const hmr = (module as any).hot
+if (hmr) {
+  hmr.accept()
+  hmr.dispose(() => {
+    /* Clean up anything from the old module here, like timeouts for example */
+
+    // Delete messages so they're not duplicated after HMR
+    clearMessages()
+  })
+}

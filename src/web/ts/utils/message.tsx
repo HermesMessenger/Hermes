@@ -46,7 +46,7 @@ export function createMessage (msg: Message): HTMLElement {
   // TODO!: Implement user settings
   return (
     <li id={`message-${uuid}`} class={username === myUsername ? 'message myMessage' : 'message theirMessage'}>
-      <img class="profileImage" src={DEFAULT_IMAGE}/>
+      <img class="profileImage" src={DEFAULT_IMAGE} />
       <b class="username" style={'color: #a00'}>{username}</b>
       <span class="message_body" innerHTML={parseMD(message)}></span>
       <span class="time">{time}</span>
@@ -54,7 +54,7 @@ export function createMessage (msg: Message): HTMLElement {
   )
 }
 
-function createDateMessage(date: string): HTMLElement {
+function createDateMessage (date: string): HTMLElement {
   return (
     <li id={`date-${date}`} class="date">
       {date}
@@ -65,7 +65,7 @@ function createDateMessage(date: string): HTMLElement {
 export function addMessage (message: Message): void {
   const { date } = parseDate(message.uuid)
 
-  if(lastDate !== date) {
+  if (lastDate !== date) {
     messages.appendChild(createDateMessage(date))
   }
 
@@ -73,4 +73,11 @@ export function addMessage (message: Message): void {
 
   messages.appendChild(a)
   lastDate = date
+}
+
+// Delete loaded messages so they don't get duplicated
+export function clearMessages (): void {
+  const $messages = $('#messages') as HTMLUListElement
+  while ($messages.firstChild) $messages.firstChild.remove()
+  lastDate = ''
 }

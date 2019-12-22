@@ -21,3 +21,11 @@ registerFormSubmit.onclick = () => {
 cookieNotice.onclick = () => {
   fadeOut(cookieNotice)
 }
+
+const hmr = (module as any).hot
+if (hmr) {
+  hmr.accept()
+  hmr.dispose(() => {
+    console.log('[HMR] Updated')
+  })
+}
