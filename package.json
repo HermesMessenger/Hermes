@@ -63,7 +63,6 @@
   "scripts": {
     "setup:db": "cqlsh -f database/setup.cql",
     "prepare": "node scripts/prepare.js && npm run build",
-    "postinstall": "npm run prepare",
     "prestart": "npm run prepare",
     "start": "node -r source-map-support/register .",
     "lint": "eslint 'src/**/*.ts'",
