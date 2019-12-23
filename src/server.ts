@@ -43,11 +43,6 @@ app.get('/favicon.png', function (req, res) {
   res.sendFile(paths.imgPath + 'logo.png')
 })
 
-// TODO: Remove whenever MD lib is stable
-app.get('/md', function (req, res) {
-  res.sendFile(paths.htmlPath + 'md.html')
-})
-
 // Routes
 app.get('/', function (req, res) {
   if (req.cookies.UUID) {
@@ -86,16 +81,6 @@ app.get('/chat', async function (req, res) {
     res.redirect('/login')
   }
 })
-
-/*
-app.get('/settings', function (req, res) {
-  if (req.headers['user-agent'] && req.headers['user-agent'].includes('Electron')) {
-    res.sendFile(paths.settingPath + 'electron.html')
-  } else {
-    res.sendFile(paths.settingPath + 'regular.html')
-  }
-})
-*/
 
 app.post('/logout', async function (req, res) {
   try {
@@ -197,10 +182,6 @@ app.post('/registerWebPush', async function (req, res) {
   webPush.sendNotification(req.body.subscription, { user, settings }, 'handshake')
 
   res.sendStatus(200)
-})
-
-app.get('/offline.html', function (req, res) {
-  res.sendFile(paths.webPath + 'offline.html')
 })
 
 app.get('/manifest.json', function (req, res) {

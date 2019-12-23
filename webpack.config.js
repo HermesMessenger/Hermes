@@ -41,13 +41,14 @@ const config = function (env, argv) {
       port: 8000,
       overlay: true,
       proxy: [{
-        context: url => !url.match(/^\/sockjs-node\//), // So that it doesn't conflict with WDS's own websocket server
+        context: url => !url.startsWith('/sockjs-node'), // So that it doesn't conflict with WDS's own websocket server
         target: 'http://localhost:8080',
         ws: true,
+        logLevel: 'warn'
       }],
       before(app, server, compiler) {
         const extRegex = /\.(mustache|html)$/
-        compiler.plugin('done', () => {
+        compiler.hooks.done.tap('CustomHtmlReloadPlugin', () => {
           const changedFiles = Object.keys(compiler.watchFileSystem.watcher.mtimes)
           if (this.hot && changedFiles.some(file => extRegex.test(file))) {
             server.sockWrite(server.sockets, 'content-changed') // Hard reload
@@ -61,7 +62,6 @@ const config = function (env, argv) {
       new WriteFilePlugin(),
       new CopyWebpackPlugin([
         { from: './src/web/images/', to: 'images/' },
-        { from: './src/web/html/', to: 'html/' },
         { from: './src/web/templates/', to: 'templates/' },
         { from: './src/web/PWA/', to: 'PWA/' }
       ]),

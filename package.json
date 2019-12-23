@@ -73,7 +73,7 @@
     "build:ts": "echo '[tsc] Building server...' && tsc",
     "build:web": "echo '[webpack] Building web...' && webpack --mode production",
     "watch:ts": "tsc-watch --onSuccess \"node -r source-map-support/register .\"",
-    "watch:web": "webpack-dev-server --open"
+    "watch:web": "webpack-dev-server --open --hot"
   },
   "repository": {
     "type": "git",
