@@ -3,6 +3,7 @@ import { $ } from 'ts/utils/dom'
 import { parseMD } from 'ts/utils/markdown'
 import { Message } from 'types/Message'
 import { username as myUsername } from 'ts/utils/constants'
+import { getData } from './request'
 
 const messages = $('#messages') as HTMLUListElement
 let lastDate = ''
@@ -38,16 +39,33 @@ function parseDate (timeUUID: string): ParsedDate {
 }
 
 const DEFAULT_IMAGE = 'https://lh3.googleusercontent.com/-HJiG0fMZgSU/AAAAAAAAAAI/AAAAAAAAAAA/ACHi3rdSYJuSI-dtLIAOvv4riiYmpnRxKQ/photo.jpg?sz=46'
+const users: {
+  [username: string]: {
+    color: string,
+    image: string
+  }
+} = {}
 
-export function createMessage (msg: Message): HTMLElement {
+export async function createMessage (msg: Message): Promise<HTMLElement> {
   const { uuid, username, message } = msg
   const { time } = parseDate(msg.uuid)
 
-  // TODO!: Implement user settings
+  let color = '#a00'
+  let image = DEFAULT_IMAGE
+  if(username in users) {
+    color = users[username].color
+    image = users[username].image
+  }else{
+    let data = await getData(`/api/getSettings/${username}`) as {color: string, image: string}
+    color = data.color
+    image = `data:image/png;base64,${data.image}`
+    users[username] = {color, image}
+  }
+
   return (
     <li id={`message-${uuid}`} class={username === myUsername ? 'message myMessage' : 'message theirMessage'}>
-      <img class="profileImage" src={DEFAULT_IMAGE} />
-      <b class="username" style={'color: #a00'}>{username}</b>
+      <img class="profileImage" src={image} />
+      <b class="username" style={`color: ${color}`}>{username}</b>
       <span class="message_body" innerHTML={parseMD(message)}></span>
       <span class="time">{time}</span>
     </li>
@@ -68,10 +86,12 @@ export function addMessage (message: Message): void {
   if (lastDate !== date) {
     messages.appendChild(createDateMessage(date))
   }
+  
 
-  const a = createMessage(message)
+  createMessage(message).then(element => {
+    messages.appendChild(element)
+  })
 
-  messages.appendChild(a)
   lastDate = date
 }
 

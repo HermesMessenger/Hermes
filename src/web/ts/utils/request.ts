@@ -22,3 +22,7 @@ export function postData (url: string, data: any, config?: RequestInit): Promise
     ...config
   })
 }
+
+export function getData (url: string, config?: RequestInit): Promise<unknown> {
+  return request('GET', url, config)
+}
