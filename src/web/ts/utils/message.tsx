@@ -55,11 +55,15 @@ export async function createMessage (msg: Message): Promise<HTMLElement> {
   if(username in users) {
     color = users[username].color
     image = users[username].image
+    console.log('exists')
   }else{
+    // TODO: this executes all the time on first load because we dont wait to load the next message after this one has loaded
+    // TODO: That might have adverse effects on message order
     let data = await getData(`/api/getSettings/${username}`) as {color: string, image: string}
     color = data.color
     image = `data:image/png;base64,${data.image}`
     users[username] = {color, image}
+    console.log('!exists')
   }
 
   return (
