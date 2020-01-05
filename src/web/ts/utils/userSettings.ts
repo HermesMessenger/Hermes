@@ -25,6 +25,8 @@ export async function loadSettings (user: string): Promise<void> {
     const settings = await getData(`/api/getSettings/${user}`) as Settings
 
     document.querySelectorAll(`[data-settings-pending="${user}"]`).forEach(elem => {
+      elem.removeAttribute('data-settings-pending')
+
       const $image = elem.getElementsByClassName('profileImage')[0] as HTMLImageElement
       const $name = elem.getElementsByClassName('username')[0] as HTMLParagraphElement
 
