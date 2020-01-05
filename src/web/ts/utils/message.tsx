@@ -3,9 +3,9 @@ import { $ } from 'ts/utils/dom'
 import { parseMD } from 'ts/utils/markdown'
 import { Message } from 'types/Message'
 import { username as myUsername } from 'ts/utils/constants'
-import { getData } from './request'
+import { getSettings, loadSettings } from 'ts/utils/userSettings'
 
-const messages = $('#messages') as HTMLUListElement
+const $messages = $('#messages') as HTMLUListElement
 let lastDate = ''
 
 function pad (number: number): string {
@@ -38,36 +38,29 @@ function parseDate (timeUUID: string): ParsedDate {
   }
 }
 
-const DEFAULT_IMAGE = 'https://lh3.googleusercontent.com/-HJiG0fMZgSU/AAAAAAAAAAI/AAAAAAAAAAA/ACHi3rdSYJuSI-dtLIAOvv4riiYmpnRxKQ/photo.jpg?sz=46'
-const users: {
-  [username: string]: {
-    color: string,
-    image: string
-  }
-} = {}
+const DEFAULT_SETTINGS = {
+  color: '#a00',
+  image: 'https://lh3.googleusercontent.com/-HJiG0fMZgSU/AAAAAAAAAAI/AAAAAAAAAAA/ACHi3rdSYJuSI-dtLIAOvv4riiYmpnRxKQ/photo.jpg?sz=46'
+}
 
-export async function createMessage (msg: Message): Promise<HTMLElement> {
+export function createMessage (msg: Message): HTMLElement {
   const { uuid, username, message } = msg
   const { time } = parseDate(msg.uuid)
 
-  let color = '#a00'
-  let image = DEFAULT_IMAGE
-  if(username in users) {
-    color = users[username].color
-    image = users[username].image
-    console.log('exists')
-  }else{
-    // TODO: this executes all the time on first load because we dont wait to load the next message after this one has loaded
-    // TODO: That might have adverse effects on message order
-    let data = await getData(`/api/getSettings/${username}`) as {color: string, image: string}
-    color = data.color
-    image = `data:image/png;base64,${data.image}`
-    users[username] = {color, image}
-    console.log('!exists')
+  let { color, image } = DEFAULT_SETTINGS
+  const userSettings = getSettings(username)
+  let settingsPending = false
+
+  if (userSettings) {
+    color = userSettings.color
+    image = userSettings.image
+  } else {
+    loadSettings(username)
+    settingsPending = true
   }
 
   return (
-    <li id={`message-${uuid}`} class={username === myUsername ? 'message myMessage' : 'message theirMessage'}>
+    <li id={`message-${uuid}`} class={username === myUsername ? 'message myMessage' : 'message theirMessage'} data-settings-pending={settingsPending ? username : null}>
       <img class="profileImage" src={image} />
       <b class="username" style={`color: ${color}`}>{username}</b>
       <span class="message_body" innerHTML={parseMD(message)}></span>
@@ -88,20 +81,16 @@ export function addMessage (message: Message): void {
   const { date } = parseDate(message.uuid)
 
   if (lastDate !== date) {
-    messages.appendChild(createDateMessage(date))
+    $messages.appendChild(createDateMessage(date))
   }
-  
 
-  createMessage(message).then(element => {
-    messages.appendChild(element)
-  })
+  $messages.appendChild(createMessage(message))
 
   lastDate = date
 }
 
 // Delete loaded messages so they don't get duplicated
 export function clearMessages (): void {
-  const $messages = $('#messages') as HTMLUListElement
   while ($messages.firstChild) $messages.firstChild.remove()
   lastDate = ''
 }
