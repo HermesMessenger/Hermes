@@ -6,9 +6,8 @@ import { isAtBottom, scrollToBottom } from 'ts/utils/ui'
 
 ws.onMessage(message => {
   switch (message.header) {
-    case 'RESPONSE': {
-      break
-    } case 'NEW_MESSAGE': {
+    case 'RESPONSE': break // No need to do anything here
+    case 'NEW_MESSAGE': {
       const scroll = isAtBottom()
 
       addMessage(message.data)
