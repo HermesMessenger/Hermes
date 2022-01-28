@@ -1,6 +1,6 @@
 const glob = require('glob')
 const path = require('path')
-const FixStyleOnlyEntriesPlugin = require('webpack-fix-style-only-entries')
+const FixStyleOnlyEntriesPlugin = require('webpack-remove-empty-scripts')
 const TSConfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const WriteFilePlugin = require('write-file-webpack-plugin')
@@ -37,34 +37,35 @@ const config = function (env, argv) {
       login: ['./src/web/ts/login.ts', './src/web/scss/login.scss'],
     },
     devServer: {
-      index: '',
       port: 8000,
-      overlay: true,
       proxy: [{
-        context: url => !url.startsWith('/sockjs-node'), // So that it doesn't conflict with WDS's own websocket server
+        context: url => !url.includes('/ws'), // So that it doesn't conflict with WDS's own websocket server
         target: 'http://localhost:8080',
         ws: true,
-        logLevel: 'warn'
       }],
-      before(app, server, compiler) {
-        const extRegex = /\.(mustache|html)$/
-        compiler.hooks.done.tap('CustomHtmlReloadPlugin', () => {
-          const changedFiles = Object.keys(compiler.watchFileSystem.watcher.mtimes)
-          if (this.hot && changedFiles.some(file => extRegex.test(file))) {
-            server.sockWrite(server.sockets, 'content-changed') // Hard reload
-          }
-        })
-      }
+
+      // onBeforeSetupMiddleware(app) {
+      //   const extRegex = /\.(mustache|html)$/
+      //   app.compiler.hooks.watchRun.tap('WatchRun', (comp) => {
+      //     if (comp.modifiedFiles) {
+      //       const changedFiles = Array.from(comp.modifiedFiles)
+      //       if (this.hot && changedFiles.some(file => extRegex.test(file) || file.includes('/templates'))) {
+      //         console.log(app.server)
+      //         app.sendMessage(app.webSocketServer.clients, 'content-changed');
+      //       }
+      //     }
+      //   });
+      // }
     },
     plugins: [
       new FixStyleOnlyEntriesPlugin({ silent: true }),
       new MiniCssExtractPlugin({ filename: 'css/[name].css' }),
       new WriteFilePlugin(),
-      new CopyWebpackPlugin([
+      new CopyWebpackPlugin({ patterns: [
         { from: './src/web/images/', to: 'images/' },
         { from: './src/web/templates/', to: 'templates/' },
         { from: './src/web/PWA/', to: 'PWA/' }
-      ]),
+      ]}),
     ],
     module: {
       rules: [
@@ -75,8 +76,8 @@ const config = function (env, argv) {
         {
           test: /\.scss$/,
           use: [
-            { loader: MiniCssExtractPlugin.loader, options: { hmr: mode === 'development' } },
-            { loader: 'css-loader', options },
+            { loader: MiniCssExtractPlugin.loader },
+            { loader: 'css-loader', options: { ...options, url: false } },
             { loader: 'sass-loader', options }
           ]
         }

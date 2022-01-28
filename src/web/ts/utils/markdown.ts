@@ -1,4 +1,4 @@
-import marked, { Renderer } from 'marked'
+import { marked, Renderer } from 'marked'
 
 const ALLOWED_SCHEMES = ['http', 'https'] // URL scheme whitelist
 
@@ -20,7 +20,7 @@ function sanitize (s: string): string {
 class HermesRenderer extends Renderer {
   image (href: string, title: string, text: string): string {
     if (isValidUrl(href)) {
-      return super.image(href, title, text)
+      return super.image.bind(this)(href, title, text)
     }
 
     return `![${text}](${href})`
@@ -28,7 +28,7 @@ class HermesRenderer extends Renderer {
 
   link (href: string, title: string, text: string): string {
     if (isValidUrl(href)) {
-      return super.link(href, title, text)
+      return super.link.bind(this)(href, title, text)
     }
 
     return `[${text}](${href})`
@@ -48,5 +48,5 @@ class HermesRenderer extends Renderer {
 marked.setOptions({ renderer: new HermesRenderer() })
 
 export function parseMD (md: string): string {
-  return marked.inlineLexer(sanitize(md), [])
+  return marked.parseInline(sanitize(md))
 }
