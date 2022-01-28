@@ -1,10 +1,12 @@
+@use "sass:math";
+
 #chatinfo {
     $width: 60vw;
     position: absolute;
     width: $width;
     max-width: 512px;
     background: $bg-color;
-    left: 50vw - ($width / 2);
+    left: 50vw - math.div($width, 2);
     top: 46px;
     border: $border-color 2px solid;
     border-radius: 0px 0px 16px 16px;

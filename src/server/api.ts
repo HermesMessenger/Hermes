@@ -9,7 +9,7 @@ export const router = express.Router()
 router.post('/loadmessages', async function (req, res) { // TODO Document
   const user = await db.getUserForUUID(req.body.uuid)
   if (await db.isMember(user, req.body.channel)) {
-    const messages = await db.get100Messages(req.body.channel, req.query.message_uuid)
+    const messages = await db.get100Messages(req.body.channel, req.query.message_uuid?.toString())
 
     res.send(messages.reverse())
   } else res.sendStatus(403) // Forbidden
