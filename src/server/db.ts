@@ -561,6 +561,6 @@ export async function updatePasswordHash (user: string, passwordHash: string): P
 
 // #endregion
 
-export function close (callback: () => {}): void {
+export function close (callback: () => unknown): void {
   client.shutdown(callback)
 }

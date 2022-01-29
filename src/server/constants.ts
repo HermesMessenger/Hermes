@@ -7,8 +7,8 @@ const webPath = path.join(DIR, '../web/')
 const htmlPath = path.join(webPath, 'html/')
 
 export const paths = {
-  webPath: webPath,
-  htmlPath: htmlPath,
+  webPath,
+  htmlPath,
   cssPath: path.join(webPath, 'css/'),
   jsPath: path.join(webPath, 'js/'),
   templatePath: path.join(webPath, 'templates/'),

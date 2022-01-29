@@ -46,7 +46,7 @@ export function deleteSubscription (uuid: string): void {
 }
 
 export function sendNotification (subscription: webPush.PushSubscription, message: PushMessage, type: string): Promise<webPush.SendResult> {
-  return webPush.sendNotification(subscription, JSON.stringify({ ...message, type: type }), { TTL: 60 * 60 })
+  return webPush.sendNotification(subscription, JSON.stringify({ ...message, type }), { TTL: 60 * 60 })
 }
 
 export function updateSubscriptionSettings (user: string, settings: Settings): void {

@@ -2,19 +2,19 @@ import fs from 'fs'
 import path from 'path'
 import { VapidKeys, generateVAPIDKeys } from 'web-push'
 
-interface Config {
-  mainIP: string;
-  port: number;
-  webPush: VapidKeys;
-  db: DB;
-}
-
 interface DB {
   hosts: string[];
   keyspace: string;
   username: string;
   password: string;
   datacenter: string;
+}
+
+interface Config {
+  mainIP: string;
+  port: number;
+  webPush: VapidKeys;
+  db: DB;
 }
 
 export const template: Config = {
